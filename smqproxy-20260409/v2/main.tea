@@ -29,7 +29,7 @@ model UserPropertiesValue = {
 }
 
 model BatchDeleteMessageRequest {
-  receiptHandles?: [ string ](name='ReceiptHandles'),
+  receiptHandles?: [ string ](name='ReceiptHandles', description='The ReceiptHandle values of multiple messages.'),
 }
 
 model BatchDeleteMessageResponse = {
@@ -38,7 +38,14 @@ model BatchDeleteMessageResponse = {
 }
 
 /**
- * @summary 批量删除消息
+ * @summary Deletes messages from a queue in a batch. A maximum of 16 messages can be deleted at a time.
+ *
+ * @description ## Request description
+ * - Use this operation together with BatchReceiveMessage.
+ * - The result of a batch operation may contain both successful and failed sub-requests. The HTTP status code is 204 only when all sub-requests succeed.
+ * - A maximum of 16 messages can be deleted per request.
+ * - Provide the list of `ReceiptHandle` values returned from the previous consumption to identify the messages to delete.
+ * - This operation succeeds only when executed before `NextVisibleTime`. After the timeout, the message becomes Active again, the ReceiptHandle becomes invalid, and you must consume the message again to obtain a new handle.
  *
  * @param request BatchDeleteMessageRequest
  * @param headers map
@@ -72,7 +79,14 @@ async function batchDeleteMessageWithOptions(queueName: string, request: BatchDe
 }
 
 /**
- * @summary 批量删除消息
+ * @summary Deletes messages from a queue in a batch. A maximum of 16 messages can be deleted at a time.
+ *
+ * @description ## Request description
+ * - Use this operation together with BatchReceiveMessage.
+ * - The result of a batch operation may contain both successful and failed sub-requests. The HTTP status code is 204 only when all sub-requests succeed.
+ * - A maximum of 16 messages can be deleted per request.
+ * - Provide the list of `ReceiptHandle` values returned from the previous consumption to identify the messages to delete.
+ * - This operation succeeds only when executed before `NextVisibleTime`. After the timeout, the message becomes Active again, the ReceiptHandle becomes invalid, and you must consume the message again to obtain a new handle.
  *
  * @param request BatchDeleteMessageRequest
  * @return BatchDeleteMessageResponse
@@ -84,24 +98,24 @@ async function batchDeleteMessage(queueName: string, request: BatchDeleteMessage
 }
 
 model BatchPeekMessageRequest {
-  numOfMessages?: int32(name='numOfMessages', example='16'),
-  peekonly?: boolean(name='peekonly'),
+  numOfMessages?: int32(name='numOfMessages', description='The maximum number of messages to peek at in this BatchPeekMessage request.', example='16'),
+  peekonly?: boolean(name='peekonly', description='Indicates that this request only peeks at messages at the top of the queue without changing the message status. Fixed value: true.'),
 }
 
 model BatchPeekMessageResponseBody = {
   messages?: [ 
     {
-      dequeueCount?: long(name='DequeueCount', example='5'),
-      enqueueTime?: long(name='EnqueueTime', example='1250700979248'),
-      firstDequeueTime?: long(name='FirstDequeueTime', example='1250700979348'),
-      messageBody?: string(name='MessageBody', example='This is a test message'),
-      messageBodyMD5?: string(name='MessageBodyMD5', example='F9360F391579E71CA77BC5D50242****'),
-      messageGroupId?: string(name='MessageGroupId', example='test-group'),
-      messageId?: string(name='MessageId', example='C0A80255D7D1163042EA3F2814D055F1'),
-      priority?: long(name='Priority', example='1'),
-      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties', example='{"properties1":"value"}'),
+      dequeueCount?: long(name='DequeueCount', description='The total number of times the message has been consumed.', example='5'),
+      enqueueTime?: long(name='EnqueueTime', description='The time when the message was sent to the queue. The value is a UNIX timestamp that starts from 1970-01-01 00:00:00.000.', example='1250700979248'),
+      firstDequeueTime?: long(name='FirstDequeueTime', description='The time when the message was first consumed. The value is a UNIX timestamp in milliseconds that starts from 1970-01-01 00:00:00.000. If DequeueCount is 0, this value is the same as EnqueueTime.', example='1250700979348'),
+      messageBody?: string(name='MessageBody', description='The message body.', example='This is a test message'),
+      messageBodyMD5?: string(name='MessageBodyMD5', description='The MD5 hash of the message body.', example='F9360F391579E71CA77BC5D50242****'),
+      messageGroupId?: string(name='MessageGroupId', description='The message group ID (FIFO queues only).', example='test-group'),
+      messageId?: string(name='MessageId', description='The message ID.', example='C0A80255D7D1163042EA3F2814D055F1'),
+      priority?: long(name='Priority', description='The priority. Valid values: 1 to 16. Default value: 8. A value of 1 indicates the highest priority.', example='1'),
+      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties', description='The user-defined properties (JSON-formatted string).', example='{"properties1":"value"}'),
     }
-  ](name='Messages'),
+  ](name='Messages', description='The message list.'),
 }
 
 model BatchPeekMessageResponse = {
@@ -111,15 +125,15 @@ model BatchPeekMessageResponse = {
 }
 
 /**
- * @summary 批量查看消息
+ * @summary Batch peeks at messages in a queue without changing the message status.
  *
- * @description ## 请求说明
- * - 该接口用于批量查看指定队列中的消息，一次最多可以查看16条消息。
- * - 使用此接口不会改变消息的状态，消息仍保持为Active状态。
- * - 不支持长轮询功能。
- * - 需要提供`queueName`作为路径参数，并通过查询参数设置`peekonly=true`及指定要查看的消息数量`numOfMessages`（范围在1到16之间）。
- * - 成功响应将返回一个包含所请求消息详细信息的数组，包括但不限于消息ID、正文、入队时间等。
- * - 如果指定的队列不存在或队列中没有可见消息，则会返回相应的错误码。
+ * @description ## Request description
+ * - This operation batch peeks at messages in a specified queue. You can peek at up to 16 messages at a time.
+ * - This operation does not change the message status. Messages remain in the Active state.
+ * - Long polling is not supported.
+ * - Provide `queueName` as a path parameter, and set the query parameter `peekonly=true` along with `numOfMessages` (range: 1 to 16) to specify the number of messages to peek at.
+ * - A successful response returns an array containing the details of the requested messages, including but not limited to the message ID, body, and enqueue time.
+ * - If the specified queue does not exist or no visible messages are in the queue, the corresponding error code is returned.
  *
  * @param request BatchPeekMessageRequest
  * @param headers map
@@ -156,15 +170,15 @@ async function batchPeekMessageWithOptions(queueName: string, request: BatchPeek
 }
 
 /**
- * @summary 批量查看消息
+ * @summary Batch peeks at messages in a queue without changing the message status.
  *
- * @description ## 请求说明
- * - 该接口用于批量查看指定队列中的消息，一次最多可以查看16条消息。
- * - 使用此接口不会改变消息的状态，消息仍保持为Active状态。
- * - 不支持长轮询功能。
- * - 需要提供`queueName`作为路径参数，并通过查询参数设置`peekonly=true`及指定要查看的消息数量`numOfMessages`（范围在1到16之间）。
- * - 成功响应将返回一个包含所请求消息详细信息的数组，包括但不限于消息ID、正文、入队时间等。
- * - 如果指定的队列不存在或队列中没有可见消息，则会返回相应的错误码。
+ * @description ## Request description
+ * - This operation batch peeks at messages in a specified queue. You can peek at up to 16 messages at a time.
+ * - This operation does not change the message status. Messages remain in the Active state.
+ * - Long polling is not supported.
+ * - Provide `queueName` as a path parameter, and set the query parameter `peekonly=true` along with `numOfMessages` (range: 1 to 16) to specify the number of messages to peek at.
+ * - A successful response returns an array containing the details of the requested messages, including but not limited to the message ID, body, and enqueue time.
+ * - If the specified queue does not exist or no visible messages are in the queue, the corresponding error code is returned.
  *
  * @param request BatchPeekMessageRequest
  * @return BatchPeekMessageResponse
@@ -176,26 +190,26 @@ async function batchPeekMessage(queueName: string, request: BatchPeekMessageRequ
 }
 
 model BatchReceiveMessageRequest {
-  numOfMessages?: int32(name='numOfMessages', example='10'),
-  waitseconds?: int32(name='waitseconds', example='0'),
+  numOfMessages?: int32(name='numOfMessages', description='The maximum number of messages to receive in this request.', example='10'),
+  waitseconds?: int32(name='waitseconds', description='The maximum polling wait time for this request, in seconds. Set to 0 for an immediate return.', example='0'),
 }
 
 model BatchReceiveMessageResponseBody = {
   messages?: [ 
     {
-      dequeueCount?: long(name='DequeueCount', example='1'),
-      enqueueTime?: long(name='EnqueueTime', example='1250700979348'),
-      firstDequeueTime?: long(name='FirstDequeueTime', example='1250700979348'),
-      messageBody?: string(name='MessageBody', example='This is test message 1.'),
-      messageBodyMD5?: string(name='MessageBodyMD5', example='C5DD56A39F5F7BB8B3337C6D11B6D8BE'),
-      messageGroupId?: string(name='MessageGroupId', example='test-group'),
-      messageId?: string(name='MessageId', example='5F290C926D472878214D9529A8FA200000001'),
-      nextVisibleTime?: long(name='NextVisibleTime', example='1250700979348'),
-      priority?: long(name='Priority', example='1'),
-      receiptHandle?: string(name='ReceiptHandle', example='1-ODU4OTkzNDU5My0xNDMyNzI3ODI3LTItOA=='),
-      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties', example='{"properties1":"value"}'),
+      dequeueCount?: long(name='DequeueCount', description='The total number of times the message has been consumed.', example='1'),
+      enqueueTime?: long(name='EnqueueTime', description='The time when the message was sent to the queue, in milliseconds since 1970-01-01 00:00:00 000.', example='1250700979348'),
+      firstDequeueTime?: long(name='FirstDequeueTime', description='The time when the message was first consumed, in milliseconds (timestamp). If `DequeueCount=0`, this value is the same as `EnqueueTime`.', example='1250700979348'),
+      messageBody?: string(name='MessageBody', description='The message body.', example='This is test message 1.'),
+      messageBodyMD5?: string(name='MessageBodyMD5', description='The MD5 hash of the message body.', example='C5DD56A39F5F7BB8B3337C6D11B6D8BE'),
+      messageGroupId?: string(name='MessageGroupId', description='The message group ID. This parameter applies only to FIFO queues.', example='test-group'),
+      messageId?: string(name='MessageId', description='The message ID, which is unique within a queue.', example='5F290C926D472878214D9529A8FA200000001'),
+      nextVisibleTime?: long(name='NextVisibleTime', description='The time when the message becomes available for consumption again, in milliseconds (timestamp).', example='1250700979348'),
+      priority?: long(name='Priority', description='The priority of the message. 1 indicates the highest priority.', example='1'),
+      receiptHandle?: string(name='ReceiptHandle', description='The temporary handle generated for this message retrieval. This handle is used to delete or modify Inactive messages and is valid until NextVisibleTime.', example='1-ODU4OTkzNDU5My0xNDMyNzI3ODI3LTItOA=='),
+      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties', description='The user-defined properties in JSON format.', example='{"properties1":"value"}'),
     }
-  ](name='Messages'),
+  ](name='Messages', description='The array of messages.'),
 }
 
 model BatchReceiveMessageResponse = {
@@ -205,13 +219,13 @@ model BatchReceiveMessageResponse = {
 }
 
 /**
- * @summary 批量消费消息
+ * @summary Batch receives up to 16 messages from a specified queue for consumption.
  *
- * @description ## 请求说明
- * - 该操作会将取得的消息状态变为 Inactive，Inactive 持续时间由队列属性 `VisibilityTimeout` 决定。
- * - 消费者需在 VisibilityTimeout 时间内调用 DeleteMessage 删除消息，否则消息会重新变为 Active。
- * - 支持长轮询（Long Polling）：设置 `waitseconds > 0` 后，若队列为空则等待至有消息到达或超时返回。
- * >Notice: 进入长轮询后，建议您降低外部调用长轮询的并发数，选择合适的长轮询时间。目前服务端会根据长轮询数量、长轮询等待时间、访问 IP 数量等因素动态调整长轮询防攻击的并发上限值。当队列无消息时，超过长轮询上限值的请求将无法被监听到，并直接返回 404 MessageNotExist（按请求量正常计费）。如果您有临时提升长轮询上限值的需求，请及时提交工单。
+ * @description ## Operation description
+ * - This operation changes the status of received messages to Inactive. The Inactive duration is determined by the `VisibilityTimeout` attribute of the queue.
+ * - Consumers must call DeleteMessage to delete messages within the VisibilityTimeout period. Otherwise, messages become Active again.
+ * - Long polling is supported: if you set `waitseconds > 0` and the queue is empty, the request waits until a message arrives or the timeout expires.
+ * >Notice: After long polling is enabled, reduce the concurrency of external long polling calls and select an appropriate long polling duration. The server dynamically adjusts the concurrency limit for long polling based on factors such as the number of long polling requests, long polling wait time, and number of access IP addresses. When the queue has no messages, requests that exceed the long polling limit cannot be listened to and directly return 404 MessageNotExist (billed normally by request count). If you need to temporarily increase the long polling limit, submit a ticket promptly.
  *
  * @param request BatchReceiveMessageRequest
  * @param headers map
@@ -248,13 +262,13 @@ async function batchReceiveMessageWithOptions(queueName: string, request: BatchR
 }
 
 /**
- * @summary 批量消费消息
+ * @summary Batch receives up to 16 messages from a specified queue for consumption.
  *
- * @description ## 请求说明
- * - 该操作会将取得的消息状态变为 Inactive，Inactive 持续时间由队列属性 `VisibilityTimeout` 决定。
- * - 消费者需在 VisibilityTimeout 时间内调用 DeleteMessage 删除消息，否则消息会重新变为 Active。
- * - 支持长轮询（Long Polling）：设置 `waitseconds > 0` 后，若队列为空则等待至有消息到达或超时返回。
- * >Notice: 进入长轮询后，建议您降低外部调用长轮询的并发数，选择合适的长轮询时间。目前服务端会根据长轮询数量、长轮询等待时间、访问 IP 数量等因素动态调整长轮询防攻击的并发上限值。当队列无消息时，超过长轮询上限值的请求将无法被监听到，并直接返回 404 MessageNotExist（按请求量正常计费）。如果您有临时提升长轮询上限值的需求，请及时提交工单。
+ * @description ## Operation description
+ * - This operation changes the status of received messages to Inactive. The Inactive duration is determined by the `VisibilityTimeout` attribute of the queue.
+ * - Consumers must call DeleteMessage to delete messages within the VisibilityTimeout period. Otherwise, messages become Active again.
+ * - Long polling is supported: if you set `waitseconds > 0` and the queue is empty, the request waits until a message arrives or the timeout expires.
+ * >Notice: After long polling is enabled, reduce the concurrency of external long polling calls and select an appropriate long polling duration. The server dynamically adjusts the concurrency limit for long polling based on factors such as the number of long polling requests, long polling wait time, and number of access IP addresses. When the queue has no messages, requests that exceed the long polling limit cannot be listened to and directly return 404 MessageNotExist (billed normally by request count). If you need to temporarily increase the long polling limit, submit a ticket promptly.
  *
  * @param request BatchReceiveMessageRequest
  * @return BatchReceiveMessageResponse
@@ -268,13 +282,13 @@ async function batchReceiveMessage(queueName: string, request: BatchReceiveMessa
 model BatchSendMessageRequest {
   messages?: [ 
     {
-      delaySeconds?: int32(name='DelaySeconds', example='60'),
-      messageBody?: string(name='MessageBody', example='This is test message 1.'),
-      messageGroupId?: string(name='MessageGroupId', example='group1'),
-      priority?: int32(name='Priority', example='1'),
+      delaySeconds?: int32(name='DelaySeconds', description='The delay in seconds before the message becomes consumable.', example='60'),
+      messageBody?: string(name='MessageBody', description='The message body.', example='This is test message 1.'),
+      messageGroupId?: string(name='MessageGroupId', description='The message group ID. Messages within the same group are delivered in order. This parameter is valid only for FIFO queues.', example='group1'),
+      priority?: int32(name='Priority', description='The priority. A smaller value indicates a higher priority. The value 1 represents the highest priority.', example='1'),
       userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties'),
     }
-  ](name='Messages'),
+  ](name='Messages', description='The message list.'),
 }
 
 model BatchSendMessageResponseBody = {
@@ -293,14 +307,14 @@ model BatchSendMessageResponse = {
 }
 
 /**
- * @summary 批量发送消息
+ * @summary Sends a batch of up to 16 messages to a specified queue, with a total size not exceeding 64 KB.
  *
- * @description ## 请求说明
- * - 一次 Batch 请求的消息总大小不得超过 64 KB。
- * - `BatchSendMessage` 与 `SendMessage` 使用相同的 URL 路径，通过 Body 结构区分：包含 `Messages` 数组即为批量发送，否则为单条发送。
- * - 批量操作的返回结果可能同时包含成功和失败的子消息。
- * - 每次请求中可以包含多个消息对象，每个消息对象可以设置不同的延迟时间和优先级。
- * - 对于 FIFO 队列，可以通过 `MessageGroupId` 参数来指定消息分组 ID。
+ * @description ## Request description
+ * - The total size of messages in a single batch request must not exceed 64 KB.
+ * - `BatchSendMessage` and `SendMessage` use the same URL path. They are distinguished by the body structure: if the body contains a `Messages` array, it is a batch send operation. Otherwise, it is a single message send operation.
+ * - The response of a batch operation may contain both successful and failed sub-messages.
+ * - Each request can contain multiple message objects. Each message object can have a different delay time and priority.
+ * - For FIFO queues, you can use the `MessageGroupId` parameter to specify a message group ID.
  *
  * @param request BatchSendMessageRequest
  * @param headers map
@@ -334,14 +348,14 @@ async function batchSendMessageWithOptions(queueName: string, request: BatchSend
 }
 
 /**
- * @summary 批量发送消息
+ * @summary Sends a batch of up to 16 messages to a specified queue, with a total size not exceeding 64 KB.
  *
- * @description ## 请求说明
- * - 一次 Batch 请求的消息总大小不得超过 64 KB。
- * - `BatchSendMessage` 与 `SendMessage` 使用相同的 URL 路径，通过 Body 结构区分：包含 `Messages` 数组即为批量发送，否则为单条发送。
- * - 批量操作的返回结果可能同时包含成功和失败的子消息。
- * - 每次请求中可以包含多个消息对象，每个消息对象可以设置不同的延迟时间和优先级。
- * - 对于 FIFO 队列，可以通过 `MessageGroupId` 参数来指定消息分组 ID。
+ * @description ## Request description
+ * - The total size of messages in a single batch request must not exceed 64 KB.
+ * - `BatchSendMessage` and `SendMessage` use the same URL path. They are distinguished by the body structure: if the body contains a `Messages` array, it is a batch send operation. Otherwise, it is a single message send operation.
+ * - The response of a batch operation may contain both successful and failed sub-messages.
+ * - Each request can contain multiple message objects. Each message object can have a different delay time and priority.
+ * - For FIFO queues, you can use the `MessageGroupId` parameter to specify a message group ID.
  *
  * @param request BatchSendMessageRequest
  * @return BatchSendMessageResponse
@@ -353,13 +367,13 @@ async function batchSendMessage(queueName: string, request: BatchSendMessageRequ
 }
 
 model ChangeMessageVisibilityRequest {
-  receiptHandle?: string(name='receiptHandle'),
-  visibilityTimeout?: int32(name='visibilityTimeout'),
+  receiptHandle?: string(name='receiptHandle', description='The temporary handle of the message returned after the last consumption.', example='1-ODU4OTkzNDU5My0xNDMyNzI3ODI3LTItOA=='),
+  visibilityTimeout?: int32(name='visibilityTimeout', description='The countdown from the current moment until the message becomes Active again. Valid values: 1 to 43200. Unit: seconds (1 second to 12 hours).', example='50'),
 }
 
 model ChangeMessageVisibilityResponseBody = {
-  nextVisibleTime?: long(name='NextVisibleTime'),
-  receiptHandle?: string(name='ReceiptHandle'),
+  nextVisibleTime?: long(name='NextVisibleTime', description='The time when the message can be consumed again (millisecond-level timestamp).', example='1250700979348'),
+  receiptHandle?: string(name='ReceiptHandle', description='The new temporary handle. Use this new handle for subsequent delete or modification operations. This handle is valid before NextVisibleTime.', example='TbZj6wDWli+9CEauMZc8ZRv37sIW2iJKq3M9Mx/TS1'),
 }
 
 model ChangeMessageVisibilityResponse = {
@@ -369,7 +383,13 @@ model ChangeMessageVisibilityResponse = {
 }
 
 /**
- * @summary 修改消息下次可消费时间
+ * @summary Extends or shortens the invisibility period of a message that is in the Inactive state.
+ *
+ * @description ## Operation description
+ * - This operation allows you to modify the VisibilityTimeout of a message that has been consumed and is currently in the Inactive state. The VisibilityTimeout is the countdown from the current moment until the message becomes Active again.
+ * - A successful invocation returns a new `ReceiptHandle`. Use this new handle for subsequent delete or visibility timeout modification operations on this message.
+ * - This operation can only be invoked successfully before `NextVisibleTime`. Otherwise, a fault is returned.
+ * - Common scenarios include when a consumer requires a longer processing time and needs to extend the VisibilityTimeout to prevent the message from being consumed again.
  *
  * @param request ChangeMessageVisibilityRequest
  * @param headers map
@@ -406,7 +426,13 @@ async function changeMessageVisibilityWithOptions(queueName: string, request: Ch
 }
 
 /**
- * @summary 修改消息下次可消费时间
+ * @summary Extends or shortens the invisibility period of a message that is in the Inactive state.
+ *
+ * @description ## Operation description
+ * - This operation allows you to modify the VisibilityTimeout of a message that has been consumed and is currently in the Inactive state. The VisibilityTimeout is the countdown from the current moment until the message becomes Active again.
+ * - A successful invocation returns a new `ReceiptHandle`. Use this new handle for subsequent delete or visibility timeout modification operations on this message.
+ * - This operation can only be invoked successfully before `NextVisibleTime`. Otherwise, a fault is returned.
+ * - Common scenarios include when a consumer requires a longer processing time and needs to extend the VisibilityTimeout to prevent the message from being consumed again.
  *
  * @param request ChangeMessageVisibilityRequest
  * @return ChangeMessageVisibilityResponse
@@ -419,13 +445,15 @@ async function changeMessageVisibility(queueName: string, request: ChangeMessage
 
 model PublishMessageRequest {
   messageAttributes?: {
-    directMail?: string(name='DirectMail', example='详见 https://help.aliyun.com/zh/direct-mail/singlesendmail'),
-    directSMS?: string(name='DirectSMS', example='{"FreeSignName":"阿里云","TemplateCode":"SMS_123456","Type":"singleContent","Receiver":"13800000000","SmsParams":"{\\\\"code\\\\":\\\\"1234\\\\"}"}'),
-    push?: string(name='Push', example='移动推送属性示例值'),
-  }(name='MessageAttributes'),
-  messageBody?: string(name='MessageBody', example='hello topic'),
+    directMail?: string(name='DirectMail', description='**Email push attributes** (JSON-formatted string).', example='For more information, see https://www.alibabacloud.com/help/en/direct-mail/singlesendmail.'),
+    directSMS?: string(name='DirectSMS', description='SMS push attributes (JSON-formatted string), including `FreeSignName`, `TemplateCode`, `Type`, `Receiver`, and `SmsParams`.', example='{"FreeSignName":"Alibaba Cloud","TemplateCode":"SMS_123456","Type":"singleContent","Receiver":"13800000000","SmsParams":"{\\\\"code\\\\":\\\\"1234\\\\"}"}'),
+    push?: string(name='Push', description='Mobile push attributes (JSON-formatted string).', example='Sample mobile push attributes value.'),
+  }(name='MessageAttributes', description='**Message attributes**. You do not need to set this parameter when pushing messages to queues or HTTP endpoints.'),
+  messageBody?: string(name='MessageBody', description='**Message content**. Base64-encode the content beforehand.
+Maximum size: 64 KB.', example='hello topic'),
   messageGroupId?: string(name='MessageGroupId'),
-  messageTag?: string(name='MessageTag', example='order-event'),
+  messageTag?: string(name='MessageTag', description='**Message tag**, used for message filtering on subscriptions.
+Maximum length: 64 characters.', example='order-event'),
 }
 
 model PublishMessageResponseBody = {
@@ -440,13 +468,13 @@ model PublishMessageResponse = {
 }
 
 /**
- * @summary 发布消息
+ * @summary Publishes a message to a specified topic. The message is pushed to all subscribed endpoints.
  *
- * @description ## 请求说明
- * - 消息发布后会被推送到该 Topic 下所有 Subscription 的 Endpoint。
- * - 推送到 Queue 和 HTTP Endpoint 时不需要设置 `MessageAttributes`。
- * - 推送到邮件、短信或移动推送时需要设置对应的 `MessageAttributes` 子属性。
- * - 消息内容建议事先进行 Base64 编码以避免特殊字符问题。
+ * @description ## Operation description
+ * - After a message is published, it is pushed to the endpoints of all subscriptions under the topic.
+ * - You do not need to set `MessageAttributes` when pushing messages to queues or HTTP endpoints.
+ * - You must set the corresponding `MessageAttributes` sub-properties when pushing messages to email, SMS, or mobile push endpoints.
+ * - Base64-encode the message content beforehand to avoid special character issues.
  *
  * @param request PublishMessageRequest
  * @param headers map
@@ -489,13 +517,13 @@ async function publishMessageWithOptions(topicName: string, request: PublishMess
 }
 
 /**
- * @summary 发布消息
+ * @summary Publishes a message to a specified topic. The message is pushed to all subscribed endpoints.
  *
- * @description ## 请求说明
- * - 消息发布后会被推送到该 Topic 下所有 Subscription 的 Endpoint。
- * - 推送到 Queue 和 HTTP Endpoint 时不需要设置 `MessageAttributes`。
- * - 推送到邮件、短信或移动推送时需要设置对应的 `MessageAttributes` 子属性。
- * - 消息内容建议事先进行 Base64 编码以避免特殊字符问题。
+ * @description ## Operation description
+ * - After a message is published, it is pushed to the endpoints of all subscriptions under the topic.
+ * - You do not need to set `MessageAttributes` when pushing messages to queues or HTTP endpoints.
+ * - You must set the corresponding `MessageAttributes` sub-properties when pushing messages to email, SMS, or mobile push endpoints.
+ * - Base64-encode the message content beforehand to avoid special character issues.
  *
  * @param request PublishMessageRequest
  * @return PublishMessageResponse
@@ -507,11 +535,11 @@ async function publishMessage(topicName: string, request: PublishMessageRequest)
 }
 
 model SendMessageRequest {
-  delaySeconds?: int32(name='DelaySeconds', example='0'),
-  messageBody?: string(name='MessageBody', example='"Hello MNS"'),
-  messageGroupId?: string(name='MessageGroupId', example='group-123'),
-  priority?: int32(name='Priority', example='2'),
-  userProperties?: map[string]UserPropertiesValue(name='UserProperties', example='{"key1":"value1", "key2":"value2"}'),
+  delaySeconds?: int32(name='DelaySeconds', description='The delay period after which the message can be consumed. Unit: seconds. Maximum value: 7 days.', example='0'),
+  messageBody?: string(name='MessageBody', description='The message body. We recommend that you Base64-encode the message body in advance to avoid issues with special characters.', example='"Hello MNS"'),
+  messageGroupId?: string(name='MessageGroupId', description='The message group ID. Messages within the same group are delivered in order. This parameter is valid only for FIFO queues.', example='group-123'),
+  priority?: int32(name='Priority', description='The message priority. A smaller value indicates a higher priority. The value 1 indicates the highest priority.', example='2'),
+  userProperties?: map[string]UserPropertiesValue(name='UserProperties', description='The user-defined properties.', example='{"key1":"value1", "key2":"value2"}'),
 }
 
 model SendMessageResponseBody = {
@@ -527,15 +555,15 @@ model SendMessageResponse = {
 }
 
 /**
- * @summary 发送消息
+ * @summary Sends a message to a specified queue with support for delay and priority settings.
  *
- * @description ## 请求说明
- * - **SendMessage** 接口用于将消息发送至指定队列。
- * - 消息可以立即被消费或通过设置 `DelaySeconds` 参数来延迟消费。
- * - 发送的消息可以指定优先级，数值越小表示优先级越高。
- * - 对于 FIFO 队列，可以通过 `MessageGroupId` 来保证同一分组内消息的顺序投递。
- * - 用户还可以自定义属性 `UserProperties`，以 JSON 格式字符串形式提供额外信息。
- * - 当 `DelaySeconds` 大于 0 时，API 返回的 `ReceiptHandle` 可用来在消息变为 Active 状态前删除该延迟消息。
+ * @description ## Operation description
+ * - The **SendMessage** operation sends a message to a specified queue.
+ * - Messages can be consumed immediately or delayed by setting the `DelaySeconds` parameter.
+ * - You can specify a priority for the message. A smaller value indicates a higher priority.
+ * - For FIFO queues, use `MessageGroupId` to ensure ordered delivery of messages within the same group.
+ * - You can also set custom attributes in `UserProperties` as a JSON-formatted string to provide additional information.
+ * - When `DelaySeconds` is greater than 0, the `ReceiptHandle` returned by the API can be used to delete the delayed message before it becomes Active.
  *
  * @param request SendMessageRequest
  * @param headers map
@@ -581,15 +609,15 @@ async function sendMessageWithOptions(queueName: string, request: SendMessageReq
 }
 
 /**
- * @summary 发送消息
+ * @summary Sends a message to a specified queue with support for delay and priority settings.
  *
- * @description ## 请求说明
- * - **SendMessage** 接口用于将消息发送至指定队列。
- * - 消息可以立即被消费或通过设置 `DelaySeconds` 参数来延迟消费。
- * - 发送的消息可以指定优先级，数值越小表示优先级越高。
- * - 对于 FIFO 队列，可以通过 `MessageGroupId` 来保证同一分组内消息的顺序投递。
- * - 用户还可以自定义属性 `UserProperties`，以 JSON 格式字符串形式提供额外信息。
- * - 当 `DelaySeconds` 大于 0 时，API 返回的 `ReceiptHandle` 可用来在消息变为 Active 状态前删除该延迟消息。
+ * @description ## Operation description
+ * - The **SendMessage** operation sends a message to a specified queue.
+ * - Messages can be consumed immediately or delayed by setting the `DelaySeconds` parameter.
+ * - You can specify a priority for the message. A smaller value indicates a higher priority.
+ * - For FIFO queues, use `MessageGroupId` to ensure ordered delivery of messages within the same group.
+ * - You can also set custom attributes in `UserProperties` as a JSON-formatted string to provide additional information.
+ * - When `DelaySeconds` is greater than 0, the `ReceiptHandle` returned by the API can be used to delete the delayed message before it becomes Active.
  *
  * @param request SendMessageRequest
  * @return SendMessageResponse

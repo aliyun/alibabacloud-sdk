@@ -1,0 +1,307 @@
+/**
+  *
+  */
+import BaseClientBuilder;
+import TeaAsyncHandler;
+import TeaRequest;
+import AsyncRequestBody;
+import RequestBody;
+import AsyncResponseHandler;
+import ClientConfiguration;
+import ClientExecutionParams;
+extends BaseClientBuilder;
+type @product = string
+type @version = string
+type @endpointRule = string
+type @endpointMap = map[string]string
+type @REQUEST = TeaRequest
+type @handler = TeaAsyncHandler
+
+init(configuration: ClientConfiguration){
+  @handler = new TeaAsyncHandler(configuration);
+  @product = 'SMQProxy';
+  @version = '2026-04-09';
+  @endpointRule = 'regional';
+  @endpointMap = {
+  };
+}
+
+function close(): void {
+  @handler.close();
+}
+
+model BatchDeleteMessageRequest {
+  queueName?: string(name='queueName', description='The queue name.', example='test-queue', position='Path'),
+  receiptHandles?: [ string ](name='ReceiptHandles', description='The ReceiptHandle values of multiple messages.', position='Body'),
+}
+
+model BatchDeleteMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+  * @description ## Request description
+  * - Use this operation together with BatchReceiveMessage.
+  * - The result of a batch operation may contain both successful and failed sub-requests. The HTTP status code is 204 only when all sub-requests succeed.
+  * - A maximum of 16 messages can be deleted per request.
+  * - Provide the list of `ReceiptHandle` values returned from the previous consumption to identify the messages to delete.
+  * - This operation succeeds only when executed before `NextVisibleTime`. After the timeout, the message becomes Active again, the ReceiptHandle becomes invalid, and you must consume the message again to obtain a new handle.
+  * @param request  the request parameters of BatchDeleteMessage  BatchDeleteMessageRequest
+  * @return BatchDeleteMessageResponse
+ */
+async function batchDeleteMessage(request: BatchDeleteMessageRequest): BatchDeleteMessageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'BatchDeleteMessage', 'DELETE', '/queues/{queueName}/messages', 'none', false, 'json', request);
+}
+
+model BatchPeekMessageRequest {
+  queueName?: string(name='queueName', description='The queue name.', example='test-queue', position='Path'),
+  numOfMessages?: int32(name='numOfMessages', description='The maximum number of messages to peek at in this BatchPeekMessage request.', example='16', position='Query'),
+  peekonly?: boolean(name='peekonly', description='Indicates that this request only peeks at messages at the top of the queue without changing the message status. Fixed value: true.', position='Query'),
+}
+
+model BatchPeekMessageResponseBody = {
+  messages?: [ 
+    {
+      dequeueCount?: long(name='DequeueCount', description='The total number of times the message has been consumed.', example='5'),
+      enqueueTime?: long(name='EnqueueTime', description='The time when the message was sent to the queue. The value is a UNIX timestamp that starts from 1970-01-01 00:00:00.000.', example='1250700979248'),
+      firstDequeueTime?: long(name='FirstDequeueTime', description='The time when the message was first consumed. The value is a UNIX timestamp in milliseconds that starts from 1970-01-01 00:00:00.000. If DequeueCount is 0, this value is the same as EnqueueTime.', example='1250700979348'),
+      messageBody?: string(name='MessageBody', description='The message body.', example='This is a test message'),
+      messageBodyMD5?: string(name='MessageBodyMD5', description='The MD5 hash of the message body.', example='F9360F391579E71CA77BC5D50242****'),
+      messageGroupId?: string(name='MessageGroupId', description='The message group ID (FIFO queues only).', example='test-group'),
+      messageId?: string(name='MessageId', description='The message ID.', example='C0A80255D7D1163042EA3F2814D055F1'),
+      priority?: long(name='Priority', description='The priority. Valid values: 1 to 16. Default value: 8. A value of 1 indicates the highest priority.', example='1'),
+      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties', description='The user-defined properties (JSON-formatted string).', example='{"properties1":"value"}'),
+    }
+  ](name='Messages', description='The message list.'),
+}
+
+model BatchPeekMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchPeekMessageResponseBody(name='body'),
+}
+
+/**
+  * @description ## Request description
+  * - This operation batch peeks at messages in a specified queue. You can peek at up to 16 messages at a time.
+  * - This operation does not change the message status. Messages remain in the Active state.
+  * - Long polling is not supported.
+  * - Provide `queueName` as a path parameter, and set the query parameter `peekonly=true` along with `numOfMessages` (range: 1 to 16) to specify the number of messages to peek at.
+  * - A successful response returns an array containing the details of the requested messages, including but not limited to the message ID, body, and enqueue time.
+  * - If the specified queue does not exist or no visible messages are in the queue, the corresponding error code is returned.
+  * @param request  the request parameters of BatchPeekMessage  BatchPeekMessageRequest
+  * @return BatchPeekMessageResponse
+ */
+async function batchPeekMessage(request: BatchPeekMessageRequest): BatchPeekMessageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'BatchPeekMessage', 'GET', '/queues/{queueName}/messages', 'json', false, 'json', request);
+}
+
+model BatchReceiveMessageRequest {
+  queueName?: string(name='queueName', description='The queue name.', example='MyQueue', position='Path'),
+  numOfMessages?: int32(name='numOfMessages', description='The maximum number of messages to receive in this request.', example='10', position='Query'),
+  waitseconds?: int32(name='waitseconds', description='The maximum polling wait time for this request, in seconds. Set to 0 for an immediate return.', example='0', position='Query'),
+}
+
+model BatchReceiveMessageResponseBody = {
+  messages?: [ 
+    {
+      dequeueCount?: long(name='DequeueCount', description='The total number of times the message has been consumed.', example='1'),
+      enqueueTime?: long(name='EnqueueTime', description='The time when the message was sent to the queue, in milliseconds since 1970-01-01 00:00:00 000.', example='1250700979348'),
+      firstDequeueTime?: long(name='FirstDequeueTime', description='The time when the message was first consumed, in milliseconds (timestamp). If `DequeueCount=0`, this value is the same as `EnqueueTime`.', example='1250700979348'),
+      messageBody?: string(name='MessageBody', description='The message body.', example='This is test message 1.'),
+      messageBodyMD5?: string(name='MessageBodyMD5', description='The MD5 hash of the message body.', example='C5DD56A39F5F7BB8B3337C6D11B6D8BE'),
+      messageGroupId?: string(name='MessageGroupId', description='The message group ID. This parameter applies only to FIFO queues.', example='test-group'),
+      messageId?: string(name='MessageId', description='The message ID, which is unique within a queue.', example='5F290C926D472878214D9529A8FA200000001'),
+      nextVisibleTime?: long(name='NextVisibleTime', description='The time when the message becomes available for consumption again, in milliseconds (timestamp).', example='1250700979348'),
+      priority?: long(name='Priority', description='The priority of the message. 1 indicates the highest priority.', example='1'),
+      receiptHandle?: string(name='ReceiptHandle', description='The temporary handle generated for this message retrieval. This handle is used to delete or modify Inactive messages and is valid until NextVisibleTime.', example='1-ODU4OTkzNDU5My0xNDMyNzI3ODI3LTItOA=='),
+      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties', description='The user-defined properties in JSON format.', example='{"properties1":"value"}'),
+    }
+  ](name='Messages', description='The array of messages.'),
+}
+
+model BatchReceiveMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchReceiveMessageResponseBody(name='body'),
+}
+
+/**
+  * @description ## Operation description
+  * - This operation changes the status of received messages to Inactive. The Inactive duration is determined by the `VisibilityTimeout` attribute of the queue.
+  * - Consumers must call DeleteMessage to delete messages within the VisibilityTimeout period. Otherwise, messages become Active again.
+  * - Long polling is supported: if you set `waitseconds > 0` and the queue is empty, the request waits until a message arrives or the timeout expires.
+  * >Notice: After long polling is enabled, reduce the concurrency of external long polling calls and select an appropriate long polling duration. The server dynamically adjusts the concurrency limit for long polling based on factors such as the number of long polling requests, long polling wait time, and number of access IP addresses. When the queue has no messages, requests that exceed the long polling limit cannot be listened to and directly return 404 MessageNotExist (billed normally by request count). If you need to temporarily increase the long polling limit, submit a ticket promptly.
+  * @param request  the request parameters of BatchReceiveMessage  BatchReceiveMessageRequest
+  * @return BatchReceiveMessageResponse
+ */
+async function batchReceiveMessage(request: BatchReceiveMessageRequest): BatchReceiveMessageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'BatchReceiveMessage', 'GET', '/queues/{queueName}/messages', 'json', false, 'json', request);
+}
+
+model BatchSendMessageRequest {
+  queueName?: string(name='queueName', description='The queue name.', example='MyQueue', position='Path'),
+  messages?: [ 
+    {
+      delaySeconds?: int32(name='DelaySeconds', description='The delay in seconds before the message becomes consumable.', example='60'),
+      messageBody?: string(name='MessageBody', description='The message body.', example='This is test message 1.'),
+      messageGroupId?: string(name='MessageGroupId', description='The message group ID. Messages within the same group are delivered in order. This parameter is valid only for FIFO queues.', example='group1'),
+      priority?: int32(name='Priority', description='The priority. A smaller value indicates a higher priority. The value 1 represents the highest priority.', example='1'),
+      userProperties?: map[string]MessagesUserPropertiesValue(name='UserProperties'),
+    }
+  ](name='Messages', description='The message list.', position='Body'),
+}
+
+model BatchSendMessageResponseBody = {
+  messages?: [ 
+    {
+      messageBodyMD5?: string(name='MessageBodyMD5'),
+      messageId?: string(name='MessageId'),
+    }
+  ](name='Messages'),
+}
+
+model BatchSendMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchSendMessageResponseBody(name='body'),
+}
+
+/**
+  * @description ## Request description
+  * - The total size of messages in a single batch request must not exceed 64 KB.
+  * - `BatchSendMessage` and `SendMessage` use the same URL path. They are distinguished by the body structure: if the body contains a `Messages` array, it is a batch send operation. Otherwise, it is a single message send operation.
+  * - The response of a batch operation may contain both successful and failed sub-messages.
+  * - Each request can contain multiple message objects. Each message object can have a different delay time and priority.
+  * - For FIFO queues, you can use the `MessageGroupId` parameter to specify a message group ID.
+  * @param request  the request parameters of BatchSendMessage  BatchSendMessageRequest
+  * @return BatchSendMessageResponse
+ */
+async function batchSendMessage(request: BatchSendMessageRequest): BatchSendMessageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'BatchSendMessage', 'POST', '/queues/{queueName}/messages', 'json', false, 'json', request);
+}
+
+model ChangeMessageVisibilityRequest {
+  queueName?: string(name='queueName', description='The queue name.', example='MyQueue', position='Path'),
+  receiptHandle?: string(name='receiptHandle', description='The temporary handle of the message returned after the last consumption.', example='1-ODU4OTkzNDU5My0xNDMyNzI3ODI3LTItOA==', position='Query'),
+  visibilityTimeout?: int32(name='visibilityTimeout', description='The countdown from the current moment until the message becomes Active again. Valid values: 1 to 43200. Unit: seconds (1 second to 12 hours).', example='50', position='Query'),
+}
+
+model ChangeMessageVisibilityResponseBody = {
+  nextVisibleTime?: long(name='NextVisibleTime', description='The time when the message can be consumed again (millisecond-level timestamp).', example='1250700979348'),
+  receiptHandle?: string(name='ReceiptHandle', description='The new temporary handle. Use this new handle for subsequent delete or modification operations. This handle is valid before NextVisibleTime.', example='TbZj6wDWli+9CEauMZc8ZRv37sIW2iJKq3M9Mx/TS1'),
+}
+
+model ChangeMessageVisibilityResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChangeMessageVisibilityResponseBody(name='body'),
+}
+
+/**
+  * @description ## Operation description
+  * - This operation allows you to modify the VisibilityTimeout of a message that has been consumed and is currently in the Inactive state. The VisibilityTimeout is the countdown from the current moment until the message becomes Active again.
+  * - A successful invocation returns a new `ReceiptHandle`. Use this new handle for subsequent delete or visibility timeout modification operations on this message.
+  * - This operation can only be invoked successfully before `NextVisibleTime`. Otherwise, a fault is returned.
+  * - Common scenarios include when a consumer requires a longer processing time and needs to extend the VisibilityTimeout to prevent the message from being consumed again.
+  * @param request  the request parameters of ChangeMessageVisibility  ChangeMessageVisibilityRequest
+  * @return ChangeMessageVisibilityResponse
+ */
+async function changeMessageVisibility(request: ChangeMessageVisibilityRequest): ChangeMessageVisibilityResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ChangeMessageVisibility', 'PUT', '/queues/{queueName}/messages', 'json', false, 'json', request);
+}
+
+model PublishMessageRequest {
+  topicName?: string(name='topicName', description='**Topic name**.', example='MyTopic', position='Path'),
+  messageAttributes?: {
+    directMail?: string(name='DirectMail', description='**Email push attributes** (JSON-formatted string).', example='For more information, see https://www.alibabacloud.com/help/en/direct-mail/singlesendmail.'),
+    directSMS?: string(name='DirectSMS', description='SMS push attributes (JSON-formatted string), including `FreeSignName`, `TemplateCode`, `Type`, `Receiver`, and `SmsParams`.', example='{"FreeSignName":"Alibaba Cloud","TemplateCode":"SMS_123456","Type":"singleContent","Receiver":"13800000000","SmsParams":"{\\\\"code\\\\":\\\\"1234\\\\"}"}'),
+    push?: string(name='Push', description='Mobile push attributes (JSON-formatted string).', example='Sample mobile push attributes value.'),
+  }(name='MessageAttributes', description='**Message attributes**. You do not need to set this parameter when pushing messages to queues or HTTP endpoints.', position='Body'),
+  messageBody?: string(name='MessageBody', description='**Message content**. Base64-encode the content beforehand.
+Maximum size: 64 KB.', example='hello topic', position='Body'),
+  messageGroupId?: string(name='MessageGroupId', position='Body'),
+  messageTag?: string(name='MessageTag', description='**Message tag**, used for message filtering on subscriptions.
+Maximum length: 64 characters.', example='order-event', position='Body'),
+}
+
+model PublishMessageResponseBody = {
+  messageBodyMD5?: string(name='MessageBodyMD5'),
+  messageId?: string(name='MessageId'),
+}
+
+model PublishMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PublishMessageResponseBody(name='body'),
+}
+
+/**
+  * @description ## Operation description
+  * - After a message is published, it is pushed to the endpoints of all subscriptions under the topic.
+  * - You do not need to set `MessageAttributes` when pushing messages to queues or HTTP endpoints.
+  * - You must set the corresponding `MessageAttributes` sub-properties when pushing messages to email, SMS, or mobile push endpoints.
+  * - Base64-encode the message content beforehand to avoid special character issues.
+  * @param request  the request parameters of PublishMessage  PublishMessageRequest
+  * @return PublishMessageResponse
+ */
+async function publishMessage(request: PublishMessageRequest): PublishMessageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'PublishMessage', 'POST', '/topics/{topicName}/messages', 'json', false, 'json', request);
+}
+
+model SendMessageRequest {
+  queueName?: string(name='queueName', description='The queue name.', example='MyQueue', position='Path'),
+  delaySeconds?: int32(name='DelaySeconds', description='The delay period after which the message can be consumed. Unit: seconds. Maximum value: 7 days.', example='0', position='Body'),
+  messageBody?: string(name='MessageBody', description='The message body. We recommend that you Base64-encode the message body in advance to avoid issues with special characters.', example='"Hello MNS"', position='Body'),
+  messageGroupId?: string(name='MessageGroupId', description='The message group ID. Messages within the same group are delivered in order. This parameter is valid only for FIFO queues.', example='group-123', position='Body'),
+  priority?: int32(name='Priority', description='The message priority. A smaller value indicates a higher priority. The value 1 indicates the highest priority.', example='2', position='Body'),
+  userProperties?: map[string]UserPropertiesValue(name='UserProperties', description='The user-defined properties.', example='{"key1":"value1", "key2":"value2"}', position='Body'),
+}
+
+model SendMessageResponseBody = {
+  messageBodyMD5?: string(name='MessageBodyMD5'),
+  messageId?: string(name='MessageId'),
+  receiptHandle?: string(name='ReceiptHandle'),
+}
+
+model SendMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SendMessageResponseBody(name='body'),
+}
+
+/**
+  * @description ## Operation description
+  * - The **SendMessage** operation sends a message to a specified queue.
+  * - Messages can be consumed immediately or delayed by setting the `DelaySeconds` parameter.
+  * - You can specify a priority for the message. A smaller value indicates a higher priority.
+  * - For FIFO queues, use `MessageGroupId` to ensure ordered delivery of messages within the same group.
+  * - You can also set custom attributes in `UserProperties` as a JSON-formatted string to provide additional information.
+  * - When `DelaySeconds` is greater than 0, the `ReceiptHandle` returned by the API can be used to delete the delayed message before it becomes Active.
+  * @param request  the request parameters of SendMessage  SendMessageRequest
+  * @return SendMessageResponse
+ */
+async function sendMessage(request: SendMessageRequest): SendMessageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SendMessage', 'POST', '/queues/{queueName}/messages', 'json', false, 'json', request);
+}
+
+model MessagesUserPropertiesValue = {
+  dataType?: string(name='DataType'),
+  stringValue?: string(name='StringValue'),
+  binaryValue?: string(name='BinaryValue'),
+}
+
+model UserPropertiesValue = {
+  dataType?: string(name='DataType'),
+  stringValue?: string(name='StringValue'),
+  binaryValue?: string(name='BinaryValue'),
+}
+
