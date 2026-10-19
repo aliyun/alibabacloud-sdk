@@ -701,6 +701,92 @@ async function associateHaVip(request: AssociateHaVipRequest): AssociateHaVipRes
   return associateHaVipWithOptions(request, runtime);
 }
 
+model AssociateNetworkCidrBlockRequest {
+  ipVersion?: string(name='IpVersion', description='The IP address version. Valid values:
+- IPV4: IPv4 address.
+- IPV6: IPv6 address.', example='IPV6'),
+  ipv6Isp?: string(name='Ipv6Isp', description='The ISP of the IPv6 CIDR block. Valid values:
+- cmcc
+- unicom
+- telecom', example='telecom'),
+  networkId?: string(name='NetworkId', description='The network ID.
+
+This parameter is required.', example='n-257gqcdfvx6n****'),
+  secondaryCidrBlock?: string(name='SecondaryCidrBlock', description='The secondary IPv4 CIDR block to be added. The CIDR block must meet the following requirements:
+- The CIDR block must be within the 10.0.0.0/8, 172.16.0.0/12, or 192.168.0.0/16 range.
+- The secondary CIDR block must not overlap with the primary CIDR block or existing secondary CIDR blocks of the network.', example='10.XX.XX.0/24'),
+}
+
+model AssociateNetworkCidrBlockResponseBody = {
+  cidrBlock?: string(name='CidrBlock', description='The allocated secondary CIDR block.', example='2408:XXXX:0:a600::/110'),
+  ipVersion?: string(name='IpVersion', description='The IP address type of the secondary CIDR block. Valid values:
+- IPV4: IPv4 address.
+- IPV6: IPv6 address.', example='IPV6'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+}
+
+model AssociateNetworkCidrBlockResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: AssociateNetworkCidrBlockResponseBody(name='body'),
+}
+
+/**
+ * @summary Adds a secondary CIDR block to a network.
+ *
+ * @description The maximum number of secondary CIDR blocks that you can add to a network is as follows:
+ * - A network supports up to five secondary IPv4 CIDR blocks.
+ *
+ * @param request AssociateNetworkCidrBlockRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return AssociateNetworkCidrBlockResponse
+ */
+async function associateNetworkCidrBlockWithOptions(request: AssociateNetworkCidrBlockRequest, runtime: Util.RuntimeOptions): AssociateNetworkCidrBlockResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.ipVersion)) {
+    query['IpVersion'] = request.ipVersion;
+  }
+  if (!Util.isUnset(request.ipv6Isp)) {
+    query['Ipv6Isp'] = request.ipv6Isp;
+  }
+  if (!Util.isUnset(request.networkId)) {
+    query['NetworkId'] = request.networkId;
+  }
+  if (!Util.isUnset(request.secondaryCidrBlock)) {
+    query['SecondaryCidrBlock'] = request.secondaryCidrBlock;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'AssociateNetworkCidrBlock',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Adds a secondary CIDR block to a network.
+ *
+ * @description The maximum number of secondary CIDR blocks that you can add to a network is as follows:
+ * - A network supports up to five secondary IPv4 CIDR blocks.
+ *
+ * @param request AssociateNetworkCidrBlockRequest
+ * @return AssociateNetworkCidrBlockResponse
+ */
+async function associateNetworkCidrBlock(request: AssociateNetworkCidrBlockRequest): AssociateNetworkCidrBlockResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return associateNetworkCidrBlockWithOptions(request, runtime);
+}
+
 model AttachDiskRequest {
   deleteWithInstance?: string(name='DeleteWithInstance', description='Specifies whether the disk to be attached is released with the instance. Valid values:
 
@@ -2406,71 +2492,75 @@ async function createClassicNetwork(request: CreateClassicNetworkRequest): Creat
 }
 
 model CreateClusterRequest {
-  clusterType?: string(name='ClusterType', description='Kubernetes or ManagedKubernetes. The former indicates an ECK cluster, and the latter indicates a serverless VC.
-Must be used together with the profile parameter.
+  clusterType?: string(name='ClusterType', description='Kubernetes or ManagedKubernetes. The former indicates an ECK cluster, and the latter indicates a serverless VC. This parameter must be used together with the Profile parameter.
 
 This parameter is required.', example='Kubernetes'),
-  containerCidr?: string(name='ContainerCidr', description='The pod network CIDR block. The CIDR block must be a valid private CIDR block, which includes the following CIDR blocks and their subnets: 10.0.0.0/8, 172.16-31.0.0/12-16, and 192.168.0.0/16. The CIDR block cannot overlap with the CIDR blocks used by the VPC or existing Kubernetes clusters in the VPC. You cannot modify the CIDR block after the cluster is created.', example='172.20.0.0/16'),
+  containerCidr?: string(name='ContainerCidr', description='The CIDR block for pods. It must be a valid private CIDR block, such as 10.0.0.0/8, 172.16.0.0/12 to 172.31.0.0/16, or 192.168.0.0/16, and their subnets. The CIDR block cannot overlap with the CIDR block of the VPC or the CIDR blocks used by existing Kubernetes clusters in the VPC. The CIDR block cannot be modified after the cluster is created.', example='172.20.0.0/16'),
   controlPlaneConfig?: {
-    imageId?: string(name='ImageId', description='The control plane virtual machine image ID.', example='m-5ul335umat4e2y9ynwi84p3f9'),
-    instanceSpec?: string(name='InstanceSpec', description='The node instance type.', example='ens.esk.sn1.medium'),
-    loginPassword?: string(name='LoginPassword', description='The logon password for the cluster control plane machines.', example='ThisIsAPassword'),
-    nodePortRange?: string(name='NodePortRange', description='The node service port range.', example='30000-32767'),
-    runtime?: string(name='Runtime', description='The control plane node runtime name.', example='containerd'),
+    imageId?: string(name='ImageId', description='The ID of the virtual machine image for the control plane.', example='m-5ul335umat4e2y9ynwi84p3f9'),
+    instanceSpec?: string(name='InstanceSpec', description='The instance type of the node.', example='ens.esk.sn1.medium'),
+    loginPassword?: string(name='LoginPassword', description='The logon password for the control plane machines of the cluster.', example='ThisIsAPassword'),
+    nodePortRange?: string(name='NodePortRange', description='The edge zone service port range.', example='30000-32767'),
+    runtime?: string(name='Runtime', description='The name of the runtime for the control plane nodes.', example='containerd'),
     size?: int32(name='Size', description='The number of control plane nodes. Valid values: 3 and 5.', example='3'),
-    systemDiskCategory?: string(name='SystemDiskCategory', description='The node system cloud disk type. Valid values: "local_ssd", "cloud_ssd", "cloud_efficiency", "local_hdd".', example='cloud_efficiency'),
-    systemDiskSize?: long(name='SystemDiskSize', description='The node system cloud disk size.', example='120'),
+    systemDiskCategory?: string(name='SystemDiskCategory', description='The category of the system cloud disk for the node. Valid values: local_ssd, cloud_ssd, cloud_efficiency, and local_hdd.', example='cloud_efficiency'),
+    systemDiskSize?: long(name='SystemDiskSize', description='The size of the system cloud disk for the node.', example='120'),
   }(name='ControlPlaneConfig', description='The control plane configuration.'),
-  ensRegionId?: string(name='EnsRegionId', description='The ENS Region ID of the cluster.', example='cn-beijing'),
-  isp?: string(name='Isp'),
-  kubernetesVersion?: string(name='KubernetesVersion', description='The cluster version, which is consistent with the Kubernetes community baseline version. Select the latest version. If you do not specify this parameter, the latest version is used by default.', example='1.32.1'),
-  loadBalancerId?: string(name='LoadBalancerId', description='The ID of the CLB instance used for API Server access. If you specify this parameter, automatic creation of a CLB instance for the API Server is skipped.', example='lb-wz9t256gqa3vbouk****'),
-  name?: string(name='Name', description='The cluster name.', example='mycluster-1'),
-  natGatewayId?: string(name='NatGatewayId'),
-  podVswitchIds?: [ string ](name='PodVswitchIds', description='Each pod vSwitch corresponds to a worker node vSwitch. The zone of the pod vSwitch must be the same as that of the worker node vSwitch. If you do not specify this parameter, vswitch_ids is used by default.'),
-  profile?: string(name='Profile', description='Default or Serverless. The former indicates an ECK cluster, and the latter indicates a serverless VC.
-Must be used together with the cluster_type parameter.
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) region where the cluster is deployed.', example='cn-beijing'),
+  isp?: string(name='Isp', description='The Internet service provider (ISP) information. Valid values:
+
+- **cmcc**: China Mobile.
+- **unicom**: China Unicom.
+- **telecom**: China Telecom.', example='telecom'),
+  kubernetesVersion?: string(name='KubernetesVersion', description='The Kubernetes version of the cluster. The version aligns with the Kubernetes community baseline version. We recommend that you select the latest version. If you do not specify this parameter, the latest version is used by default.', example='1.32.1'),
+  loadBalancerId?: string(name='LoadBalancerId', description='The ID of the Classic Load Balancer (CLB) instance used for API server access. If you specify this parameter, automatic creation of a CLB instance for the API server is skipped.', example='lb-wz9t256gqa3vbouk****'),
+  name?: string(name='Name', description='The name of the cluster.', example='mycluster-1'),
+  natGatewayId?: string(name='NatGatewayId', description='The ID of the NAT gateway used by the cluster. If you specify this parameter, automatic creation of a NAT gateway is skipped.', example='nat-5t7nh1cfm6kxiszlttr38****'),
+  podVswitchIds?: [ string ](name='PodVswitchIds', description='The IDs of the pod vSwitches. Each pod vSwitch corresponds to a worker node vSwitch. The pod vSwitch and the worker node vSwitch must be in the same zone. If you do not specify this parameter, the vSwitches specified by the VswitchIds parameter are used by default.'),
+  profile?: string(name='Profile', description='Default or Serverless. The former indicates an ECK cluster, and the latter indicates a serverless VC. This parameter must be used together with the ClusterType parameter.
 
 This parameter is required.', example='Default'),
-  publicAccess?: boolean(name='PublicAccess', description='Specifies whether to enable public network access. The API Server is exposed through an EIP to enable public access to the cluster.
-● true: Enable public network access.
-● false: Disable public network access. If you select this option, you cannot access the cluster API Server from the Internet.
+  publicAccess?: boolean(name='PublicAccess', description='Specifies whether to enable public network access. You can expose the API server by using an elastic IP address (EIP) to enable public network access to the cluster. Valid values:
+- true: enables public network access.
+- false: disables public network access. If you select false, you cannot access the API server of the cluster over the Internet.
 Default value: false.', example='true'),
-  serviceCidr?: string(name='ServiceCidr', description='The service network CIDR block. Valid ranges: 10.0.0.0/16-24, 172.16-31.0.0/16-24, and 192.168.0.0/16-24. The CIDR block cannot overlap with the VPC CIDR block 10.1.0.0/21 or the CIDR blocks used by existing Kubernetes clusters in the VPC. You cannot modify the CIDR block after the cluster is created.', example='172.19.0.0/20'),
-  vpcId?: string(name='VpcId', description='The VPC used by the cluster.', example='vpc-xxxx'),
-  vswitchIds?: [ string ](name='VswitchIds', description='The IDs of the vSwitches for cluster nodes. The ENS Region of the vswitch_ids must be the same as the ens_region_id value.', example='["vsw-xxx", "vsw-yyy"]'),
+  serviceCidr?: string(name='ServiceCidr', description='The CIDR block for Services. Valid ranges include 10.0.0.0/16 to 10.0.0.0/24, 172.16.0.0/16 to 172.31.0.0/24, and 192.168.0.0/16 to 192.168.0.0/24. The CIDR block cannot overlap with the VPC CIDR block 10.1.0.0/21 or the CIDR blocks used by existing Kubernetes clusters in the VPC. The CIDR block cannot be modified after the cluster is created.', example='172.19.0.0/20'),
+  vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) used by the cluster.', example='vpc-xxxx'),
+  vswitchIds?: [ string ](name='VswitchIds', description='The IDs of the vSwitches where the cluster nodes are deployed. The ENS region of the vSwitches must be the same as the ENS region specified by the EnsRegionId parameter.', example='["vsw-xxx", "vsw-yyy"]'),
 }
 
 model CreateClusterShrinkRequest {
-  clusterType?: string(name='ClusterType', description='Kubernetes or ManagedKubernetes. The former indicates an ECK cluster, and the latter indicates a serverless VC.
-Must be used together with the profile parameter.
+  clusterType?: string(name='ClusterType', description='Kubernetes or ManagedKubernetes. The former indicates an ECK cluster, and the latter indicates a serverless VC. This parameter must be used together with the Profile parameter.
 
 This parameter is required.', example='Kubernetes'),
-  containerCidr?: string(name='ContainerCidr', description='The pod network CIDR block. The CIDR block must be a valid private CIDR block, which includes the following CIDR blocks and their subnets: 10.0.0.0/8, 172.16-31.0.0/12-16, and 192.168.0.0/16. The CIDR block cannot overlap with the CIDR blocks used by the VPC or existing Kubernetes clusters in the VPC. You cannot modify the CIDR block after the cluster is created.', example='172.20.0.0/16'),
+  containerCidr?: string(name='ContainerCidr', description='The CIDR block for pods. It must be a valid private CIDR block, such as 10.0.0.0/8, 172.16.0.0/12 to 172.31.0.0/16, or 192.168.0.0/16, and their subnets. The CIDR block cannot overlap with the CIDR block of the VPC or the CIDR blocks used by existing Kubernetes clusters in the VPC. The CIDR block cannot be modified after the cluster is created.', example='172.20.0.0/16'),
   controlPlaneConfigShrink?: string(name='ControlPlaneConfig', description='The control plane configuration.'),
-  ensRegionId?: string(name='EnsRegionId', description='The ENS Region ID of the cluster.', example='cn-beijing'),
-  isp?: string(name='Isp'),
-  kubernetesVersion?: string(name='KubernetesVersion', description='The cluster version, which is consistent with the Kubernetes community baseline version. Select the latest version. If you do not specify this parameter, the latest version is used by default.', example='1.32.1'),
-  loadBalancerId?: string(name='LoadBalancerId', description='The ID of the CLB instance used for API Server access. If you specify this parameter, automatic creation of a CLB instance for the API Server is skipped.', example='lb-wz9t256gqa3vbouk****'),
-  name?: string(name='Name', description='The cluster name.', example='mycluster-1'),
-  natGatewayId?: string(name='NatGatewayId'),
-  podVswitchIdsShrink?: string(name='PodVswitchIds', description='Each pod vSwitch corresponds to a worker node vSwitch. The zone of the pod vSwitch must be the same as that of the worker node vSwitch. If you do not specify this parameter, vswitch_ids is used by default.'),
-  profile?: string(name='Profile', description='Default or Serverless. The former indicates an ECK cluster, and the latter indicates a serverless VC.
-Must be used together with the cluster_type parameter.
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the Edge Node Service (ENS) region where the cluster is deployed.', example='cn-beijing'),
+  isp?: string(name='Isp', description='The Internet service provider (ISP) information. Valid values:
+
+- **cmcc**: China Mobile.
+- **unicom**: China Unicom.
+- **telecom**: China Telecom.', example='telecom'),
+  kubernetesVersion?: string(name='KubernetesVersion', description='The Kubernetes version of the cluster. The version aligns with the Kubernetes community baseline version. We recommend that you select the latest version. If you do not specify this parameter, the latest version is used by default.', example='1.32.1'),
+  loadBalancerId?: string(name='LoadBalancerId', description='The ID of the Classic Load Balancer (CLB) instance used for API server access. If you specify this parameter, automatic creation of a CLB instance for the API server is skipped.', example='lb-wz9t256gqa3vbouk****'),
+  name?: string(name='Name', description='The name of the cluster.', example='mycluster-1'),
+  natGatewayId?: string(name='NatGatewayId', description='The ID of the NAT gateway used by the cluster. If you specify this parameter, automatic creation of a NAT gateway is skipped.', example='nat-5t7nh1cfm6kxiszlttr38****'),
+  podVswitchIdsShrink?: string(name='PodVswitchIds', description='The IDs of the pod vSwitches. Each pod vSwitch corresponds to a worker node vSwitch. The pod vSwitch and the worker node vSwitch must be in the same zone. If you do not specify this parameter, the vSwitches specified by the VswitchIds parameter are used by default.'),
+  profile?: string(name='Profile', description='Default or Serverless. The former indicates an ECK cluster, and the latter indicates a serverless VC. This parameter must be used together with the ClusterType parameter.
 
 This parameter is required.', example='Default'),
-  publicAccess?: boolean(name='PublicAccess', description='Specifies whether to enable public network access. The API Server is exposed through an EIP to enable public access to the cluster.
-● true: Enable public network access.
-● false: Disable public network access. If you select this option, you cannot access the cluster API Server from the Internet.
+  publicAccess?: boolean(name='PublicAccess', description='Specifies whether to enable public network access. You can expose the API server by using an elastic IP address (EIP) to enable public network access to the cluster. Valid values:
+- true: enables public network access.
+- false: disables public network access. If you select false, you cannot access the API server of the cluster over the Internet.
 Default value: false.', example='true'),
-  serviceCidr?: string(name='ServiceCidr', description='The service network CIDR block. Valid ranges: 10.0.0.0/16-24, 172.16-31.0.0/16-24, and 192.168.0.0/16-24. The CIDR block cannot overlap with the VPC CIDR block 10.1.0.0/21 or the CIDR blocks used by existing Kubernetes clusters in the VPC. You cannot modify the CIDR block after the cluster is created.', example='172.19.0.0/20'),
-  vpcId?: string(name='VpcId', description='The VPC used by the cluster.', example='vpc-xxxx'),
-  vswitchIdsShrink?: string(name='VswitchIds', description='The IDs of the vSwitches for cluster nodes. The ENS Region of the vswitch_ids must be the same as the ens_region_id value.', example='["vsw-xxx", "vsw-yyy"]'),
+  serviceCidr?: string(name='ServiceCidr', description='The CIDR block for Services. Valid ranges include 10.0.0.0/16 to 10.0.0.0/24, 172.16.0.0/16 to 172.31.0.0/24, and 192.168.0.0/16 to 192.168.0.0/24. The CIDR block cannot overlap with the VPC CIDR block 10.1.0.0/21 or the CIDR blocks used by existing Kubernetes clusters in the VPC. The CIDR block cannot be modified after the cluster is created.', example='172.19.0.0/20'),
+  vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC) used by the cluster.', example='vpc-xxxx'),
+  vswitchIdsShrink?: string(name='VswitchIds', description='The IDs of the vSwitches where the cluster nodes are deployed. The ENS region of the vSwitches must be the same as the ENS region specified by the EnsRegionId parameter.', example='["vsw-xxx", "vsw-yyy"]'),
 }
 
 model CreateClusterResponseBody = {
   clusterId?: string(name='ClusterId', description='The instance ID.', example='c34b69b095f8241c5a91cc2252dceb976'),
-  requestId?: string(name='RequestId', description='The request ID.', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
 }
 
 model CreateClusterResponse = {
@@ -2482,8 +2572,8 @@ model CreateClusterResponse = {
 /**
  * @summary Creates an edge container cluster.
  *
- * @description - Single-user call frequency: 10 calls per second.
- * - Creating a cluster is an asynchronous operation. After the API call returns, wait 10 to 20 minutes for the cluster to finish initialization. During this process, call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
+ * @description - Rate limit per user: 10 calls per second.
+ * - Cluster creation is an asynchronous operation. After you call this operation, you must wait 10 to 20 minutes for the cluster to be initialized. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param tmpReq CreateClusterRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2568,8 +2658,8 @@ async function createClusterWithOptions(tmpReq: CreateClusterRequest, runtime: U
 /**
  * @summary Creates an edge container cluster.
  *
- * @description - Single-user call frequency: 10 calls per second.
- * - Creating a cluster is an asynchronous operation. After the API call returns, wait 10 to 20 minutes for the cluster to finish initialization. During this process, call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
+ * @description - Rate limit per user: 10 calls per second.
+ * - Cluster creation is an asynchronous operation. After you call this operation, you must wait 10 to 20 minutes for the cluster to be initialized. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param request CreateClusterRequest
  * @return CreateClusterResponse
@@ -5146,42 +5236,43 @@ async function createNatGateway(request: CreateNatGatewayRequest): CreateNatGate
 }
 
 model CreateNetworkRequest {
-  cidrBlock?: string(name='CidrBlock', description='The CIDR block of the network. You can use one of the following CIDR blocks or their subsets:
+  cidrBlock?: string(name='CidrBlock', description='The CIDR block of the network. You can use one of the following CIDR blocks or their subsets as the CIDR block of the network:
 
 - 10.0.0.0/8 (default).
-
 - 172.16.0.0/12.
-
 - 192.168.0.0/16.
 
 This parameter is required.', example='192.168.0.0/24'),
-  description?: string(name='Description', description='A description of the network.
+  description?: string(name='Description', description='The description of the network.
 
-Must be 2 to 256 characters long, start with a letter or a Chinese character, and cannot start with http\\\\:// or https\\\\://.', example='this is my first network'),
-  enableIpv6?: boolean(name='EnableIpv6'),
-  ensRegionId?: string(name='EnsRegionId', description='The node ID of ENS.
+The description must be 2 to 256 characters in length, and must start with a letter or a Chinese character. It cannot start with http:// or https://.', example='this is my first network'),
+  enableIpv6?: boolean(name='EnableIpv6', description='Specifies whether to enable IPv6. Valid values:
+
+- false (default): disables IPv6.
+- true: enables IPv6.', example='false'),
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS edge zone.
 
 This parameter is required.', example='cn-beijing-telecom'),
-  ipv6Isp?: string(name='Ipv6Isp', example='telecom'),
-  networkName?: string(name='NetworkName', description='The network name. Follow these naming rules:
+  ipv6Isp?: string(name='Ipv6Isp', description='The ISP of the IPv6 address. Valid values:
 
-- Must be 2 to 128 characters long, using English or Chinese characters.
+- cmcc
+- telecom
+- unicom', example='telecom'),
+  networkName?: string(name='NetworkName', description='The name of the network. The name must meet the following requirements:
 
-- Must start with a letter or a Chinese character. Cannot start with http\\\\:// or https\\\\://.
-
-- Can contain digits, colons (:), underscores (_), or hyphens (-).', example='abc'),
+- The name must be 2 to 128 characters in length.
+- The name must start with a letter or a Chinese character, and cannot start with http:// or https://.
+- The name can contain digits, colons (:), underscores (_), and hyphens (-).', example='abc'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The tag key for the instance. N ranges from **1** to **20**.
+      key?: string(name='Key', description='The key of tag N of the instance. Valid values of N: **1** to **20**.
 
-- Cannot start with `aliyun`, `acs:`, `http://`, or `https://`.
-
-- Supports up to 64 characters.
-
-- Cannot be an empty string.', example='key1'),
-      value?: string(name='Value', description='The tag value for the resource. N ranges from 1 to 20. This value can be an empty string once provided. It supports up to 128 characters, cannot start with acs:, and cannot contain http\\\\:// or https\\\\://.', example='tagValue'),
+- The key cannot start with `aliyun`, `acs:`, `http://`, or `https://`.
+- The key can be up to 64 characters in length.
+- The key cannot be an empty string.', example='key1'),
+      value?: string(name='Value', description='The value of tag N of the resource. Valid values of N: 1 to 20. The value can be an empty string. The value can be up to 128 characters in length, and cannot start with acs: or contain http:// or https://.', example='tagValue'),
     }
-  ](name='Tag', description='Resource tags.'),
+  ](name='Tag', description='The resource tags.'),
 }
 
 model CreateNetworkResponseBody = {
@@ -5196,10 +5287,10 @@ model CreateNetworkResponse = {
 }
 
 /**
- * @summary Call CreateNetwork to create a virtual private cloud (VPC).
+ * @summary Creates a VPC.
  *
- * @description - API call frequency: 100 calls per second.
- * - Per-user call frequency: 5 calls per second.
+ * @description - API rate limit: 100 calls per second.
+ * - Rate limit per user: 5 calls per second.
  *
  * @param request CreateNetworkRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5247,10 +5338,10 @@ async function createNetworkWithOptions(request: CreateNetworkRequest, runtime: 
 }
 
 /**
- * @summary Call CreateNetwork to create a virtual private cloud (VPC).
+ * @summary Creates a VPC.
  *
- * @description - API call frequency: 100 calls per second.
- * - Per-user call frequency: 5 calls per second.
+ * @description - API rate limit: 100 calls per second.
+ * - Rate limit per user: 5 calls per second.
  *
  * @param request CreateNetworkRequest
  * @return CreateNetworkResponse
@@ -6287,47 +6378,43 @@ async function createStorageVolume(request: CreateStorageVolumeRequest): CreateS
 }
 
 model CreateVSwitchRequest {
-  cidrBlock?: string(name='CidrBlock', description='The CIDR block of the VSwitch. The following requirements apply:
-
-- The prefix length must be an integer from 16 to 29.
-
-- The CIDR block of the VSwitch must be a subset of the CIDR block of the VPC to which the VSwitch belongs.
-
-- The CIDR block of the VSwitch cannot be the same as the destination CIDR block of an existing route in the VPC, but it can be a subset of the destination CIDR block.
+  cidrBlock?: string(name='CidrBlock', description='The CIDR block of the vSwitch. The CIDR block must meet the following requirements:
+- The subnet mask length of the vSwitch CIDR block must be 16 to 29 bits.
+- The vSwitch CIDR block must fall within the CIDR block of the VPC to which the vSwitch belongs.
+- The vSwitch CIDR block cannot be the same as the destination CIDR block of a route entry in the VPC, but it can be a subset of the destination CIDR block.
 
 This parameter is required.', example='172.16.0.0/24'),
-  description?: string(name='Description', description='The description of the VSwitch.
+  description?: string(name='Description', description='The description of the vSwitch.
 
-The description must be 2 to 256 characters in length. It must start with a letter or a Chinese character, and cannot start with `http://` or `https://`.', example='This is my vswitch.'),
-  ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.
+The description must be 2 to 256 characters in length. It must start with a letter or a Chinese character and cannot start with http:// or https://.', example='This is my vswitch.'),
+  ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS edge zone.
 
 This parameter is required.', example='cn-xian-unicom'),
-  ipv6CidrBlock?: string(name='Ipv6CidrBlock', example='2408:XXXX:0:a600::/110'),
-  networkId?: string(name='NetworkId', description='The ID of the network to which the VSwitch belongs.', example='n-257gqcdfvx6n****'),
+  ipv6CidrBlock?: string(name='Ipv6CidrBlock', description='The IPv6 CIDR block of the vSwitch.
+
+> You can specify this parameter to assign an IPv6 CIDR block to the vSwitch only when IPv6 is enabled for the network to which the vSwitch belongs. After the IPv6 CIDR block is assigned, it cannot be changed. Make sure that the IPv6 CIDR block does not overlap with the CIDR blocks of other vSwitches in the same network.', example='2408:XXXX:0:a600::/110'),
+  networkId?: string(name='NetworkId', description='The ID of the network to which the new vSwitch belongs.', example='n-257gqcdfvx6n****'),
   tag?: [ 
     {
-      key?: string(name='Key', description='The key of the tag.
+      key?: string(name='Key', description='The tag key of the instance. Valid values of N: **1** to **20**.
 
 - The tag key cannot start with `aliyun`, `acs:`, `http://`, or `https://`.
-
-- The tag key can be up to 64 characters long.
-
+- The tag key can be up to 64 characters in length.
 - The tag key cannot be an empty string.', example='team'),
-      value?: string(name='Value', description='The value of the tag. It can be up to 128 characters long, can be an empty string, and cannot start with `acs:` or contain `http://` or `https://`.', example='Deep'),
+      value?: string(name='Value', description='The tag value of the resource. Valid values of N: 1 to 20. The tag value can be an empty string. The tag value can be up to 128 characters in length, and cannot start with acs: or contain http:// or https://.', example='Deep'),
     }
-  ](name='Tag', description='The tags of the resource. You can specify up to 20 tags.'),
-  vSwitchName?: string(name='VSwitchName', description='The name of the VSwitch. The following requirements apply:
+  ](name='Tag', description='The resource tags.'),
+  vSwitchName?: string(name='VSwitchName', description='The name of the vSwitch. The name must meet the following requirements:
 
 - The name must be 2 to 128 characters in length.
+- The name must start with a letter or a Chinese character, and cannot start with http:// or https://. It can contain digits, half-width colons (:), underscores (_), and hyphens (-).
 
-- The name must start with a letter or a Chinese character, and cannot start with `http://` or `https://`. The name can contain digits, colons (:), underscores (_), and hyphens (-).
-
-Default value: an empty string.', example='Test vSwitch'),
+Default value: empty.', example='Test vSwitch'),
 }
 
 model CreateVSwitchResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
-  vSwitchId?: string(name='VSwitchId', description='The ID of the VSwitch.', example='vsw-5****'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+  vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5****'),
 }
 
 model CreateVSwitchResponse = {
@@ -6337,7 +6424,7 @@ model CreateVSwitchResponse = {
 }
 
 /**
- * @summary Creates a VSwitch.
+ * @summary Creates a vSwitch.
  *
  * @param request CreateVSwitchRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6385,7 +6472,7 @@ async function createVSwitchWithOptions(request: CreateVSwitchRequest, runtime: 
 }
 
 /**
- * @summary Creates a VSwitch.
+ * @summary Creates a vSwitch.
  *
  * @param request CreateVSwitchRequest
  * @return CreateVSwitchResponse
@@ -6717,7 +6804,7 @@ This parameter is required.', example='np68mi5y1dd748ky37ojo2kqdrz'),
 }
 
 model DeleteClusterNodePoolResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F3B261DD-3858-4D3C-877D-303ADF374600'),
 }
 
 model DeleteClusterNodePoolResponse = {
@@ -6727,10 +6814,10 @@ model DeleteClusterNodePoolResponse = {
 }
 
 /**
- * @summary You can call the DeleteClusterNodePool operation to delete a node pool that you no longer need. When you delete a node pool, all pods on its nodes are also deleted. This action may trigger descheduling. If the pods cannot be rescheduled, your services may be affected. Before you delete the node pool, ensure that the cluster has sufficient resources for rescheduling.
+ * @summary Deletes an unused node pool. When a node pool is deleted, all pods on the nodes in the node pool are deleted. This may trigger rescheduling. If rescheduling fails, your services may be affected. Make sure that the cluster has sufficient resources for rescheduling.
  *
- * @description - Each user is limited to 10 calls per second.
- * - Cluster creation is an asynchronous operation. After the API call is successful, wait 10 to 20 minutes for the cluster to initialize. During this time, you can call the DescribeClustersV1 operation to check the cluster status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster\\"s kubeconfig file.
+ * @description - Call frequency per user: 10 calls per second.
+ * - Creating a cluster is an asynchronous operation. After the API call returns, wait 10 to 20 minutes for the cluster initialization to complete. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param request DeleteClusterNodePoolRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6763,10 +6850,10 @@ async function deleteClusterNodePoolWithOptions(request: DeleteClusterNodePoolRe
 }
 
 /**
- * @summary You can call the DeleteClusterNodePool operation to delete a node pool that you no longer need. When you delete a node pool, all pods on its nodes are also deleted. This action may trigger descheduling. If the pods cannot be rescheduled, your services may be affected. Before you delete the node pool, ensure that the cluster has sufficient resources for rescheduling.
+ * @summary Deletes an unused node pool. When a node pool is deleted, all pods on the nodes in the node pool are deleted. This may trigger rescheduling. If rescheduling fails, your services may be affected. Make sure that the cluster has sufficient resources for rescheduling.
  *
- * @description - Each user is limited to 10 calls per second.
- * - Cluster creation is an asynchronous operation. After the API call is successful, wait 10 to 20 minutes for the cluster to initialize. During this time, you can call the DescribeClustersV1 operation to check the cluster status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster\\"s kubeconfig file.
+ * @description - Call frequency per user: 10 calls per second.
+ * - Creating a cluster is an asynchronous operation. After the API call returns, wait 10 to 20 minutes for the cluster initialization to complete. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param request DeleteClusterNodePoolRequest
  * @return DeleteClusterNodePoolResponse
@@ -10283,7 +10370,7 @@ async function describeClusterAttachScripts(request: DescribeClusterAttachScript
 model DescribeClusterDetailRequest {
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
-Only ECK cluster IDs with the eck- prefix are accepted. Legacy short hexadecimal cluster IDs are not supported. Call DescribeClustersV1 to obtain the ID. When listing clusters, pass in the Name parameter.
+Only ECK cluster IDs with the eck- prefix are accepted. Legacy short hexadecimal cluster IDs are not supported. You can call DescribeClustersV1 to obtain the ID. The Name parameter must be specified when listing clusters.
 
 This parameter is required.', example='eck-11111111'),
 }
@@ -10310,56 +10397,56 @@ users:
   user:
     client-certificate-data: x
     client-key-data: x'),
-  containerCidr?: string(name='ContainerCidr', description='The CIDR block for pods.', example='172.20.0.0/16'),
+  containerCidr?: string(name='ContainerCidr', description='The pod CIDR block.', example='172.20.0.0/16'),
   controlPlaneConfig?: {
-    containerRuntime?: string(name='ContainerRuntime', description='The container runtime type.', example='containerd'),
-    imageId?: string(name='ImageId', description='The image ID of the control plane virtual machine.', example='m-5ul335umat4e2y9ynwi84p3f9'),
-    instanceSpec?: string(name='InstanceSpec', description='The node instance type.', example='ens.esk.sn1.medium'),
+    containerRuntime?: string(name='ContainerRuntime', description='The runtime type.', example='containerd'),
+    imageId?: string(name='ImageId', description='The ID of the control plane virtual machine image.', example='m-5ul335umat4e2y9ynwi84p3f9'),
+    instanceSpec?: string(name='InstanceSpec', description='The instance type of the node.', example='ens.esk.sn1.medium'),
     nodePortRange?: string(name='NodePortRange', description='The node service port range.', example='30000-32767'),
     size?: long(name='Size', description='The number of control plane nodes.', example='3'),
-    systemDiskCategory?: string(name='SystemDiskCategory', description='The system cloud disk type of the node.', example='cloud_efficiency'),
+    systemDiskCategory?: string(name='SystemDiskCategory', description='The system cloud disk category of the node.', example='cloud_efficiency'),
     systemDiskSize?: long(name='SystemDiskSize', description='The system cloud disk size of the node.', example='120'),
   }(name='ControlPlaneConfig', description='The control plane configuration.'),
   controlPlaneMeta?: {
     masterInstances?: [ 
       {
-        instanceId?: string(name='InstanceId', example='i-573utia8wbecrbgsm6o8fx132'),
-        ip?: string(name='Ip', example='10.10.0.2'),
-        name?: string(name='Name', example='i-573utia8wbecrbgsm6o8fx132'),
+        instanceId?: string(name='InstanceId', description='The instance ID.', example='i-573utia8wbecrbgsm6o8fx132'),
+        ip?: string(name='Ip', description='The instance IP address.', example='10.10.0.2'),
+        name?: string(name='Name', description='The node name.', example='i-573utia8wbecrbgsm6o8fx132'),
       }
-    ](name='MasterInstances'),
+    ](name='MasterInstances', description='The master node information.'),
     masterUrl?: {
-      privateUrl?: string(name='PrivateUrl', example='https://10.0.0.1:6443'),
-      publicUrl?: string(name='PublicUrl', example='https://0.0.0.0:6443'),
-    }(name='MasterUrl'),
-  }(name='ControlPlaneMeta'),
-  created?: string(name='Created', example='2025-04-07T09:57:26+08:00'),
+      privateUrl?: string(name='PrivateUrl', description='The private endpoint of the API server.', example='https://10.0.0.1:6443'),
+      publicUrl?: string(name='PublicUrl', description='The public address of the API server.', example='https://0.0.0.0:6443'),
+    }(name='MasterUrl', description='The API server address.'),
+  }(name='ControlPlaneMeta', description='The control plane metadata.'),
+  created?: string(name='Created', description='The time when the cluster was created.', example='2025-04-07T09:57:26+08:00'),
   ensRegionId?: string(name='EnsRegionId', description='The ENS edge zone ID.', example='cn-fuzhou-23'),
-  isp?: string(name='Isp', example='unicom'),
-  joinToken?: string(name='JoinToken', description='The authentication token for cluster access.', example='xxxx.yyy'),
-  kubernetesVersion?: string(name='KubernetesVersion', description='The cluster version, which is consistent with the Kubernetes community baseline version. We recommend that you select the latest version. If you do not specify this parameter, the latest version is used by default.', example='1.32.1.aliyunedge.1'),
-  loadBalancerId?: string(name='LoadBalancerId', description='The CLB instance ID of the API server.', example='lb-5snthcyu1x10g7tywj7iu****'),
+  isp?: string(name='Isp', description='The ISP information.', example='unicom'),
+  joinToken?: string(name='JoinToken', description='The authentication token for joining the cluster.', example='xxxx.yyy'),
+  kubernetesVersion?: string(name='KubernetesVersion', description='The cluster version, which aligns with the Kubernetes community baseline version. Select the latest version. If not specified, the latest version is used by default.', example='1.32.1.aliyunedge.1'),
+  loadBalancerId?: string(name='LoadBalancerId', description='The ID of the Classic Load Balancer (CLB) instance for the API server.', example='lb-5snthcyu1x10g7tywj7iu****'),
   name?: string(name='Name', description='The cluster name.', example='your-cluster-name'),
-  natGatewayId?: string(name='NatGatewayId', example='nat-5tawjw5j7sgd2deujxuk0****'),
+  natGatewayId?: string(name='NatGatewayId', description='The ID of the NAT gateway.', example='nat-5tawjw5j7sgd2deujxuk0****'),
   nodeCount?: {
-    ready?: int32(name='Ready', example='3'),
-    total?: int32(name='Total', example='3'),
-  }(name='NodeCount'),
+    ready?: int32(name='Ready', description='The number of ready nodes.', example='3'),
+    total?: int32(name='Total', description='The total number of nodes.', example='3'),
+  }(name='NodeCount', description='The number of nodes in the cluster.'),
   podStatus?: {
-    running?: int32(name='Running', example='10'),
-    total?: int32(name='Total', example='10'),
-  }(name='PodStatus'),
-  podVswitchIds?: [ string ](name='PodVswitchIds', description='The vSwitch IDs for pods.'),
+    running?: int32(name='Running', description='The number of pods in the Running state.', example='10'),
+    total?: int32(name='Total', description='The total number of pods.', example='10'),
+  }(name='PodStatus', description='The pod status information of the cluster.'),
+  podVswitchIds?: [ string ](name='PodVswitchIds', description='The pod vSwitch IDs.'),
   publicAccess?: boolean(name='PublicAccess', description='Indicates whether public network access is enabled.', example='true'),
-  requestId?: string(name='RequestId', description='Id of the request。', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
-  serviceCidr?: string(name='ServiceCidr', description='The CIDR block for services.', example='172.19.0.0/20'),
-  state?: string(name='State', description='The cluster status. Valid values:
-- **initial**: Being created.
+  requestId?: string(name='RequestId', description='The ID of the request.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+  serviceCidr?: string(name='ServiceCidr', description='The service CIDR block.', example='172.19.0.0/20'),
+  state?: string(name='State', description='The cluster state. Valid values:
+- **initial**: Creating.
 - **failed**: Creation failed.
 - **running**: Running.
-- **deleting**: Being released.', example='running'),
+- **deleting**: Releasing.', example='running'),
   vpcId?: string(name='VpcId', description='The VPC used by the cluster.', example='n-xxxxxxxxx'),
-  vswitchIds?: [ string ](name='VswitchIds', description='The vSwitch IDs of the cluster nodes.'),
+  vswitchIds?: [ string ](name='VswitchIds', description='The vSwitch IDs where the cluster nodes reside.'),
 }
 
 model DescribeClusterDetailResponse = {
@@ -10371,7 +10458,7 @@ model DescribeClusterDetailResponse = {
 /**
  * @summary Queries the details of a cluster.
  *
- * @description - Per-user call frequency: 100 calls per second.
+ * @description - Rate limit per user: 100 calls per second.
  *
  * @param request DescribeClusterDetailRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10403,7 +10490,7 @@ async function describeClusterDetailWithOptions(request: DescribeClusterDetailRe
 /**
  * @summary Queries the details of a cluster.
  *
- * @description - Per-user call frequency: 100 calls per second.
+ * @description - Rate limit per user: 100 calls per second.
  *
  * @param request DescribeClusterDetailRequest
  * @return DescribeClusterDetailResponse
@@ -10713,11 +10800,11 @@ model DescribeClusterUserKubeconfigRequest {
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='eck-xxxxxxxxx'),
-  privateIpAddress?: boolean(name='PrivateIpAddress', description='Specifies whether to use the internal access address. The default value is false.', example='false'),
+  privateIpAddress?: boolean(name='PrivateIpAddress', description='Specifies whether the internal-facing access address of the private network is used. Default value: false.', example='false'),
 }
 
 model DescribeClusterUserKubeconfigResponseBody = {
-  config?: any(name='Config', description='The kubeconfig file of the cluster.', example='apiVersion: v1
+  config?: any(name='Config', description='The KubeConfig of the cluster.', example='apiVersion: v1
 clusters:
 - cluster:
     certificate-authority-data: x
@@ -10736,7 +10823,7 @@ users:
   user:
     client-certificate-data: x
     client-key-data: x'),
-  requestId?: string(name='RequestId', description='The request ID.', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+  requestId?: string(name='RequestId', description='Id of the request', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
 }
 
 model DescribeClusterUserKubeconfigResponse = {
@@ -10746,9 +10833,9 @@ model DescribeClusterUserKubeconfigResponse = {
 }
 
 /**
- * @summary A kubeconfig file contains the credentials required for a client to access an Elastic Container instance on Kubernetes (ECK) cluster. The file includes identity and authentication data for accessing the destination cluster. To manage a cluster using kubectl, you must first connect to the cluster with its kubeconfig file. You can call the DescribeClusterUserKubeconfig operation to query the kubeconfig file for a specific cluster.
+ * @summary Retrieves the KubeConfig of a specified cluster. KubeConfig is used to configure access credentials for an ECK cluster on the client side, including identity and authentication data for accessing the target cluster. When you use kubectl for cluster management, you must first connect to the cluster by using KubeConfig. You can invoke the DescribeClusterUserKubeconfig operation to query the KubeConfig of the specified cluster.
  *
- * @description - A single user is limited to 100 calls per second.
+ * @description - Rate limit per user: 100 calls per second.
  *
  * @param request DescribeClusterUserKubeconfigRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10781,9 +10868,9 @@ async function describeClusterUserKubeconfigWithOptions(request: DescribeCluster
 }
 
 /**
- * @summary A kubeconfig file contains the credentials required for a client to access an Elastic Container instance on Kubernetes (ECK) cluster. The file includes identity and authentication data for accessing the destination cluster. To manage a cluster using kubectl, you must first connect to the cluster with its kubeconfig file. You can call the DescribeClusterUserKubeconfig operation to query the kubeconfig file for a specific cluster.
+ * @summary Retrieves the KubeConfig of a specified cluster. KubeConfig is used to configure access credentials for an ECK cluster on the client side, including identity and authentication data for accessing the target cluster. When you use kubectl for cluster management, you must first connect to the cluster by using KubeConfig. You can invoke the DescribeClusterUserKubeconfig operation to query the KubeConfig of the specified cluster.
  *
- * @description - A single user is limited to 100 calls per second.
+ * @description - Rate limit per user: 100 calls per second.
  *
  * @param request DescribeClusterUserKubeconfigRequest
  * @return DescribeClusterUserKubeconfigResponse
@@ -10794,19 +10881,19 @@ async function describeClusterUserKubeconfig(request: DescribeClusterUserKubecon
 }
 
 model DescribeClustersV1Request {
-  clusterId?: string(name='ClusterId', description='The cluster ID.', example='eck-xxxxxxxx'),
-  clusterType?: string(name='ClusterType'),
-  ensRegionId?: string(name='EnsRegionId', description='The ENS region ID where the cluster resides.', example='cn-hangzhou-58'),
-  name?: string(name='Name', description='The cluster name.', example='test-eck-name'),
-  profile?: string(name='Profile'),
+  clusterId?: string(name='ClusterId', description='The ID of the cluster.', example='eck-xxxxxxxx'),
+  clusterType?: string(name='ClusterType', description='The cluster type. Valid values: Kubernetes and ManagedKubernetes. A value of Kubernetes indicates an ECK cluster. A value of ManagedKubernetes indicates a serverless virtual cluster. This parameter must be used together with the profile parameter.', example='Kubernetes'),
+  ensRegionId?: string(name='EnsRegionId', description='The ENS region ID of the cluster.', example='cn-hangzhou-58'),
+  name?: string(name='Name', description='The name of the cluster.', example='test-eck-name'),
+  profile?: string(name='Profile', description='The cluster profile. Valid values: Default and Serverless. A value of Default indicates an ECK cluster. A value of Serverless indicates a serverless virtual cluster. This parameter must be used together with the cluster_type parameter.', example='Default'),
 }
 
 model DescribeClustersV1ResponseBody = {
   clusters?: [ 
     {
       aliUid?: string(name='AliUid', description='The user ID.', example='1375383353108460'),
-      clusterId?: string(name='ClusterId', description='The cluster instance ID.', example='eck-xxxxxxx'),
-      config?: any(name='Config', description='The cluster kubeconfig.', example='{
+      clusterId?: string(name='ClusterId', description='The instance ID of the cluster.', example='eck-xxxxxxx'),
+      config?: any(name='Config', description='The kubeconfig of the cluster.', example='{
         "kind": "Config",
         "apiVersion": "v1",
         "preferences": {},
@@ -10839,32 +10926,31 @@ model DescribeClustersV1ResponseBody = {
         ],
         "current-context": "kubernetes-admin@kubernetes"
       }'),
-      containerCidr?: string(name='ContainerCidr', description='The pod network CIDR block. The value must be a valid private CIDR block, which includes the following CIDR blocks and their subnets: 10.0.0.0/8, 172.16-31.0.0/12-16, and 192.168.0.0/16. The CIDR block cannot overlap with the VPC CIDR block or the CIDR blocks used by existing Kubernetes clusters in the VPC. You cannot modify this value after the cluster is created.', example='10.0.0.0/8'),
+      containerCidr?: string(name='ContainerCidr', description='The CIDR block for pods. It must be a valid private CIDR block, specifically one of the following CIDR blocks or their subnets: 10.0.0.0/8, 172.16.0.0/12 to 172.31.0.0/16, and 192.168.0.0/16. The CIDR block cannot overlap with the CIDR block of the VPC or the CIDR blocks used by existing Kubernetes clusters in the VPC. The CIDR block cannot be modified after the cluster is created.', example='10.0.0.0/8'),
       controlPlaneConfig?: {
-        containerRuntime?: string(name='ContainerRuntime', description='The container runtime type.', example='containerd'),
-        imageId?: string(name='ImageId', description='The image ID.', example='m-68be8cb9f71fhyvjekxa23qsf'),
+        containerRuntime?: string(name='ContainerRuntime', description='The type of the container runtime.', example='containerd'),
+        imageId?: string(name='ImageId', description='The ID of the image.', example='m-68be8cb9f71fhyvjekxa23qsf'),
         instanceSpec?: string(name='InstanceSpec', description='The instance type.', example='ens.sn1.medium'),
-        nodePortRange?: string(name='NodePortRange', description='The node service port range.', example='30000-32767'),
+        nodePortRange?: string(name='NodePortRange', description='The edge zone service port range.', example='30000-32767'),
         size?: long(name='Size', description='The number of control plane nodes.', example='5'),
-        systemDiskCategory?: string(name='SystemDiskCategory', description='The system cloud disk type of the node. Valid values: local_ssd, cloud_ssd, cloud_efficiency, and local_hdd.', example='cloud_ssd'),
-        systemDiskSize?: long(name='SystemDiskSize', description='The system cloud disk size. Unit: GB.', example='100'),
-      }(name='ControlPlaneConfig', description='The control plane configuration.'),
-      created?: string(name='Created', example='2025-04-07T09:57:26+08:00'),
-      ensRegionId?: string(name='EnsRegionId', description='The ENS node ID.', example='cn-hangzhou-55'),
-      isp?: string(name='Isp', example='unicom'),
-      joinToken?: string(name='JoinToken', description='The authentication token for cluster access.', example='xxxxxxxxxx.yyyyyyy'),
-      kubernetesVersion?: string(name='KubernetesVersion', description='The cluster version, which is consistent with the Kubernetes community baseline version. Use the latest version. If you do not specify this parameter, the latest version is used by default.', example='1.31.9-aliyunedge.1'),
+        systemDiskCategory?: string(name='SystemDiskCategory', description='The category of the system cloud disk for nodes. Valid values: local_ssd, cloud_ssd, cloud_efficiency, and local_hdd.', example='cloud_ssd'),
+        systemDiskSize?: long(name='SystemDiskSize', description='The size of the system cloud disk. Unit: GB.', example='100'),
+      }(name='ControlPlaneConfig', description='The configuration of the control plane.'),
+      created?: string(name='Created', description='The time when the cluster was created.', example='2025-04-07T09:57:26+08:00'),
+      ensRegionId?: string(name='EnsRegionId', description='The ENS edge zone ID.', example='cn-hangzhou-55'),
+      isp?: string(name='Isp', description='The ISP information.', example='unicom'),
+      joinToken?: string(name='JoinToken', description='The authentication token for joining the cluster.', example='xxxxxxxxxx.yyyyyyy'),
+      kubernetesVersion?: string(name='KubernetesVersion', description='The Kubernetes version of the cluster, which aligns with the Kubernetes community baseline version. Select the latest version. If this parameter is not specified, the latest version is used by default.', example='1.31.9-aliyunedge.1'),
       loadBalancerId?: string(name='LoadBalancerId', description='The load balancing instance ID.', example='lb-58dngw0fyimzzvwljfec7hy0z'),
-      name?: string(name='Name', description='The cluster name.', example='test-eck-name'),
-      podVswitchIds?: [ string ](name='PodVswitchIds', description='The vSwitch IDs for pods. Each pod vSwitch corresponds to a worker node vSwitch, and the zones of the pod vSwitch and the worker node vSwitch must be the same. If you leave this parameter empty, the value of vswitch_ids is used by default.'),
-      publicAccess?: boolean(name='PublicAccess', description='Indicates whether public network access is enabled. The API Server is exposed through an EIP to enable public access to the cluster. Valid values:
-
-- true: Public network access is enabled.
-- false: Public network access is disabled. If you select this option, the cluster API Server cannot be accessed from the Internet.', example='true'),
-      serviceCidr?: string(name='ServiceCidr', description='The service network CIDR block. Valid ranges: 10.0.0.0/16-24, 172.16-31.0.0/16-24, and 192.168.0.0/16-24. The CIDR block cannot overlap with the VPC CIDR block 10.1.0.0/21 or the CIDR blocks used by existing Kubernetes clusters in the VPC. You cannot modify this value after the cluster is created.', example='192.168.0.0/16'),
-      state?: string(name='State', description='The cluster status.', example='running'),
+      name?: string(name='Name', description='The name of the cluster.', example='test-eck-name'),
+      podVswitchIds?: [ string ](name='PodVswitchIds', description='The IDs of the vSwitches for pods. Each pod vSwitch corresponds to a worker node vSwitch. The pod vSwitch and the worker node vSwitch must be in the same zone. If this parameter is not specified, the value of vswitch_ids is used by default.'),
+      publicAccess?: boolean(name='PublicAccess', description='Specifies whether to enable public network access. An elastic IP address (EIP) is used to expose the API server to enable public access to the cluster. Valid values:
+- true: enables public network access.
+- false: disables public network access. If you set this parameter to false, you cannot access the API server of the cluster over the Internet.', example='true'),
+      serviceCidr?: string(name='ServiceCidr', description='The CIDR block for services. Valid CIDR blocks: 10.0.0.0/16 to 10.0.0.0/24, 172.16.0.0/16 to 172.31.0.0/24, and 192.168.0.0/16 to 192.168.0.0/24. The CIDR block cannot overlap with the VPC CIDR block 10.1.0.0/21 or the CIDR blocks used by existing Kubernetes clusters in the VPC. The CIDR block cannot be modified after the cluster is created.', example='192.168.0.0/16'),
+      state?: string(name='State', description='The status of the cluster.', example='running'),
       vpcId?: string(name='VpcId', description='The VPC used by the cluster.', example='n-5wsgr3xeolb2ist303wp3cscp'),
-      vswitchIds?: [ string ](name='VswitchIds', description='The vSwitch IDs of the cluster nodes. The ENS region of the vSwitch IDs must be the same as the value of ens_region_id.'),
+      vswitchIds?: [ string ](name='VswitchIds', description='The IDs of the vSwitches where the cluster nodes reside. The ENS region of the vSwitches must be the same as the value of ens_region_id.'),
     }
   ](name='Clusters', description='The list of clusters.'),
   requestId?: string(name='RequestId', description='Id of the request', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
@@ -17476,7 +17562,7 @@ async function describeNetworkAcls(request: DescribeNetworkAclsRequest): Describ
 }
 
 model DescribeNetworkAttributeRequest {
-  networkId?: string(name='NetworkId', description='The ID of the network.
+  networkId?: string(name='NetworkId', description='The network ID.
 
 This parameter is required.', example='n-****'),
 }
@@ -17491,9 +17577,9 @@ model DescribeNetworkAttributeResponseBody = {
     }
   ](name='CloudResourceSetType')
   }(name='CloudResources'),
-  createdTime?: string(name='CreatedTime', description='The time at which the network was created. The time is in UTC and is formatted as yyyy-MM-ddTHH:mm:ssZ.', example='2019-06-01T00:00:00Z'),
+  createdTime?: string(name='CreatedTime', description='The creation time. The time is displayed in UTC in the yyyy-MM-ddTHH:mm:ssZ format.', example='2019-06-01T00:00:00Z'),
   description?: string(name='Description', description='The description of the network.', example='abc'),
-  ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-beijing'),
+  ensRegionId?: string(name='EnsRegionId', description='The ENS edge zone ID.', example='cn-beijing'),
   gatewayRouteTableId?: string(name='GatewayRouteTableId', description='The gateway route table ID.', example='rt-539***tbs'),
   haVipIds?: {
     haVipId?: [ string ](name='HaVipId')
@@ -17533,9 +17619,8 @@ model DescribeNetworkAttributeResponseBody = {
   }(name='SecondaryCidrBlocks'),
   status?: string(name='Status', description='The status of the network. Valid values:
 
-- Pending: The network is being configured.
-
-- Available: The network is ready for use.', example='Available'),
+- Pending: Configuring.
+- Available: Available.', example='Available'),
   vSwitchIds?: {
     vSwitchId?: [ string ](name='VSwitchId')
   }(name='VSwitchIds'),
@@ -17548,10 +17633,10 @@ model DescribeNetworkAttributeResponse = {
 }
 
 /**
- * @summary Use DescribeNetworkAttribute to query the configuration of a specific network.
+ * @summary Queries the configuration information of a specified network.
  *
- * @description - API rate limit: 100 calls/sec.
- * - Per-user rate limit: 10 calls/sec.
+ * @description - API call rate: 100 calls per second.
+ * - Call rate per user: 10 calls per second.
  *
  * @param request DescribeNetworkAttributeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17581,10 +17666,10 @@ async function describeNetworkAttributeWithOptions(request: DescribeNetworkAttri
 }
 
 /**
- * @summary Use DescribeNetworkAttribute to query the configuration of a specific network.
+ * @summary Queries the configuration information of a specified network.
  *
- * @description - API rate limit: 100 calls/sec.
- * - Per-user rate limit: 10 calls/sec.
+ * @description - API call rate: 100 calls per second.
+ * - Call rate per user: 10 calls per second.
  *
  * @param request DescribeNetworkAttributeRequest
  * @return DescribeNetworkAttributeResponse
@@ -17864,13 +17949,13 @@ async function describeNetworkPeerConnections(request: DescribeNetworkPeerConnec
 }
 
 model DescribeNetworksRequest {
-  ensRegionId?: string(name='EnsRegionId', description='ENS node ID.', example='cn-beijing-telecom'),
-  ensRegionIds?: [ string ](name='EnsRegionIds', description='Array of ENS edge zone IDs. Array length: 1–100.'),
-  networkId?: string(name='NetworkId', description='Network ID.', example='n-5***'),
-  networkIds?: [ string ](name='NetworkIds', description='Array of network IDs. Array length: 1–100.'),
-  networkName?: string(name='NetworkName', description='Network name.', example='example'),
-  pageNumber?: int32(name='PageNumber', description='Page number. Default value: **1**.', example='1'),
-  pageSize?: int32(name='PageSize', description='Number of entries per page in a paged query. Maximum value: **50**. Default value: **10**.', example='10'),
+  ensRegionId?: string(name='EnsRegionId', description='The ENS edge zone ID.', example='cn-beijing-telecom'),
+  ensRegionIds?: [ string ](name='EnsRegionIds', description='The array of ENS edge zone IDs. Array length: 1 to 100.'),
+  networkId?: string(name='NetworkId', description='The network ID.', example='n-5***'),
+  networkIds?: [ string ](name='NetworkIds', description='The array of network IDs. Array length: 1 to 100.'),
+  networkName?: string(name='NetworkName', description='The network name.', example='example'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the list. Default value: **1**.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in a paging query. Maximum value: **50**. Default value: **10**.', example='10'),
 }
 
 model DescribeNetworksResponseBody = {
@@ -17919,10 +18004,10 @@ model DescribeNetworksResponseBody = {
     }
   ](name='Network')
   }(name='Networks'),
-  pageNumber?: int32(name='PageNumber', description='Current page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='Number of entries per page in the current query.', example='2'),
-  requestId?: string(name='RequestId', description='Request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  totalCount?: int32(name='TotalCount', description='Total number of entries.', example='3'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the current query.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in the current query.', example='2'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries in the list.', example='3'),
 }
 
 model DescribeNetworksResponse = {
@@ -17932,10 +18017,10 @@ model DescribeNetworksResponse = {
 }
 
 /**
- * @summary Call DescribeNetworks to retrieve a list of networks.
+ * @summary Queries a list of networks.
  *
- * @description - API call frequency: 100 calls per second.
- * - Per-user call frequency: 10 calls per second.
+ * @description - API call rate: 100 calls per second.
+ * - Call rate per user: 10 calls per second.
  *
  * @param request DescribeNetworksRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -17983,10 +18068,10 @@ async function describeNetworksWithOptions(request: DescribeNetworksRequest, run
 }
 
 /**
- * @summary Call DescribeNetworks to retrieve a list of networks.
+ * @summary Queries a list of networks.
  *
- * @description - API call frequency: 100 calls per second.
- * - Per-user call frequency: 10 calls per second.
+ * @description - API call rate: 100 calls per second.
+ * - Call rate per user: 10 calls per second.
  *
  * @param request DescribeNetworksRequest
  * @return DescribeNetworksResponse
@@ -20556,7 +20641,7 @@ async function describeUserBandWidthData(request: DescribeUserBandWidthDataReque
 }
 
 model DescribeVSwitchAttributesRequest {
-  vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.
+  vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.
 
 This parameter is required.', example='vsw-5****'),
 }
@@ -20564,36 +20649,34 @@ This parameter is required.', example='vsw-5****'),
 model DescribeVSwitchAttributesResponseBody = {
   availableIpAddressCount?: long(name='AvailableIpAddressCount', description='The number of available IP addresses in the vSwitch.', example='253'),
   cidrBlock?: string(name='CidrBlock', description='The IPv4 CIDR block of the network.', example='10.0.0.0/24'),
-  createdTime?: string(name='CreatedTime', description='The time when the vSwitch was created. This value uses UTC and follows the yyyy-MM-ddTHH:mm:ssZ format.', example='2019-06-01T00:00:00Z'),
+  createdTime?: string(name='CreatedTime', description='The creation time. The time is displayed in UTC in the yyyy-MM-ddTHH:mm:ssZ format.', example='2019-06-01T00:00:00Z'),
   description?: string(name='Description', description='The description of the vSwitch.', example='This is my vswitch.'),
-  ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS edge zone.', example='cn-xian-unicom'),
+  ensRegionId?: string(name='EnsRegionId', description='The ENS edge zone ID.', example='cn-xian-unicom'),
   haVipIds?: {
     haVipId?: [ string ](name='HaVipId')
   }(name='HaVipIds'),
   instanceIds?: {
     instanceId?: [ string ](name='InstanceId')
   }(name='InstanceIds'),
-  ipv6CidrBlock?: string(name='Ipv6CidrBlock', example='2408:XXXX:0:a600::/110'),
+  ipv6CidrBlock?: string(name='Ipv6CidrBlock', description='The IPv6 CIDR block of the vSwitch.', example='2408:XXXX:0:a600::/110'),
   loadBalancerIds?: {
     loadBalancerId?: [ string ](name='LoadBalancerId')
   }(name='LoadBalancerIds'),
   natGatewayIds?: {
     natGatewayId?: [ string ](name='NatGatewayId')
   }(name='NatGatewayIds'),
-  networkId?: string(name='NetworkId', description='The ID of the network.', example='n-257gqcdfvx6n****'),
+  networkId?: string(name='NetworkId', description='The network ID.', example='n-257gqcdfvx6n****'),
   networkInterfaceIds?: {
     networkInterfaceId?: [ string ](name='NetworkInterfaceId')
   }(name='NetworkInterfaceIds'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='C0003****2A8'),
+  requestId?: string(name='RequestId', description='The request ID.', example='C0003****2A8'),
   status?: string(name='Status', description='The status of the vSwitch. Valid values:
 
 - Pending: The vSwitch is being configured.
-
-- Available: The vSwitch is active.
-
+- Available: The vSwitch is available.
 - Releasing: The vSwitch is being released.', example='Available'),
-  vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch.', example='vsw-5****'),
-  vSwitchName?: string(name='VSwitchName', description='The name of the vSwitch.', example='Test-switch'),
+  vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-5****'),
+  vSwitchName?: string(name='VSwitchName', description='The vSwitch name.', example='Test-switch'),
 }
 
 model DescribeVSwitchAttributesResponse = {
@@ -20603,7 +20686,7 @@ model DescribeVSwitchAttributesResponse = {
 }
 
 /**
- * @summary Call the DescribeVSwitchAttributes operation to query the configuration of a specified vSwitch.
+ * @summary Queries the configuration information of a specified vSwitch.
  *
  * @param request DescribeVSwitchAttributesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -20633,7 +20716,7 @@ async function describeVSwitchAttributesWithOptions(request: DescribeVSwitchAttr
 }
 
 /**
- * @summary Call the DescribeVSwitchAttributes operation to query the configuration of a specified vSwitch.
+ * @summary Queries the configuration information of a specified vSwitch.
  *
  * @param request DescribeVSwitchAttributesRequest
  * @return DescribeVSwitchAttributesResponse
@@ -20644,22 +20727,26 @@ async function describeVSwitchAttributes(request: DescribeVSwitchAttributesReque
 }
 
 model DescribeVSwitchesRequest {
-  enableIpv6?: boolean(name='EnableIpv6'),
-  ensRegionId?: string(name='EnsRegionId', description='The ID of the ENS node.', example='cn-xian-unicom'),
-  ensRegionIds?: [ string ](name='EnsRegionIds', description='The IDs of the ENS nodes. You can specify 1 to 100 IDs.'),
-  networkId?: string(name='NetworkId', description='The ID of the VPC to which the VSwitch belongs.', example='vpc-25cdvfeq58pl****'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Default value: **1**.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: **50**. Default value: **10**.', example='10'),
-  vSwitchId?: string(name='VSwitchId', description='The ID of the VSwitch.', example='vsw-5m9xhlq8oh***'),
-  vSwitchIds?: [ string ](name='VSwitchIds', description='The IDs of the vSwitches. You can specify 1 to 100 IDs.'),
-  vSwitchName?: string(name='VSwitchName', description='The name of the VSwitch.', example='testVSwitchName'),
+  enableIpv6?: boolean(name='EnableIpv6', description='Specifies whether to query vSwitches with IPv6 CIDR blocks enabled. Valid values:
+- true: Queries vSwitches with IPv6 CIDR blocks enabled in the specified region.
+- false: Does not query vSwitches with IPv6 CIDR blocks enabled in the specified region.
+
+If you do not specify this parameter, the system queries all vSwitches by default.', example='false'),
+  ensRegionId?: string(name='EnsRegionId', description='The ENS edge zone ID.', example='cn-xian-unicom'),
+  ensRegionIds?: [ string ](name='EnsRegionIds', description='The array of ENS edge zone IDs. Array length: 1 to 100.'),
+  networkId?: string(name='NetworkId', description='The ID of the VPC to which the vSwitch to be queried belongs.', example='vpc-25cdvfeq58pl****'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the list. Default value: **1**.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in a paging query. Maximum value: **50**. Default value: **10**.', example='10'),
+  vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.', example='vsw-5m9xhlq8oh***'),
+  vSwitchIds?: [ string ](name='VSwitchIds', description='The array of vSwitch IDs. Array length: 1 to 100.'),
+  vSwitchName?: string(name='VSwitchName', description='The vSwitch name.', example='testVSwitchName'),
 }
 
 model DescribeVSwitchesResponseBody = {
-  pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='2'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the current query.', example='1'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page in the current query.', example='2'),
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  totalCount?: int32(name='TotalCount', description='The total number of entries.', example='3'),
+  totalCount?: int32(name='TotalCount', description='The total number of entries in the list.', example='3'),
   vSwitches?: {
     vSwitch?: [ 
     {
@@ -20685,7 +20772,7 @@ model DescribeVSwitchesResponseBody = {
       vSwitchName?: string(name='VSwitchName'),
     }
   ](name='VSwitch')
-  }(name='VSwitches', description='A collection of VSwitches.'),
+  }(name='VSwitches'),
 }
 
 model DescribeVSwitchesResponse = {
@@ -20695,7 +20782,7 @@ model DescribeVSwitchesResponse = {
 }
 
 /**
- * @summary Call the DescribeVSwitches operation to retrieve information about VSwitches. You use VSwitches to configure private networks.
+ * @summary Queries information about vSwitches available for networking. Internal networks are organized by vSwitch.
  *
  * @param request DescribeVSwitchesRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -20749,7 +20836,7 @@ async function describeVSwitchesWithOptions(request: DescribeVSwitchesRequest, r
 }
 
 /**
- * @summary Call the DescribeVSwitches operation to retrieve information about VSwitches. You use VSwitches to configure private networks.
+ * @summary Queries information about vSwitches available for networking. Internal networks are organized by vSwitch.
  *
  * @param request DescribeVSwitchesRequest
  * @return DescribeVSwitchesResponse
@@ -22394,10 +22481,10 @@ model InstallClusterAddonsRequest {
           params?: map[string]any(name='Params', description='The custom parameters of the component.', example='{"k1":"v1"}'),
         }
       ](name='ConfigSchema', description='The schema for the custom parameters of the component.'),
-      name?: string(name='Name', description='The plug-in name.', example='edge-csi-lite'),
+      name?: string(name='Name', description='The add-on name.', example='edge-csi-lite'),
       version?: string(name='Version', description='The version number.', example='v1'),
     }
-  ](name='Addons', description='The component information.
+  ](name='Addons', description='The add-on information.
 
 This parameter is required.'),
   clusterId?: string(name='ClusterId', description='The cluster ID.
@@ -22406,7 +22493,7 @@ This parameter is required.', example='eck-xxxxxxxx'),
 }
 
 model InstallClusterAddonsShrinkRequest {
-  addonsShrink?: string(name='Addons', description='The component information.
+  addonsShrink?: string(name='Addons', description='The add-on information.
 
 This parameter is required.'),
   clusterId?: string(name='ClusterId', description='The cluster ID.
@@ -22416,7 +22503,7 @@ This parameter is required.', example='eck-xxxxxxxx'),
 
 model InstallClusterAddonsResponseBody = {
   clusterId?: string(name='ClusterId', description='The cluster ID.', example='eck-xxxxxxxx'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+  requestId?: string(name='RequestId', description='Id of the request', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
 }
 
 model InstallClusterAddonsResponse = {
@@ -22426,10 +22513,10 @@ model InstallClusterAddonsResponse = {
 }
 
 /**
- * @summary To enhance the capabilities of Kubernetes, Edge Kubernetes (ECK) clusters support a variety of components, such as managed core components, applications, logging and monitoring, networking, storage, and security components. You can call the InstallClusterAddons operation to install components by specifying their names and versions.
+ * @summary Installs components in an ECK cluster to enhance Kubernetes capabilities. ECK clusters support various components, such as managed core components, as well as application, logging and monitoring, networking, storage, and security components. You can call the InstallClusterAddons operation to install components by specifying the component name and version.
  *
- * @description - The call frequency for a single user is limited to 10 calls per second.
- * - Cluster creation is an asynchronous operation. After the API call returns, the cluster requires 10 to 20 minutes to complete initialization. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
+ * @description - The rate limit is 10 calls per second per user.
+ * - Cluster creation is an asynchronous operation. After the API call returns, wait 10 to 20 minutes for the cluster initialization to complete. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param tmpReq InstallClusterAddonsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -22467,10 +22554,10 @@ async function installClusterAddonsWithOptions(tmpReq: InstallClusterAddonsReque
 }
 
 /**
- * @summary To enhance the capabilities of Kubernetes, Edge Kubernetes (ECK) clusters support a variety of components, such as managed core components, applications, logging and monitoring, networking, storage, and security components. You can call the InstallClusterAddons operation to install components by specifying their names and versions.
+ * @summary Installs components in an ECK cluster to enhance Kubernetes capabilities. ECK clusters support various components, such as managed core components, as well as application, logging and monitoring, networking, storage, and security components. You can call the InstallClusterAddons operation to install components by specifying the component name and version.
  *
- * @description - The call frequency for a single user is limited to 10 calls per second.
- * - Cluster creation is an asynchronous operation. After the API call returns, the cluster requires 10 to 20 minutes to complete initialization. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
+ * @description - The rate limit is 10 calls per second per user.
+ * - Cluster creation is an asynchronous operation. After the API call returns, wait 10 to 20 minutes for the cluster initialization to complete. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param request InstallClusterAddonsRequest
  * @return InstallClusterAddonsResponse
@@ -22924,19 +23011,19 @@ async function listAICPublicKeys(request: ListAICPublicKeysRequest): ListAICPubl
 model ListAddonsResponseBody = {
   addons?: [ 
     {
-      cleanupCloudResources?: boolean(name='CleanupCloudResources', description='Indicates whether to automatically clean up associated cloud resources.', example='true'),
+      cleanupCloudResources?: boolean(name='CleanupCloudResources', description='Indicates whether associated cloud resources are automatically cleaned up.', example='true'),
       configSchema?: [ 
         {
           appVersion?: string(name='AppVersion', description='The application version.', example='859e9d595b2974ed79c444658d1dea89'),
           configVersion?: string(name='ConfigVersion', description='The configuration version.', example='4155709cd12a09bdb8cbaca71bf03233'),
-          name?: string(name='Name', description='The name of the component.', example='edge-csi-lite'),
+          name?: string(name='Name', description='The component name.', example='edge-csi-lite'),
           params?: map[string]any(name='Params', description='The custom parameters of the component.', example='{"key1":"val1"}'),
         }
-      ](name='ConfigSchema', description='The schemas for the custom parameters of the component.'),
-      name?: string(name='Name', description='The name of the component.', example='edge-csi-lite'),
-      version?: string(name='Version', description='The version of the component.', example='v2'),
+      ](name='ConfigSchema', description='The list of schemas for custom parameters of the component.'),
+      name?: string(name='Name', description='The component name.', example='edge-csi-lite'),
+      version?: string(name='Version', description='The component version.', example='v2'),
     }
-  ](name='Addons', description='A list of component information.'),
+  ](name='Addons', description='The list of component information.'),
   requestId?: string(name='RequestId', description='Id of the request', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
 }
 
@@ -22947,7 +23034,7 @@ model ListAddonsResponse = {
 }
 
 /**
- * @summary Retrieves details about cluster components.
+ * @summary Queries the details of cluster components.
  *
  * @param runtime runtime options for this request RuntimeOptions
  * @return ListAddonsResponse
@@ -22969,7 +23056,7 @@ async function listAddonsWithOptions(runtime: Util.RuntimeOptions): ListAddonsRe
 }
 
 /**
- * @summary Retrieves details about cluster components.
+ * @summary Queries the details of cluster components.
  *
  * @return ListAddonsResponse
  */
@@ -23770,16 +23857,16 @@ async function modifyClusterAddon(request: ModifyClusterAddonRequest): ModifyClu
 model ModifyClusterNodePoolRequest {
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
-Only ECK cluster IDs with the eck- prefix are supported. You can obtain the ID by calling the DescribeClustersV1 operation. Serverless cluster IDs returned by the DescribeCluster operation are not supported. The cluster must be in the running state. After creation, it typically takes 10 to 20 minutes to complete initialization.
+Only ECK cluster IDs with the eck- prefix are supported. You can obtain the ID by calling the DescribeClustersV1 operation. Serverless cluster IDs returned by the DescribeCluster operation are not supported. The cluster must be in the running state. After creation, it usually takes 10 to 20 minutes to complete initialization.
 
 This parameter is required.', example='eck-xxxxxxxx'),
   kubernetesConfig?: {
-    preUserData?: string(name='PreUserData', description='The script to run after instance creation but before joining the cluster. The content must be Base64-encoded.', example='ZWNobyBvawo='),
-    userData?: string(name='UserData', description='The script to run after instance creation and after joining the cluster. The content must be Base64-encoded.', example='ZWNobyBvawo='),
+    preUserData?: string(name='PreUserData', description='The script to be executed after the instance is created and before it joins the cluster. The content must be Base64-encoded.', example='ZWNobyBvawo='),
+    userData?: string(name='UserData', description='The script to be executed after the instance is created and after it joins the cluster. The content must be Base64-encoded.', example='ZWNobyBvawo='),
   }(name='KubernetesConfig', description='The Kubernetes configuration.'),
   nodepoolInfo?: {
-    name?: string(name='Name', example='test1'),
-    nodepoolId?: string(name='NodepoolId', description='The node pool ID.
+    name?: string(name='Name', description='The name of the node pool.', example='test1'),
+    nodepoolId?: string(name='NodepoolId', description='The ID of the node pool.
 
 This parameter is required.', example='np68mi5y1dd748ky37ojo2kqdrz'),
   }(name='NodepoolInfo', description='The node pool information.
@@ -23788,25 +23875,25 @@ This parameter is required.'),
   scalingGroup?: {
     dataDisks?: [ 
       {
-        category?: string(name='Category', description='The data cloud disk type.', example='cloud_efficiency'),
-        size?: int32(name='Size', description='The data cloud disk size.', example='40'),
+        category?: string(name='Category', description='The category of the data cloud disk.', example='cloud_efficiency'),
+        size?: int32(name='Size', description='The size of the data cloud disk.', example='40'),
       }
     ](name='DataDisks', description='The data cloud disk information.'),
-    imageId?: string(name='ImageId', description='The instance image ID.', example='m-68bysm5a8gkm7oik7ngacf0in'),
-    instanceChargeType?: string(name='InstanceChargeType', description='The instance billing type.', example='PostPaid'),
+    imageId?: string(name='ImageId', description='The ID of the instance image.', example='m-68bysm5a8gkm7oik7ngacf0in'),
+    instanceChargeType?: string(name='InstanceChargeType', description='The billing method of the instance.', example='PostPaid'),
     instanceTypes?: [ string ](name='InstanceTypes', description='The instance types.'),
-    keyPairName?: string(name='KeyPairName', description='The instance key pair. This parameter is mutually exclusive with password.', example='tf-testAcc'),
-    password?: string(name='Password', description='The instance password. This parameter is mutually exclusive with key_pair_name.', example='@AN5Ejx1YyzzK'),
-    systemDiskCategory?: string(name='SystemDiskCategory', description='The system cloud disk type.', example='cloud_efficiency'),
-    systemDiskSize?: int32(name='SystemDiskSize', description='The system cloud disk size.', example='80'),
-    vswitchIds?: [ string ](name='VswitchIds', description='The vSwitches used by instances.'),
+    keyPairName?: string(name='KeyPairName', description='The name of the instance key pair. This parameter and Password are mutually exclusive.', example='tf-testAcc'),
+    password?: string(name='Password', description='The instance password. This parameter and key_pair_name are mutually exclusive.', example='@AN5Ejx1YyzzK'),
+    systemDiskCategory?: string(name='SystemDiskCategory', description='The category of the system cloud disk.', example='cloud_efficiency'),
+    systemDiskSize?: int32(name='SystemDiskSize', description='The size of the system cloud disk.', example='80'),
+    vswitchIds?: [ string ](name='VswitchIds', description='The vSwitches used by the instances.'),
   }(name='ScalingGroup', description='The scaling group configuration.'),
 }
 
 model ModifyClusterNodePoolShrinkRequest {
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
-Only ECK cluster IDs with the eck- prefix are supported. You can obtain the ID by calling the DescribeClustersV1 operation. Serverless cluster IDs returned by the DescribeCluster operation are not supported. The cluster must be in the running state. After creation, it typically takes 10 to 20 minutes to complete initialization.
+Only ECK cluster IDs with the eck- prefix are supported. You can obtain the ID by calling the DescribeClustersV1 operation. Serverless cluster IDs returned by the DescribeCluster operation are not supported. The cluster must be in the running state. After creation, it usually takes 10 to 20 minutes to complete initialization.
 
 This parameter is required.', example='eck-xxxxxxxx'),
   kubernetesConfigShrink?: string(name='KubernetesConfig', description='The Kubernetes configuration.'),
@@ -23827,10 +23914,10 @@ model ModifyClusterNodePoolResponse = {
 }
 
 /**
- * @summary Modifies the node configurations in a cluster node pool, such as kubelet configurations and node rotation configurations. Modifying node configurations changes node configurations and restarts kubelet in batches, which may affect node operations and workload execution. Perform this operation during off-peak hours.
+ * @summary Modifies the node configuration in a cluster node pool, such as kubelet configurations and node rotation configurations. Modifying node configurations changes the configurations in batches and restarts kubelet, which may affect node and workload operations. Perform this operation during off-peak hours.
  *
- * @description - Single-user call frequency: 10 calls per second.
- * - Creating a cluster is an asynchronous operation. After the API call returns, wait 10 to 20 minutes for the cluster to finish initialization. During this process, call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
+ * @description - Rate limit per user: 10 calls per second.
+ * - Cluster creation is an asynchronous operation. After you call the API operation, you must wait 10 to 20 minutes for the cluster initialization to complete. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param tmpReq ModifyClusterNodePoolRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -23880,10 +23967,10 @@ async function modifyClusterNodePoolWithOptions(tmpReq: ModifyClusterNodePoolReq
 }
 
 /**
- * @summary Modifies the node configurations in a cluster node pool, such as kubelet configurations and node rotation configurations. Modifying node configurations changes node configurations and restarts kubelet in batches, which may affect node operations and workload execution. Perform this operation during off-peak hours.
+ * @summary Modifies the node configuration in a cluster node pool, such as kubelet configurations and node rotation configurations. Modifying node configurations changes the configurations in batches and restarts kubelet, which may affect node and workload operations. Perform this operation during off-peak hours.
  *
- * @description - Single-user call frequency: 10 calls per second.
- * - Creating a cluster is an asynchronous operation. After the API call returns, wait 10 to 20 minutes for the cluster to finish initialization. During this process, call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
+ * @description - Rate limit per user: 10 calls per second.
+ * - Cluster creation is an asynchronous operation. After you call the API operation, you must wait 10 to 20 minutes for the cluster initialization to complete. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param request ModifyClusterNodePoolRequest
  * @return ModifyClusterNodePoolResponse
@@ -25438,25 +25525,27 @@ async function modifySnatEntry(request: ModifySnatEntryRequest): ModifySnatEntry
 }
 
 model ModifyVSwitchAttributeRequest {
-  description?: string(name='Description', description='Description.
+  description?: string(name='Description', description='The description.
 
-- Must be 2 to 256 characters in length and can contain English or Chinese characters.
+- The description must be 2 to 256 characters in length.
+- It cannot start with http:// or https://.', example='this is my first vswitch'),
+  enableIPv6?: boolean(name='EnableIPv6', description='Specifies whether to enable IPv6 for the vSwitch. Valid values:
+- true: enables IPv6. The VPC to which the vSwitch belongs must have IPv6 enabled, and you must also specify Ipv6CidrBlock to assign an IPv6 CIDR block to the vSwitch.
+- false (default): disables IPv6. Before you disable IPv6 for the vSwitch, make sure that no IPv6 addresses are in use, and do not specify Ipv6CidrBlock at the same time.', example='false'),
+  ipv6CidrBlock?: string(name='Ipv6CidrBlock', description='The IPv6 CIDR block of the vSwitch.
 
-- Cannot start with http\\\\:// or https\\\\://.', example='this is my first vswitch'),
-  enableIPv6?: boolean(name='EnableIPv6'),
-  ipv6CidrBlock?: string(name='Ipv6CidrBlock', example='2408:XXXX:0:a600::/110'),
-  vSwitchId?: string(name='VSwitchId', description='vSwitch ID.
+> You can specify this parameter to assign an IPv6 CIDR block to the vSwitch only when IPv6 is enabled for the VPC to which the vSwitch belongs. After the IPv6 CIDR block is assigned, it cannot be changed. Make sure that the IPv6 CIDR block does not overlap with the CIDR blocks of other vSwitches in the same VPC.', example='2408:XXXX:0:a600::/110'),
+  vSwitchId?: string(name='VSwitchId', description='The vSwitch ID.
 
 This parameter is required.', example='n-****'),
-  vSwitchName?: string(name='VSwitchName', description='vSwitch name.
+  vSwitchName?: string(name='VSwitchName', description='The vSwitch name.
 
-- Must be 2 to 128 characters long. Can contain letters, digits, Chinese characters, underscores (_), and hyphens (-).
-
-- Must start with a letter or a Chinese character. Cannot start with http\\\\:// or https\\\\://.', example='Test-switch'),
+- The name must be 2 to 128 characters in length.
+- It must start with a letter or a Chinese character and cannot start with http:// or https://.', example='Test-switch'),
 }
 
 model ModifyVSwitchAttributeResponseBody = {
-  requestId?: string(name='RequestId', description='Request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model ModifyVSwitchAttributeResponse = {
@@ -25466,10 +25555,10 @@ model ModifyVSwitchAttributeResponse = {
 }
 
 /**
- * @summary Call ModifyVSwitchAttribute to modify network information.
+ * @summary Modifies the attributes of a vSwitch.
  *
- * @description - API call frequency: 100 calls per second.
- * - Per-user call frequency: 5 calls per second.
+ * @description - API rate limit: 100 calls per second.
+ * - Rate limit per user: 5 calls per second.
  *
  * @param request ModifyVSwitchAttributeRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -25511,10 +25600,10 @@ async function modifyVSwitchAttributeWithOptions(request: ModifyVSwitchAttribute
 }
 
 /**
- * @summary Call ModifyVSwitchAttribute to modify network information.
+ * @summary Modifies the attributes of a vSwitch.
  *
- * @description - API call frequency: 100 calls per second.
- * - Per-user call frequency: 5 calls per second.
+ * @description - API rate limit: 100 calls per second.
+ * - Rate limit per user: 5 calls per second.
  *
  * @param request ModifyVSwitchAttributeRequest
  * @return ModifyVSwitchAttributeResponse
@@ -29925,19 +30014,19 @@ async function setLoadBalancerUDPListenerAttribute(request: SetLoadBalancerUDPLi
 }
 
 model ShareAICImageRequest {
-  imageId?: string(name='ImageId', description='The image name.
+  imageId?: string(name='ImageId', description='The ID of the AIC image. You can call DescribeAICImages to obtain the ID.
 
 This parameter is required.', example='mykey'),
-  users?: [ string ](name='Users', description='The user group.
+  users?: [ string ](name='Users', description='The user groups.
 
 This parameter is required.'),
 }
 
 model ShareAICImageShrinkRequest {
-  imageId?: string(name='ImageId', description='The image name.
+  imageId?: string(name='ImageId', description='The ID of the AIC image. You can call DescribeAICImages to obtain the ID.
 
 This parameter is required.', example='mykey'),
-  usersShrink?: string(name='Users', description='The user group.
+  usersShrink?: string(name='Users', description='The user groups.
 
 This parameter is required.'),
 }
@@ -31106,6 +31195,75 @@ async function unassociateNetworkAcl(request: UnassociateNetworkAclRequest): Una
   return unassociateNetworkAclWithOptions(request, runtime);
 }
 
+model UnassociateNetworkCidrBlockRequest {
+  ipv6CidrBlock?: string(name='Ipv6CidrBlock', description='The secondary IPv6 CIDR block to delete.', example='2408:XXXX:0:a600::/110'),
+  networkId?: string(name='NetworkId', description='The network ID.
+
+This parameter is required.', example='n-257gqcdfvx6n****'),
+  secondaryCidrBlock?: string(name='SecondaryCidrBlock', description='The secondary IPv4 CIDR block to delete.', example='10.XX.XX.0/24'),
+}
+
+model UnassociateNetworkCidrBlockResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='CEF72CEB-54B6-4AE8-B225-F876FF7BA984'),
+}
+
+model UnassociateNetworkCidrBlockResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UnassociateNetworkCidrBlockResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a secondary CIDR block from a network.
+ *
+ * @description Before deleting a secondary CIDR block from a network, delete the vSwitches created in the secondary CIDR block.
+ *
+ * @param request UnassociateNetworkCidrBlockRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UnassociateNetworkCidrBlockResponse
+ */
+async function unassociateNetworkCidrBlockWithOptions(request: UnassociateNetworkCidrBlockRequest, runtime: Util.RuntimeOptions): UnassociateNetworkCidrBlockResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.ipv6CidrBlock)) {
+    query['Ipv6CidrBlock'] = request.ipv6CidrBlock;
+  }
+  if (!Util.isUnset(request.networkId)) {
+    query['NetworkId'] = request.networkId;
+  }
+  if (!Util.isUnset(request.secondaryCidrBlock)) {
+    query['SecondaryCidrBlock'] = request.secondaryCidrBlock;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'UnassociateNetworkCidrBlock',
+    version = '2017-11-10',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a secondary CIDR block from a network.
+ *
+ * @description Before deleting a secondary CIDR block from a network, delete the vSwitches created in the secondary CIDR block.
+ *
+ * @param request UnassociateNetworkCidrBlockRequest
+ * @return UnassociateNetworkCidrBlockResponse
+ */
+async function unassociateNetworkCidrBlock(request: UnassociateNetworkCidrBlockRequest): UnassociateNetworkCidrBlockResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return unassociateNetworkCidrBlockWithOptions(request, runtime);
+}
+
 model UnloadRegionSDGRequest {
   destinationRegionIds?: [ string ](name='DestinationRegionIds', description='The list of destination edge zones.
 
@@ -31694,21 +31852,21 @@ model UpgradeClusterAddonsRequest {
         {
           appVersion?: string(name='AppVersion', description='The application version.', example='4155709cd12a09bdb8cbaca71bf03233'),
           configVersion?: string(name='ConfigVersion', description='The configuration version.', example='4155709cd12a09bdb8cbaca71bf03233'),
-          name?: string(name='Name', description='The component name.', example='edge-csi-lite'),
-          params?: map[string]any(name='Params', description='The custom parameters for the component.', example='{"k1":"v1"}'),
+          name?: string(name='Name', description='The add-on name.', example='edge-csi-lite'),
+          params?: map[string]any(name='Params', description='The custom parameters of the add-on.', example='{"k1":"v1"}'),
         }
-      ](name='ConfigSchema', description='The schema of the custom parameters for the component.'),
-      name?: string(name='Name', description='The component name.', example='edge-csi-lite'),
+      ](name='ConfigSchema', description='The schema of the custom parameters for the add-on.'),
+      name?: string(name='Name', description='The add-on name.', example='edge-csi-lite'),
       nextVersion?: string(name='NextVersion', description='The target version for the upgrade.', example='v2'),
     }
-  ](name='Addons', description='The component information.'),
+  ](name='Addons', description='The add-on information.'),
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='eck-xxxxxxxxx'),
 }
 
 model UpgradeClusterAddonsShrinkRequest {
-  addonsShrink?: string(name='Addons', description='The component information.'),
+  addonsShrink?: string(name='Addons', description='The add-on information.'),
   clusterId?: string(name='ClusterId', description='The cluster ID.
 
 This parameter is required.', example='eck-xxxxxxxxx'),
@@ -31716,7 +31874,7 @@ This parameter is required.', example='eck-xxxxxxxxx'),
 
 model UpgradeClusterAddonsResponseBody = {
   clusterId?: string(name='ClusterId', description='The cluster ID.', example='eck-xxxxxxxx'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
+  requestId?: string(name='RequestId', description='Id of the request', example='C0003E8B-B930-4F59-ADC0-0E209A9012A8'),
 }
 
 model UpgradeClusterAddonsResponse = {
@@ -31726,10 +31884,10 @@ model UpgradeClusterAddonsResponse = {
 }
 
 /**
- * @summary Call the UpgradeClusterAddons operation to upgrade cluster component instances.
+ * @summary Upgrades the versions of cluster add-on instances.
  *
- * @description - Each user can call this operation up to 10 times per second.
- * - Creating a cluster is an asynchronous operation. After calling the operation, wait 10 to 20 minutes for the cluster to initialize. During this time, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
+ * @description - The maximum call frequency per user is 10 calls per second.
+ * - Creating a cluster is an asynchronous operation. After the API call returns, you must wait 10 to 20 minutes for the cluster initialization to complete. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param tmpReq UpgradeClusterAddonsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -31767,10 +31925,10 @@ async function upgradeClusterAddonsWithOptions(tmpReq: UpgradeClusterAddonsReque
 }
 
 /**
- * @summary Call the UpgradeClusterAddons operation to upgrade cluster component instances.
+ * @summary Upgrades the versions of cluster add-on instances.
  *
- * @description - Each user can call this operation up to 10 times per second.
- * - Creating a cluster is an asynchronous operation. After calling the operation, wait 10 to 20 minutes for the cluster to initialize. During this time, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
+ * @description - The maximum call frequency per user is 10 calls per second.
+ * - Creating a cluster is an asynchronous operation. After the API call returns, you must wait 10 to 20 minutes for the cluster initialization to complete. During this process, you can call the DescribeClustersV1 operation to query the cluster creation status. After the cluster is created, you can call the DescribeClusterUserKubeconfig operation to obtain the cluster certificate.
  *
  * @param request UpgradeClusterAddonsRequest
  * @return UpgradeClusterAddonsResponse
