@@ -1840,6 +1840,77 @@ async function createBusiness(request: CreateBusinessRequest): CreateBusinessRes
   return @handler.do('RPC', 'CreateBusiness', 'POST', '/', 'json', true, 'form', request);
 }
 
+model CreateCalendarRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  allProjects?: boolean(name='AllProjects', description='Specifies whether the calendar applies to all workspaces. Default value: false.
+
+- true: all workspaces.
+- false: the workspaces specified by ProjectIds.', example='true', position='Body'),
+  description: string(name='Description', description='The description of the scheduling calendar. The description must be 5 to 2,048 characters in length.
+
+This parameter is required.', example='Weekday scheduling calendar', minLength=5, maxLength=2048, position='Body'),
+  endDate?: string(name='EndDate', description='The end date of the calendar validity period. Format: `yyyy-mm-dd`. This parameter is required when Type is set to StrongConstraint. The end date cannot be earlier than the start date, and the interval between the start date and the end date must be less than 5 years.', example='2026-10-09', position='Body'),
+  expirationReminder?: string(name='ExpirationReminder', description='The expiration reminder. This parameter is required when Type is set to StrongConstraint.
+
+- OneMonthBefore: one month in advance.
+- OneWeekBefore: one week in advance.
+- ThreeDaysBefore: three days in advance.', example='OneMonthBefore', position='Body'),
+  fallbackPolicy?: string(name='FallbackPolicy', description='The default scheduling policy for dates that are not configured. This parameter is required when Type is set to WeakConstraint.
+
+- Normal: normal scheduling.
+- Pause: pause scheduling.
+- Skip: dry run.', example='Normal', position='Body'),
+  name: string(name='Name', description='The name of the scheduling calendar. The name must be unique within the current tenant and can be up to 100 characters in length.
+
+This parameter is required.', example='work_calendar', maxLength=100, position='Body'),
+  overduePolicy?: string(name='OverduePolicy', description='The scheduling policy after the calendar expires. This parameter is required when Type is set to StrongConstraint.
+
+- Normal: normal scheduling.
+- Pause: pause scheduling.
+- Skip: dry run.', example='Skip', position='Body'),
+  owner: string(name='Owner', description='The account ID of the owner.
+
+This parameter is required.', example='123456789', position='Body'),
+  projectIds?: [ long ](name='ProjectIds', description='The list of applicable workspace IDs.
+
+- If AllProjects is set to false or left empty: This parameter is required and cannot be empty.
+- If AllProjects is set to true: Leave this parameter empty or pass an empty array.', shrink='json', position='Body'),
+  schedulePolicy: {
+    normalDates?: [ string ](name='NormalDates', description='The list of normal scheduling dates.'),
+    skipDates?: [ string ](name='SkipDates', description='The list of non-scheduling dates. Tasks perform dry runs on these dates. This parameter is used only for strong constraint calendars.'),
+  }(name='SchedulePolicy', description='The date scheduling policy. For a strong constraint calendar, the normal scheduling dates and non-scheduling dates must cover every day within the validity period and cannot overlap.
+
+This parameter is required.', shrink='json', position='Body'),
+  startDate?: string(name='StartDate', description='The start date of the calendar validity period. Format: `yyyy-mm-dd`. This parameter is required when Type is set to StrongConstraint.', example='2026-10-08', position='Body'),
+  type: string(name='Type', description='The type of the calendar.
+
+- StrongConstraint: strong constraint calendar.
+- WeakConstraint: weak constraint calendar.
+
+This parameter is required.', example='StrongConstraint', position='Body'),
+}
+
+model CreateCalendarResponseBody = {
+  id?: long(name='Id', description='The ID of the scheduling calendar.', example='12345', minimum=1),
+  requestId?: string(name='RequestId', description='The request ID.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+}
+
+model CreateCalendarResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateCalendarResponseBody(name='body'),
+}
+
+/**
+  * @description You must purchase DataWorks Enterprise Edition to use this feature.
+  * @param request  the request parameters of CreateCalendar  CreateCalendarRequest
+  * @return CreateCalendarResponse
+ */
+async function createCalendar(request: CreateCalendarRequest): CreateCalendarResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateCalendar', 'POST', '/', 'json', true, 'form', request);
+}
+
 model CreateComponentRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   clientToken?: string(name='ClientToken', description='A reserved field.', example='1AFAE64E-D1BE-432B-A9****', position='Body'),
@@ -5331,117 +5402,119 @@ async function createWorkflowDefinition(request: CreateWorkflowDefinitionRequest
 
 model CreateWorkflowInstancesRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  autoStartEnabled?: boolean(name='AutoStartEnabled', description='Specifies whether to run the instance immediately after it is created. Default value: true.', example='true', position='Body'),
+  autoStartEnabled?: boolean(name='AutoStartEnabled', description='Specifies whether to run the workflow instance immediately after it is created. Default value: true.', example='true', position='Body'),
   comment?: string(name='Comment', description='The reason for creation.', example='create for test', position='Body'),
   defaultRunProperties?: {
     alert?: {
       noticeType?: string(name='NoticeType', description='The notification method. Valid values:
-- Sms: text message only.
-- Mail: email only.
-- SmsMail: text message and email.', example='Sms'),
+- Sms: text message only
+- Mail: email only
+- SmsMail: text message and email', example='Sms'),
       type?: string(name='Type', description='The alert policy. Valid values:
-- Success: alerts on success.
-- Failure: alerts on failure.
-- SuccessFailure: alerts on both success and failure.', example='Succes'),
+- Success: alerts on success
+- Failure: alerts on failure
+- SuccessFailure: alerts on both success and failure', example='Succes'),
     }(name='Alert', description='The alert configurations.'),
     analysis?: {
       blocked?: boolean(name='Blocked', description='Specifies whether to block the run if the analysis fails. This parameter is required when Type is set to SupplementData.', example='true'),
       enabled?: boolean(name='Enabled', description='Specifies whether to enable analysis. This parameter is required when Type is set to SupplementData.', example='true'),
     }(name='Analysis', description='The analysis configurations. This parameter is required when Type is set to SupplementData.'),
-    excludeProjectIds?: [ long ](name='ExcludeProjectIds', description='The list of project IDs not to be run.'),
-    excludeTaskIds?: [ long ](name='ExcludeTaskIds', description='The list of task IDs not to be run.'),
-    includeProjectIds?: [ long ](name='IncludeProjectIds', description='The list of project IDs to be run.'),
-    includeTaskIds?: [ long ](name='IncludeTaskIds', description='The list of task IDs to be run.'),
+    dataSourceNameMappings?: map[string]string(name='DataSourceNameMappings', description='The data source name mappings for data backfill runs. The key of the map is DataSource.Name in the node definition, and the value is DataSource.Name used during data backfill runs. This parameter takes effect only when Type is set to SupplementData. If this parameter is not configured, an empty map is passed, or the key is not matched, the node continues to use the original data source. Currently, only EMR Spark SQL, EMR Shell, and EMR Spark nodes are supported.'),
+    excludeProjectIds?: [ long ](name='ExcludeProjectIds', description='The list of project IDs to exclude from the run.'),
+    excludeTaskIds?: [ long ](name='ExcludeTaskIds', description='The list of node IDs to exclude from the run.'),
+    includeProjectIds?: [ long ](name='IncludeProjectIds', description='The list of project IDs to include in the run.'),
+    includeTaskIds?: [ long ](name='IncludeTaskIds', description='The list of node IDs to include in the run.'),
     mode?: string(name='Mode', description='The data backfill mode. Default value: ManualSelection. This parameter is required when Type is set to SupplementData. Valid values:
-- General: general mode. You can specify only one ID in RootTaskIds. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the tasks in RootTaskIds are included by default.
-- ManualSelection: manual selection mode. You can specify multiple IDs in RootTaskIds. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the tasks in RootTaskIds are included by default.
-- Chain: chain mode. RootTaskIds must be left empty. You must specify two IDs in IncludeTaskIds, which are the start and end tasks.
-- AllDownstream: all downstream mode. You can specify only one ID in RootTaskIds.', example='ManualSelection'),
+- General: general mode. You can specify only one value for RootTaskIds. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the value of RootTaskIds is included by default.
+- ManualSelection: manual selection mode. You can specify multiple values for RootTaskIds. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the values of RootTaskIds are included by default.
+- Chain: chain mode. RootTaskIds must be left empty. You must specify two IDs for IncludeTaskIds, which are the start and end nodes.
+- AllDownstream: all downstream mode. You can specify only one value for RootTaskIds.', example='ManualSelection'),
     order?: string(name='Order', description='The run order. Default value: Asc. Valid values:
-- Asc: ascending order by business date.
-- Desc: descending order by business date.', example='Asc'),
-    parallelism?: int32(name='Parallelism', description='The number of parallel tasks. A value from 2 to 10 indicates the parallelism. A value of 1 indicates serial execution. This parameter is required when Type is set to SupplementData.', example='2'),
-    priority?: int32(name='Priority', description='The run priority. Valid values: 1 to 11. A larger value indicates a higher priority. These parameter settings are supported only for manual workflows and trigger-based workflows.', example='1'),
-    priorityWeightStrategy?: string(name='PriorityWeightStrategy', description='The priority weight policy. These parameter settings are supported only for manual workflows and trigger-based workflows. Valid values:
+- Asc: ascending order by business date
+- Desc: descending order by business date', example='Asc'),
+    parallelism?: int32(name='Parallelism', description='The number of parallel nodes. A value of 2 to 10 indicates the parallelism, and a value of 1 indicates serial execution. This parameter is required when Type is set to SupplementData.', example='2'),
+    priority?: int32(name='Priority', description='The run priority. Valid values: 1 to 11. A larger value indicates a higher priority. These parameter settings are supported only for manually triggered workflows and event-triggered workflows.', example='1'),
+    priorityWeightStrategy?: string(name='PriorityWeightStrategy', description='The priority weight policy. These parameter settings are supported only for manually triggered workflows and event-triggered workflows. Valid values:
 - Disable: disabled. This is the default value.
-- Upstream: calculates the sum of the weights of the upstream nodes of the current node. A deeper hierarchy indicates a higher weight.', example='Upstream'),
-    rootTaskIds?: [ long ](name='RootTaskIds', description='The list of root task IDs.
+- Upstream: calculates the sum of weights of upstream nodes for the current node. A deeper hierarchy indicates a higher weight.', example='Upstream'),
+    rootTaskIds?: [ long ](name='RootTaskIds', description='The list of root node IDs.
+
 - When Type is set to SupplementData, RootTaskIds is required except when Mode is set to Chain.
-- When Type is set to ManualWorkflow, RootTaskIds is optional. If you do not specify RootTaskIds, the default root node list of the manual workflow is used.
-- When Type is set to Manual, RootTaskIds is required and specifies the list of manual tasks to be run.
-- When Type is set to SmokeTest, RootTaskIds is required and specifies the list of test tasks to be run.'),
+- When Type is set to ManualWorkflow, RootTaskIds is optional. If you do not specify RootTaskIds, the default root node list of the manually triggered workflow is used.
+- When Type is set to Manual, RootTaskIds is required and specifies the list of manually triggered nodes to be run.
+- When Type is set to SmokeTest, RootTaskIds is required and specifies the list of test nodes to be run.'),
     runPolicy?: {
-      endTime?: string(name='EndTime', description='The end time of the run. Format: `hh:mm:ss` in 24-hour format. This field is required if you configure a run policy.', example='23:59:59'),
-      immediately?: boolean(name='Immediately', description='Specifies whether the run can be started immediately if the scheduled run time is in the future. Default value: false.', example='false'),
-      startTime?: string(name='StartTime', description='The start time of the run. Format: `hh:mm:ss` in 24-hour format. This field is required if you configure a run policy.', example='00:00:00'),
+      endTime?: string(name='EndTime', description='The end time of the run. Specify the time in the hh:mm:ss format based on the 24-hour clock. This field is required if you configure a run policy.', example='23:59:59'),
+      immediately?: boolean(name='Immediately', description='Specifies whether the run can be started immediately if the run time is in the future. Default value: false.', example='false'),
+      startTime?: string(name='StartTime', description='The start time of the run. Specify the time in the hh:mm:ss format based on the 24-hour clock. This field is required if you configure a run policy.', example='00:00:00'),
       type?: string(name='Type', description='The period type. This field is required if you configure a run policy. Valid values:
-- Daily: every day.
-- Weekend: weekends only.', example='Daily'),
-    }(name='RunPolicy', description='The run policy. If this field is left empty, the task configuration is used.'),
-    runtimeResource?: string(name='RuntimeResource', description='The identifier of the custom scheduling resource group. If this field is left empty, the task configuration is used.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
+- Daily: every day
+- Weekend: weekends only', example='Daily'),
+    }(name='RunPolicy', description='The run policy. If this field is left empty, the node configuration is used.'),
+    runtimeResource?: string(name='RuntimeResource', description='The identifier of the custom scheduling resource group. If this field is left empty, the node configuration is used.', example='S_res_group_524258031846018_1684XXXXXXXXX'),
   }(name='DefaultRunProperties', description='The runtime configurations.', shrink='json', position='Body'),
   envType?: string(name='EnvType', description='The project environment. Valid values:
-- Prod: production.
-- Dev: development.', example='Prod', position='Body'),
+- Prod: production
+- Dev: development', example='Prod', position='Body'),
   name: string(name='Name', description='The name.
 
 This parameter is required.', example='WorkflowInstance1', position='Body'),
   periods?: {
     bizDates: [ 
       {
-        endBizDate: string(name='EndBizDate', description='The end business date. Format: `yyyy-mm-dd`.
+        endBizDate: string(name='EndBizDate', description='The end business date. Format: yyyy-mm-dd.
 
 This parameter is required.', example='2024-11-24'),
-        startBizDate: string(name='StartBizDate', description='The start business date. Format: `yyyy-mm-dd`.
+        startBizDate: string(name='StartBizDate', description='The start business date. Format: yyyy-mm-dd.
 
 This parameter is required.', example='2024-11-20'),
       }
     ](name='BizDates', description='The list of business dates. You can specify multiple business date ranges, up to a maximum of 7 ranges.
 
 This parameter is required.'),
-    endTime?: string(name='EndTime', description='The end time of the period. Format: `hh:mm:ss` in 24-hour format. Default value: 23:59:59.
+    endTime?: string(name='EndTime', description='The end time of the period. Specify the time in the hh:mm:ss format based on the 24-hour clock. Default value: 23:59:59.
 
-If you specify this field, you must also specify the StartTime field.', example='23:59:59'),
-    startTime?: string(name='StartTime', description='The start time of the period. Format: `hh:mm:ss` in 24-hour format. Default value: 00:00:00.
+If you specify this field, you must also specify StartTime.', example='23:59:59'),
+    startTime?: string(name='StartTime', description='The start time of the period. Specify the time in the hh:mm:ss format based on the 24-hour clock. Default value: 00:00:00.
 
-If you specify this field, you must also specify the EndTime field.', example='00:00:00'),
+If you specify this field, you must also specify EndTime.', example='00:00:00'),
   }(name='Periods', description='The data backfill period settings.', shrink='json', position='Body'),
   projectId: long(name='ProjectId', description='The project ID.
 
 This parameter is required.', example='100', position='Body'),
-  tagCreationPolicy?: string(name='TagCreationPolicy', description='The tag creation policy.
-- Append: Append mode. Inherits existing tags from the manual business process and appends new tags.
-- Overwrite: Overwrite mode. Does not inherit existing tags from the manual business process and directly creates tags.', example='Append', position='Body'),
+  tagCreationPolicy?: string(name='TagCreationPolicy', description='The tag creation policy. Valid values:
+- Append: Append mode. Inherits existing tags from the manual workflow and appends new tags.
+- Overwrite: Overwrite mode. Does not inherit existing tags from the manual workflow and directly creates tags.', example='Append', position='Body'),
   tags?: [ 
     {
       key?: string(name='Key', description='The tag key.', example='tagKey'),
       value?: string(name='Value', description='The tag value.', example='tagValue'),
     }
   ](name='Tags', description='The list of task tags.', shrink='json', position='Body'),
-  taskParameters?: string(name='TaskParameters', description='The task parameters. You can use this parameter to set parameters for specific tasks. The value is in JSON format. The key is the task ID. For the format of the value, refer to the task script parameters (Task.Script.Parameter in the response of the GetTask operation).', example='{
+  taskParameters?: string(name='TaskParameters', description='The node parameters, which are used to set parameters for specific nodes. The value is in JSON format. The key is the node ID, and the value format refers to the node script parameters (Task.Script.Parameter in the response of the GetTask operation).', example='{
   "1001": "key1=val2 key2=val2", 
   "1002": "key1=val2 key2=val2"
 }', position='Body'),
   type: string(name='Type', description='The type of the workflow instance. Valid values:
-- SupplementData: data backfill. The methods for specifying RootTaskIds and IncludeTaskIds vary based on the data backfill pattern. For more information, see the parameter description of DefaultRunProperties.Mode.
-- ManualWorkflow: manual workflow. You must set WorkflowId to the ID of the manual workflow. RootTaskIds is optional. If you do not specify RootTaskIds, the default root node list of the manual workflow is used.
-- Manual: manual task. You only need to specify RootTaskIds, which is the list of manual tasks to be run.
-- SmokeTest: smoke test. You only need to specify RootTaskIds, which is the list of test tasks to be run.
-- TriggerWorkflow: trigger-based workflow. You must set WorkflowId to the ID of the trigger-based workflow. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the entire workflow is run.
+- SupplementData: data backfill. The methods for specifying RootTaskIds and IncludeTaskIds vary based on the data backfill mode. For more information, see the parameter description of DefaultRunProperties.Mode.
+- ManualWorkflow: manually triggered workflow. You must set WorkflowId to the ID of the manually triggered workflow. RootTaskIds is optional. If you do not specify RootTaskIds, the default root node list of the manually triggered workflow is used.
+- Manual: manually triggered node. You only need to specify RootTaskIds, which is the list of manually triggered nodes to be run.
+- SmokeTest: smoke test. You only need to specify RootTaskIds, which is the list of test nodes to be run.
+- TriggerWorkflow: event-triggered workflow. You must set WorkflowId to the ID of the event-triggered workflow. IncludeTaskIds is optional. If you do not specify IncludeTaskIds, the entire workflow is run.
 
 This parameter is required.', example='SupplementData', position='Body'),
-  workflowId: long(name='WorkflowId', description='The ID of the workflow to which the task belongs. The WorkflowId of a periodic task is always 1.
+  workflowId: long(name='WorkflowId', description='The ID of the workflow to which the node belongs. The WorkflowId of a periodic node is always 1.
 
 This parameter is required.', example='1', position='Body'),
-  workflowParameters?: string(name='WorkflowParameters', description='The workflow parameters. This parameter takes effect only when a specific workflow is specified (WorkflowId != 1). For a periodic workflow or a trigger-based workflow, the format is key=value, and the priority is lower than that of task parameters. For a manual workflow, the format is JSON, and the priority is higher than that of task parameters.', example='"key=value" format:
+  workflowParameters?: string(name='WorkflowParameters', description='The workflow parameters. This parameter takes effect only when a specific workflow is specified (WorkflowId != 1). For a periodic workflow or an event-triggered workflow, the format is key=value, and the priority is lower than that of node parameters. For a manually triggered workflow, the format is JSON, and the priority is higher than that of node parameters.', example='"key=value" format:
 key1=value1 key2=value2
 JSON format:
 {"key1":"value1", "key2": "value2"}', position='Body'),
 }
 
 model CreateWorkflowInstancesResponseBody = {
-  operationId?: string(name='OperationId', description='The operation ID. You can use this field to query the result of the creation operation by calling the GetCreateWorkflowInstancesResult API operation.', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx'),
-  requestId?: string(name='RequestId', description='The ID of the request. You can use this ID to locate logs and troubleshoot issues.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
+  operationId?: string(name='OperationId', description='The operation ID. You can use this field to query the result of the creation operation by calling the GetCreateWorkflowInstancesResult operation.', example='e15ad21c-b0e9-4792-8f55-b037xxxxxxxx'),
+  requestId?: string(name='RequestId', description='The request ID. You can use this ID to locate logs and troubleshoot issues.', example='22C97E95-F023-56B5-8852-B1A77A17XXXX'),
 }
 
 model CreateWorkflowInstancesResponse = {
@@ -5451,7 +5524,7 @@ model CreateWorkflowInstancesResponse = {
 }
 
 /**
-  * @description DataWorks Basic Edition or later is required.
+  * @description You must purchase DataWorks Basic Edition or a later edition to use this feature.
   * @param request  the request parameters of CreateWorkflowInstances  CreateWorkflowInstancesRequest
   * @return CreateWorkflowInstancesResponse
  */
@@ -5547,6 +5620,35 @@ model DeleteBusinessResponse = {
 async function deleteBusiness(request: DeleteBusinessRequest): DeleteBusinessResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'DeleteBusiness', 'POST', '/', 'json', true, 'form', request);
+}
+
+model DeleteCalendarRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  id: long(name='Id', description='The ID of the scheduling calendar.
+
+This parameter is required.', example='12345', minimum=1, position='Body'),
+}
+
+model DeleteCalendarResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  success?: boolean(name='Success', description='Indicates whether the deletion was successful.', example='true'),
+}
+
+model DeleteCalendarResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteCalendarResponseBody(name='body'),
+}
+
+/**
+  * @description DataWorks Enterprise Edition is required.
+  * You cannot delete a scheduling calendar that is referenced by nodes. Remove the node references first.
+  * @param request  the request parameters of DeleteCalendar  DeleteCalendarRequest
+  * @return DeleteCalendarResponse
+ */
+async function deleteCalendar(request: DeleteCalendarRequest): DeleteCalendarResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DeleteCalendar', 'POST', '/', 'json', true, 'form', request);
 }
 
 model DeleteCertificateRequest {
@@ -7460,63 +7562,63 @@ async function executeAdhocWorkflowInstance(request: ExecuteAdhocWorkflowInstanc
 
 model FindBestMatchSecurityStrategyRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  controlModule?: string(name='ControlModule', description='Control module, used to match the security policy type.', example='DataQuery', position='Query'),
-  controlSubModule?: string(name='ControlSubModule', description='Control sub-module, used to match the security policy type.', example='MyCatalog', position='Query'),
-  workspaceId?: long(name='WorkspaceId', description='**Workspace ID**, used to precisely match workspace-level policies.', example='12345', position='Query'),
+  controlModule?: string(name='ControlModule', description='The control module used to match the security policy type.', example='DataQuery', position='Query'),
+  controlSubModule?: string(name='ControlSubModule', description='The control submodule used to match the security policy type.', example='MyCatalog', position='Query'),
+  workspaceId?: long(name='WorkspaceId', description='The **workspace ID** used for exact match of the workspace-level policy.', example='12345', position='Query'),
 }
 
 model FindBestMatchSecurityStrategyResponseBody = {
   data?: {
-    edition?: string(name='Edition', description='Purchased DataWorks edition.', example='STANDARD'),
-    editionDisplayName?: string(name='EditionDisplayName', description='Purchased DataWorks edition name.', example='Standard Edition'),
+    edition?: string(name='Edition', description='The purchased DataWorks edition.', example='STANDARD'),
+    editionDisplayName?: string(name='EditionDisplayName', description='The name of the purchased DataWorks edition.', example='Standard Edition'),
     securityStrategy?: {
       content?: {
-        controlDwScope?: string(name='ControlDwScope', description='**Control scope**', example='Tenant'),
-        controlModule?: string(name='ControlModule', description='**Control module**', example='DataQuery'),
-        controlSubModule?: string(name='ControlSubModule', description='**Control sub-module**', example='MyCatalog'),
+        controlDwScope?: string(name='ControlDwScope', description='The **control scope**.', example='Tenant'),
+        controlModule?: string(name='ControlModule', description='The **control module**.', example='DataQuery'),
+        controlSubModule?: string(name='ControlSubModule', description='The **control submodule**.', example='MyCatalog'),
         controllers?: [ 
           {
-            basicEditionDefaultValue?: any(name='BasicEditionDefaultValue', description='**Basic Edition default value**', example='0'),
-            basicEditionIntervalValue?: [ int32 ](name='BasicEditionIntervalValue', description='Basic Edition valid value range [min, max].'),
-            controller?: string(name='Controller', description='Controller identifier. For values, see the controller list of each Schema.', example='viewCount'),
-            controllerValueType?: string(name='ControllerValueType', description='**Value type (Boolean/Integer/Long/String)**', example='Integer'),
-            displayName?: string(name='DisplayName', description='Display name.', example='Query Results - Single Display Record Limit'),
-            displayNameEn?: string(name='DisplayNameEn', description='**English display name**', example='Query Results - Single Display Record Limit'),
-            enable?: boolean(name='Enable', description='**Whether this controller is enabled**', example='true'),
-            enterpriseEditionDefaultValue?: any(name='EnterpriseEditionDefaultValue', description='Enterprise Edition default value.', example='500000'),
-            enterpriseEditionIntervalValue?: [ int32 ](name='EnterpriseEditionIntervalValue', description='Enterprise Edition valid value range [min, max].'),
-            professionalEditionDefaultValue?: any(name='ProfessionalEditionDefaultValue', description='Professional Edition default value.', example='200000'),
-            professionalEditionIntervalValue?: [ int32 ](name='ProfessionalEditionIntervalValue', description='Professional Edition valid value range [min, max].'),
-            standardEditionDefaultValue?: any(name='StandardEditionDefaultValue', description='**Standard Edition default value**', example='10000'),
-            standardEditionIntervalValue?: [ int32 ](name='StandardEditionIntervalValue', description='Standard Edition valid value range [min, max].'),
-            userConfigValue?: any(name='UserConfigValue', description='**User-configured value. The type depends on ControllerValueType.**', example='20'),
+            basicEditionDefaultValue?: any(name='BasicEditionDefaultValue', description='The **default value for Basic Edition**.', example='0'),
+            basicEditionIntervalValue?: [ int32 ](name='BasicEditionIntervalValue', description='The valid value range [min, max] for Basic Edition.'),
+            controller?: string(name='Controller', description='The identifier of the control item. For valid values, see the control item list for each schema.', example='viewCount'),
+            controllerValueType?: string(name='ControllerValueType', description='The **value type (Boolean/Integer/Long/String)**.', example='Integer'),
+            displayName?: string(name='DisplayName', description='The display name.', example='Query results - Maximum number of records displayed at a time'),
+            displayNameEn?: string(name='DisplayNameEn', description='The **English display name**.', example='Query Results - Single Display Record Limit'),
+            enable?: boolean(name='Enable', description='Indicates whether the control item is **enabled**.', example='true'),
+            enterpriseEditionDefaultValue?: any(name='EnterpriseEditionDefaultValue', description='The default value for Enterprise Edition.', example='500000'),
+            enterpriseEditionIntervalValue?: [ int32 ](name='EnterpriseEditionIntervalValue', description='The valid value range [min, max] for Enterprise Edition.'),
+            professionalEditionDefaultValue?: any(name='ProfessionalEditionDefaultValue', description='The default value for Professional Edition.', example='200000'),
+            professionalEditionIntervalValue?: [ int32 ](name='ProfessionalEditionIntervalValue', description='The valid value range [min, max] for Professional Edition.'),
+            standardEditionDefaultValue?: any(name='StandardEditionDefaultValue', description='The **default value for Standard Edition**.', example='10000'),
+            standardEditionIntervalValue?: [ int32 ](name='StandardEditionIntervalValue', description='The valid value range [min, max] for Standard Edition.'),
+            userConfigValue?: any(name='UserConfigValue', description='The **user-configured value. The data type depends on the ControllerValueType**.', example='20'),
           }
-        ](name='Controllers', description='Controller list.
+        ](name='Controllers', description='The list of control items.
 
-Note: Valid controllers depend on the selected Schema. Refer to the Controller definition and the controller list of each Schema.'),
-        displayName?: string(name='DisplayName', description='**Display name**', example='Data Analysis'),
-        displayNameEn?: string(name='DisplayNameEn', description='**English display name**', example='Data Query'),
-        name?: string(name='Name', description='**Schema name**', example='DataQuerySecurityStrategySchema'),
-        systemPolicyDisplayName?: string(name='SystemPolicyDisplayName', description='System policy display name.', example='Default system generate data query policy'),
-        systemPolicyName?: string(name='SystemPolicyName', description='System policy name (when not empty, the system automatically creates a default policy).', example='SYSTEM_GENERATE_DEFAULT_DATA_QUERY'),
-      }(name='Content', description='**Policy content**. Refer to the StrategyContent definition.'),
-      controlDwScope?: string(name='ControlDwScope', description='**Control scope** (Workspace/Tenant).', example='Tenant'),
-      controlModule?: string(name='ControlModule', description='**Control module**', example='DataQuery'),
-      controlSubModule?: string(name='ControlSubModule', description='**Control sub-module**', example='MyCatalog'),
-      createTime?: string(name='CreateTime', description='Creation time.', example='2026-05-25T20:46:19'),
-      creator?: string(name='Creator', description='Creator user ID.', example='203322746501002787'),
-      description?: string(name='Description', description='**Policy description**', example='Controls the security behavior of query results in the Data Analysis module.'),
-      enabled?: boolean(name='Enabled', description='**Whether enabled**', example='true'),
-      id?: long(name='Id', description='**Policy ID**', example='16'),
-      name?: string(name='Name', description='**Policy name**', example='Default Data Analysis Policy'),
-      originPolicyId?: long(name='OriginPolicyId', description='System default policy source ID.', example='12'),
-      schemaName?: string(name='SchemaName', description='**Schema template name**', example='DataQuerySecurityStrategySchema'),
-      updateTime?: string(name='UpdateTime', description='Update time.', example='2026-05-25T20:46:19'),
-      updater?: string(name='Updater', description='Last updater user ID.', example='207947397706614297'),
-      workspaces?: [ long ](name='Workspaces', description='**Associated workspace ID list**'),
-    }(name='SecurityStrategy', description='Security policy.'),
-  }(name='Data', description='Data object.'),
-  requestId?: string(name='RequestId', description='**API request ID**', example='0bc5df3a17***903790e8e8a'),
+Note: Valid control items depend on the selected schema. For more information, see the Controller definition and the control item list for each schema.'),
+        displayName?: string(name='DisplayName', description='The **display name**.', example='Data Analysis'),
+        displayNameEn?: string(name='DisplayNameEn', description='The **English display name**.', example='Data Query'),
+        name?: string(name='Name', description='The **schema name**.', example='DataQuerySecurityStrategySchema'),
+        systemPolicyDisplayName?: string(name='SystemPolicyDisplayName', description='The display name of the system policy.', example='Default system generate data query policy'),
+        systemPolicyName?: string(name='SystemPolicyName', description='The system policy name. If this parameter is not empty, automatic creation of a default policy is triggered.', example='SYSTEM_GENERATE_DEFAULT_DATA_QUERY'),
+      }(name='Content', description='The **policy content**. For more information, see the StrategyContent definition.'),
+      controlDwScope?: string(name='ControlDwScope', description='The **control scope** (Workspace/Tenant).', example='Tenant'),
+      controlModule?: string(name='ControlModule', description='The **control module**.', example='DataQuery'),
+      controlSubModule?: string(name='ControlSubModule', description='The **control submodule**.', example='MyCatalog'),
+      createTime?: string(name='CreateTime', description='The creation time in the YYYY-MM-DDTHH:mm:ss format. The time zone is not specified in the current document.', example='2026-05-25T20:46:19'),
+      creator?: string(name='Creator', description='The user ID of the creator.', example='203322746501002787'),
+      description?: string(name='Description', description='The **policy description**.', example='Controls the security behavior of query results in the Data Analysis module'),
+      enabled?: boolean(name='Enabled', description='Indicates whether the policy is **enabled**.', example='true'),
+      id?: long(name='Id', description='The **policy ID**.', example='16'),
+      name?: string(name='Name', description='The **policy name**.', example='Default Data Analysis policy'),
+      originPolicyId?: long(name='OriginPolicyId', description='The source ID of the system default policy.', example='12'),
+      schemaName?: string(name='SchemaName', description='The **schema template name**.', example='DataQuerySecurityStrategySchema'),
+      updateTime?: string(name='UpdateTime', description='The update time in the YYYY-MM-DDTHH:mm:ss format. The time zone is not specified in the current document.', example='2026-05-25T20:46:19'),
+      updater?: string(name='Updater', description='The user ID of the last updater.', example='207947397706614297'),
+      workspaces?: [ long ](name='Workspaces', description='The **list of associated workspace IDs**.'),
+    }(name='SecurityStrategy', description='The security policy.'),
+  }(name='Data', description='The data object.'),
+  requestId?: string(name='RequestId', description='The **API request ID**.', example='0bc5df3a17***903790e8e8a'),
 }
 
 model FindBestMatchSecurityStrategyResponse = {
@@ -7526,8 +7628,8 @@ model FindBestMatchSecurityStrategyResponse = {
 }
 
 /**
-  * @description ## Request Description
-  * This API is used to find the most suitable security policy based on the provided control module, sub-module, and workspace ID. If a workspace ID is provided, the policy at the specified workspace level is matched first; otherwise, the tenant-level policy is returned. Note that system policies cannot be deleted or modified.
+  * @description ## Operation description
+  * This API operation queries the most suitable security policy based on the provided control module, submodule, and workspace ID. If a workspace ID is provided, the system preferentially matches policies at the specified workspace level. Otherwise, tenant-level policies are returned. Note that system policies cannot be deleted or modified.
   * @param request  the request parameters of FindBestMatchSecurityStrategy  FindBestMatchSecurityStrategyRequest
   * @return FindBestMatchSecurityStrategyResponse
  */
@@ -8023,6 +8125,64 @@ model GetBusinessResponse = {
 async function getBusiness(request: GetBusinessRequest): GetBusinessResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'GetBusiness', 'POST', '/', 'json', true, 'form', request);
+}
+
+model GetCalendarRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  id: long(name='Id', description='The ID of the scheduling calendar.
+
+This parameter is required.', example='12345', minimum=1, position='Body'),
+}
+
+model GetCalendarResponseBody = {
+  calendar?: {
+    allProjects?: boolean(name='AllProjects', description='Specifies whether the calendar applies to all workspaces.', example='true'),
+    description?: string(name='Description', description='The description of the scheduling calendar.', example='Weekday scheduling calendar'),
+    endDate?: string(name='EndDate', description='The end date of the calendar validity period, in the `yyyy-mm-dd` format. This parameter is returned only for strongly constrained calendars.', example='2026-10-09'),
+    expirationReminder?: string(name='ExpirationReminder', description='The expiration reminder. This parameter is returned only for strongly constrained calendars. Valid values:
+- OneMonthBefore: One month in advance.
+- OneWeekBefore: One week in advance.
+- ThreeDaysBefore: Three days in advance.', example='OneMonthBefore'),
+    fallbackPolicy?: string(name='FallbackPolicy', description='The default scheduling policy for dates that are not configured. This parameter is returned only for weakly constrained calendars. Valid values:
+- Normal: Normal scheduling.
+- Pause: Pause scheduling.
+- Skip: Dry run.', example='Normal'),
+    id?: long(name='Id', description='The ID of the scheduling calendar.', example='12345'),
+    modifyTime?: long(name='ModifyTime', description='The time when the calendar was modified. The value is a UNIX timestamp in milliseconds.', example='1640000000000'),
+    name?: string(name='Name', description='The name of the scheduling calendar.', example='work_calendar'),
+    overduePolicy?: string(name='OverduePolicy', description='The scheduling policy after the calendar expires. This parameter is returned only for strongly constrained calendars. Valid values:
+- Normal: Normal scheduling.
+- Pause: Pause scheduling.
+- Skip: Dry run.', example='Skip'),
+    owner?: string(name='Owner', description='The account ID of the owner.', example='123456789'),
+    projectIds?: [ long ](name='ProjectIds', description='The list of applicable workspace IDs. An empty array is returned if AllProjects is set to true.'),
+    schedulePolicy?: {
+      normalDates?: [ string ](name='NormalDates', description='The list of normal scheduling dates.'),
+      skipDates?: [ string ](name='SkipDates', description='The list of non-scheduling dates. Tasks perform dry runs on these dates.'),
+    }(name='SchedulePolicy', description='The date scheduling policy.'),
+    startDate?: string(name='StartDate', description='The start date of the calendar validity period, in the `yyyy-mm-dd` format. This parameter is returned only for strongly constrained calendars.', example='2026-10-08'),
+    type?: string(name='Type', description='The calendar type. Valid values:
+- StrongConstraint: Strongly constrained calendar.
+- WeakConstraint: Weakly constrained calendar.', example='StrongConstraint'),
+    version?: int32(name='Version', description='The version number.', example='1'),
+  }(name='Calendar', description='The current complete configuration of the scheduling calendar.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+}
+
+model GetCalendarResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCalendarResponseBody(name='body'),
+}
+
+/**
+  * @description DataWorks Enterprise Edition is required to use this API.
+  * @param request  the request parameters of GetCalendar  GetCalendarRequest
+  * @return GetCalendarResponse
+ */
+async function getCalendar(request: GetCalendarRequest): GetCalendarResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetCalendar', 'POST', '/', 'json', true, 'form', request);
 }
 
 model GetCatalogRequest {
@@ -12367,57 +12527,57 @@ async function getSchema(request: GetSchemaRequest): GetSchemaResponse {
 
 model GetSecurityStrategyRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
-  id: long(name='Id', description='**The ID of the security strategy.**
+  id: long(name='Id', description='**The security policy ID.**
 
 This parameter is required.', example='13', position='Query'),
 }
 
 model GetSecurityStrategyResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='0bc5df3a17****903790e8e8a'),
+  requestId?: string(name='RequestId', description='**The API request ID.**', example='0bc5df3a17****903790e8e8a'),
   securityStrategy?: {
     content?: {
-      controlDwScope?: string(name='ControlDwScope', description='The scope where the policy is effective. Valid values:', example='Tenant'),
-      controlModule?: string(name='ControlModule', description='The control module. This value corresponds to `controlModule` in the associated `SecurityStrategySchema`.', example='DataQuery'),
-      controlSubModule?: string(name='ControlSubModule', description='The control submodule. This value corresponds to `controlSubModule` in the associated `SecurityStrategySchema`.', example='MyCatalog'),
+      controlDwScope?: string(name='ControlDwScope', description='The effective scope.', example='Tenant'),
+      controlModule?: string(name='ControlModule', description='The control module. The SecurityStrategySchema.controlModule associated with the current policy.', example='DataQuery'),
+      controlSubModule?: string(name='ControlSubModule', description='The control sub-module. The SecurityStrategySchema.controlSubModule associated with the current policy.', example='MyCatalog'),
       controllers?: [ 
         {
           basicEditionDefaultValue?: any(name='BasicEditionDefaultValue', description='The default value for Basic Edition.', example='10000'),
-          basicEditionIntervalValue?: [ int32 ](name='BasicEditionIntervalValue', description='The valid value range for Basic Edition, specified as an array `[min, max]`.'),
-          controller?: string(name='Controller', description='The identifier for the controller. For valid values, see the documentation for the relevant schema.', example='viewCount'),
-          controllerValueType?: string(name='ControllerValueType', description='The value type of the controller. Valid values are `Boolean`, `Integer`, `Long`, and `String`.', example='Integer'),
-          displayName?: string(name='DisplayName', description='The display name.', example='查询结果-单次展示记录值上限'),
-          displayNameEn?: string(name='DisplayNameEn', description='The display name in English.', example='Query Results - Single Display Record Limit'),
-          enable?: boolean(name='Enable', description='Whether the controller is enabled.', example='true'),
+          basicEditionIntervalValue?: [ int32 ](name='BasicEditionIntervalValue', description='The valid value interval [min, max] for Basic Edition.'),
+          controller?: string(name='Controller', description='**The control item identifier.** For valid values, see the control item list for each schema.', example='viewCount'),
+          controllerValueType?: string(name='ControllerValueType', description='**The value type** (Boolean/Integer/Long/String).', example='Integer'),
+          displayName?: string(name='DisplayName', description='**The display name.**', example='Query results - Maximum number of records displayed at a time'),
+          displayNameEn?: string(name='DisplayNameEn', description='**The English display name.**', example='Query Results - Single Display Record Limit'),
+          enable?: boolean(name='Enable', description='**Specifies whether the control item is enabled.**', example='true'),
           enterpriseEditionDefaultValue?: any(name='EnterpriseEditionDefaultValue', description='The default value for Enterprise Edition.', example='10000'),
-          enterpriseEditionIntervalValue?: [ int32 ](name='EnterpriseEditionIntervalValue', description='The valid value range for Enterprise Edition, specified as an array `[min, max]`.'),
+          enterpriseEditionIntervalValue?: [ int32 ](name='EnterpriseEditionIntervalValue', description='The valid value interval [min, max] for Enterprise Edition.'),
           professionalEditionDefaultValue?: any(name='ProfessionalEditionDefaultValue', description='The default value for Professional Edition.', example='10000'),
-          professionalEditionIntervalValue?: [ int32 ](name='ProfessionalEditionIntervalValue', description='The valid value range for Professional Edition, specified as an array `[min, max]`.'),
+          professionalEditionIntervalValue?: [ int32 ](name='ProfessionalEditionIntervalValue', description='The valid value interval [min, max] for Professional Edition.'),
           standardEditionDefaultValue?: any(name='StandardEditionDefaultValue', description='The default value for Standard Edition.', example='10000'),
-          standardEditionIntervalValue?: [ int32 ](name='StandardEditionIntervalValue', description='The valid value range for Standard Edition, specified as an array `[min, max]`.'),
-          userConfigValue?: any(name='UserConfigValue', description='The value configured by the user. The data type of this value is specified by the `ControllerValueType` parameter.', example='10'),
+          standardEditionIntervalValue?: [ int32 ](name='StandardEditionIntervalValue', description='The valid value interval [min, max] for Standard Edition.'),
+          userConfigValue?: any(name='UserConfigValue', description='**The user-configured value.** The type depends on ControllerValueType.', example='10'),
         }
-      ](name='Controllers', description='A list of controllers.
+      ](name='Controllers', description='The list of control items.
 
-**Note:** The available controllers depend on the selected schema. See the documentation for your schema for a list of valid controllers.'),
-      displayName?: string(name='DisplayName', description='The `displayName` field from the associated `SecurityStrategySchema`.', example='数据分析'),
-      displayNameEn?: string(name='DisplayNameEn', description='The `displayNameEn` field from the associated `SecurityStrategySchema`.', example='Data Query'),
-      name?: string(name='Name', description='The `name` field from the associated `SecurityStrategySchema`.', example='DataQuerySecurityStrategySchema'),
+Note: Valid control items depend on the selected schema. Refer to the controller definition and the control item list for each schema.'),
+      displayName?: string(name='DisplayName', description='The SecurityStrategySchema.displayName associated with the current policy.', example='Data Analysis'),
+      displayNameEn?: string(name='DisplayNameEn', description='The SecurityStrategySchema.displayNameEn associated with the current policy.', example='Data Query'),
+      name?: string(name='Name', description='The SecurityStrategySchema.name associated with the current policy.', example='DataQuerySecurityStrategySchema'),
       systemPolicyDisplayName?: string(name='SystemPolicyDisplayName', description='The display name of the system policy.', example='Default system generate data query policy'),
-      systemPolicyName?: string(name='SystemPolicyName', description='The name of the system policy. If specified, a default policy is automatically created.', example='SYSTEM_GENERATE_DEFAULT_DATA_QUERY'),
-    }(name='Content', description='The content of the security policy. Its structure is defined by the `SecurityStrategySchema`.'),
-    controlDwScope?: string(name='ControlDwScope', description='The scope where the policy is effective. Valid values: `Workspace` or `Tenant`.', example='Tenant'),
+      systemPolicyName?: string(name='SystemPolicyName', description='The system policy name. If this parameter is not empty, the system performs automatic creation of a default policy.', example='SYSTEM_GENERATE_DEFAULT_DATA_QUERY'),
+    }(name='Content', description='The policy content. The content is constrained by SecurityStrategySchema.'),
+    controlDwScope?: string(name='ControlDwScope', description='The control scope (Workspace/Tenant).', example='Tenant'),
     controlModule?: string(name='ControlModule', description='The control module.', example='DataQuery'),
-    controlSubModule?: string(name='ControlSubModule', description='The control submodule.', example='MyCatalog'),
-    createTime?: string(name='CreateTime', description='The time when the security policy was created.', example='2026-05-25T20:46:19'),
-    creator?: string(name='Creator', description='The ID of the creator.', example='203322746501002787'),
-    description?: string(name='Description', description='The policy description.', example='控制数据分析模块的查询结果安全行为'),
-    enabled?: boolean(name='Enabled', description='Whether the security policy is enabled.', example='true'),
-    id?: long(name='Id', description='The policy ID.', example='13'),
-    name?: string(name='Name', description='The policy name.', example='默认数据分析策略'),
-    originPolicyId?: long(name='OriginPolicyId', description='The source ID of the default system policy.', example='12'),
-    schemaName?: string(name='SchemaName', description='The name of the schema template.', example='DataQuerySecurityStrategySchema'),
-    updateTime?: string(name='UpdateTime', description='The time when the security policy was last updated.', example='2026-05-25T20:46:19'),
-    updater?: string(name='Updater', description='The ID of the last updater.', example='203322746501002787'),
+    controlSubModule?: string(name='ControlSubModule', description='The control sub-module.', example='MyCatalog'),
+    createTime?: string(name='CreateTime', description='The creation time. The format is YYYY-MM-DDTHH:mm:ss. The time zone is not specified in the current document.', example='2026-05-25T20:46:19'),
+    creator?: string(name='Creator', description='The user ID of the creator.', example='203322746501002787'),
+    description?: string(name='Description', description='The policy description.', example='Controls the security behavior of query results in the Data Analysis module'),
+    enabled?: boolean(name='Enabled', description='Specifies whether the policy is enabled.', example='true'),
+    id?: long(name='Id', description='**The policy ID.**', example='13'),
+    name?: string(name='Name', description='**The policy name.**', example='Default Data Analysis policy'),
+    originPolicyId?: long(name='OriginPolicyId', description='The source ID of the system default policy.', example='12'),
+    schemaName?: string(name='SchemaName', description='The schema template name.', example='DataQuerySecurityStrategySchema'),
+    updateTime?: string(name='UpdateTime', description='The update time. The format is YYYY-MM-DDTHH:mm:ss. The time zone is not specified in the current document.', example='2026-05-25T20:46:19'),
+    updater?: string(name='Updater', description='The user ID of the last updater.', example='203322746501002787'),
     workspaces?: [ long ](name='Workspaces', description='The list of associated workspace IDs.'),
   }(name='SecurityStrategy', description='The security policy.'),
 }
@@ -12429,11 +12589,11 @@ model GetSecurityStrategyResponse = {
 }
 
 /**
-  * @description ## Request
-  * - This API retrieves the complete configuration information for a security policy by its ID.
-  * - The API returns an error message if the provided `Id` is invalid or does not exist.
-  * - The response includes basic policy information, such as its name and description, and policy details, such as control items and their settings.
-  * - Note: Some fields in a system default policy cannot be modified or deleted.
+  * @description ## Request description
+  * - This API retrieves all configuration information of a specific security policy by using the specified security policy ID.
+  * - Ensure that the provided `Id` parameter value is valid and exists. Otherwise, an error message is returned.
+  * - The returned data structure includes the basic information of the policy, such as the name and description, and the detailed policy content, such as control items and their settings.
+  * - Note: Some fields of system default policies may be protected from modification or deletion.
   * @param request  the request parameters of GetSecurityStrategy  GetSecurityStrategyRequest
   * @return GetSecurityStrategyResponse
  */
@@ -14192,6 +14352,154 @@ model ListBusinessResponse = {
 async function listBusiness(request: ListBusinessRequest): ListBusinessResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'ListBusiness', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListCalendarVersionsRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  id: long(name='Id', description='The ID of the scheduling calendar.
+
+This parameter is required.', example='12345', minimum=1, position='Body'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1', minimum=1, position='Body'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Valid values: 1 to 100.', example='10', minimum=1, maximum=100, position='Body'),
+}
+
+model ListCalendarVersionsResponseBody = {
+  pagingInfo?: {
+    calendarVersions?: [ 
+      {
+        allProjects?: boolean(name='AllProjects', description='Specifies whether the calendar applies to all workspaces.', example='true'),
+        description?: string(name='Description', description='The description of the scheduling calendar.', example='Weekday scheduling calendar'),
+        endDate?: string(name='EndDate', description='The end date of the calendar validity period, in the `yyyy-mm-dd` format. This parameter is returned only for strongly constrained calendars.', example='2026-10-09'),
+        expirationReminder?: string(name='ExpirationReminder', description='The expiration reminder. This parameter is returned only for strongly constrained calendars. Valid values:
+
+- OneMonthBefore: One month in advance.
+- OneWeekBefore: One week in advance.
+- ThreeDaysBefore: Three days in advance.', example='OneMonthBefore'),
+        fallbackPolicy?: string(name='FallbackPolicy', description='The default scheduling policy for dates that are not specified. This parameter is returned only for weakly constrained calendars. Valid values:
+
+- Normal: Normal scheduling.
+- Pause: Pause scheduling.
+- Skip: Dry run.', example='Normal'),
+        id?: long(name='Id', description='The ID of the scheduling calendar.', example='12345'),
+        modifyTime?: long(name='ModifyTime', description='The time when the calendar was modified. The value is a UNIX timestamp in milliseconds.', example='1640000000000'),
+        name?: string(name='Name', description='The name of the scheduling calendar.', example='work_calendar'),
+        overduePolicy?: string(name='OverduePolicy', description='The scheduling policy after the calendar expires. This parameter is returned only for strongly constrained calendars. Valid values:
+
+- Normal: Normal scheduling.
+- Pause: Pause scheduling.
+- Skip: Dry run.', example='Skip'),
+        owner?: string(name='Owner', description='The account ID of the owner.', example='123456789'),
+        projectIds?: [ long ](name='ProjectIds', description='The list of applicable workspace IDs. An empty array is returned if AllProjects is set to true.'),
+        schedulePolicy?: {
+          normalDates?: [ string ](name='NormalDates', description='The list of normal scheduling dates.'),
+          skipDates?: [ string ](name='SkipDates', description='The list of non-scheduling dates. Tasks perform dry runs on these dates.'),
+        }(name='SchedulePolicy', description='The date scheduling policy.'),
+        startDate?: string(name='StartDate', description='The start date of the calendar validity period, in the `yyyy-mm-dd` format. This parameter is returned only for strongly constrained calendars.', example='2026-10-08'),
+        type?: string(name='Type', description='The calendar type. Valid values:
+
+- StrongConstraint: Strongly constrained calendar.
+- WeakConstraint: Weakly constrained calendar.', example='StrongConstraint'),
+        version?: int32(name='Version', description='The version number.', example='1'),
+      }
+    ](name='CalendarVersions', description='The complete list of historical versions of the scheduling calendar, sorted in descending order by version number.'),
+    pageNumber?: int32(name='PageNumber', description='The page number.', example='1', minimum=1),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10', minimum=1, maximum=100),
+    totalCount?: int32(name='TotalCount', description='The total number of entries.', example='10'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+}
+
+model ListCalendarVersionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCalendarVersionsResponseBody(name='body'),
+}
+
+/**
+  * @description DataWorks Enterprise Edition is required.
+  * @param request  the request parameters of ListCalendarVersions  ListCalendarVersionsRequest
+  * @return ListCalendarVersionsResponse
+ */
+async function listCalendarVersions(request: ListCalendarVersionsRequest): ListCalendarVersionsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListCalendarVersions', 'POST', '/', 'json', true, 'form', request);
+}
+
+model ListCalendarsRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  name?: string(name='Name', description='The name of the scheduling calendar. Partial match is supported.', example='calendar', position='Body'),
+  owner?: string(name='Owner', description='The account ID of the owner. Exact match is supported.', example='123456789', position='Body'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1', minimum=1, position='Body'),
+  pageSize?: int32(name='PageSize', description='The number of items per page. Default value: 10. Valid values: 1 to 100.', example='10', minimum=1, maximum=100, position='Body'),
+  projectId?: long(name='ProjectId', description='The workspace ID. Queries the calendars applicable to this workspace, including those applicable to all workspaces. If this parameter is not specified, the calendars of the current tenant are queried.', example='1000', minimum=1, position='Body'),
+  sortBy?: string(name='SortBy', description='The sorting rule. The format is "Field Direction", separated by a space.
+
+- Field: ModifyTime, Name, or Id.
+- Direction: Asc for ascending order, or Desc for descending order. If this parameter is not specified, Asc is used.
+
+Default value: ModifyTime Desc.', example='ModifyTime Desc', position='Body'),
+}
+
+model ListCalendarsResponseBody = {
+  pagingInfo?: {
+    calendars?: [ 
+      {
+        allProjects?: boolean(name='AllProjects', description='Indicates whether the calendar is applicable to all workspaces.', example='true'),
+        description?: string(name='Description', description='The description of the scheduling calendar.', example='Weekday scheduling calendar'),
+        endDate?: string(name='EndDate', description='The end date of the calendar validity period. Format: `yyyy-mm-dd`. This parameter is returned only for strongly constrained calendars.', example='2026-10-09'),
+        expirationReminder?: string(name='ExpirationReminder', description='The expiration reminder. This parameter is returned only for strongly constrained calendars. Valid values:
+
+- OneMonthBefore: One month in advance.
+- OneWeekBefore: One week in advance.
+- ThreeDaysBefore: Three days in advance.', example='OneMonthBefore'),
+        fallbackPolicy?: string(name='FallbackPolicy', description='The default scheduling policy for dates that are not configured. This parameter is returned only for weakly constrained calendars. Valid values:
+
+- Normal: Normal scheduling.
+- Pause: Pause scheduling.
+- Skip: Dry run.', example='Normal'),
+        id?: long(name='Id', description='The ID of the scheduling calendar.', example='12345'),
+        modifyTime?: long(name='ModifyTime', description='The time when the calendar was modified. The value is a UNIX timestamp in milliseconds.', example='1640000000000'),
+        name?: string(name='Name', description='The name of the scheduling calendar.', example='work_calendar'),
+        overduePolicy?: string(name='OverduePolicy', description='The scheduling policy after the calendar expires. This parameter is returned only for strongly constrained calendars. Valid values:
+
+- Normal: Normal scheduling.
+- Pause: Pause scheduling.
+- Skip: Dry run.', example='Skip'),
+        owner?: string(name='Owner', description='The account ID of the owner.', example='123456789'),
+        projectIds?: [ long ](name='ProjectIds', description='The list of applicable workspace IDs. An empty array is returned if AllProjects is set to true.'),
+        schedulePolicy?: {
+          normalDates?: [ string ](name='NormalDates', description='The list of normal scheduling dates.'),
+          skipDates?: [ string ](name='SkipDates', description='The list of non-scheduling dates. Tasks perform dry runs on these dates.'),
+        }(name='SchedulePolicy', description='The date scheduling policy.'),
+        startDate?: string(name='StartDate', description='The start date of the calendar validity period. Format: `yyyy-mm-dd`. This parameter is returned only for strongly constrained calendars.', example='2026-10-08'),
+        type?: string(name='Type', description='The calendar type. Valid values:
+
+- StrongConstraint: Strongly constrained calendar.
+- WeakConstraint: Weakly constrained calendar.', example='StrongConstraint'),
+        version?: int32(name='Version', description='The version number.', example='1'),
+      }
+    ](name='Calendars', description='The list of scheduling calendars.'),
+    pageNumber?: int32(name='PageNumber', description='The page number.', example='1', minimum=1),
+    pageSize?: int32(name='PageSize', description='The number of items per page.', example='10', minimum=1, maximum=100),
+    totalCount?: int32(name='TotalCount', description='The total number of items.', example='10'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+}
+
+model ListCalendarsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCalendarsResponseBody(name='body'),
+}
+
+/**
+  * @description DataWorks Enterprise Edition is required.
+  * @param request  the request parameters of ListCalendars  ListCalendarsRequest
+  * @return ListCalendarsResponse
+ */
+async function listCalendars(request: ListCalendarsRequest): ListCalendarsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ListCalendars', 'POST', '/', 'json', true, 'form', request);
 }
 
 model ListCatalogsRequest {
@@ -20024,42 +20332,42 @@ model ListProjectRolesRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-shanghai', position='Host'),
   codes?: [ string ](name='Codes', description='The list of workspace role codes.', shrink='json', position='Body'),
   names?: [ string ](name='Names', description='The list of workspace role names.', shrink='json', position='Body'),
-  pageNumber?: int32(name='PageNumber', description='The requested page number. Used for pagination.', example='1', position='Body'),
+  pageNumber?: int32(name='PageNumber', description='The page number of the requested data.', example='1', position='Body'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='10', position='Body'),
   projectId: long(name='ProjectId', description='The ID of the DataWorks workspace. You can log on to the [DataWorks console](https://workbench.data.aliyun.com/console) and go to the workspace management page to obtain the ID.
 
-This parameter specifies the DataWorks workspace to use for this API call.
+This parameter specifies the DataWorks workspace for the current API call.
 
 This parameter is required.', example='21229', position='Body'),
-  type?: string(name='Type', description='The role type of the workspace. Valid values:
-- UserCustom: user-defined role
-- System: system role', example='System', position='Body'),
+  type?: string(name='Type', description='The type of the workspace role. Valid values:
+- UserCustom: Custom role.
+- System: System role.', example='System', position='Body'),
 }
 
 model ListProjectRolesResponseBody = {
   pagingInfo?: {
-    pageNumber?: string(name='PageNumber', description='The requested page number. Used for pagination.', example='1'),
+    pageNumber?: string(name='PageNumber', description='The page number of the requested data.', example='1'),
     pageSize?: string(name='PageSize', description='The number of entries per page.', example='10'),
     projectRoles?: [ 
       {
-        code?: string(name='Code', description='The role code of the workspace.', example='role_project_guest'),
+        code?: string(name='Code', description='The code of the workspace role.', example='role_project_guest'),
         modulePermissions?: [ 
           {
-            moduleId?: long(name='ModuleId', example='2'),
-            moduleName?: string(name='ModuleName', example='HoloStudio'),
-            permissionType?: string(name='PermissionType', example='Read'),
+            moduleId?: long(name='ModuleId', description='The ID of the DataWorks module.', example='2'),
+            moduleName?: string(name='ModuleName', description='The name of the DataWorks module.', example='HoloStudio'),
+            permissionType?: string(name='PermissionType', description='The type of the permission.', example='Read'),
           }
-        ](name='ModulePermissions'),
-        name?: string(name='Name', description='The role name of the workspace.', example='Visitors'),
+        ](name='ModulePermissions', description='The list of DataWorks product module permissions granted to the role.'),
+        name?: string(name='Name', description='The name of the workspace role.', example='Visitors'),
         projectId?: long(name='ProjectId', description='The ID of the DataWorks workspace.
 
-Note: For system default workspace roles, ProjectId returns a fixed value of -1.', example='21229'),
-        type?: string(name='Type', description='The role type of the workspace.', example='System'),
+Note: For default system workspace roles, the value of ProjectId is fixed to -1.', example='21229'),
+        type?: string(name='Type', description='The type of the workspace role.', example='System'),
       }
     ](name='ProjectRoles', description='The list of workspace roles.'),
-    totalCount?: string(name='TotalCount', description='The total number of entries that meet the filter conditions.', example='42'),
+    totalCount?: string(name='TotalCount', description='The total number of entries that meet the specified conditions.', example='42'),
   }(name='PagingInfo', description='The pagination information.'),
-  requestId?: string(name='RequestId', description='The request ID. Used to locate logs and troubleshoot issues.', example='61649187-0BCF-5E75-8D4B-64FDBEBBB447'),
+  requestId?: string(name='RequestId', description='The request ID. You can use the ID to locate logs and troubleshoot issues.', example='61649187-0BCF-5E75-8D4B-64FDBEBBB447'),
 }
 
 model ListProjectRolesResponse = {
@@ -20069,7 +20377,7 @@ model ListProjectRolesResponse = {
 }
 
 /**
-  * @description You must purchase DataWorks Basic Edition or a higher edition to use this operation.
+  * @description You must purchase DataWorks Basic Edition or later to use this operation.
   * @param request  the request parameters of ListProjectRoles  ListProjectRolesRequest
   * @return ListProjectRolesResponse
  */
@@ -20654,63 +20962,63 @@ model ListSecurityStrategiesRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
   controlModule?: string(name='ControlModule', description='**The control module.**', example='DataQuery', position='Body'),
   controlSubModule?: string(name='ControlSubModule', description='**The control submodule.**', example='MyCatalog', position='Body'),
-  pageNumber?: int32(name='PageNumber', description='The page number. Starts from 1. Default: 1.', example='1', position='Body'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page. Default: 20.', example='10', minimum=1, maximum=100, position='Body'),
+  pageNumber?: int32(name='PageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1', position='Body'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 20.', example='10', minimum=1, maximum=100, position='Body'),
 }
 
 model ListSecurityStrategiesResponseBody = {
   pagingInfo?: {
     pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
-    pageSize?: int32(name='PageSize', description='The page size. Default value: 20.', example='10'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 20.', example='10'),
     securityStrategies?: [ 
       {
         content?: {
-          controlDwScope?: string(name='ControlDwScope', description='The control scope.', example='Tenant'),
-          controlModule?: string(name='ControlModule', description='The control module. This value is from the `controlModule` property of the associated `SecurityStrategySchema`.', example='DataQuery'),
-          controlSubModule?: string(name='ControlSubModule', description='The control submodule. This value is from the `controlSubModule` property of the associated `SecurityStrategySchema`.', example='MyCatalog'),
+          controlDwScope?: string(name='ControlDwScope', description='**The control scope.**', example='Tenant'),
+          controlModule?: string(name='ControlModule', description='The control module. The SecurityStrategySchema.controlModule associated with the current policy.', example='DataQuery'),
+          controlSubModule?: string(name='ControlSubModule', description='The control submodule. The SecurityStrategySchema.controlSubModule associated with the current policy.', example='MyCatalog'),
           controllers?: [ 
             {
-              basicEditionDefaultValue?: any(name='BasicEditionDefaultValue', description='The default value for Basic Edition.', example='10000'),
-              basicEditionIntervalValue?: [ int32 ](name='BasicEditionIntervalValue', description='The valid value range for Basic Edition, specified as [min, max].'),
-              controller?: string(name='Controller', description='The identifier of the control item. For valid values, see the list of control items for each schema.', example='viewCount'),
-              controllerValueType?: string(name='ControllerValueType', description='The data type of the value. Valid values: `Boolean`, `Integer`, `Long`, and `String`.', example='Integer'),
-              displayName?: string(name='DisplayName', description='The display name.', example='查询结果-单次展示记录值上限'),
-              displayNameEn?: string(name='DisplayNameEn', description='The display name in English.', example='Query Results - Single Display Record Limit'),
-              enable?: boolean(name='Enable', description='Whether the control item is enabled.'),
+              basicEditionDefaultValue?: any(name='BasicEditionDefaultValue', description='**The default value for Basic Edition.**', example='10000'),
+              basicEditionIntervalValue?: [ int32 ](name='BasicEditionIntervalValue', description='The valid value range for Basic Edition [min, max].'),
+              controller?: string(name='Controller', description='The identifier of the control item. For valid values, see the control item list for each schema.', example='viewCount'),
+              controllerValueType?: string(name='ControllerValueType', description='**The value type (Boolean/Integer/Long/String).**', example='Integer'),
+              displayName?: string(name='DisplayName', description='The display name.', example='Query results - Maximum number of records displayed at a time'),
+              displayNameEn?: string(name='DisplayNameEn', description='**The English display name.**', example='Query Results - Single Display Record Limit'),
+              enable?: boolean(name='Enable', description='**Indicates whether the control item is enabled.**'),
               enterpriseEditionDefaultValue?: any(name='EnterpriseEditionDefaultValue', description='The default value for Enterprise Edition.', example='10000'),
-              enterpriseEditionIntervalValue?: [ int32 ](name='EnterpriseEditionIntervalValue', description='The valid value range for Enterprise Edition, specified as [min, max].'),
+              enterpriseEditionIntervalValue?: [ int32 ](name='EnterpriseEditionIntervalValue', description='The valid value range for Enterprise Edition [min, max].'),
               professionalEditionDefaultValue?: any(name='ProfessionalEditionDefaultValue', description='The default value for Professional Edition.', example='10000'),
-              professionalEditionIntervalValue?: [ int32 ](name='ProfessionalEditionIntervalValue', description='The valid value range for Professional Edition, specified as [min, max].'),
-              standardEditionDefaultValue?: any(name='StandardEditionDefaultValue', description='The default value for Standard Edition.', example='10000'),
-              standardEditionIntervalValue?: [ int32 ](name='StandardEditionIntervalValue', description='The valid value range for Standard Edition, specified as [min, max].'),
-              userConfigValue?: any(name='UserConfigValue', description='The value set for the control item. The data type of this value is specified by `ControllerValueType`.', example='20'),
+              professionalEditionIntervalValue?: [ int32 ](name='ProfessionalEditionIntervalValue', description='The valid value range for Professional Edition [min, max].'),
+              standardEditionDefaultValue?: any(name='StandardEditionDefaultValue', description='**The default value for Standard Edition.**', example='10000'),
+              standardEditionIntervalValue?: [ int32 ](name='StandardEditionIntervalValue', description='The valid value range for Standard Edition [min, max].'),
+              userConfigValue?: any(name='UserConfigValue', description='**The user-configured value. The type depends on ControllerValueType.**', example='20'),
             }
-          ](name='Controllers', description='A list of control items. The available items depend on the schema. For details, see the `Controller` definition and the list of control items for each schema.'),
-          displayName?: string(name='DisplayName', description='The `displayName` of the associated `SecurityStrategySchema`.', example='数据分析'),
-          displayNameEn?: string(name='DisplayNameEn', description='The `displayNameEn` of the associated `SecurityStrategySchema`.', example='Data Query'),
-          name?: string(name='Name', description='The `name` of the associated `SecurityStrategySchema`.', example='DataQuerySecurityStrategySchema'),
+          ](name='Controllers', description='The list of control items. Valid control items depend on the selected schema. Refer to the controller definition and the control item list for each schema.'),
+          displayName?: string(name='DisplayName', description='The SecurityStrategySchema.displayName associated with the current policy.', example='Data Analysis'),
+          displayNameEn?: string(name='DisplayNameEn', description='The SecurityStrategySchema.displayNameEn associated with the current policy.', example='Data Query'),
+          name?: string(name='Name', description='The SecurityStrategySchema.name associated with the current policy.', example='DataQuerySecurityStrategySchema'),
           systemPolicyDisplayName?: string(name='SystemPolicyDisplayName', description='The display name of the system policy.', example='Default system generate data query policy'),
-          systemPolicyName?: string(name='SystemPolicyName', description='The name of the system policy. If this property is not empty, the system automatically creates a default policy.', example='SYSTEM_GENERATE_DEFAULT_DATA_QUERY'),
-        }(name='Content', description='The policy content. The content is constrained by `SecurityStrategySchema`.'),
-        controlDwScope?: string(name='ControlDwScope', description='The control scope. Valid values: `Workspace` and `Tenant`.', example='Tenant'),
-        controlModule?: string(name='ControlModule', description='The control module.', example='DataQuery'),
-        controlSubModule?: string(name='ControlSubModule', description='The control submodule.', example='MyCatalog'),
-        createTime?: string(name='CreateTime', description='The creation time.', example='2026-05-25T20:46:19'),
-        creator?: string(name='Creator', description='The user ID of the creator.', example='203322746501002787'),
-        description?: string(name='Description', description='The policy description.', example='控制数据分析模块的查询结果安全行为'),
-        enabled?: boolean(name='Enabled', description='Whether the policy is enabled.', example='false'),
-        id?: string(name='Id', description='The policy ID.', example='12345'),
-        name?: string(name='Name', description='The policy name.', example='默认数据分析策略'),
-        originPolicyId?: long(name='OriginPolicyId', description='The source ID of the system default policy.', example='12'),
+          systemPolicyName?: string(name='SystemPolicyName', description='The system policy name. If this parameter is not empty, the system performs automatic creation of a default policy.', example='SYSTEM_GENERATE_DEFAULT_DATA_QUERY'),
+        }(name='Content', description='The policy content. The content is constrained by SecurityStrategySchema.'),
+        controlDwScope?: string(name='ControlDwScope', description='**The control scope** (Workspace/Tenant).', example='Tenant'),
+        controlModule?: string(name='ControlModule', description='**The control module.**', example='DataQuery'),
+        controlSubModule?: string(name='ControlSubModule', description='**The control submodule.**', example='MyCatalog'),
+        createTime?: string(name='CreateTime', description='The creation time. The format is YYYY-MM-DDTHH:mm:ss. The time zone is not specified in the current document.', example='2026-05-25T20:46:19'),
+        creator?: string(name='Creator', description='**The ID of the creator.**', example='203322746501002787'),
+        description?: string(name='Description', description='The description of the policy.', example='Controls the security behavior of query results in the Data Analysis module'),
+        enabled?: boolean(name='Enabled', description='**Indicates whether the policy is enabled.**', example='false'),
+        id?: string(name='Id', description='The ID of the policy.', example='12345'),
+        name?: string(name='Name', description='The policy name.', example='Default Data Analysis policy'),
+        originPolicyId?: long(name='OriginPolicyId', description='**The source ID of the system default policy.**', example='12'),
         schemaName?: string(name='SchemaName', description='The name of the schema template.', example='DataQuerySecurityStrategySchema'),
-        updateTime?: string(name='UpdateTime', description='The time of the last update.', example='2026-05-25T20:46:19'),
-        updater?: string(name='Updater', description='The ID of the user who last updated the policy.', example='203322746501002787'),
-        workspaces?: [ long ](name='Workspaces', description='The associated workspace IDs.'),
+        updateTime?: string(name='UpdateTime', description='The update time. The format is YYYY-MM-DDTHH:mm:ss. The time zone is not specified in the current document.', example='2026-05-25T20:46:19'),
+        updater?: string(name='Updater', description='**The ID of the last updater.**', example='203322746501002787'),
+        workspaces?: [ long ](name='Workspaces', description='**The list of associated workspace IDs.**'),
       }
     ](name='SecurityStrategies', description='The list of security policies.'),
-    totalCount?: int32(name='TotalCount', description='The total count.', example='12'),
-  }(name='PagingInfo', description='The pagination result.'),
-  requestId?: string(name='RequestId', description='The request ID.', example='0bc5df3a17****903790e8e8a'),
+    totalCount?: int32(name='TotalCount', description='The total number of records.', example='12'),
+  }(name='PagingInfo', description='The pagination information.'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='0bc5df3a17****903790e8e8a'),
 }
 
 model ListSecurityStrategiesResponse = {
@@ -20720,11 +21028,11 @@ model ListSecurityStrategiesResponse = {
 }
 
 /**
-  * @description ## Request
-  * - This API retrieves a paginated list of configured security policies.
-  * - The `ControlModule` and `ControlSubModule` parameters filter policies by a specific module or submodule.
-  * - The `PageNum` and `PageSize` parameters control pagination. `PageNum` specifies the page number to retrieve (default: 1), and `PageSize` specifies the number of policies to return per page (default: 20).
-  * - Use the `MaxResults` and `NextToken` private parameters for advanced pagination.
+  * @description ## Request description
+  * - This operation retrieves the configured security policies in the system in pages.
+  * - You can use the `ControlModule` and `ControlSubModule` parameters to filter policies under specific modules or submodules.
+  * - The pagination parameters include `PageNum` and `PageSize`, which indicate the page number and the number of entries per page. The default values are 1 and 20.
+  * - If you need further pagination control, you can use the `MaxResults` and `NextToken` parameters (private parameters).
   * @param request  the request parameters of ListSecurityStrategies  ListSecurityStrategiesRequest
   * @return ListSecurityStrategiesResponse
  */
@@ -21159,28 +21467,28 @@ async function listSnapshots(request: ListSnapshotsRequest): ListSnapshotsRespon
 model ListTablesRequest {
   regionId?: string(name='RegionId', description='This parameter is required.', example='cn-shanghai', position='Host'),
   comment?: string(name='Comment', description='The comment. Fuzzy match is supported.', example='this is a comment', position='Query'),
-  includeExtendedProperties?: boolean(name='IncludeExtendedProperties', description='Specifies whether to return extended properties. Set this parameter to `true` to return extended properties or `false` to not return them.', example='true', position='Query'),
+  includeExtendedProperties?: boolean(name='IncludeExtendedProperties', description='Specifies whether to return extended properties. If this parameter is set to `true`, extended properties are returned. If this parameter is set to `false`, extended properties are not returned.', example='true', position='Query'),
   name?: string(name='Name', description='The name. Fuzzy match is supported.', example='abc', position='Query'),
   order?: string(name='Order', description='The sort order. Default value: Asc. Valid values:
 - Asc: ascending order
 - Desc: descending order', example='Asc', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1', minimum=1, position='Query'),
-  pageSize?: int32(name='PageSize', description='The page size. Default value: 10. Maximum value: 100.', example='10', minimum=1, maximum=100, position='Query'),
-  parentMetaEntityId: string(name='ParentMetaEntityId', description='The ID of the parent-level metadata entity. You can obtain this value from the response of the ListDatabases or ListSchemas operation. For more information, see [Metadata entity concepts](https://help.aliyun.com/document_detail/2880092.html).
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='10', minimum=1, maximum=100, position='Query'),
+  parentMetaEntityId: string(name='ParentMetaEntityId', description='The ID of the parent metadata entity. You can refer to the response of the ListDatabases or ListSchemas operation, or see [Metadata entity concepts](https://help.aliyun.com/document_detail/2880092.html).
 
-- The value can be the database to which the table belongs. The format of `ParentMetaEntityId` is `${EntityType}:${InstanceID or encoded URL}:${DataCatalogIdentifier}:${DatabaseName}`. Use an empty string as a placeholder for levels that do not exist.
+- The parent entity can be the database to which the table belongs. The `ParentMetaEntityId` format is `${EntityType}:${Instance ID or URL-encoded JDBC URL}:${Data catalog identifier}:${Database name}`. Use an empty string as a placeholder for non-existent levels.
 
-- The value can also be the database schema to which the table belongs. The format of `ParentMetaEntityId` is `${EntityType}:${InstanceID or encoded URL}:${DataCatalogIdentifier}:${DatabaseName}:${SchemaName}`. Use an empty string as a placeholder for levels that do not exist.
+- The parent entity can also be the database schema to which the table belongs. The `ParentMetaEntityId` format is `${EntityType}:${Instance ID or URL-encoded JDBC URL}:${Data catalog identifier}:${Database name}:${Schema name}`. Use an empty string as a placeholder for non-existent levels.
 
-> - You can set `ParentMetaEntityId` to a database schema only when the database type supports schemas (`maxcompute/holo/postgresql/sqlserver/hybriddb_for_postgresql/oracle`, where the three-layer model must be enabled for the maxcompute type). Otherwise, you can set it only to a database.
-> - For the maxcompute and dlf types, use an empty string as a placeholder for the instance ID. For the maxcompute type, the database name is the MaxCompute project name.
-> - For the starrocks type, the data catalog identifier is the catalog name. For the dlf type, the data catalog identifier is the catalog ID. Other types do not support the catalog level, and you can use an empty string as a placeholder.
+> - The database schema can be used for `ParentMetaEntityId` only when the database type supports schemas (`maxcompute`, `holo`, `postgresql`, `sqlserver`, `hybriddb_for_postgresql`, or `oracle`). For MaxCompute, the three-level model must be enabled. Otherwise, only the database can be used.
+> - For MaxCompute and DLF types, use an empty string as a placeholder for the instance ID. For MaxCompute, the database name is the MaxCompute project name.
+> - For StarRocks, the data catalog identifier is the catalog name. For DLF, the data catalog identifier is the catalog ID. Other types do not support the catalog level, so use an empty string as a placeholder.
 
-The following examples show the format of ParentMetaEntityId for common types:
+Examples of `ParentMetaEntityId` formats for common types:
 
 - `maxcompute-project:::project_name`
 
-- `maxcompute-schema:::project_name:schema_name` (only when the three-layer model is enabled for the project)
+- `maxcompute-schema:::project_name:schema_name` (only when the three-level model is enabled for the project)
 
 - `dlf-database::catalog_id:database_name`
 
@@ -21191,33 +21499,33 @@ The following examples show the format of ParentMetaEntityId for common types:
 - `mysql-database:(instance_id|encoded_jdbc_url)::database_name`
 
 > Where:  
-> - `instance_id`: The instance ID. This value is required when the data source is registered in instance mode.
-> - `encoded_jdbc_url`: The URL-encoded JDBC connection string. This value is required when the data source is registered by using a connection string.
-> - `catalog_id`: The DLF catalog ID.
-> - `project_name`: The MaxCompute project name.
-> - `database_name`: The database name.
-> - `schema_name`: The schema name.
+> - `instance_id`: the instance ID, which is required when the data source is registered in instance mode.
+> - `encoded_jdbc_url`: the URL-encoded JDBC connection string, which is required when the data source is registered by using a connection string.
+> - `catalog_id`: the DLF catalog ID.
+> - `project_name`: the MaxCompute project name.
+> - `database_name`: the database name.
+> - `schema_name`: the schema name.
 
 This parameter is required.', example='maxcompute-project:::project_name', position='Query'),
-  sortBy?: string(name='SortBy', description='The field by which to sort the results. Default value: CreateTime. Valid values:
+  sortBy?: string(name='SortBy', description='The field used for sorting. Default value: CreateTime. Valid values:
 - CreateTime: creation time
 - ModifyTime: modification time
 - Name: name
 - TableType: table type', example='CreateTime', position='Query'),
-  tableTypes?: [ string ](name='TableTypes', description='The list of table types to query. If this parameter is left empty, all types are queried.', shrink='simple', position='Query'),
+  tableTypes?: [ string ](name='TableTypes', description='The list of table types to query. If this parameter is left empty, all table types are queried.', shrink='simple', position='Query'),
 }
 
 model ListTablesResponseBody = {
   pagingInfo?: {
     pageNumber?: int32(name='PageNumber', description='The page number.', example='1'),
-    pageSize?: int32(name='PageSize', description='The page size.', example='10'),
+    pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
     tables?: [
       Table
-    ](name='Tables', description='The list of data tables.'),
+    ](name='Tables', description='The list of tables.'),
     totalCount?: long(name='TotalCount', description='The total number of entries.', example='100'),
-  }(name='PagingInfo', description='The pagination result.'),
+  }(name='PagingInfo', description='The paging information.'),
   requestId?: string(name='RequestId', description='The request ID.', example='E25887B7-579C-54A5-9C4F-83A****'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model ListTablesResponse = {
@@ -21227,7 +21535,7 @@ model ListTablesResponse = {
 }
 
 /**
-  * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this feature.
+  * @description 1. You must purchase DataWorks Basic Edition or later to use this API.
   * @param request  the request parameters of ListTables  ListTablesRequest
   * @return ListTablesResponse
  */
@@ -24232,6 +24540,72 @@ model UpdateBusinessResponse = {
 async function updateBusiness(request: UpdateBusinessRequest): UpdateBusinessResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'UpdateBusiness', 'POST', '/', 'json', true, 'form', request);
+}
+
+model UpdateCalendarRequest {
+  regionId?: string(name='RegionId', description='This parameter is required.', position='Host'),
+  allProjects?: boolean(name='AllProjects', description='Specifies whether the calendar applies to all workspaces. Default value: false. Valid values:
+- true: All workspaces.
+- false: The workspaces specified by ProjectIds.', example='true', position='Body'),
+  description: string(name='Description', description='The description of the scheduling calendar. The description must be 5 to 2,048 characters in length.
+
+This parameter is required.', example='Weekday scheduling calendar', minLength=5, maxLength=2048, position='Body'),
+  endDate?: string(name='EndDate', description='The end date of the calendar validity period, in the `yyyy-mm-dd` format. Required when Type is set to StrongConstraint. The end date cannot be earlier than the start date, and the interval between the start date and the end date must be less than 5 years.', example='2026-10-09', position='Body'),
+  expirationReminder?: string(name='ExpirationReminder', description='The expiration reminder. Required when Type is set to StrongConstraint. Valid values:
+- OneMonthBefore: One month in advance.
+- OneWeekBefore: One week in advance.
+- ThreeDaysBefore: Three days in advance.', example='OneMonthBefore', position='Body'),
+  fallbackPolicy?: string(name='FallbackPolicy', description='The default scheduling policy for dates that are not configured. Required when Type is set to WeakConstraint. Valid values:
+- Normal: Normal scheduling.
+- Pause: Pause scheduling.
+- Skip: Dry run.', example='Normal', position='Body'),
+  id: long(name='Id', description='The ID of the scheduling calendar.
+
+This parameter is required.', example='12345', minimum=1, position='Body'),
+  overduePolicy?: string(name='OverduePolicy', description='The scheduling policy after the calendar expires. Required when Type is set to StrongConstraint. Valid values:
+- Normal: Normal scheduling.
+- Pause: Pause scheduling.
+- Skip: Dry run.', example='Skip', position='Body'),
+  owner: string(name='Owner', description='The account ID of the owner.
+
+This parameter is required.', example='123456789', position='Body'),
+  projectIds?: [ long ](name='ProjectIds', description='The list of applicable workspace IDs.
+- Required and cannot be empty when AllProjects is set to false or left unspecified.
+- Leave empty or pass an empty array when AllProjects is set to true.', shrink='json', position='Body'),
+  schedulePolicy: {
+    normalDates?: [ string ](name='NormalDates', description='The list of normal scheduling dates.'),
+    skipDates?: [ string ](name='SkipDates', description='The list of non-scheduling dates. Tasks perform dry runs on these dates. Used only for strong constraint calendars.'),
+  }(name='SchedulePolicy', description='The date scheduling policy. For a strong constraint calendar, the normal scheduling dates and non-scheduling dates must cover every day within the validity period and cannot overlap.
+
+This parameter is required.', shrink='json', position='Body'),
+  startDate?: string(name='StartDate', description='The start date of the calendar validity period, in the `yyyy-mm-dd` format. Required when Type is set to StrongConstraint.', example='2026-10-08', position='Body'),
+  type: string(name='Type', description='The calendar type. Valid values:
+- StrongConstraint: Strong constraint calendar.
+- WeakConstraint: Weak constraint calendar.
+
+This parameter is required.', example='StrongConstraint', position='Body'),
+}
+
+model UpdateCalendarResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='6A6CBE87-9F91-1323-B680-E7A7065XXXXX'),
+  version?: int32(name='Version', description='The updated version number.', example='2'),
+}
+
+model UpdateCalendarResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateCalendarResponseBody(name='body'),
+}
+
+/**
+  * @description You must purchase DataWorks Enterprise Edition to use this feature.
+  * The calendar name cannot be modified. Unsubmitted dates are not retained.
+  * @param request  the request parameters of UpdateCalendar  UpdateCalendarRequest
+  * @return UpdateCalendarResponse
+ */
+async function updateCalendar(request: UpdateCalendarRequest): UpdateCalendarResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateCalendar', 'POST', '/', 'json', true, 'form', request);
 }
 
 model UpdateColumnBusinessMetadataRequest {
