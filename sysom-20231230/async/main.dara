@@ -1151,6 +1151,58 @@ async function getCopilotHistory(request: GetCopilotHistoryRequest): GetCopilotH
   return @handler.do('RESTFUL', 'GetCopilotHistory', 'POST', '/api/v1/copilot/get_copilot_history', 'json', false, 'json', request);
 }
 
+model GetCveHotfixRequest {
+  cveIds: [ string ](name='cveIds', description='The list of CVE IDs.
+
+This parameter is required.', position='Body'),
+  kernelVersions?: [ string ](name='kernelVersions', description='The list of full kernel versions.', position='Body'),
+}
+
+model GetCveHotfixResponseBody = {
+  code?: string(name='code', description='The status code.
+- If `code == Success`, the authorization is successful.
+- Other status codes indicate that the authorization failed. If the authorization failed, check the `message` field for the detailed fault information.', example='Success'),
+  data?: [ 
+    {
+      cveId?: string(name='cveId', description='The CVE ID.', example='CVE-2026-12345'),
+      hotfix?: {
+        description?: string(name='description', description='The hotfix description.', example='Fixes the kernel issue corresponding to the CVE'),
+        hotfixName?: string(name='hotfixName', description='The hotfix name.', example='12345678'),
+        moduleName?: string(name='moduleName', description='The hotfix module name.', example='kpatch_example'),
+        packages?: [ 
+          {
+            arch?: string(name='arch', description='The architecture.', example='x86_64'),
+            distro?: string(name='distro', description='The distribution. This value is null if the distribution is not registered.', example='alinux3'),
+            kernelVersion?: string(name='kernelVersion', description='The compatible full kernel version.', example='5.10.134-18.al8.x86_64'),
+            rpmNevra?: string(name='rpmNevra', description='The RPM package identifier.', example='kernel-hotfix-example-1.0-1.x86_64'),
+          }
+        ](name='packages', description='The list of published packages that meet the kernel requirements.'),
+        version?: string(name='version', description='The hotfix version.', example='1.0'),
+      }(name='hotfix', description='The hotfix information for the CVE.'),
+    }
+  ](name='data', description='The returned data.'),
+  message?: string(name='message', description='The error message.
+- If `code == Success`, this field is empty.
+- Otherwise, this field contains the request error message.', example='“”'),
+  requestId?: string(name='requestId', description='The request ID.', example='example-request-id'),
+}
+
+model GetCveHotfixResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCveHotfixResponseBody(name='body'),
+}
+
+/**
+  * @description Queries published hotfixes in batches by CVE ID. You can filter the results by full kernel version.
+  * @param request  the request parameters of GetCveHotfix  GetCveHotfixRequest
+  * @return GetCveHotfixResponse
+ */
+async function getCveHotfix(request: GetCveHotfixRequest): GetCveHotfixResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetCveHotfix', 'POST', '/api/v1/hotfixManager/hotfixes/cve', 'json', false, 'json', request);
+}
+
 model GetDiagnosisResultRequest {
   taskId: string(name='task_id', description='The diagnostic task ID.
 
@@ -3284,13 +3336,13 @@ async function listAlertStrategies(request: ListAlertStrategiesRequest): ListAle
 
 model ListAllInstancesRequest {
   current?: string(name='current', description='The current page number.', example='1', position='Query'),
-  filters?: string(name='filters', description='The list of filter conditions.', example='{}', position='Query'),
+  filters?: string(name='filters', description='The list of filters.', example='{}', position='Query'),
   instanceType?: string(name='instanceType', description='The instance type.', example='ecs', position='Query'),
   managedType?: string(name='managedType', description='The management type.', example='managed', position='Query'),
-  maxResults?: int32(name='maxResults', description='The maximum number of entries to return in a single request.', example='100', position='Query'),
-  nextToken?: string(name='nextToken', description='The pagination token.
-> If this parameter is not empty, more data is available.', example='U+w1wv2R4ZWR5oZLXD0+Dp4dD+2BRJj42DLT6GrZysw=', position='Query'),
-  pageSize?: string(name='pageSize', description='The number of entries per page. Default value: 10.', example='10', position='Query'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records to return in a single request.', example='100', position='Query'),
+  nextToken?: string(name='nextToken', description='The pagination cursor.
+> If this parameter is not empty, it indicates that more data is available.', example='U+w1wv2R4ZWR5oZLXD0+Dp4dD+2BRJj42DLT6GrZysw=', position='Query'),
+  pageSize?: string(name='pageSize', description='The number of entries to return on each page. Default value: 10.', example='10', position='Query'),
   pluginId?: string(name='pluginId', description='The plugin ID.', example='01fc4a0b-f199-4885-9861-b4054a310fe7', position='Query'),
   region?: string(name='region', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
@@ -3327,19 +3379,19 @@ model ListAllInstancesResponseBody = {
       resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='3b24a621-acb3-11ef-8c90-00163e1029af'),
       resourceGroupName?: string(name='resourceGroupName', description='The resource group name.', example='xxxx'),
       status?: string(name='status', description='The running status of the instance. Valid values:
-- **Running**: Running.
-- **Offline**: Offline.
+- **Running**: The instance is running.
+- **Offline**: The instance is offline.
 
 
 
-> An instance in the Offline status indicates that the heartbeat between the node and the SysOM server is lost. It does not mean that the corresponding ECS instance is not running.', example='Running'),
+> An instance in the Offline state indicates that the heartbeat from the node to the SysOM server is lost. It does not mean that the corresponding ECS instance is not running.', example='Running'),
     }
   ](name='data', description='The returned data.'),
-  maxResults?: int32(name='maxResults', description='The maximum number of entries returned.', example='20'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return.', example='20'),
   message?: string(name='message', description='The error message.
 - If `code == Success`, this field is empty.
-- Otherwise, this field contains the error message of the request.', example='instance not exists'),
-  nextToken?: string(name='nextToken', description='The pagination token.
+- Otherwise, this field contains the request error message.', example='instance not exists'),
+  nextToken?: string(name='nextToken', description='The pagination cursor.
 
 > A non-empty value indicates that more data is available.', example='c2f78a783f49457caba6bace6f6f79e4'),
   requestId?: string(name='requestId', description='Id of the request', example='2D693121-C925-5154-8DF6-C09A8B369822'),
