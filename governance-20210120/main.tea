@@ -211,6 +211,8 @@ model DecommissionGovernanceResponse = {
 /**
  * @summary Disables and unsubscribes from Cloud Governance Center.
  *
+ * @description Asynchronously disables AI Cloud Governance Center by RegionId. This operation first disables governance maturity detection, waits for the cleanup to complete, and then disables the AI Cloud Governance Center service. This operation does not destroy or unsubscribe from Landing Zone. Before the request is accepted, Landing Zone must be disabled or not enabled. If Landing Zone is being set up, has been successfully set up, has failed to be set up, or has residual cleanup data, the request is rejected and the OperationDenied.LandingZoneEnabled error is returned. A successful request only indicates that the request is accepted. Call GetGovernanceServiceStatus to query the final result. You can initiate the disable operation when the status is Enabled or DisableFailed. If the status is Disabled or EnableFailed, the InvalidStatus.NotEnabled error is returned. If the status is Enabling or Disabling, the InvalidStatus.OperationInProgress error is returned. If the disable operation fails, the disabled parts are not restored. You can retry the operation after you troubleshoot the cause of the failure. If the failure persists, submit a ticket.
+ *
  * @param request DecommissionGovernanceRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DecommissionGovernanceResponse
@@ -240,6 +242,8 @@ async function decommissionGovernanceWithOptions(request: DecommissionGovernance
 
 /**
  * @summary Disables and unsubscribes from Cloud Governance Center.
+ *
+ * @description Asynchronously disables AI Cloud Governance Center by RegionId. This operation first disables governance maturity detection, waits for the cleanup to complete, and then disables the AI Cloud Governance Center service. This operation does not destroy or unsubscribe from Landing Zone. Before the request is accepted, Landing Zone must be disabled or not enabled. If Landing Zone is being set up, has been successfully set up, has failed to be set up, or has residual cleanup data, the request is rejected and the OperationDenied.LandingZoneEnabled error is returned. A successful request only indicates that the request is accepted. Call GetGovernanceServiceStatus to query the final result. You can initiate the disable operation when the status is Enabled or DisableFailed. If the status is Disabled or EnableFailed, the InvalidStatus.NotEnabled error is returned. If the status is Enabling or Disabling, the InvalidStatus.OperationInProgress error is returned. If the disable operation fails, the disabled parts are not restored. You can retry the operation after you troubleshoot the cause of the failure. If the failure persists, submit a ticket.
  *
  * @param request DecommissionGovernanceRequest
  * @return DecommissionGovernanceResponse
@@ -845,6 +849,70 @@ async function getEnrolledAccountWithOptions(request: GetEnrolledAccountRequest,
 async function getEnrolledAccount(request: GetEnrolledAccountRequest): GetEnrolledAccountResponse {
   var runtime = new Util.RuntimeOptions{};
   return getEnrolledAccountWithOptions(request, runtime);
+}
+
+model GetGovernanceServiceStatusRequest {
+  regionId?: string(name='RegionId', description='必填。待操作或查询的地域 ID，必须为服务支持的合法地域，且与本次调用 endpoint 对应的地域一致；不提供隐式默认地域。
+
+This parameter is required.', example='cn-hangzhou'),
+}
+
+model GetGovernanceServiceStatusResponseBody = {
+  failureCode?: string(name='FailureCode', description='业务失败原因码。EnableFailed 或 DisableFailed 时返回；其他状态可省略。Enabling 自动补偿期间可返回最近一次补偿异常码，但仍属于进行中状态。', example='Governance.DisableFailed'),
+  failureMessage?: string(name='FailureMessage', description='可供调用方理解和处理的安全业务失败原因。EnableFailed 或 DisableFailed 时返回；其他状态可省略。Enabling 自动补偿期间可返回最近一次补偿异常说明。', example='The service could not be disabled. Query the service status before retrying. If the problem persists, submit a ticket.'),
+  requestId?: string(name='RequestId', example='60D54503-F1F6-51B6-B6FA-A70CBDA2A68C'),
+  serviceStatus?: string(name='ServiceStatus', description='AI 云治理中心服务状态。Enabled：AI 云治理中心和治理成熟度检测均开通成功；Disabled：从未开通或已正常关闭；EnableFailed：开通失败且已自动清理本次开通部分，可重新完整开通；DisableFailed：关闭失败，可能存在部分已关闭状态，可重试关闭，不能直接开通；Enabling：开通或失败后的自动补偿进行中，补偿失败仍保留该状态并继续补偿；Disabling：关闭进行中。Enabling/Disabling 需继续轮询，其他四态为结果状态。既有开通记录保持原有兼容口径；本次 API 新发起开通严格在两项均成功后返回 Enabled。', example='Enabled'),
+}
+
+model GetGovernanceServiceStatusResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetGovernanceServiceStatusResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询云治理中心服务开通状态
+ *
+ * @description 按 RegionId 查询 AI 云治理中心服务状态。开通和关闭均异步执行，调用方应轮询至结果状态。查询成功的 ServiceStatus 为 EnableFailed/DisableFailed 时，失败原因随 FailureCode/FailureMessage 返回，仍属于成功查询。Enabling/Disabling 是进行中状态；开通补偿未完成或补偿失败后继续补偿时仍为 Enabling。仅缺失/非法地域、地域与 endpoint 不匹配、无权限等请求问题走错误响应；不得将子服务的业务失败转为查询请求失败。既有开通记录保持原有兼容口径；本次 API 新发起开通仅在 AI 云治理中心和治理成熟度检测均开通成功后返回 Enabled。
+ *
+ * @param request GetGovernanceServiceStatusRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetGovernanceServiceStatusResponse
+ */
+async function getGovernanceServiceStatusWithOptions(request: GetGovernanceServiceStatusRequest, runtime: Util.RuntimeOptions): GetGovernanceServiceStatusResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetGovernanceServiceStatus',
+    version = '2021-01-20',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询云治理中心服务开通状态
+ *
+ * @description 按 RegionId 查询 AI 云治理中心服务状态。开通和关闭均异步执行，调用方应轮询至结果状态。查询成功的 ServiceStatus 为 EnableFailed/DisableFailed 时，失败原因随 FailureCode/FailureMessage 返回，仍属于成功查询。Enabling/Disabling 是进行中状态；开通补偿未完成或补偿失败后继续补偿时仍为 Enabling。仅缺失/非法地域、地域与 endpoint 不匹配、无权限等请求问题走错误响应；不得将子服务的业务失败转为查询请求失败。既有开通记录保持原有兼容口径；本次 API 新发起开通仅在 AI 云治理中心和治理成熟度检测均开通成功后返回 Enabled。
+ *
+ * @param request GetGovernanceServiceStatusRequest
+ * @return GetGovernanceServiceStatusResponse
+ */
+async function getGovernanceServiceStatus(request: GetGovernanceServiceStatusRequest): GetGovernanceServiceStatusResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getGovernanceServiceStatusWithOptions(request, runtime);
 }
 
 model ListAccountFactoryBaselineItemsRequest {
@@ -1621,7 +1689,9 @@ model OpenGovernanceServiceResponse = {
 }
 
 /**
- * @summary Activates Cloud Governance Center.
+ * @summary Enables Cloud Governance Center.
+ *
+ * @description Asynchronously enables AI Cloud Governance Center for the specified region ID. This process first enables the AI Cloud Governance Center service and then enables governance maturity detection, excluding the Landing Zone. A successful request only indicates that the request is accepted, not that the enabling process is complete. Use GetGovernanceServiceStatus to poll until the final status is reached. If any step fails, the system automatically cleans up the partially enabled components. During the cleanup process, including subsequent compensation attempts after initial failures, the status remains Enabling. The status changes to EnableFailed only after the cleanup is complete. You can initiate the enabling process when the status is Disabled or EnableFailed. If the status is Enabled, the system returns InvalidStatus.AlreadyEnabled. If the status is DisableFailed, the system returns InvalidStatus.NotAllowed. If the status is Enabling or Disabling, the system returns InvalidStatus.OperationInProgress. Existing services remain compatible, and newly initiated enabling processes execute the complete two-step enabling workflow.
  *
  * @param request OpenGovernanceServiceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1651,7 +1721,9 @@ async function openGovernanceServiceWithOptions(request: OpenGovernanceServiceRe
 }
 
 /**
- * @summary Activates Cloud Governance Center.
+ * @summary Enables Cloud Governance Center.
+ *
+ * @description Asynchronously enables AI Cloud Governance Center for the specified region ID. This process first enables the AI Cloud Governance Center service and then enables governance maturity detection, excluding the Landing Zone. A successful request only indicates that the request is accepted, not that the enabling process is complete. Use GetGovernanceServiceStatus to poll until the final status is reached. If any step fails, the system automatically cleans up the partially enabled components. During the cleanup process, including subsequent compensation attempts after initial failures, the status remains Enabling. The status changes to EnableFailed only after the cleanup is complete. You can initiate the enabling process when the status is Disabled or EnableFailed. If the status is Enabled, the system returns InvalidStatus.AlreadyEnabled. If the status is DisableFailed, the system returns InvalidStatus.NotAllowed. If the status is Enabling or Disabling, the system returns InvalidStatus.OperationInProgress. Existing services remain compatible, and newly initiated enabling processes execute the complete two-step enabling workflow.
  *
  * @param request OpenGovernanceServiceRequest
  * @return OpenGovernanceServiceResponse
