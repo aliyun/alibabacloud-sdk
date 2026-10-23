@@ -93,33 +93,49 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model Catalog {
-  comment?: string(name='Comment', description='The comment.', example='this is a comment'),
-  createTime?: long(name='CreateTime', description='The creation time.', example='1722073854000'),
-  id?: string(name='Id', description='ID', example='dlf-catalog:123456XXX:test_catalog
-starrocks-catalog:c-abc123xxx:default_catalog'),
-  modifyTime?: long(name='ModifyTime', description='The modification time.', example='1722073854000'),
-  name?: string(name='Name', description='The name.', example='default_catalog'),
-  parentMetaEntityId?: string(name='ParentMetaEntityId', description='The ID of the parent entity.', example='dlf
-starrocks:c-abc123xxx'),
-  type?: string(name='Type', description='The type.', example='Internal'),
+  comment?: string(name='Comment', description='The comment.', example='Default catalog'),
+  createTime?: long(name='CreateTime', description='The creation time. The value is a millisecond-level timestamp.', example='1725330777000'),
+  id?: string(name='Id', description='The ID of the data catalog entity. Currently, the DLF and StarRocks types are supported. For more information, see [Concepts of metadata entities](https://help.aliyun.com/document_detail/2880092.html).
+
+- For the DLF type, the format is `dlf-catalog::catalog_id`.
+
+- For the StarRocks type, the format is `starrocks-catalog:(instance_id|encoded_jdbc_url):catalog_name`.
+
+> Where:  
+`catalog_id`: The DLF catalog ID.  
+`instance_id`: The instance ID, which is required when the data source is registered in instance mode.  
+`encoded_jdbc_url`: the URL-encoded JDBC connection string, which is required when the data source is registered by using a connection string.  
+`catalog_name`: the name of the StarRocks catalog.', example='dlf-catalog::catalog1'),
+  modifyTime?: long(name='ModifyTime', description='The modification time. The value is a millisecond-level timestamp.', example='1725330777000'),
+  name?: string(name='Name', description='The name.', example='catalog1'),
+  parentMetaEntityId?: string(name='ParentMetaEntityId', description='The ID of the parent entity.
+
+- For the DLF type, the format of `ParentMetaEntityId` is `dlf`.
+
+- For the StarRocks type, the format of `ParentMetaEntityId` is `starrocks:(instance_id|encoded_jdbc_url)`.
+
+> Where:  
+`instance_id`: The instance ID, which is required when the data source is registered in instance mode.  
+`encoded_jdbc_url`: the URL-encoded JDBC connection string, which is required when the data source is registered by using a connection string.', example='dlf'),
+  type?: string(name='Type', description='The catalog type. The valid values depend on the metadata collector type.', example='HIVE'),
 }
 
 model Column {
   businessMetadata?: {
     customAttributes?: map[string][ string ](name='CustomAttributes', description='The custom attribute values, where the key is the custom attribute identifier and the value is a list of attribute values.'),
-    description?: string(name='Description', description='The business description of the column. Currently, only MaxCompute, HMS (EMR cluster), and DLF types are supported.', example='Business description of Column 1'),
+    description?: string(name='Description', description='The business description of the column. This is supported only by MaxCompute, HMS (EMR cluster), and DLF types.', example='Business description of Column 1'),
   }(name='BusinessMetadata', description='The business metadata.'),
   comment?: string(name='Comment', description='The comment.', example='Column 1'),
-  foreignKey?: boolean(name='ForeignKey', description='Specifies whether the column is a foreign key. Currently, only the MaxCompute type is supported.', example='false'),
+  foreignKey?: boolean(name='ForeignKey', description='Indicates whether the column is a foreign key. This is supported only by the MaxCompute type.', example='false'),
   id?: string(name='Id', description='The ID. For more information, see [Metadata entity concepts](https://help.aliyun.com/document_detail/2880092.html).
 
-The format is `${EntityType}:${Instance ID or URL-encoded URL}:${Catalog ID}:${Database name}:${Schema name}:${Table name}:${Column name}`. Use an empty string as a placeholder for non-existent levels.
+The format is `${EntityType}:${Instance ID or URL-encoded URL}:${Data catalog identifier}:${Database name}:${Schema name}:${Table name}:${Column name}`. Use an empty string as a placeholder for non-existent levels.
 
-> For MaxCompute and DLF types, use an empty string as a placeholder for the instance ID. For the MaxCompute type, the database name is the MaxCompute project name. Projects with the three-tier model enabled require the schema name. For projects without the three-tier model enabled, use an empty string as a placeholder for the schema name.
+> For MaxCompute and DLF types, use an empty string as a placeholder for the instance ID. For the MaxCompute type, the database name is the MaxCompute project name. Projects with the three-tier model enabled must provide the schema name. For projects without the three-tier model enabled, use an empty string as a placeholder for the schema name.
 
-> For the StarRocks type, the catalog ID is the catalog name. For the DLF type, the catalog ID is the catalog ID. Other types do not support the catalog level, and an empty string can be used as a placeholder.
+> For the StarRocks type, the data catalog identifier is the catalog name. For the DLF type, the data catalog identifier is the catalog ID. Other types do not support the catalog level, and an empty string can be used as a placeholder.
 
-The following are the ID formats for several common types:
+The ID formats for several common types are as follows:
 
 `maxcompute-column:::project_name:[schema_name]:table_name:column_name`
 
@@ -137,15 +153,15 @@ The following are the ID formats for several common types:
 `catalog_id`: The DLF catalog ID.   
 `project_name`: The MaxCompute project name.   
 `database_name`: The database name.   
-`schema_name`: The schema name. For the MaxCompute type, this is required only if the three-tier model is enabled for the project. If it is not enabled, use an empty string as a placeholder.    
+`schema_name`: The schema name. For the MaxCompute type, this is required only if the three-tier model is enabled for the project. Otherwise, use an empty string as a placeholder.    
 `table_name`: The table name.   
 `column_name`: The column name.', example='maxcompute-column:::project_name:[schema_name]:table_name:column_name'),
   name?: string(name='Name', description='The name.', example='column_name'),
-  partitionKey?: boolean(name='PartitionKey', description='Specifies whether the column is a partition key.', example='false'),
+  partitionKey?: boolean(name='PartitionKey', description='Indicates whether the column is a partition key.', example='false'),
   position?: int32(name='Position', description='The position.', example='1'),
-  primaryKey?: boolean(name='PrimaryKey', description='Specifies whether the column is a primary key. Currently, only the MaxCompute type is supported.', example='false'),
-  statisticsInfos?: map[string]string(name='StatisticsInfos'),
-  tableId?: string(name='TableId', description='The ID of the table. Refer to the Table object.', example='maxcompute-table:::project_name:[schema_name]:table_name'),
+  primaryKey?: boolean(name='PrimaryKey', description='Indicates whether the column is a primary key. This is supported only by the MaxCompute type.', example='false'),
+  statisticsInfos?: map[string]string(name='StatisticsInfos', description='The statistical metrics of the column, where the key is the metric name and the value is the statistical value in string format. Current metrics include the number of production runs in the last 30 days (prodRunCount30d) and the number of downstream dependent tasks (downstreamTaskCount30d). Metrics without statistical values are not returned.'),
+  tableId?: string(name='TableId', description='The table ID. For more information, see the `Table` object.', example='maxcompute-table:::project_name:[schema_name]:table_name'),
   technicalMetadata?: {
     parameters?: map[string]string(name='Parameters', description='The technical parameters of the column, where the key is the parameter name and the value is a string. Objects or arrays are represented as JSON strings.'),
   }(name='TechnicalMetadata', description='The technical metadata.'),
@@ -663,7 +679,7 @@ model IdentifyCredential {
 
 model LineageEntity {
   attributes?: map[string]string(name='Attributes', description='The other properties.', example='{"key1":"value1"}'),
-  id?: string(name='Id', description='The entity ID.', example='maxcompute-table:123456::test_project::test_tbl'),
+  id?: string(name='Id', description='The entity ID.', example='maxcompute-table:::project_name:[schema_name]:table_name'),
   name?: string(name='Name', description='The name.', example='test_tbl'),
 }
 
@@ -753,20 +769,21 @@ model Table {
     categories?: [[ 
       {
         id?: string(name='Id', description='The category ID.', example='CATEGORY.456'),
-        name?: string(name='Name', description='The name.', example='测试类目'),
+        name?: string(name='Name', description='The name.', example='Test category'),
         parentId?: string(name='ParentId', description='The parent category ID. This field can be empty.', example='CATEGORY.123'),
       }
     ]    ](name='Categories', description='The list of categories.'),
-    customAttributes?: map[string][ string ](name='CustomAttributes', description='The custom attribute values, where the key is the custom attribute identifier and the value is the list of attribute values.'),
+    customAttributes?: map[string][ string ](name='CustomAttributes', description='The custom attribute values. The key is the custom attribute identifier, and the value is the list of attribute values.'),
     extension?: {
       envType?: string(name='EnvType', description='The environment type. Valid values:
+
 - Prod: Production environment.
 - Dev: Development environment.', example='Dev'),
-      favorCount?: long(name='FavorCount', description='The number of times added to favorites.', example='0'),
+      favorCount?: long(name='FavorCount', description='The number of favorites.', example='0'),
       projectId?: long(name='ProjectId', description='The workspace ID.', example='234'),
       readCount?: long(name='ReadCount', description='The number of reads.', example='0'),
       viewCount?: long(name='ViewCount', description='The number of views.', example='0'),
-    }(name='Extension', description='The extension information. This parameter is currently supported only for the MaxCompute type.'),
+    }(name='Extension', description='The extension information. Currently, only the MaxCompute type is supported.'),
     readme?: string(name='Readme', description='The instructions.', example='## Instructions'),
     tags?: [ 
       {
@@ -780,16 +797,16 @@ model Table {
         name?: string(name='Name', description='The task name.', example='test_task'),
       }
     ](name='UpstreamTasks', description='The list of upstream output tasks.'),
-  }(name='BusinessMetadata', description='The business metadata related to DataWorks, including the instructions, tags, categories, upstream output tasks, and extension information.'),
+  }(name='BusinessMetadata', description='The business metadata related to DataWorks, including usage instructions, tags, categories, upstream output tasks, and extended information.'),
   comment?: string(name='Comment', description='The comment.', example='Test table'),
-  createTime?: long(name='CreateTime', description='The creation time. The value is a timestamp in milliseconds.', example='1736852168000'),
-  id?: string(name='Id', description='The ID. For more information, see [Metadata entity concepts](https://help.aliyun.com/document_detail/2880092.html).
+  createTime?: long(name='CreateTime', description='The creation time. The value is a millisecond timestamp.', example='1736852168000'),
+  id?: string(name='Id', description='The ID. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
 
-The format is `${EntityType}:${Instance ID or URL-encoded URL}:${Data catalog identifier}:${Database name}:${Schema name}:${Table name}`. Use an empty string as a placeholder for non-existent levels.
+The format is `${EntityType}:${Instance ID or escaped URL}:${Data catalog identifier}:${Database name}:${Schema name}:${Table name}`. Empty strings are used as placeholders for non-existent levels.
 
-> For MaxCompute and DLF types, use an empty string as a placeholder for the instance ID. For the MaxCompute type, the database name is the MaxCompute project name. Projects with the three-level model enabled must provide the schema name. For projects without the three-level model enabled, use an empty string as a placeholder for the schema name.
+> For MaxCompute and DLF types, an empty string is used as a placeholder for the instance ID. For the MaxCompute type, the database name is the MaxCompute project name. Projects with the three-tier model enabled must provide the schema name. For projects without the three-tier model enabled, an empty string is used as a placeholder for the schema name.
 
-> For the StarRocks type, the data catalog identifier is the catalog name. For the DLF type, the data catalog identifier is the catalog ID. Other types do not support the catalog level, and you can use an empty string as a placeholder. 
+> For the StarRocks type, the data catalog identifier is the catalog name. For the DLF type, the data catalog identifier is the catalog ID. Other types do not support the catalog level, and an empty string can be used as a placeholder. 
 
 The ID formats for several common types are as follows: 
 
@@ -803,30 +820,30 @@ The ID formats for several common types are as follows:
 
 `mysql-table:(instance_id|encoded_jdbc_url)::database_name::table_name`
 > Where:  
-`instance_id`: The instance ID, which is required when the data source is registered in instance mode.  
-`encoded_jdbc_url`: The URL-encoded JDBC connection string, which is required when the data source is registered in connection string mode.  
+`instance_id`: The instance ID. Required when the data source is registered in instance mode.  
+`encoded_jdbc_url`: The URL-encoded JDBC connection string. Required when the data source is registered by using a connection string.  
 `catalog_id`: The DLF catalog ID.  
 `project_name`: The MaxCompute project name.   
 `database_name`: The database name.   
-`schema_name`: The schema name. For the MaxCompute type, this is required only when the three-level model is enabled for the project. If it is not enabled, use an empty string as a placeholder.   
+`schema_name`: The schema name. For the MaxCompute type, this is required only when the three-tier model is enabled for the project. If the three-tier model is not enabled, an empty string is used as a placeholder.   
 `table_name`: The table name.', example='dlf-table::catalog_id:database_name::table_name'),
-  modifyTime?: long(name='ModifyTime', description='The modification time. The value is a timestamp in milliseconds.', example='1736852168000'),
+  modifyTime?: long(name='ModifyTime', description='The modification time. The value is a millisecond timestamp.', example='1736852168000'),
   name?: string(name='Name', description='The name.', example='table_name'),
-  parentMetaEntityId?: string(name='ParentMetaEntityId', description='The ID of the parent metadata entity. For more information, see [Metadata entity concepts](https://help.aliyun.com/document_detail/2880092.html).
+  parentMetaEntityId?: string(name='ParentMetaEntityId', description='The ID of the parent metadata entity. For more information, see [Concepts related to metadata entities](https://help.aliyun.com/document_detail/2880092.html).
 
-- For types that support schemas (`maxcompute/holo/postgresql/sqlserver/hybriddb_for_postgresql/oracle`, where the MaxCompute type requires the three-level model to be enabled for the project), `ParentMetaEntityId` is the database schema to which the table belongs. The format is `${EntityType}:${Instance ID or URL-encoded URL}:${Data catalog identifier}:${Database name}:${Schema name}`. Use an empty string as a placeholder for non-existent levels.
+- For types that support schemas (`maxcompute/holo/postgresql/sqlserver/hybriddb_for_postgresql/oracle`. For the MaxCompute type, the three-tier model must be enabled for the project), `ParentMetaEntityId` is the database schema to which the table belongs. The format is `${EntityType}:${Instance ID or escaped URL}:${Data catalog identifier}:${Database name}:${Schema name}`. Empty strings are used as placeholders for non-existent levels.
 
-- For other types, `ParentMetaEntityId` is the database to which the table belongs. The format is `${EntityType}:${Instance ID or URL-encoded URL}:${Data catalog identifier}:${Database name}`. Use an empty string as a placeholder for non-existent levels.
+- For other types, `ParentMetaEntityId` is the database to which the table belongs. The format is `${EntityType}:${Instance ID or escaped URL}:${Data catalog identifier}:${Database name}`. Empty strings are used as placeholders for non-existent levels.
 
-> For MaxCompute and DLF types, use an empty string as a placeholder for the instance ID. For the MaxCompute type, the database name is the MaxCompute project name.
+> For MaxCompute and DLF types, an empty string is used as a placeholder for the instance ID. For the MaxCompute type, the database name is the MaxCompute project name.
 
-> For the StarRocks type, the data catalog identifier is the catalog name. For the DLF type, the data catalog identifier is the catalog ID. Other types do not support the catalog level, and you can use an empty string as a placeholder.
+> For the StarRocks type, the data catalog identifier is the catalog name. For the DLF type, the data catalog identifier is the catalog ID. Other types do not support the catalog level, and an empty string can be used as a placeholder.
 
 The `ParentMetaEntityId` formats for several common types are as follows:
 	
 `maxcompute-project:::project_name`
 
-`maxcompute-schema:::project_name:schema_name` (Only when the three-level model is enabled for the project)
+`maxcompute-schema:::project_name:schema_name` (Only when the three-tier model is enabled for the project)
 
 `dlf-database::catalog_id:database_name`
 
@@ -837,14 +854,14 @@ The `ParentMetaEntityId` formats for several common types are as follows:
 `mysql-database:(instance_id|encoded_jdbc_url)::database_name`
 
 > Where:  
-`instance_id`: The instance ID, which is required when the data source is registered in instance mode.   
-`encoded_jdbc_url`: The URL-encoded JDBC connection string, which is required when the data source is registered in connection string mode.   
+`instance_id`: The instance ID. Required when the data source is registered in instance mode.   
+`encoded_jdbc_url`: The URL-encoded JDBC connection string. Required when the data source is registered by using a connection string.   
 `catalog_id`: The DLF catalog ID.   
 `project_name`: The MaxCompute project name.   
 `database_name`: The database name.   
 `schema_name`: The schema name.', example='dlf-database::catalog_id:database_name'),
-  partitionKeys?: [ string ](name='PartitionKeys', description='The list of partition keys. This parameter is empty for non-partitioned tables.'),
-  statisticsInfos?: map[string]string(name='StatisticsInfos'),
+  partitionKeys?: [ string ](name='PartitionKeys', description='The list of partition keys. This list is empty for non-partitioned tables.'),
+  statisticsInfos?: map[string]string(name='StatisticsInfos', description='The statistical metrics of the table. The key is the metric name, and the value is the statistical value in string format. Current metrics include the number of production runs in the last 30 days (prodRunCount30d), the number of ad hoc queries in the last 30 days (adhocQueryCount30d), the number of downstream dependent tasks (downstreamTaskCount30d), and the number of downstream dependent tables (downstreamTableCount30d). Metrics without statistical values are not returned.'),
   tableType?: string(name='TableType', description='The table type. The valid values depend on the metadata collector type.', example='TABLE'),
   technicalMetadata?: {
     compressed?: boolean(name='Compressed', description='Specifies whether the table is compressed.', example='false'),
@@ -853,7 +870,7 @@ The `ParentMetaEntityId` formats for several common types are as follows:
     outputFormat?: string(name='OutputFormat', description='The output format.', example='org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'),
     owner?: string(name='Owner', description='The owner.', example='test_user'),
     parameters?: map[string]string(name='Parameters', description='The parameter information.'),
-    serializationLibrary?: string(name='SerializationLibrary', description='The class used for SerDe.', example='org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'),
+    serializationLibrary?: string(name='SerializationLibrary', description='The class used by SerDe.', example='org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'),
   }(name='TechnicalMetadata', description='The technical metadata.'),
 }
 
@@ -16081,7 +16098,7 @@ model GetColumnResponse = {
 /**
  * @summary Retrieves the details of a specified column in a DataWorks Data Map table.
  *
- * @description 1. You must purchase DataWorks Basic Edition or a later edition to use this operation.
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
  *
  * @param request GetColumnRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -16110,7 +16127,7 @@ async function getColumnWithOptions(request: GetColumnRequest, runtime: Util.Run
 /**
  * @summary Retrieves the details of a specified column in a DataWorks Data Map table.
  *
- * @description 1. You must purchase DataWorks Basic Edition or a later edition to use this operation.
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
  *
  * @param request GetColumnRequest
  * @return GetColumnResponse
@@ -25514,7 +25531,7 @@ model ListColumnsResponse = {
 /**
  * @summary Queries the columns of a specified table in DataWorks Data Map.
  *
- * @description 1. You must purchase DataWorks Basic Edition or later to use this API.
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
  *
  * @param request ListColumnsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -25543,7 +25560,7 @@ async function listColumnsWithOptions(request: ListColumnsRequest, runtime: Util
 /**
  * @summary Queries the columns of a specified table in DataWorks Data Map.
  *
- * @description 1. You must purchase DataWorks Basic Edition or later to use this API.
+ * @description 1. You must purchase DataWorks Basic Edition or a higher edition to use this operation.
  *
  * @param request ListColumnsRequest
  * @return ListColumnsResponse
@@ -31751,18 +31768,18 @@ async function listLineageRelationships(request: ListLineageRelationshipsRequest
 }
 
 model ListLineagesRequest {
-  dstEntityId?: string(name='DstEntityId', description='The ID of the destination entity. You can refer to the table or column ID returned by the ListTables or ListColumns operation, or use a custom entity ID.', example='dlf-table::catalog_id:database_name::table_name'),
-  dstEntityName?: string(name='DstEntityName', description='The name of the destination entity. Fuzzy matching is supported.', example='dstName1'),
+  dstEntityId?: string(name='DstEntityId', description='The destination entity ID. You can refer to the table or column ID returned by the ListTables or ListColumns operation, or use a custom entity ID.', example='dlf-table::catalog_id:database_name::table_name'),
+  dstEntityName?: string(name='DstEntityName', description='The destination entity name. Fuzzy matching is supported.', example='dstName1'),
   needAttachRelationship?: boolean(name='NeedAttachRelationship', description='Specifies whether to return lineage relationship information. Default value: false.', example='false'),
   order?: string(name='Order', description='The sort order. Default value: Asc. Valid values:
-- Asc: ascending order
-- Desc: descending order', example='Asc'),
+- Asc: Ascending order.
+- Desc: Descending order.', example='Asc'),
   pageNumber?: int32(name='PageNumber', description='The page number. Default value: 1.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10. Maximum value: 100.', example='10'),
-  recentDays?: int32(name='RecentDays'),
-  sortBy?: string(name='SortBy', description='The field used for sorting. Default value: Name. The entities are sorted by lineage entity name.', example='Name'),
-  srcEntityId?: string(name='SrcEntityId', description='The ID of the source entity. You can refer to the table or column ID returned by the ListTables or ListColumns operation, or use a custom entity ID.', example='maxcompute-table:::project_name:[schema_name]:table_name'),
-  srcEntityName?: string(name='SrcEntityName', description='The name of the source entity. Fuzzy matching is supported.', example='srcName1'),
+  recentDays?: int32(name='RecentDays', description='Queries the lineage relationships that take effect within the specified number of recent calendar days. Valid values: 1 to 30. For example, 1 indicates starting from midnight of the current day, and 7 indicates starting from midnight 6 days ago. If this parameter is not specified, the system filters the data based on the configured lineage validity period.', example='7'),
+  sortBy?: string(name='SortBy', description='The sort field. Default value: Name. The entities are sorted by lineage entity name.', example='Name'),
+  srcEntityId?: string(name='SrcEntityId', description='The source entity ID. You can refer to the table or column ID returned by the ListTables or ListColumns operation, or use a custom entity ID.', example='maxcompute-table:::project_name:[schema_name]:table_name'),
+  srcEntityName?: string(name='SrcEntityName', description='The source entity name. Fuzzy matching is supported.', example='srcName1'),
 }
 
 model ListLineagesResponseBody = {
@@ -31775,11 +31792,11 @@ model ListLineagesResponseBody = {
         ](name='Relationships', description='The lineage relationship information.'),
         srcEntity?: LineageEntity(name='SrcEntity', description='The source entity.'),
       }
-    ](name='Lineages', description='The list of lineage information.'),
-    pageNumber?: int32(name='PageNumber', description='The page number of the returned data, which is used for pagination.', example='1'),
+    ](name='Lineages', description='The lineage information list.'),
+    pageNumber?: int32(name='PageNumber', description='The requested page number, which is used for pagination.', example='1'),
     pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
     totalCount?: long(name='TotalCount', description='The total number of entries.', example='12'),
-  }(name='PagingInfo', description='The pagination result.'),
+  }(name='PagingInfo', description='The pagination information.'),
   requestId?: string(name='RequestId', description='The request ID.', example='0000-ABCD-EFG****'),
   success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
@@ -31791,7 +31808,7 @@ model ListLineagesResponse = {
 }
 
 /**
- * @summary Queries the upstream and downstream lineage entities of a given entity in DataWorks Data Map. You can specify whether to include detailed lineage relationship information.
+ * @summary Queries the upstream and downstream lineage entities for a specified entity in Data Map, with an option to include detailed lineage relationship information.
  *
  * @description 1. You must purchase DataWorks Standard Edition or a more advanced edition to use this operation.
  * 2. This operation queries the upstream and downstream entities of the current entity and the lineage relationships between the entities.
@@ -31821,7 +31838,7 @@ async function listLineagesWithOptions(request: ListLineagesRequest, runtime: Ut
 }
 
 /**
- * @summary Queries the upstream and downstream lineage entities of a given entity in DataWorks Data Map. You can specify whether to include detailed lineage relationship information.
+ * @summary Queries the upstream and downstream lineage entities for a specified entity in Data Map, with an option to include detailed lineage relationship information.
  *
  * @description 1. You must purchase DataWorks Standard Edition or a more advanced edition to use this operation.
  * 2. This operation queries the upstream and downstream entities of the current entity and the lineage relationships between the entities.
