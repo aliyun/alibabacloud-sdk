@@ -78,6 +78,9 @@ model AppInstanceAggregate {
   appType?: string(name='AppType', description='The application type.', example='WEBSITE'),
   bizId?: string(name='BizId', description='The business ID of the application instance.', example='WS20250915163734000001'),
   buildType?: string(name='BuildType', description='The build type.', example='CLOUD_DREAM_SAAS'),
+  conversationInfo?: {
+    chatNum?: long(name='ChatNum', description='0 表示存在空会话。', example='1'),
+  }(name='ConversationInfo', description='没有关联会话时为 null。'),
   createTime?: string(name='CreateTime', description='The creation time.', example='2025-01-01 00:00:00'),
   deleted?: int32(name='Deleted', description='Indicates whether the instance is deleted.', example='0'),
   description?: string(name='Description', description='The application description.', example='base'),
@@ -171,6 +174,7 @@ model AppInstanceProfile {
   source?: string(name='Source', description='The identifier of the creation or synchronization source.', example='MARKET_CLOUD_DREAM'),
   templateEtag?: string(name='TemplateEtag', description='The ETag identifier of the current application template.', example='etag-1'),
   templateId?: string(name='TemplateId', description='The template ID used by the current application.', example='tpl-1'),
+  upgradeStatus?: string(name='UpgradeStatus', example='SUCC'),
 }
 
 model AppMaterialDirectory {
@@ -2922,18 +2926,18 @@ async function createInspiration(request: CreateInspirationRequest): CreateInspi
 }
 
 model CreateLogoTaskRequest {
-  logoVersion?: string(name='LogoVersion', description='The logo generation version number. Different versions use different parameter parsing methods.'),
+  logoVersion?: string(name='LogoVersion', description='The logo generation version number. Different versions use different parameter parsing methods.', example='v1'),
   negativePrompt?: string(name='NegativePrompt', description='The negative prompt.', example='Do not generate politically related image content'),
   parameters?: string(name='Parameters', description='The task parameters.', example='{\\\\"ehpcutilParam\\\\":\\\\"sched job_submit --commandline \\\\\\\\\\\\"/ehpcdata/data/usersTest/huangqiaoyi-1725933699384/huangqiaoyi-1725933699384.slurm\\\\\\\\\\\\" --runasuser TestGfjnSimworks\\\\"}'),
-  prompt?: string(name='Prompt', description='The positive prompt.', example='Strictly follow the original text to extract the summary of the manuscript. Do not arbitrarily fabricate or modify the news data presented in the text. Do not change the meaning or the news facts of the original text. Do not add your own opinions to the summary. Ensure the generated summary is free of grammatical and punctuation errors. When generating the summary, remove information such as the reporter, correspondent, and article source'),
+  prompt?: string(name='Prompt', description='The positive prompt.', example='Strictly extract the summary of the article based on the original text. Do not fabricate or modify the news data in the text, change the original meaning or news facts, or add your own opinions to the summary. Ensure that the generated summary is free of grammatical and punctuation errors. Remove information such as the reporter, correspondent, and source when generating the summary'),
 }
 
 model CreateLogoTaskResponseBody = {
-  errorCode?: string(name='ErrorCode', description='The error code. If the request is successful, the ErrorCode field is not returned. If the request fails, the ErrorCode field is returned. For more information, see the error code list in this topic.', example='0'),
+  errorCode?: string(name='ErrorCode', description='The error code. If the request is successful, this field is not returned. If the request fails, this field is returned. For more information, see the error code list in this topic.', example='0'),
   errorMsg?: string(name='ErrorMsg', description='The error message.', example='aliuid:1998006665794443 assumeRole not exist,serviceName:realtimelogpush.dcdnservices.aliyuncs.com'),
   requestId?: string(name='RequestId', description='Id of the request', example='6C6B99AC-39EC-5350-874C-204128C905E6'),
   success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
-  taskId?: string(name='TaskId', description='The task ID returned when the call is successful. Note: Keep this ID secure. You must use this ID to query the status of the device creation.', example='c3r127e325at9yd'),
+  taskId?: string(name='TaskId', description='The task ID returned when the call is successful. Note: Keep this ID secure. You must use this ID to query the device creation status.', example='c3r127e325at9yd'),
 }
 
 model CreateLogoTaskResponse = {
@@ -2943,7 +2947,7 @@ model CreateLogoTaskResponse = {
 }
 
 /**
- * @summary Submits a logo creation task.
+ * @summary Submits a logo generation task.
  *
  * @param request CreateLogoTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2983,7 +2987,7 @@ async function createLogoTaskWithOptions(request: CreateLogoTaskRequest, runtime
 }
 
 /**
- * @summary Submits a logo creation task.
+ * @summary Submits a logo generation task.
  *
  * @param request CreateLogoTaskRequest
  * @return CreateLogoTaskResponse
@@ -4360,13 +4364,13 @@ async function describeAppDomainDnsRecord(request: DescribeAppDomainDnsRecordReq
 model DispatchConsoleAPIForPartnerRequest {
   liveToken?: string(name='LiveToken', description='The access token obtained by calling GetUserAccessTokenForPartner.
 
-This parameter is required.'),
+This parameter is required.', example='00a00aaa-a000-00a0-a0a0-a0a0a000a00a'),
   operation?: string(name='Operation', description='Specifies the operation to perform on the alert. Valid values:
 
 - **deal**: Handles the alert (quarantine).
 - **ignore**: Ignores the alert.
-- **mark_mis_info**: Marks the alert as a false positive (adds to the whitelist).
-- **rm_mark_mis_info**: Unmarks the alert as a false positive (removes from the whitelist).
+- **mark_mis_info**: Marks the alert as a false positive (adds it to the whitelist).
+- **rm_mark_mis_info**: Unmarks the alert as a false positive (removes it from the whitelist).
 - **offline_handled**: Marks the alert as handled.
 
 This parameter is required.', example='disable'),
@@ -5415,20 +5419,20 @@ model GetAppInstanceForPartnerRequest {
 }
 
 model GetAppInstanceForPartnerResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed reason for access denial.', example='{}'),
-  allowRetry?: boolean(name='AllowRetry', description='Specifies whether retries are allowed.', example='False'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed reason for the access denial.', example='{}'),
+  allowRetry?: boolean(name='AllowRetry', description='Indicates whether retries are allowed.', example='False'),
   appName?: string(name='AppName', description='The application name.', example='dewuApp'),
   dynamicCode?: string(name='DynamicCode', description='The dynamic error code.', example='ERROR-oo1'),
-  dynamicMessage?: string(name='DynamicMessage', description='The dynamic error message used to replace the `%s` placeholder in the error message of the **ErrMessage** response parameter.
+  dynamicMessage?: string(name='DynamicMessage', description='The dynamic error message, which is used to replace `%s` in the error message of the **ErrMessage** response parameter.
 > If **ErrMessage** returns **The Value of Input Parameter %s is not valid** and **DynamicMessage** returns **DtsJobId**, it indicates that the **DtsJobId** request parameter is invalid.', example='https://check-result-file-sh.oss-cn-shanghai.aliyuncs.com/gl3d6l3817id8p1/gl3d6l3817id8p1.diff.zip?Expires=1750392068&OSSAccessKeyId=LTAI5tKUErVCETM4ev9SELNb&Signature=Bcj3eohy8nmlSQ7AAGdq7JZoLjM%3D'),
-  errorArgs?: [ any ](name='ErrorArgs', description='The returned error parameters.'),
+  errorArgs?: [ any ](name='ErrorArgs', description='The error arguments returned.'),
   module?: {
     aiStaffList?: [ 
       {
         staffId?: string(name='StaffId', description='The staff ID.', example='370196'),
         staffName?: string(name='StaffName', description='The staff name.', example='StaffName'),
         staffType?: string(name='StaffType', description='The staff type.', example='StaffType'),
-        status?: string(name='Status', description='The status of the staff.', example='200'),
+        status?: string(name='Status', description='The staff status.', example='200'),
       }
     ](name='AiStaffList', description='The list of AI staff associated with the application.'),
     appDesignSpec?: {
@@ -5459,34 +5463,34 @@ model GetAppInstanceForPartnerResponseBody = {
     appOperationAddress?: {
       actions?: [ 
         {
-          actionKey?: string(name='ActionKey', description='The action key, which is used to uniquely identify an operation.', example='BeginDialogue'),
-          actionText?: string(name='ActionText', description='The action display text, which is used to display the action name in the interface.', example='placeHolder'),
-          enable?: boolean(name='Enable', description='The enabled status, which indicates whether the operation is available.', example='false'),
-          href?: string(name='Href', description='The link URL to which the user is redirected when the operation is clicked.', example='placeHolder'),
+          actionKey?: string(name='ActionKey', description='The operation key value, which uniquely identifies an operation.', example='BeginDialogue'),
+          actionText?: string(name='ActionText', description='The operation display text, which is used to display the operation name in the interface.', example='placeHolder'),
+          enable?: boolean(name='Enable', description='The enable status, which indicates whether the operation is available.', example='false'),
+          href?: string(name='Href', description='The link URL to which you are redirected when you click the operation.', example='placeHolder'),
         }
       ](name='Actions', description='The list of console operation buttons.'),
       aiCustomerConfigUrl?: string(name='AiCustomerConfigUrl', description='The customer service design URL.', example='placeHolder'),
       aiDesignUrl?: string(name='AiDesignUrl', description='The AI design URL.', example='placeHolder'),
-      appPublishUrl?: string(name='AppPublishUrl', description='The application publishing URL.', example='placeHolder'),
+      appPublishUrl?: string(name='AppPublishUrl', description='The application publish URL.', example='placeHolder'),
       dashboardActions?: [ 
         {
-          actionKey?: string(name='ActionKey', description='The action key, which is used to uniquely identify an operation.', example='CollectedNumber'),
-          actionText?: string(name='ActionText', description='The action display text, which is used to display the action name in the interface.', example='placeHolder'),
-          enable?: boolean(name='Enable', description='The enabled status, which indicates whether the operation is available.', example='true'),
-          href?: string(name='Href', description='The link URL to which the user is redirected when the operation is clicked.', example='placeHolder'),
+          actionKey?: string(name='ActionKey', description='The operation key value, which uniquely identifies an operation.', example='CollectedNumber'),
+          actionText?: string(name='ActionText', description='The operation display text, which is used to display the operation name in the interface.', example='placeHolder'),
+          enable?: boolean(name='Enable', description='The enable status, which indicates whether the operation is available.', example='true'),
+          href?: string(name='Href', description='The link URL to which you are redirected when you click the operation.', example='placeHolder'),
         }
-      ](name='DashboardActions', description='The list of dashboard operation buttons.'),
+      ](name='DashboardActions', description='The list of operation buttons on the overview page.'),
       designUrl?: string(name='DesignUrl', description='The professional design URL.', example='placeHolder'),
-      instanceLoginUrl?: string(name='InstanceLoginUrl', description='The logon URL for the application instance.', example='placeHolder'),
-      renewBuyUrl?: string(name='RenewBuyUrl', description='The renewal URL.', example='placeHolder'),
+      instanceLoginUrl?: string(name='InstanceLoginUrl', description='The logon URL of the application instance.', example='placeHolder'),
+      renewBuyUrl?: string(name='RenewBuyUrl', description='The renewal purchase URL.', example='placeHolder'),
       serverDeliveryUrl?: string(name='ServerDeliveryUrl', description='The service delivery URL.', example='placeHolder'),
-      upgradeBuyUrl?: string(name='UpgradeBuyUrl', description='The upgrade URL.', example='placeHolder'),
-    }(name='AppOperationAddress', description='The application operation URL.'),
+      upgradeBuyUrl?: string(name='UpgradeBuyUrl', description='The upgrade purchase URL.', example='placeHolder'),
+    }(name='AppOperationAddress', description='The application operation address.'),
     appServiceList?: [ 
       {
         bizId?: string(name='BizId', description='The business ID of the application instance.', example='WS20251211153330000001'),
-        deleted?: int32(name='Deleted', description='The deletion flag.', example='fase'),
-        endTime?: string(name='EndTime', description='The end time. The value is in ISO 8601 format and uses the UTC time zone.', example='2025-07-18T02:23:00Z'),
+        deleted?: int32(name='Deleted', description='The deletion indicator.', example='fase'),
+        endTime?: string(name='EndTime', description='The end time in ISO 8601 format in the UTC time zone.', example='2025-07-18T02:23:00Z'),
         espBizId?: string(name='EspBizId', description='esp bizId', example='EspBizId'),
         gmtCreate?: string(name='GmtCreate', description='The creation time.', example='2025-07-30T02:08:40Z'),
         gmtModified?: string(name='GmtModified', description='The modification time.', example='Tue Sep 09 10:27:49 CST 2025'),
@@ -5495,19 +5499,19 @@ model GetAppInstanceForPartnerResponseBody = {
           name?: string(name='Name', description='The website name.', example='mda-sb037wmidshg3w9v.mp4'),
           qrCode?: string(name='QrCode', description='QrCode', example='qrcode'),
           type?: string(name='Type', description='dingtalk wx...', example='hive'),
-          url?: string(name='Url', description='The temporary access URL for the image.', example='https://static.yipigai.cn/timuocr/tmp_57bc9cb3be1075f4e5cdae87f5cbb86abc54a694aaf10965.jpg'),
-        }(name='Group', description='The application operation URL.'),
+          url?: string(name='Url', description='The temporary access URL of the image.', example='https://static.yipigai.cn/timuocr/tmp_57bc9cb3be1075f4e5cdae87f5cbb86abc54a694aaf10965.jpg'),
+        }(name='Group', description='The application operation address.'),
         instanceBizId?: string(name='InstanceBizId', description='The associated business ID.', example='InstanceBizId'),
         name?: string(name='Name', description='The service name.', example='19609820.png'),
         nodeList?: [ 
           {
             children?: [ any ](name='Children', description='The child folder objects.'),
             finalStepNo?: int32(name='FinalStepNo', description='The sequence number of the last node.', example='FinalStepNo'),
-            finishTime?: long(name='FinishTime', description='The completion timestamp of the baseline instance. This value is returned when the FinishStatus parameter is FINISH.', example='2023-01-13T07:58:12Z'),
+            finishTime?: long(name='FinishTime', description='The completion timestamp of the baseline instance. This value is returned when FinishStatus (the completion status of the baseline instance) is FINISH.', example='2023-01-13T07:58:12Z'),
             isContainerNode?: boolean(name='IsContainerNode', description='IsContainerNode', example='IsContainerNode'),
             nodeId?: string(name='NodeId', description='The ID of the OBServer node where the resource node resides.', example='2927b500-c4e2-4241-bacf-0a2991c4be12'),
             nodeName?: string(name='NodeName', description='<props="china">The name of the matrix.
-<props="intl">This parameter is not publicly available.', example='Single-channel output'),
+<props="intl">This parameter is not available for public use.', example='Single-channel output'),
             nodeStatus?: string(name='NodeStatus', description='The running status of the node. Valid values:
 
 - **UP**: The node is running.
@@ -5520,29 +5524,29 @@ model GetAppInstanceForPartnerResponseBody = {
         operationAddress?: {
           actions?: [ 
             {
-              actionKey?: string(name='ActionKey', description='The action key, which is used to uniquely identify an operation.', example='CollectedNumber'),
-              actionText?: string(name='ActionText', description='The action display text, which is used to display the action name in the interface.', example='ActionText'),
-              enable?: boolean(name='Enable', description='The enabled status, which indicates whether the operation is available.', example='false'),
-              href?: string(name='Href', description='The link URL to which the user is redirected when the operation is clicked.', example='Href'),
+              actionKey?: string(name='ActionKey', description='The operation key value, which uniquely identifies an operation.', example='CollectedNumber'),
+              actionText?: string(name='ActionText', description='The operation display text, which is used to display the operation name in the interface.', example='ActionText'),
+              enable?: boolean(name='Enable', description='The enable status, which indicates whether the operation is available.', example='false'),
+              href?: string(name='Href', description='The link URL to which you are redirected when you click the operation.', example='Href'),
             }
           ](name='Actions', description='The list of console operation buttons.'),
           aiCustomerConfigUrl?: string(name='AiCustomerConfigUrl', description='The customer service design URL.', example='AiCustomerConfigUrl'),
           aiDesignUrl?: string(name='AiDesignUrl', description='The AI design URL.', example='AiDesignUrl'),
-          appPublishUrl?: string(name='AppPublishUrl', description='The application publishing URL.', example='AppPublishUrl'),
+          appPublishUrl?: string(name='AppPublishUrl', description='The application publish URL.', example='AppPublishUrl'),
           dashboardActions?: [ 
             {
-              actionKey?: string(name='ActionKey', description='The action key, which is used to uniquely identify an operation.', example='AbortDialogue'),
-              actionText?: string(name='ActionText', description='The action display text, which is used to display the action name in the interface.', example='ActionText'),
-              enable?: boolean(name='Enable', description='The enabled status, which indicates whether the operation is available.', example='true'),
-              href?: string(name='Href', description='The link URL to which the user is redirected when the operation is clicked.', example='Href'),
+              actionKey?: string(name='ActionKey', description='The operation key value, which uniquely identifies an operation.', example='AbortDialogue'),
+              actionText?: string(name='ActionText', description='The operation display text, which is used to display the operation name in the interface.', example='ActionText'),
+              enable?: boolean(name='Enable', description='The enable status, which indicates whether the operation is available.', example='true'),
+              href?: string(name='Href', description='The link URL to which you are redirected when you click the operation.', example='Href'),
             }
-          ](name='DashboardActions', description='The list of dashboard operation buttons.'),
+          ](name='DashboardActions', description='The list of operation buttons on the overview page.'),
           designUrl?: string(name='DesignUrl', description='The professional design URL.', example='DesignUrl'),
-          instanceLoginUrl?: string(name='InstanceLoginUrl', description='The logon URL for the application instance.', example='InstanceLoginUrl'),
-          renewBuyUrl?: string(name='RenewBuyUrl', description='The renewal URL.', example='renewBuyUrl'),
+          instanceLoginUrl?: string(name='InstanceLoginUrl', description='The logon URL of the application instance.', example='InstanceLoginUrl'),
+          renewBuyUrl?: string(name='RenewBuyUrl', description='The renewal purchase URL.', example='renewBuyUrl'),
           serverDeliveryUrl?: string(name='ServerDeliveryUrl', description='The service delivery URL.', example='ServerDeliveryUrl'),
-          upgradeBuyUrl?: string(name='UpgradeBuyUrl', description='The upgrade URL.', example='UpgradeBuyUrl'),
-        }(name='OperationAddress', description='The unique identifier for an operation.'),
+          upgradeBuyUrl?: string(name='UpgradeBuyUrl', description='The upgrade purchase URL.', example='UpgradeBuyUrl'),
+        }(name='OperationAddress', description='The unique identifier of an operation.'),
         orderId?: string(name='OrderId', description='The order ID.', example='253790948890026'),
         profile?: {
           bizId?: string(name='BizId', description='The business ID.', example='WS20250801003834000003'),
@@ -5555,12 +5559,12 @@ model GetAppInstanceForPartnerResponseBody = {
           orderId?: string(name='OrderId', description='The order ID.', example='256146659280026'),
           serviceSpec?: string(name='ServiceSpec', description='The service specification.', example='8'),
           serviceSpecText?: string(name='ServiceSpecText', description='The description of the service specification.', example='ServiceSpecText'),
-          upgradeStatus?: string(name='UpgradeStatus', description='The upgrade status.'),
+          upgradeStatus?: string(name='UpgradeStatus', description='The upgrade status.', example='DOING'),
         }(name='Profile', description='The service configuration of the instance.'),
         serviceType?: string(name='ServiceType', description='The service type.', example='WEBSITE_DESIGN'),
         serviceTypeText?: string(name='ServiceTypeText', description='The description of the service type.', example='ServiceTypeText'),
         slug?: string(name='Slug', description='The application identifier.', example='Slug'),
-        startTime?: string(name='StartTime', description='The start time. The value is a UNIX timestamp in milliseconds.', example='1754447102000'),
+        startTime?: string(name='StartTime', description='The start time. It is a UNIX timestamp in milliseconds.', example='1754447102000'),
         status?: string(name='Status', description='The status.', example='success'),
         userId?: string(name='UserId', description='The user ID.', example='UserId'),
       }
@@ -5569,35 +5573,35 @@ model GetAppInstanceForPartnerResponseBody = {
     appType?: string(name='AppType', description='The application type.', example='TRACE'),
     bizId?: string(name='BizId', description='The business ID of the application instance.', example='WS20250915163734000001'),
     buildType?: string(name='BuildType', description='The build type.', example='placeHolder'),
-    deleted?: int32(name='Deleted', description='Indicates whether it is deleted.', example='fase'),
+    deleted?: int32(name='Deleted', description='Indicates whether the item is deleted.', example='fase'),
     description?: string(name='Description', description='The application description.', example='/bak->serverless.handler(2020091300200279)'),
     designSpecBizId?: string(name='DesignSpecBizId', description='placeHolder', example='placeHolder'),
     designSpecId?: string(name='DesignSpecId', description='The design specification ID.', example='placeHolder'),
     domain?: string(name='Domain', description='The primary domain name.', example='stxycw.com'),
-    endTime?: string(name='EndTime', description='The end time. The value is in ISO 8601 format and uses the UTC time zone.', example='2026-01-05T15:59:00Z'),
+    endTime?: string(name='EndTime', description='The end time in ISO 8601 format in the UTC time zone.', example='2026-01-05T15:59:00Z'),
     env?: string(name='Env', description='The environment.', example='pre'),
     espBizId?: string(name='EspBizId', description='The associated delivery order ID.', example='placeHolder'),
     gmtCreate?: string(name='GmtCreate', description='The creation time.', example='1740479834'),
     gmtDelete?: string(name='GmtDelete', description='The deletion time.', example='placeHolder'),
     gmtModified?: string(name='GmtModified', description='The modification time.', example='2025-08-28T02:25:41Z'),
     gmtPublish?: string(name='GmtPublish', description='The publish time.', example='placeHolder'),
-    iconUrl?: string(name='IconUrl', description='The URL of the application icon.', example='https://yzm.zshud.com:34901/cloud-phone/养生_1763631730804.png'),
+    iconUrl?: string(name='IconUrl', description='The application icon.', example='https://yzm.zshud.com:34901/cloud-phone/wellness_1763631730804.png'),
     name?: string(name='Name', description='The application name.', example='File name'),
     orderId?: string(name='OrderId', description='The order ID.', example='250822465990301'),
     partnerDetail?: {
       bindData?: {
         aliyunPk?: string(name='AliyunPk', description='aliyun_pk', example='***'),
-        bizId?: string(name='BizId', description='The external bizId.', example='WS20250801153127000002'),
+        bizId?: string(name='BizId', description='The external business ID.', example='WS20250801153127000002'),
         gmtCreate?: string(name='GmtCreate', description='The creation time.', example='1672123722000'),
         gmtModified?: string(name='GmtModified', description='The modification time.', example='Wed Nov 26 10:15:28 CST 2025'),
-        grantAliyunPk?: string(name='GrantAliyunPk', description='The user to whom the ICP filing service code belongs.', example='grantAliyunPk'),
+        grantAliyunPk?: string(name='GrantAliyunPk', description='The owner of the ICP filing service code.', example='grantAliyunPk'),
         mobile?: string(name='Mobile', description='The mobile phone number.', example='***********'),
         parentPk?: string(name='ParentPk', description='parent_pk', example='1123213'),
         partnerId?: string(name='PartnerId', description='The external associated partner ID.', example='10001'),
         userDisplayName?: string(name='UserDisplayName', description='The display name of the bound user.', example='diaplayName'),
       }(name='BindData', description='data'),
       partnerId?: string(name='PartnerId', description='The ID of the partner. This is an extended parameter.', example='10001'),
-      status?: string(name='Status', description='Valid values: unknown, init, testing, online.', example='200'),
+      status?: string(name='Status', description='Valid values: unknown, init, testing, and online.', example='200'),
     }(name='PartnerDetail', description='The details.'),
     profile?: {
       adminUrl?: string(name='AdminUrl', description='The admin console URL.', example='placeHolder'),
@@ -5618,7 +5622,7 @@ model GetAppInstanceForPartnerResponseBody = {
       ordTime?: string(name='OrdTime', description='The order time in the yyyy-MM-dd HH:mm:ss format.', example='2026-09-17 10:30:00'),
       orderId?: string(name='OrderId', description='The order ID.', example='256146659280026'),
       orderNum?: int32(name='OrderNum', description='The order quantity.', example='1'),
-      partnerId?: string(name='PartnerId', description='The channel partner business ID.', example='100086'),
+      partnerId?: string(name='PartnerId', description='The partner business ID.', example='100086'),
       payTime?: string(name='PayTime', description='The payment time in the yyyy-MM-dd HH:mm:ss format.', example='2026-09-17 10:35:00'),
       previewUrl?: string(name='PreviewUrl', description='The preview URL.', example='https://preview-lyj.aliyuncs.com/preview/1daacb3ebbb8435d9091fb950c528d0f?subSceneIds=682185'),
       seoSite?: string(name='SeoSite', description='The SEO site information.', example='placeHolder'),
@@ -5638,19 +5642,19 @@ model GetAppInstanceForPartnerResponseBody = {
         appType?: string(name='AppType', description='The application type.', example='1'),
         bizId?: string(name='BizId', description='The business ID of the application instance.', example='WS20250929173805000001'),
         buildType?: string(name='BuildType', description='The build type.', example='placeHolder'),
-        deleted?: int32(name='Deleted', description='Indicates whether it is deleted.', example='fase'),
+        deleted?: int32(name='Deleted', description='Indicates whether the item is deleted.', example='fase'),
         description?: string(name='Description', description='The application description.', example='base'),
         designSpecBizId?: string(name='DesignSpecBizId', description='placeHolder', example='placeHolder'),
         designSpecId?: string(name='DesignSpecId', description='The design specification ID.', example='placeHolder'),
         domain?: string(name='Domain', description='The primary domain name.', example='shikuntech.com'),
-        endTime?: string(name='EndTime', description='The end time. The value is in ISO 8601 format and uses the UTC time zone.', example='2025-05-23T15:01:25.891Z'),
+        endTime?: string(name='EndTime', description='The end time in ISO 8601 format in the UTC time zone.', example='2025-05-23T15:01:25.891Z'),
         env?: string(name='Env', description='The environment.', example='pre'),
         espBizId?: string(name='EspBizId', description='The associated delivery order ID.', example='placeHolder'),
         gmtCreate?: string(name='GmtCreate', description='The creation time.', example='2025-06-19T07:39:55Z'),
         gmtDelete?: string(name='GmtDelete', description='The deletion time.', example='placeHolder'),
         gmtModified?: string(name='GmtModified', description='The modification time.', example='2025-01-14T09:09:57Z'),
         gmtPublish?: string(name='GmtPublish', description='The publish time.', example='placeHolder'),
-        iconUrl?: string(name='IconUrl', description='The URL of the application icon.', example='https://app-center-icon-prod-shanghai.oss-cn-shanghai.aliyuncs.com/tenant/1617863868712071/1749090558651_%E9%AB%98%E5%BE%B7.png'),
+        iconUrl?: string(name='IconUrl', description='The application icon.', example='https://app-center-icon-prod-shanghai.oss-cn-shanghai.aliyuncs.com/tenant/1617863868712071/1749090558651_%E9%AB%98%E5%BE%B7.png'),
         name?: string(name='Name', description='The application name.', example='19609820.png'),
         orderId?: string(name='OrderId', description='The order ID.', example='264987642530867,264988827010867,264982589530867,264985058640867,264982290930867,264982387520867,264987147460867,264985752990867,264988432850867'),
         profile?: {
@@ -5672,7 +5676,7 @@ model GetAppInstanceForPartnerResponseBody = {
           ordTime?: string(name='OrdTime', description='The order time in the yyyy-MM-dd HH:mm:ss format.', example='2026-09-17 10:30:00'),
           orderId?: string(name='OrderId', description='The order ID.', example='248808934190692'),
           orderNum?: int32(name='OrderNum', description='The order quantity.', example='1'),
-          partnerId?: string(name='PartnerId', description='The channel partner business ID.', example='100086'),
+          partnerId?: string(name='PartnerId', description='The partner business ID.', example='100086'),
           payTime?: string(name='PayTime', description='The payment time in the yyyy-MM-dd HH:mm:ss format.', example='2026-09-17 10:35:00'),
           previewUrl?: string(name='PreviewUrl', description='The preview URL.', example='https://preview-lyj.aliyuncs.com/preview/temp/9fb36fc05d0a48cdb92d7397336c214f?subSceneIds=734285&type=interim'),
           seoSite?: string(name='SeoSite', description='The SEO site information.', example='placeHolder'),
@@ -5689,10 +5693,10 @@ model GetAppInstanceForPartnerResponseBody = {
         siteHost?: string(name='SiteHost', description='The website domain name.', example='placeHolder'),
         slug?: string(name='Slug', description='The application identifier.', example='placeHolder'),
         sourceType?: string(name='SourceType', description='The source type, such as MARKET_CLOUD_DREAM.', example='MARKET_CLOUD_DREAM'),
-        startTime?: string(name='StartTime', description='The start time in ISO 8601 format in the UTC (Z) time zone.', example='2025-07-22T02:23:00Z'),
+        startTime?: string(name='StartTime', description='The start time in ISO 8601 format and the UTC time zone (Z).', example='2025-07-22T02:23:00Z'),
         status?: string(name='Status', description='The status.', example='success'),
         statusText?: string(name='StatusText', description='The task status text.', example='SUCCESS'),
-        thumbnailUrl?: string(name='ThumbnailUrl', description='The URL of the application thumbnail.', example='placeHolder'),
+        thumbnailUrl?: string(name='ThumbnailUrl', description='The application thumbnail.', example='placeHolder'),
         userId?: string(name='UserId', description='The user ID.', example='placeHolder'),
         version?: string(name='Version', description='The application instance version.', example='2019-04-02'),
       }
@@ -5700,10 +5704,10 @@ model GetAppInstanceForPartnerResponseBody = {
     siteHost?: string(name='SiteHost', description='The website domain name.', example='abcd.scd.wanwang.xin'),
     slug?: string(name='Slug', description='The application identifier.', example='placeHolder'),
     sourceType?: string(name='SourceType', description='The source type, such as MARKET_CLOUD_DREAM.', example='MARKET_CLOUD_DREAM'),
-    startTime?: string(name='StartTime', description='The start time in ISO 8601 format in the UTC (Z) time zone.', example='2023-03-24T10:10Z'),
+    startTime?: string(name='StartTime', description='The start time in ISO 8601 format and the UTC time zone (Z).', example='2023-03-24T10:10Z'),
     status?: string(name='Status', description='The status.', example='NORMAL'),
     statusText?: string(name='StatusText', description='The task status text.', example='FILE_DOWNLOAD_FAILED'),
-    thumbnailUrl?: string(name='ThumbnailUrl', description='The URL of the application thumbnail.', example='placeHolder'),
+    thumbnailUrl?: string(name='ThumbnailUrl', description='The application thumbnail.', example='placeHolder'),
     userId?: string(name='UserId', description='The user ID.', example='placeHolder'),
     version?: string(name='Version', description='The application instance version.', example='2019-04-02'),
   }(name='Module', description='The response data.'),
@@ -5722,7 +5726,7 @@ model GetAppInstanceForPartnerResponse = {
 /**
  * @summary Queries the details of an instance.
  *
- * @description Retrieves the configuration information of the code generation plugin.
+ * @description Retrieves the configuration information of the code generation plug-in.
  *
  * @param request GetAppInstanceForPartnerRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5755,7 +5759,7 @@ async function getAppInstanceForPartnerWithOptions(request: GetAppInstanceForPar
 /**
  * @summary Queries the details of an instance.
  *
- * @description Retrieves the configuration information of the code generation plugin.
+ * @description Retrieves the configuration information of the code generation plug-in.
  *
  * @param request GetAppInstanceForPartnerRequest
  * @return GetAppInstanceForPartnerResponse
@@ -6024,12 +6028,12 @@ async function getAppPluginConfig(request: GetAppPluginConfigRequest): GetAppPlu
 
 model GetAppPublishStatusRequest {
   bizId?: string(name='BizId', description='The business ID.', example='WS20250731233102000001'),
-  deployOrderId?: long(name='DeployOrderId', description='The deployment order ID.', example='4998717'),
+  deployOrderId?: long(name='DeployOrderId', description='The deployment ticket ID.', example='4998717'),
   websiteDomain?: string(name='WebsiteDomain', description='The website domain name.', example='www.aliyun.com'),
 }
 
 model GetAppPublishStatusResponseBody = {
-  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed reason for the access denial.', example='{}'),
+  accessDeniedDetail?: string(name='AccessDeniedDetail', description='The detailed reason why access is denied.', example='{}'),
   allowRetry?: boolean(name='AllowRetry', description='Indicates whether retries are allowed.', example='False'),
   appName?: string(name='AppName', description='The application name.', example='or'),
   dynamicCode?: string(name='DynamicCode', description='The dynamic error code.', example='ERROR-oo1'),
@@ -6045,12 +6049,10 @@ model GetAppPublishStatusResponseBody = {
     errorStepCode?: string(name='ErrorStepCode', description='The code of the publish step where the error occurred.', example='BUILDING'),
     isFinish?: boolean(name='IsFinish', description='Indicates whether the task is completed.'),
     isSuccess?: boolean(name='IsSuccess', description='Indicates whether the call is successful. Valid values:
-
 - `true`: The call is successful.
-
-- `false`: The call fails.', example='True'),
-    msg?: string(name='Msg', description='The additional information.', example='common notify successfully.'),
-    orderType?: string(name='OrderType', description='The sort type, such as ASC or DESC.', example='DESC'),
+- `false`: The call failed.', example='True'),
+    msg?: string(name='Msg', description='The additional description.', example='common notify successfully.'),
+    orderType?: string(name='OrderType', description='The sorting type, such as ASC or DESC.', example='DESC'),
     orderTypeCode?: string(name='OrderTypeCode', description='The code of the publish order type.', example='DEPLOY'),
     percent?: int32(name='Percent', description='The completion percentage of the task.', example='20'),
     publishNumber?: string(name='PublishNumber', description='The publish number.', example='123'),
@@ -6061,7 +6063,7 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='123123'),
     siteId?: string(name='SiteId', description='The site ID. You can obtain the site ID by calling the [ListSites](~~ListSites~~) operation.', example='865181640657408'),
     stepCodes?: [ string ](name='StepCodes', description='The list of publish step codes.'),
     steps?: [ string ](name='Steps', description='The error level. Valid values: FATAL, ERROR, WARNING, and CRITICAL.'),
-    subchannel?: string(name='Subchannel', description='The publish subchannel.'),
+    subchannel?: string(name='Subchannel', description='The publish subchannel.', example='wx0123456789abcdef'),
   }(name='Module', description='The response data.'),
   requestId?: string(name='RequestId', description='Id of the request', example='6C6B99AC-39EC-5350-874C-204128C905E6'),
   rootErrorCode?: string(name='RootErrorCode', description='The error code.', example='SYSTEM.ERROR'),
@@ -6078,7 +6080,7 @@ model GetAppPublishStatusResponse = {
 /**
  * @summary Queries the publish status.
  *
- * @description Retrieves the configuration information of the code generation plugin.
+ * @description Retrieves the configuration information of the code generation plug-in.
  *
  * @param request GetAppPublishStatusRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6117,7 +6119,7 @@ async function getAppPublishStatusWithOptions(request: GetAppPublishStatusReques
 /**
  * @summary Queries the publish status.
  *
- * @description Retrieves the configuration information of the code generation plugin.
+ * @description Retrieves the configuration information of the code generation plug-in.
  *
  * @param request GetAppPublishStatusRequest
  * @return GetAppPublishStatusResponse
@@ -7861,7 +7863,7 @@ async function getTempDownloadUrl(request: GetTempDownloadUrlRequest): GetTempDo
 model GetUserAccessTokenForPartnerRequest {
   siteHost?: string(name='SiteHost', description='The website domain name.', example='abcd.scd.wanwang.xin'),
   ticket?: string(name='Ticket', description='The credential used to connect to the cloud application.
-> This parameter is displayed for non-initial calls.
+> This parameter is displayed for subsequent calls.
 
 This parameter is required.', example='2f68fe1e-d9d5-4803-94d0-2fc81032e91d'),
 }
@@ -7869,7 +7871,7 @@ This parameter is required.', example='2f68fe1e-d9d5-4803-94d0-2fc81032e91d'),
 model GetUserAccessTokenForPartnerResponseBody = {
   errorCode?: string(name='ErrorCode', description='The error code. If the request is successful, the ErrorCode field is not returned. If the request fails, the ErrorCode field is returned. For more information, see the error codes in this topic.', example='0'),
   module?: {
-    tokenValue?: string(name='TokenValue', description='The value of the exchanged access token.'),
+    tokenValue?: string(name='TokenValue', description='The value of the exchanged access token.', example='000a00000a000000000000000a000000000a0a00000000000000000a0a00000a000000000000000a000000000000000a0a0a000000000a0a0000000000000000000000000a0000000a00000a0a000a000a00000000000a0a'),
   }(name='Module', description='The response data.'),
   requestId?: string(name='RequestId', description='Id of the request', example='6C6B99AC-39EC-5350-874C-204128C905E6'),
   success?: string(name='Success', description='Indicates whether the request is successful.', example='true'),
@@ -10050,19 +10052,19 @@ model ListAppPublishHistoryRequest {
   deployChannel?: string(name='DeployChannel', description='The deployment channel.', example='PC'),
   keyword?: string(name='Keyword', description='The search keyword.', example='1_Operations Support Department_Sales Operations'),
   maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for a single query. Valid values: 10 to 100. Default value: 20.', example='10'),
-  nextToken?: string(name='NextToken', description='The token used to start the next query. This parameter is empty if no next query is available.', example='0l45bkwM022Dt+rOvPi/oQ=='),
+  nextToken?: string(name='NextToken', description='The token that is used to start the next query. If no next query exists, this parameter is empty.', example='0l45bkwM022Dt+rOvPi/oQ=='),
   pageNum?: int32(name='PageNum', description='The page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The page size.', example='10'),
   publishEnv?: string(name='PublishEnv', description='The release environment.', example='PROD'),
   sort?: string(name='Sort', description='The sort order.', example='EndTime'),
   status?: string(name='Status', description='The release status.', example='NORMAL'),
-  subchannel?: string(name='Subchannel', description='The release subchannel.', example='current'),
+  subchannel?: string(name='Subchannel', description='The release sub-channel.', example='current'),
   websiteDomain?: string(name='WebsiteDomain', description='The website domain name.', example='www.aliyun.com'),
 }
 
 model ListAppPublishHistoryResponseBody = {
   accessDeniedDetail?: string(name='AccessDeniedDetail', description='The details of the access denial.', example='{}'),
-  allowRetry?: boolean(name='AllowRetry', description='Indicates whether retries are allowed.', example='False'),
+  allowRetry?: boolean(name='AllowRetry', description='Specifies whether retries are allowed.', example='False'),
   appName?: string(name='AppName', description='The name of the frontend application.', example='spring-cloud-b'),
   dynamicCode?: string(name='DynamicCode', description='The dynamic error code.', example='ERROR-oo1'),
   dynamicMessage?: string(name='DynamicMessage', description='The dynamic message. This parameter is not used and can be ignored.', example='abc'),
@@ -10072,7 +10074,7 @@ model ListAppPublishHistoryResponseBody = {
     currentPublishOrderId?: long(name='CurrentPublishOrderId', description='The ID of the current release order.', example='123'),
     history?: [ 
       {
-        canQuickRevert?: string(name='CanQuickRevert', description='Indicates whether quick rollback is supported.', example='true'),
+        canQuickRevert?: string(name='CanQuickRevert', description='Specifies whether quick rollback is supported.', example='true'),
         commitHash?: string(name='CommitHash', description='The commit hash of the code.', example='890243d5977e74d80eebd4734f7b05f626f84cb1'),
         currentStep?: string(name='CurrentStep', description='The current step number.', example='PRE_CHECK'),
         currentStepCode?: string(name='CurrentStepCode', description='The code of the current release step.', example='INIT'),
@@ -10085,7 +10087,7 @@ model ListAppPublishHistoryResponseBody = {
 - true: The allocation is successful.
 - false: The allocation fails.', example='True'),
         msg?: string(name='Msg', description='The error message.', example='SUCCESS'),
-        orderType?: string(name='OrderType', description='The sort type. Valid values: ASC and DESC.', example='DESC'),
+        orderType?: string(name='OrderType', description='The sort order. Valid values: ASC and DESC.', example='DESC'),
         orderTypeCode?: string(name='OrderTypeCode', description='The code of the release order type.', example='DEPLOY'),
         percent?: int32(name='Percent', description='The transcoding progress.', example='true'),
         publishNumber?: string(name='PublishNumber', description='The release number.', example='123'),
@@ -10095,19 +10097,19 @@ model ListAppPublishHistoryResponseBody = {
 Use the UTC time format: yyyy-MM-ddTHH:mm:ss.SSSZ', example='2026'),
         stepCodes?: [ string ](name='StepCodes', description='The list of release step codes.'),
         steps?: [ string ](name='Steps', description='The specific configurations of the component.'),
-        subchannel?: string(name='Subchannel', description='The release subchannel.'),
+        subchannel?: string(name='Subchannel', description='The release sub-channel.', example='wx0123456789abcdef'),
       }
     ](name='History', description='Specifies whether to display the history of applying alert templates to application groups. Valid values:
-- true: Display.
-- false: Do not display. This is the default value.'),
+- true: Displayed.
+- false: Not displayed. Default value: false.'),
     pageNum?: int32(name='PageNum', description='The page number. Default value: 1.', example='1'),
     pageSize?: int32(name='PageSize', description='The page size.', example='10'),
     total?: int32(name='Total', description='The total number of entries.', example='0'),
   }(name='Module', description='The data table module. Valid values:
 - ABTest: experiment data table
 - ExperimentTool: experiment tool table
-- DataDiagnosis: data diagnosis'),
-  nextToken?: string(name='NextToken', description='The token used to start the next query. This parameter is empty if no next query is available.', example='0l45bkwM022Dt+rOvPi/oQ=='),
+- DataDiagnosis: data diagnostics'),
+  nextToken?: string(name='NextToken', description='The token that is used to start the next query. If no next query exists, this parameter is empty.', example='0l45bkwM022Dt+rOvPi/oQ=='),
   requestId?: string(name='RequestId', description='Id of the request', example='6C6B99AC-39EC-5350-874C-204128C905E6'),
   rootErrorCode?: string(name='RootErrorCode', description='The error code.', example='SYSTEM.ERROR'),
   rootErrorMsg?: string(name='RootErrorMsg', description='The exception message.', example='System exception'),
