@@ -550,7 +550,7 @@ model DataQualityRuleTemplate {
     metricParameters?: string(name='MetricParameters', description='The parameters required for sample collection.', example='{ "SQL": "SELECT min(id) from table;" }'),
     settingConfig?: string(name='SettingConfig', description='The runtime parameter setting statements inserted before the execution of the sampling statement. The maximum length is 1,000 characters. Currently, only MaxCompute is supported.', example='SET odps.sql.udf.timeout=600s;'),
   }(name='SamplingConfig', description='The sample collection settings.'),
-  tenantId?: long(name='TenantId', description='The DataWorks tenant ID.'),
+  tenantId?: long(name='TenantId', description='The DataWorks tenant ID.', example='1'),
   visibleScope?: string(name='VisibleScope', description='The visibility scope of the template.', example='Project'),
 }
 
@@ -2219,6 +2219,13 @@ model CreateAgentRequest {
   ](name='CallableAgents', description='The list of child agents that can be called by this agent.', example='-'),
   description?: string(name='Description', description='The description of the agent.', example='Data analytics assistant'),
   displayName?: string(name='DisplayName', description='The display name of the agent.', example='My Assistant'),
+  expertSuites?: [ 
+    {
+      source?: string(name='Source', description='OFFICIAL 表示官方目录资源；DB 表示个人或企业资源。省略时保持原有数据库资源查询语义。官方资源在 Agent 发布时固定制品版本。', example='OFFICIAL'),
+      suiteId?: string(name='SuiteId', description='传入专家套件引用时，每项需提供 SuiteId，由服务端校验。Source=OFFICIAL 时为官方目录 ID；其他情况为专家套件管理返回的 ID。引用资源必须对调用者可见。', example='dataworks-data-analysis-extension'),
+      version?: int32(name='Version', description='仅用于个人或企业套件，必须为已发布快照的整数版本号。省略时在 Agent 发布时固定当前已发布版本。Source=OFFICIAL 时不传此字段。', example='1'),
+    }
+  ](name='ExpertSuites', description='Agent 绑定的已发布专家套件。个人或企业套件使用 SuiteId，可选 Version；官方套件必须显式指定 Source=OFFICIAL 和官方目录中的 SuiteId，不传 Version。未传时创建为空，不会默认加载所有官方套件。', example='[{"Source":"OFFICIAL","SuiteId":"dataworks-data-analysis-extension"},{"SuiteId":"suite_example","Version":1}]'),
   metadata?: map[string]any(name='Metadata', description='The extended metadata in key-value pairs.', example='{}'),
   model?: map[string]any(name='Model', description='The model configuration.', example='{
           "modelName": "dataworks-public-bailian/qwen-max"
@@ -2226,9 +2233,13 @@ model CreateAgentRequest {
   name?: string(name='Name', description='The name of the agent. The name must be unique within the current account.
 
 This parameter is required.', example='my-agent'),
+  publishImmediately?: boolean(name='PublishImmediately', description='是否在创建 Agent 后立即发布。true 发布创建的版本；false 或省略保持原有仅创建草稿行为。保存与发布不是原子操作，发布失败时草稿可能已存在；重试前应先查询 Agent，避免重复创建。', example='false'),
   skills?: [ 
     {
       name?: string(name='Name', description='The name of the skill.', example='skill-1'),
+      skillId?: string(name='SkillId', description='Source=OFFICIAL 时传官方目录 ID，不传 Name 或 Version。个人或企业 Skill 不传此字段。', example='dataworks-semantic'),
+      source?: string(name='Source', description='OFFICIAL 表示官方目录资源；DB 表示个人或企业资源，省略时保持原有按名称查询语义。', example='OFFICIAL'),
+      version?: int32(name='Version', description='仅用于个人或企业 Skill，必须为已发布快照的整数版本。省略时在 Agent 发布时固定当前已发布版本；Source=OFFICIAL 时不传。', example='1'),
     }
   ](name='Skills', description='The list of skills.', example='-'),
   systemPrompt?: string(name='SystemPrompt', description='The system prompt.', example='You are a data analytics assistant'),
@@ -2251,6 +2262,7 @@ model CreateAgentShrinkRequest {
   callableAgentsShrink?: string(name='CallableAgents', description='The list of child agents that can be called by this agent.', example='-'),
   description?: string(name='Description', description='The description of the agent.', example='Data analytics assistant'),
   displayName?: string(name='DisplayName', description='The display name of the agent.', example='My Assistant'),
+  expertSuitesShrink?: string(name='ExpertSuites', description='Agent 绑定的已发布专家套件。个人或企业套件使用 SuiteId，可选 Version；官方套件必须显式指定 Source=OFFICIAL 和官方目录中的 SuiteId，不传 Version。未传时创建为空，不会默认加载所有官方套件。', example='[{"Source":"OFFICIAL","SuiteId":"dataworks-data-analysis-extension"},{"SuiteId":"suite_example","Version":1}]'),
   metadataShrink?: string(name='Metadata', description='The extended metadata in key-value pairs.', example='{}'),
   modelShrink?: string(name='Model', description='The model configuration.', example='{
           "modelName": "dataworks-public-bailian/qwen-max"
@@ -2258,6 +2270,7 @@ model CreateAgentShrinkRequest {
   name?: string(name='Name', description='The name of the agent. The name must be unique within the current account.
 
 This parameter is required.', example='my-agent'),
+  publishImmediately?: boolean(name='PublishImmediately', description='是否在创建 Agent 后立即发布。true 发布创建的版本；false 或省略保持原有仅创建草稿行为。保存与发布不是原子操作，发布失败时草稿可能已存在；重试前应先查询 Agent，避免重复创建。', example='false'),
   skillsShrink?: string(name='Skills', description='The list of skills.', example='-'),
   systemPrompt?: string(name='SystemPrompt', description='The system prompt.', example='You are a data analytics assistant'),
   toolsShrink?: string(name='Tools', description='The list of tools.', example='-'),
@@ -2270,6 +2283,14 @@ This parameter is required.', example='my-agent'),
 
 model CreateAgentResponseBody = {
   agent?: {
+    expertSuites?: [ 
+      {
+        packageVersion?: string(name='PackageVersion', description='创建时不返回；请使用 GetAgent 显式查询已发布版本获取固定的官方套件制品版本。', example='0.1.0.202610211408'),
+        source?: string(name='Source', example='OFFICIAL'),
+        suiteId?: string(name='SuiteId', example='dataworks-data-analysis-extension'),
+        version?: int32(name='Version', example='1'),
+      }
+    ](name='ExpertSuites', description='已保存的套件引用。官方资源返回来源及目录 ID；发布后的制品版本由 PackageVersion 表示。'),
     gmtCreateTime?: string(name='GmtCreateTime', description='The creation time. The value is a UNIX timestamp in milliseconds.
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='1780555634000'),
@@ -2277,6 +2298,15 @@ Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='1780555634000'),
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='1780555634000'),
     name?: string(name='Name', description='The name of the agent.', example='my-agent'),
+    skills?: [ 
+      {
+        name?: string(name='Name', example='my-business-skill'),
+        packageVersion?: string(name='PackageVersion', description='创建时不返回；请使用 GetAgent 显式查询已发布版本获取固定的官方制品版本。', example='0.6.0.202608201110'),
+        skillId?: string(name='SkillId', example='dataworks-semantic'),
+        source?: string(name='Source', example='OFFICIAL'),
+        version?: int32(name='Version', example='1'),
+      }
+    ](name='Skills', description='已保存的 Skill 引用；官方 Skill 在 Agent 发布后返回固定的 PackageVersion。'),
   }(name='Agent', description='The details of the created agent.'),
   requestId?: string(name='RequestId', description='The request ID.', example='824F80BA-1778-5D8A-BAFF-668A4D9C4CC7'),
 }
@@ -2309,6 +2339,9 @@ async function createAgentWithOptions(tmpReq: CreateAgentRequest, runtime: $Runt
   if (!$isNull(tmpReq.callableAgents)) {
     request.callableAgentsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.callableAgents, 'CallableAgents', 'json');
   }
+  if (!$isNull(tmpReq.expertSuites)) {
+    request.expertSuitesShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.expertSuites, 'ExpertSuites', 'json');
+  }
   if (!$isNull(tmpReq.metadata)) {
     request.metadataShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.metadata, 'Metadata', 'json');
   }
@@ -2334,6 +2367,9 @@ async function createAgentWithOptions(tmpReq: CreateAgentRequest, runtime: $Runt
   if (!$isNull(request.displayName)) {
     body['DisplayName'] = request.displayName;
   }
+  if (!$isNull(request.expertSuitesShrink)) {
+    body['ExpertSuites'] = request.expertSuitesShrink;
+  }
   if (!$isNull(request.metadataShrink)) {
     body['Metadata'] = request.metadataShrink;
   }
@@ -2342,6 +2378,9 @@ async function createAgentWithOptions(tmpReq: CreateAgentRequest, runtime: $Runt
   }
   if (!$isNull(request.name)) {
     body['Name'] = request.name;
+  }
+  if (!$isNull(request.publishImmediately)) {
+    body['PublishImmediately'] = request.publishImmediately;
   }
   if (!$isNull(request.skillsShrink)) {
     body['Skills'] = request.skillsShrink;
@@ -2422,7 +2461,9 @@ model CreateAgentSessionRequest {
 - cli: Sandbox mode. Suitable for complex data analytics, data processing, and code writing scenarios. Advantages: can handle complex problems, and the model autonomously performs analysis and problem resolution. Disadvantages: slower processing speed and higher token consumption compared to the conversation mode.', example='chat，cli'),
         mode?: string(name='Mode', description='The authorization mode for script execution. OpenAPI currently supports only the yolo mode. Valid values:
 * yolo: Automatic authorization. No manual intervention is required, and the model processes tasks automatically.', example='yolo'),
+        model?: string(name='Model', example='qwen3.7-max(openai)'),
         projectId?: string(name='ProjectId', description='The DataWorks workspace ID. Used to initialize the session project context. If omitted, the session is treated as having no project context. You can later correct or switch the project context by using PromptAgentSession.', example='12345'),
+        reasoningEffort?: string(name='ReasoningEffort', example='none'),
         resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group used for initialization.', example='Serverless_res_group_123123123_564657857'),
         skills?: string(name='Skills', description='The names of custom skills to load. Separate multiple skill names with commas (,).', example='skill-name-1,skill-name2,skill-name-3'),
       }(name='InitialConfigOptions', description='The advanced parameter settings for the agent execution environment.'),
@@ -2438,11 +2479,18 @@ model CreateAgentSessionShrinkRequest {
 
 model CreateAgentSessionResponseBody = {
   jsonRpcResponse?: {
+    error?: {
+      code?: int32(name='Code', example='500'),
+      data?: any(name='Data', example='{}'),
+      errorCode?: string(name='ErrorCode', example='0x4883300000000019'),
+      message?: string(name='Message', example='创建 DataAgent 实例必须指定资源组，请在请求的 _meta.dataAgent.resourceGroupId 中传入资源组 ID'),
+    }(name='Error'),
     id?: string(name='Id', description='The request ID passed by the caller. The value is returned as-is.', example='1'),
     jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Fixed value: 2.0.', example='2.0'),
     result?: {
       sessionId?: string(name='SessionId', description='The ID of the created session.', example='sess_0f12abc34'),
     }(name='Result', description='The business data. The value is null if an error occurs.'),
+    timestamp?: long(name='Timestamp', example='1789549200000'),
   }(name='JsonRpcResponse', description='The JSON-RPC response.'),
   requestId?: string(name='RequestId', description='Id of the request', example='8A9D5E6C-5817-5837-9715-6E3967EC6123'),
 }
@@ -6629,7 +6677,7 @@ This parameter corresponds to the "Upstream Node Output Name" configured in the 
 
 
 This parameter corresponds to the "Schedule Configuration &gt; Node Context Parameters &gt; Input Parameters of This Node" setting of a Data Studio node in the [DataWorks console](https://workbench.data.aliyun.com/console).', example='[{"ValueSource": "project_001.first_node:bizdate_param","ParameterName": "bizdate_input"}]'),
-  outputList?: string(name='OutputList'),
+  outputList?: string(name='OutputList', example='dw_project.ods_user_info_d'),
   outputParameters?: string(name='OutputParameters', description='The context output parameters of the node. The parameter value is in JSON format. For the fields included, see the OutputContextParameterList parameter structure in the response of the [GetFile](https://help.aliyun.com/document_detail/173954.html) operation.
 
 
@@ -15171,6 +15219,7 @@ async function findBestMatchSecurityStrategy(request: FindBestMatchSecurityStrat
 }
 
 model GetAgentRequest {
+  agentVersion?: int32(name='AgentVersion', description='省略时读取当前定义；指定已发布版本时读取对应快照及固定的官方 Skill、套件制品版本；指定当前未发布版本时仍返回草稿，不返回固定制品版本。不是 POP 系统参数 Version。', example='2'),
   name?: string(name='Name', description='The name of the skill to retrieve.
 
 This parameter is required.', example='my-skill'),
@@ -15178,6 +15227,7 @@ This parameter is required.', example='my-skill'),
 
 model GetAgentResponseBody = {
   agent?: {
+    agentVersion?: int32(name='AgentVersion', description='本次读取的定义版本。更新当前定义时，将该值作为 UpdateAgent 的 ExpectedVersion，可拒绝覆盖其他调用者已提交的新版本。读取历史快照的版本不代表当前版本。', example='2'),
     callableAgents?: [ 
       {
         displayName?: string(name='DisplayName', description='The sub-agent display name.', example='Sub-assistant'),
@@ -15189,6 +15239,18 @@ model GetAgentResponseBody = {
     creatorId?: string(name='CreatorId', description='The creator ID.', example='123456'),
     description?: string(name='Description', description='**The description.**', example='Data analysis assistant'),
     displayName?: string(name='DisplayName', description='**The display name.**', example='My assistant'),
+    expertSuites?: [ 
+      {
+        description?: string(name='Description', description='套件已删除、发布快照缺失或调用者无权查看时，不返回套件摘要，仅保留 ID 和版本号。', example='数据分析专家能力集合'),
+        displayName?: string(name='DisplayName', example='数据分析专家套件'),
+        name?: string(name='Name', example='analysis-suite'),
+        packageVersion?: string(name='PackageVersion', description='显式查询 Agent 已发布版本时返回固定的官方制品版本；查询草稿或自定义套件时不返回。', example='0.1.0.202610211408'),
+        semanticVersion?: string(name='SemanticVersion', description='可选套件摘要字段，当前新 DataAgent 应用不返回；缺省不表示版本 0。不可作为 UpdateAgent 的 Version，回写引用时必须省略。官方制品的固定版本请读取 PackageVersion。', example='1.2.0'),
+        source?: string(name='Source', description='OFFICIAL 表示官方目录资源；省略或 DB 表示个人或企业资源。', example='OFFICIAL'),
+        suiteId?: string(name='SuiteId', example='suite_example'),
+        version?: int32(name='Version', description='仅个人或企业套件在引用明确指定版本或读取发布快照时返回；官方套件不返回。未返回不是 0；SDK 若将缺省整数初始化为 0，回写时必须省略。官方项只回写 Source 和 SuiteId，不传 Version、SemanticVersion 或 PackageVersion。', example='3'),
+      }
+    ](name='ExpertSuites', description='Agent 定义绑定的专家套件及固定发布版本。'),
     gmtCreateTime?: string(name='GmtCreateTime', description='The creation time, as a Unix timestamp in milliseconds.
 
 Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='1780555634000'),
@@ -15210,6 +15272,9 @@ Use the UTC time format: yyyy-MM-ddTHH:mmZ', example='1780555634000'),
     skills?: [ 
       {
         name?: string(name='Name', description='The skill name.', example='my-skill'),
+        packageVersion?: string(name='PackageVersion', description='指定 AgentVersion 查询已发布快照时返回固定的官方制品版本；查询草稿或自定义 Skill 时不返回。', example='0.6.0.202608201110'),
+        skillId?: string(name='SkillId', example='dataworks-semantic'),
+        source?: string(name='Source', description='OFFICIAL 表示官方目录资源；省略或 DB 表示原有个人或企业资源。', example='OFFICIAL'),
         version?: int32(name='Version', description='The skill version.', example='-'),
       }
     ](name='Skills', description='A list of skills.'),
@@ -15251,6 +15316,9 @@ model GetAgentResponse = {
 async function getAgentWithOptions(request: GetAgentRequest, runtime: $RuntimeOptions): GetAgentResponse {
   request.validate();
   var body : map[string]any = {};
+  if (!$isNull(request.agentVersion)) {
+    body['AgentVersion'] = request.agentVersion;
+  }
   if (!$isNull(request.name)) {
     body['Name'] = request.name;
   }
@@ -17126,7 +17194,7 @@ model GetDIJobResponseBody = {
 - `OfflineIncremental`: offline incremental synchronization (for an entire database).
 
 - `FullAndOfflineIncremental`: one-time full synchronization and offline incremental synchronization (for an entire database).', example='FullAndRealtimeIncremental'),
-    owner?: string(name='Owner'),
+    owner?: string(name='Owner', example='3726346'),
     projectId?: long(name='ProjectId', description='The ID of the DataWorks workspace for the API call. You can obtain the workspace ID from the Workspace Configuration page in the [DataWorks console](https://workbench.data.aliyun.com/console).', example='98330'),
     resourceSettings?: {
       offlineResourceSettings?: {
@@ -17683,65 +17751,65 @@ model GetDataQualityEvaluationTaskInstanceResponseBody = {
     projectId?: long(name='ProjectId', description='The workspace ID.', example='98330'),
     results?: [ 
       {
-        createTime?: long(name='CreateTime'),
+        createTime?: long(name='CreateTime', example='1708284916414'),
         details?: [ 
           {
-            checkedValue?: string(name='CheckedValue'),
-            referencedValue?: string(name='ReferencedValue'),
-            status?: string(name='Status'),
+            checkedValue?: string(name='CheckedValue', example='100.0'),
+            referencedValue?: string(name='ReferencedValue', example='0.0'),
+            status?: string(name='Status', example='Passed'),
           }
         ](name='Details'),
-        id?: long(name='Id'),
+        id?: long(name='Id', example='10001'),
         rule?: {
           checkingConfig?: {
-            referencedSamplesFilter?: string(name='ReferencedSamplesFilter'),
+            referencedSamplesFilter?: string(name='ReferencedSamplesFilter', example='{ "bizdate": [ "-1", "-7", "-1m" ] }'),
             thresholds?: {
               critical?: {
-                expression?: string(name='Expression'),
-                operator?: string(name='Operator'),
-                value?: string(name='Value'),
+                expression?: string(name='Expression', example='$checkValue > 0.01'),
+                operator?: string(name='Operator', example='>'),
+                value?: string(name='Value', example='100.0'),
               }(name='Critical'),
               expected?: {
-                expression?: string(name='Expression'),
-                operator?: string(name='Operator'),
-                value?: string(name='Value'),
+                expression?: string(name='Expression', example='$checkValue > 0.01'),
+                operator?: string(name='Operator', example='>'),
+                value?: string(name='Value', example='100.0'),
               }(name='Expected'),
               warned?: {
-                expression?: string(name='Expression'),
-                operator?: string(name='Operator'),
-                value?: string(name='Value'),
+                expression?: string(name='Expression', example='$checkValue > 0.01'),
+                operator?: string(name='Operator', example='>'),
+                value?: string(name='Value', example='100.0'),
               }(name='Warned'),
             }(name='Thresholds'),
-            type?: string(name='Type'),
+            type?: string(name='Type', example='Fixed'),
           }(name='CheckingConfig'),
-          description?: string(name='Description'),
+          description?: string(name='Description', example='this is a odps _sql task'),
           enabled?: boolean(name='Enabled'),
           errorHandlers?: [ 
             {
-              errorDataFilter?: string(name='ErrorDataFilter'),
-              type?: string(name='Type'),
+              errorDataFilter?: string(name='ErrorDataFilter', example='SELECT * FROM tb_api_log WHERE id IS NULL'),
+              type?: string(name='Type', example='SaveErrorData'),
             }
           ](name='ErrorHandlers'),
-          id?: long(name='Id'),
-          name?: string(name='Name'),
-          projectId?: long(name='ProjectId'),
+          id?: long(name='Id', example='100001'),
+          name?: string(name='Name', example='表不能为空'),
+          projectId?: long(name='ProjectId', example='100'),
           samplingConfig?: {
-            metric?: string(name='Metric'),
-            metricParameters?: string(name='MetricParameters'),
-            samplingFilter?: string(name='SamplingFilter'),
-            settingConfig?: string(name='SettingConfig'),
+            metric?: string(name='Metric', example='Min'),
+            metricParameters?: string(name='MetricParameters', example='{ "Columns": [ "id", "name" ] }'),
+            samplingFilter?: string(name='SamplingFilter', example='id IS NULL'),
+            settingConfig?: string(name='SettingConfig', example='SET odps.sql.udf.timeout=600s;'),
           }(name='SamplingConfig'),
-          severity?: string(name='Severity'),
+          severity?: string(name='Severity', example='High'),
           target?: {
-            databaseType?: string(name='DatabaseType'),
-            tableGuid?: string(name='TableGuid'),
-            type?: string(name='Type'),
+            databaseType?: string(name='DatabaseType', example='maxcompute'),
+            tableGuid?: string(name='TableGuid', example='odps.unit_test.tb_unit_test'),
+            type?: string(name='Type', example='Table'),
           }(name='Target'),
-          templateCode?: string(name='TemplateCode'),
+          templateCode?: string(name='TemplateCode', example='SYSTEM:user_defined_sql'),
         }(name='Rule'),
-        sample?: string(name='Sample'),
-        status?: string(name='Status'),
-        taskInstanceId?: long(name='TaskInstanceId'),
+        sample?: string(name='Sample', example='[   {     "gender": "male",     "_count": 100   }, {     "gender": "female",     "_count": 100   } ]'),
+        status?: string(name='Status', example='Passed'),
+        taskInstanceId?: long(name='TaskInstanceId', example='20001'),
       }
     ](name='Results'),
     status?: string(name='Status', description='The instance status of the data quality monitoring task. Valid values:
@@ -24717,6 +24785,7 @@ model ListAgentSessionsRequest {
   jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Fixed value: 2.0.', example='2.0'),
   params?: {
     agentName?: string(name='AgentName', description='**Agent name** for exact filtering. At least one of this parameter and `SessionSourceList` must be specified.', example='chat_cli_chatbi'),
+    archived?: boolean(name='Archived', description='true仅返回归档会话；false或省略仅返回未归档会话。'),
     maxResults?: int32(name='MaxResults', description='The number of entries per page. Default value: 50.', example='50'),
     nextToken?: string(name='NextToken', description='The token for the next page. Set this parameter to 1 for the first page.', example='10'),
     sessionId?: string(name='SessionId', description='The session ID for exact matching.', example='sess_0f12abc34'),
@@ -24734,12 +24803,19 @@ model ListAgentSessionsShrinkRequest {
 
 model ListAgentSessionsResponseBody = {
   jsonRpcResponse?: {
+    error?: {
+      code?: int32(name='Code', example='400'),
+      data?: any(name='Data', example='{}'),
+      errorCode?: string(name='ErrorCode', example='SESSION_FILTER_REQUIRED'),
+      message?: string(name='Message', example='SESSION_FILTER_REQUIRED'),
+    }(name='Error'),
     id?: string(name='Id', description='The ID passed in by the requester. The value is returned as-is.', example='29d9a29c-a284-48c1-9eaa-4a42c7c616d5'),
     jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Fixed value: 2.0.', example='2.0'),
     result?: {
       agentSessions?: [ 
         {
           meta?: {
+            archived?: boolean(name='Archived'),
             sessionSource?: string(name='SessionSource', description='The session source.', example='openapi_sdk'),
             sessionStatus?: string(name='SessionStatus', description='The session connection status.', example='* NORMAL: Stateless session
 * INIT: Initialization state
@@ -28106,7 +28182,7 @@ model ListDataQualityEvaluationTasksResponseBody = {
   pagingInfo?: {
     dataQualityEvaluationTasks?: [ 
       {
-        dataSourceId?: long(name='DataSourceId'),
+        dataSourceId?: long(name='DataSourceId', example='45238'),
         description?: string(name='Description', description='The description of the data quality evaluation task. The description can be up to 65,535 characters in length.', example='This is a daily run data quality evaluation plan'),
         hooks?: [ 
           {
@@ -42595,6 +42671,103 @@ async function unTagDataAssetsWithOptions(tmpReq: UnTagDataAssetsRequest, runtim
 async function unTagDataAssets(request: UnTagDataAssetsRequest): UnTagDataAssetsResponse {
   var runtime = new $RuntimeOptions{};
   return unTagDataAssetsWithOptions(request, runtime);
+}
+
+model UpdateAgentSessionTitleRequest {
+  id?: string(name='Id', example='updateagentsessiontitle-rpc-001'),
+  jsonrpc?: string(name='Jsonrpc', example='2.0'),
+  params?: {
+    sessionId?: string(name='SessionId', description='This parameter is required.', example='123e4567-e89b-42d3-a456-426614174000'),
+    title?: string(name='Title', description='This parameter is required.', example='New title'),
+  }(name='Params'),
+}
+
+model UpdateAgentSessionTitleShrinkRequest {
+  id?: string(name='Id', example='updateagentsessiontitle-rpc-001'),
+  jsonrpc?: string(name='Jsonrpc', example='2.0'),
+  paramsShrink?: string(name='Params'),
+}
+
+model UpdateAgentSessionTitleResponseBody = {
+  jsonRpcResponse?: {
+    error?: {
+      code?: int32(name='Code', example='500'),
+      data?: any(name='Data', example='{}'),
+      errorCode?: string(name='ErrorCode', example='0x4883300000000019'),
+      message?: string(name='Message', example='会话不存在或当前账号无权访问，请返回会话列表重新选择'),
+    }(name='Error'),
+    id?: string(name='Id', example='updateagentsessiontitle-rpc-001'),
+    jsonrpc?: string(name='Jsonrpc', example='2.0'),
+    result?: {
+      sessionId?: string(name='SessionId', example='123e4567-e89b-42d3-a456-426614174000'),
+      title?: string(name='Title', example='New title'),
+    }(name='Result'),
+    timestamp?: long(name='Timestamp', example='1789549200000'),
+  }(name='JsonRpcResponse'),
+  requestId?: string(name='RequestId', example='01A0B6E0-E005-1465-B5DE-5CD17677426F'),
+}
+
+model UpdateAgentSessionTitleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAgentSessionTitleResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改Agent会话标题
+ *
+ * @description 修改当前身份可访问的 Agent 会话标题，不改变任务执行状态。
+ *
+ * @param tmpReq UpdateAgentSessionTitleRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateAgentSessionTitleResponse
+ */
+@context("updateAgentSessionTitleWithContext")
+async function updateAgentSessionTitleWithOptions(tmpReq: UpdateAgentSessionTitleRequest, runtime: $RuntimeOptions): UpdateAgentSessionTitleResponse {
+  tmpReq.validate();
+  var request = new UpdateAgentSessionTitleShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var body : map[string]any = {};
+  if (!$isNull(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!$isNull(request.jsonrpc)) {
+    body['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!$isNull(request.paramsShrink)) {
+    body['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateAgentSessionTitle',
+    version = '2024-05-18',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改Agent会话标题
+ *
+ * @description 修改当前身份可访问的 Agent 会话标题，不改变任务执行状态。
+ *
+ * @param request UpdateAgentSessionTitleRequest
+ * @return UpdateAgentSessionTitleResponse
+ */
+async function updateAgentSessionTitle(request: UpdateAgentSessionTitleRequest): UpdateAgentSessionTitleResponse {
+  var runtime = new $RuntimeOptions{};
+  return updateAgentSessionTitleWithOptions(request, runtime);
 }
 
 model UpdateAlertRuleRequest {
