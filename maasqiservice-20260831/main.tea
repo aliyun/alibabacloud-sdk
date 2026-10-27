@@ -11,7 +11,7 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
-  @endpointRule = '';
+  @endpointRule = 'regional';
   
   checkConfig(config);
   @endpoint = getEndpoint('maasqiservice', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
@@ -30,9 +30,13 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 
 model AigcChatCompletionStreamHeaders {
   commonHeaders?: map[string]string,
-  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='This parameter is required.', example='qis_xxx'),
-  xQIInstanceId?: string(name='X-QI-Instance-Id', description='This parameter is required.', example='AIGC_xxx'),
-  xQISessionId?: string(name='X-QI-Session-Id', example='session-xxx'),
+  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='The instance access key. The key must belong to the Creative Agent instance being called. This key is different from the AccessKey Secret used for OpenAPI signing. Do not expose it publicly.
+
+This parameter is required.', example='qis_xxx'),
+  xQIInstanceId?: string(name='X-QI-Instance-Id', description='The published Creative Agent instance ID. Must correspond to the X-QI-Agent-Api-Key.
+
+This parameter is required.', example='AIGC_xxx'),
+  xQISessionId?: string(name='X-QI-Session-Id', description='The session identifier. Can be omitted for the first turn. Obtain it from the qi_session_id field in the SSE response and pass it back in subsequent turns. Use no more than 128 characters consisting of letters, digits, periods, underscores, colons, or hyphens.', example='session-xxx'),
 }
 
 model AigcChatCompletionStreamRequest {
@@ -41,37 +45,41 @@ model AigcChatCompletionStreamRequest {
       content?: [ 
         {
           imageUrl?: {
-            url?: string(name='url', example='https://example.com/input.png'),
-          }(name='imageUrl'),
-          text?: string(name='text', example='把参考图背景改成海边日落'),
-          type?: string(name='type', example='text'),
+            url?: string(name='url', description='The publicly accessible HTTPS URL of the reference image, or a complete Base64 image Data URL (such as data:image/png;base64,...). Signed URLs must remain valid during request execution. Re-upload or update the link for expired or unauthorized images.', example='https://example.com/input.png'),
+          }(name='imageUrl', description='The reference image when type is set to image_url. Supports HTTPS URLs or Base64 Data URLs.'),
+          text?: string(name='text', description='The generation or editing objective when type is set to text.', example='Change the background of the reference image to a seaside sunset'),
+          type?: string(name='type', description='The content part type: text, image_url, or video_url.', example='text'),
           videoUrl?: {
-            url?: string(name='url', example='https://example.com/input.mp4'),
-          }(name='videoUrl'),
+            url?: string(name='url', description='The video URL.', example='https://example.com/input.mp4'),
+          }(name='videoUrl', description='The video input when type is set to video_url. Only accepted by the Creative Agent Dedicated edition Planner. The Creative Agent Lite edition rejects this type.'),
         }
-      ](name='content', example='生成一张雨后未来城市夜景'),
-      role?: string(name='role', example='user'),
+      ](name='content', description='The message content. Can be text. A multimodal array can contain text, image_url, or video_url. The Creative Agent Lite edition performs image-to-image when a reference image is provided and text-to-image when no reference image is provided. It does not accept video.', example='Generate a futuristic city nightscape after rain'),
+      role?: string(name='role', description='The message role. Place the current generation objective in a user message. History can include user, assistant, and tool.', example='user'),
     }
-  ](name='messages', description='This parameter is required.', example='[{"role":"user","content":"生成一张水墨山水画"}]'),
+  ](name='messages', description='The conversation message array. Creative Agent uses the last user message as the current objective and executes it in combination with the session history.
+
+This parameter is required.', example='[{"role":"user","content":"Generate an ink wash landscape painting"}]'),
   metadata?: {
     parameters?: {
-      guidanceScale?: double(name='guidanceScale', example='0.0'),
-      n?: long(name='n', example='1'),
-      negativePrompt?: string(name='negativePrompt', example='低质量、模糊、文字、水印'),
-      numInferenceSteps?: long(name='numInferenceSteps', example='8'),
-      seed?: long(name='seed', example='42'),
-      size?: string(name='size', example='1024*1024'),
-    }(name='parameters', example='{"size":"1024*1024","n":1,"num_inference_steps":8}'),
-  }(name='metadata', example='{"parameters":{"size":"1024*1024","n":1}}'),
-  model?: string(name='model'),
-  stream?: boolean(name='stream', description='This parameter is required.', example='true'),
+      guidanceScale?: double(name='guidanceScale', description='The guidance scale. Must be a finite number between 0 and 20.', example='0.0'),
+      n?: long(name='n', description='The number of images to generate for this request. Must be an integer in the range of 1 to 6.', example='1'),
+      negativePrompt?: string(name='negativePrompt', description='The negative prompt that describes content you do not want to appear in the result.', example='low quality, blurry, text, watermark'),
+      numInferenceSteps?: long(name='numInferenceSteps', description='The number of model inference iterations. Must be an integer in the range of 1 to 200.', example='8'),
+      seed?: long(name='seed', description='The random seed. Must be an integer in the range of 0 to 2147483647.', example='42'),
+      size?: string(name='size', description='The output pixel dimensions, such as `1024*1024` or `1280*720`. The format `1024x1024` is also accepted. When specified, this value overrides the default canvas dimensions for this request. Use width and height values supported by the model.', example='1024*1024'),
+    }(name='parameters', description='The image parameters for this request. Only size, n, seed, negative_prompt, num_inference_steps, and guidance_scale are supported. Omitted fields use the default configurations. response_format is not supported.', example='{"size":"1024*1024","n":1,"num_inference_steps":8}'),
+  }(name='metadata', description='The extended input for this image creation request. Use the parameters object to set generation parameters. Do not use this field to pass model addresses or keys.', example='{"parameters":{"size":"1024*1024","n":1}}'),
+  model?: string(name='model', description='A compatibility placeholder field. Can be omitted or set to an empty string. You cannot use this field to switch the model used by the instance. The model field in the response is an empty string.', example='" "'),
+  stream?: boolean(name='stream', description='Specifies whether to use SSE streaming responses. This parameter must be set to true for this operation.
+
+This parameter is required.', example='true'),
   streamOptions?: {
-    includeUsage?: boolean(name='includeUsage', example='true'),
-  }(name='streamOptions', example='{"include_usage":true}'),
+    includeUsage?: boolean(name='includeUsage', description='The HTTP JSON key is include_usage. When set to true, an independent usage chunk is returned before the end marker. The choices field in this chunk is an empty array. Token usage does not represent the number of images or the final bill.', example='true'),
+  }(name='streamOptions', description='The HTTP JSON key is stream_options. Set include_usage to retrieve the token usage for this call.', example='{"include_usage":true}'),
 }
 
 model AigcChatCompletionStreamResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The request identity generated by the POP gateway for gateway tracing. The Agent execution request ID is the qi_request_id in the SSE body.', example='request-20260904-001'),
 }
 
 model AigcChatCompletionStreamResponse = {
@@ -81,7 +89,20 @@ model AigcChatCompletionStreamResponse = {
 }
 
 /**
- * @summary 以 SSE 流式调用已发布 AIGC Agent；支持 AIGCLite 文生图/图生图与 AIGCStandard Planner，兼容 OpenAI Chat Completions。
+ * @summary Calls a published Creative Agent with support for Lite and Dedicated editions, and returns execution progress and image artifacts by using Server-Sent Events (SSE). The Lite edition performs text-to-image or image-to-image generation depending on whether a reference image is provided. The Dedicated edition uses a Planner to plan and execute generation and editing tasks with multi-turn conversation support. Pass generation count, dimensions, and other parameters through metadata.parameters. Image URLs are included in the artifacts of the result.
+ *
+ * @description ### Before you begin
+ * - Install the SDK from the SDK Center.
+ * - Activate the Creative Agent service and prepare the published instance ID and the corresponding instance access key.
+ * - Creative Agent provides Lite and Dedicated editions. The Lite edition generates or edits images based on whether a reference image is provided. The Dedicated edition uses a Planner to plan and execute creative tasks.
+ * - Complete AccessKey authentication by using the SDK. The instance access key is placed in X-QI-Agent-Api-Key and cannot replace the AccessKey signature.
+ * - Set Content-Type: application/json and Accept: text/event-stream. The stream parameter must be set to true.
+ * ### How to call
+ * - Method and path: `POST /aigc/v1/chat/completions`.
+ * - Specify the instance by using `X-QI-Instance-Id`. The request is executed based on the published configuration of the specified instance. The model field in the request body is a compatibility placeholder and cannot be used to switch models.
+ * - This operation returns incremental events instead of a complete JSON response. Continue reading until the stream ends and check for in-stream errors.
+ * ### Session management
+ * You can omit `X-QI-Session-Id` for the first turn. Save the session identifier returned by the server from the `qi_session_id` field in the SSE body, and pass the same value back in subsequent turns. Do not rely on the gateway to pass through custom response headers. Use different identifiers for different sessions and send requests sequentially within the same session.
  *
  * @param request AigcChatCompletionStreamRequest
  * @param headers AigcChatCompletionStreamHeaders
@@ -139,7 +160,20 @@ async function aigcChatCompletionStreamWithOptions(request: AigcChatCompletionSt
 }
 
 /**
- * @summary 以 SSE 流式调用已发布 AIGC Agent；支持 AIGCLite 文生图/图生图与 AIGCStandard Planner，兼容 OpenAI Chat Completions。
+ * @summary Calls a published Creative Agent with support for Lite and Dedicated editions, and returns execution progress and image artifacts by using Server-Sent Events (SSE). The Lite edition performs text-to-image or image-to-image generation depending on whether a reference image is provided. The Dedicated edition uses a Planner to plan and execute generation and editing tasks with multi-turn conversation support. Pass generation count, dimensions, and other parameters through metadata.parameters. Image URLs are included in the artifacts of the result.
+ *
+ * @description ### Before you begin
+ * - Install the SDK from the SDK Center.
+ * - Activate the Creative Agent service and prepare the published instance ID and the corresponding instance access key.
+ * - Creative Agent provides Lite and Dedicated editions. The Lite edition generates or edits images based on whether a reference image is provided. The Dedicated edition uses a Planner to plan and execute creative tasks.
+ * - Complete AccessKey authentication by using the SDK. The instance access key is placed in X-QI-Agent-Api-Key and cannot replace the AccessKey signature.
+ * - Set Content-Type: application/json and Accept: text/event-stream. The stream parameter must be set to true.
+ * ### How to call
+ * - Method and path: `POST /aigc/v1/chat/completions`.
+ * - Specify the instance by using `X-QI-Instance-Id`. The request is executed based on the published configuration of the specified instance. The model field in the request body is a compatibility placeholder and cannot be used to switch models.
+ * - This operation returns incremental events instead of a complete JSON response. Continue reading until the stream ends and check for in-stream errors.
+ * ### Session management
+ * You can omit `X-QI-Session-Id` for the first turn. Save the session identifier returned by the server from the `qi_session_id` field in the SSE body, and pass the same value back in subsequent turns. Do not rely on the gateway to pass through custom response headers. Use different identifiers for different sessions and send requests sequentially within the same session.
  *
  * @param request AigcChatCompletionStreamRequest
  * @return AigcChatCompletionStreamResponse
@@ -150,83 +184,210 @@ async function aigcChatCompletionStream(request: AigcChatCompletionStreamRequest
   return aigcChatCompletionStreamWithOptions(request, headers, runtime);
 }
 
-model GuiChatCompletionStreamHeaders {
+model CuaChatCompletionStreamHeaders {
   commonHeaders?: map[string]string,
-  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='This parameter is required.', example='qis_xxx'),
-  xQIInstanceId?: string(name='X-QI-Instance-Id', description='This parameter is required.', example='GUI_xxx'),
-  xQISessionId?: string(name='X-QI-Session-Id', example='session-xxx'),
+  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='This parameter is required.', example='qis_<instance_api_key>'),
+  xQIInstanceId?: string(name='X-QI-Instance-Id', description='This parameter is required.', example='CUA_<instance_id>'),
+  xQISessionId?: string(name='X-QI-Session-Id', example='session-cua-1'),
 }
 
-model GuiChatCompletionStreamRequest {
-  allowedTokenIds?: [ long ](name='allowedTokenIds', example='[10,11]'),
-  badWords?: [ string ](name='badWords', example='["blocked"]'),
-  chatTemplateKwargs?: {
-    enableThinking?: boolean(name='enableThinking', example='true'),
-    preserveThinking?: boolean(name='preserveThinking', example='true'),
-  }(name='chatTemplateKwargs'),
-  frequencyPenalty?: double(name='frequencyPenalty', example='0.0'),
-  ignoreEos?: boolean(name='ignoreEos', example='false'),
-  includeReasoning?: boolean(name='includeReasoning', example='true'),
-  logprobs?: boolean(name='logprobs', example='false'),
-  maxCompletionTokens?: long(name='maxCompletionTokens', example='2048'),
-  maxTokens?: long(name='maxTokens', example='2048'),
+model CuaChatCompletionStreamRequest {
   messages?: [ 
     {
       content?: [ 
         {
-          imageData?: string(name='imageData', example='data:image/png;base64,...'),
+          imageData?: string(name='imageData', example='data:image/png;base64,<IMAGE_BASE64>'),
           imageUrl?: {
-            url?: string(name='url', example='https://example.com/screenshot.png'),
+            url?: string(name='url', description='This parameter is required.', example='https://example.com/desktop.png'),
           }(name='imageUrl'),
-          text?: string(name='text', example='点击搜索按钮'),
-          type?: string(name='type', example='text'),
+          text?: string(name='text', example='打开浏览器并访问指定页面。'),
+          type?: string(name='type', description='This parameter is required.', example='image_url'),
         }
-      ](name='content'),
-      role?: string(name='role', example='user'),
-      toolCallId?: string(name='toolCallId', example='call_gui_1'),
+      ](name='content', description='This parameter is required.'),
+      role?: string(name='role', description='This parameter is required.', example='user'),
+      toolCallId?: string(name='toolCallId', example='call_cua_1'),
     }
   ](name='messages', description='This parameter is required.'),
   metadata?: {
-    appList?: [ string ](name='appList', example='["Chrome","Settings"]'),
-    availableApps?: [ string ](name='availableApps', example='["Chrome","Settings"]'),
-    harnessMessage?: string(name='harnessMessage', example='previous action completed'),
-    screenHeight?: long(name='screenHeight', example='1080'),
-    screenWidth?: long(name='screenWidth', example='1920'),
+    screenHeight?: integer(name='screenHeight', example='1080'),
+    screenWidth?: integer(name='screenWidth', example='1920'),
   }(name='metadata'),
-  minP?: double(name='minP', example='0.05'),
-  minTokens?: long(name='minTokens', example='1'),
-  mmProcessorKwargs?: {
-    maxDynamicPatch?: long(name='maxDynamicPatch', example='8'),
-  }(name='mmProcessorKwargs'),
-  model?: string(name='model'),
-  n?: long(name='n', example='1'),
-  parallelToolCalls?: boolean(name='parallelToolCalls', example='false'),
-  presencePenalty?: double(name='presencePenalty', example='0.0'),
-  promptLogprobs?: long(name='promptLogprobs', example='2'),
-  reasoningEffort?: string(name='reasoningEffort', example='medium'),
-  repetitionPenalty?: double(name='repetitionPenalty', example='1.1'),
-  responseFormat?: {
-    type?: string(name='type', example='json_object'),
-  }(name='responseFormat'),
-  seed?: long(name='seed', example='42'),
-  skipSpecialTokens?: boolean(name='skipSpecialTokens', example='true'),
-  stop?: [ string ](name='stop', example='["DONE"]'),
-  stopTokenIds?: [ long ](name='stopTokenIds', example='[1,2]'),
+  model?: string(name='model', example='" "'),
   stream?: boolean(name='stream', description='This parameter is required.', example='true'),
   streamOptions?: {
     includeUsage?: boolean(name='includeUsage', example='true'),
   }(name='streamOptions'),
+  tools?: [  map[string]any ](name='tools', example='[]'),
+}
+
+model CuaChatCompletionStreamResponseBody = {
+  requestId?: string(name='requestId', example='request-20260918-001'),
+}
+
+model CuaChatCompletionStreamResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CuaChatCompletionStreamResponseBody(name='body'),
+}
+
+/**
+ * @summary 调用已发布 CUAStandard 实例，根据任务和桌面截图生成电脑操作单步决策，以 SSE 返回 computer_use 工具调用
+ *
+ * @param request CuaChatCompletionStreamRequest
+ * @param headers CuaChatCompletionStreamHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CuaChatCompletionStreamResponse
+ */
+async function cuaChatCompletionStreamWithOptions(request: CuaChatCompletionStreamRequest, headers: CuaChatCompletionStreamHeaders, runtime: Util.RuntimeOptions): CuaChatCompletionStreamResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!Util.isUnset(request.metadata)) {
+    body['metadata'] = request.metadata;
+  }
+  if (!Util.isUnset(request.model)) {
+    body['model'] = request.model;
+  }
+  if (!Util.isUnset(request.stream)) {
+    body['stream'] = request.stream;
+  }
+  if (!Util.isUnset(request.streamOptions)) {
+    body['streamOptions'] = request.streamOptions;
+  }
+  if (!Util.isUnset(request.tools)) {
+    body['tools'] = request.tools;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xQIAgentApiKey)) {
+    realHeaders['X-QI-Agent-Api-Key'] = Util.toJSONString(headers.xQIAgentApiKey);
+  }
+  if (!Util.isUnset(headers.xQIInstanceId)) {
+    realHeaders['X-QI-Instance-Id'] = Util.toJSONString(headers.xQIInstanceId);
+  }
+  if (!Util.isUnset(headers.xQISessionId)) {
+    realHeaders['X-QI-Session-Id'] = Util.toJSONString(headers.xQISessionId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CuaChatCompletionStream',
+    version = '2026-08-31',
+    protocol = 'HTTPS',
+    pathname = `/cua/v1/chat/completions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 调用已发布 CUAStandard 实例，根据任务和桌面截图生成电脑操作单步决策，以 SSE 返回 computer_use 工具调用
+ *
+ * @param request CuaChatCompletionStreamRequest
+ * @return CuaChatCompletionStreamResponse
+ */
+async function cuaChatCompletionStream(request: CuaChatCompletionStreamRequest): CuaChatCompletionStreamResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new CuaChatCompletionStreamHeaders{};
+  return cuaChatCompletionStreamWithOptions(request, headers, runtime);
+}
+
+model GuiChatCompletionStreamHeaders {
+  commonHeaders?: map[string]string,
+  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='The access key of the agent instance, which is used to authenticate QICloud Customer API operations.
+
+This parameter is required.', example='qis_xxx'),
+  xQIInstanceId?: string(name='X-QI-Instance-Id', description='The ID of the published Mobile-Use Agent instance. This ID must correspond to the X-QI-Agent-Api-Key.
+
+This parameter is required.', example='GUI_xxx'),
+  xQISessionId?: string(name='X-QI-Session-Id', description='The optional session identifier. You can omit this parameter in the first step, and it is generated by the server. You must pass back the same value in subsequent Mobile-Use Agent steps to continue the state.', example='session-xxx'),
+}
+
+model GuiChatCompletionStreamRequest {
+  allowedTokenIds?: [ long ](name='allowedTokenIds', description='The whitelist of token IDs that are allowed to be generated.', example='[10,11]'),
+  badWords?: [ string ](name='badWords', description='The list of words or strings that are banned from being generated.', example='["blocked"]'),
+  chatTemplateKwargs?: {
+    enableThinking?: boolean(name='enableThinking', description='chat_template_kwargs.enable_thinking: the request-level switch for model thinking, which overrides the default value with the same name. Enabling this switch does not cause the Mobile-Use Agent response to return reasoning_content.', example='true'),
+    preserveThinking?: boolean(name='preserveThinking', description='Specifies whether to preserve the existing thinking context in subsequent rounds. This parameter is passed as-is according to the vLLM or Qwen chat_template_kwargs.', example='true'),
+  }(name='chatTemplateKwargs', description='The vLLM or OpenAI-compatible template parameter object. The request values override the default values with the same names in the model and are passed as-is to the primary model of the Mobile-Use Agent.'),
+  frequencyPenalty?: double(name='frequencyPenalty', description='The frequency penalty parameter, which is passed through to the primary model of the Mobile-Use Agent.', example='0.0'),
+  ignoreEos?: boolean(name='ignoreEos', description='Specifies whether to ignore the end-of-sequence (EOS) token and continue generation.', example='false'),
+  includeReasoning?: boolean(name='includeReasoning', description='Specifies whether to request the upstream to generate the reasoning field. The client-facing results of the Mobile-Use Agent do not directly expose internal thinking.', example='true'),
+  logprobs?: boolean(name='logprobs', description='The model compatibility parameter. The JSON field is logprobs. Whether this parameter is accepted and takes effect depends on the model used by the instance. The current Mobile-Use Agent response does not provide token log probability details.', example='false'),
+  maxCompletionTokens?: long(name='maxCompletionTokens', description='The OpenAI-compatible maximum number of completion tokens. If provided, the value must be greater than 0.', example='2048'),
+  maxTokens?: long(name='maxTokens', description='The OpenAI-compatible maximum number of generated tokens. If provided, the value must be greater than 0.', example='2048'),
+  messages?: [ 
+    {
+      content?: [ 
+        {
+          imageData?: string(name='imageData', description='The compatible inline image field for input_image. You can pass a Base64 data URL.', example='data:image/png;base64,...'),
+          imageUrl?: {
+            url?: string(name='url', description='A publicly accessible HTTPS image URL or a Base64 image data URL. Each round of user messages must and can only contain one current screenshot. Expired or inaccessible image addresses are rejected.', example='https://example.com/screenshot.png'),
+          }(name='imageUrl', description='The screenshot reference. Supports an image_url string or an object containing a url field. The object format is shown here.'),
+          text?: string(name='text', description='The text content, which can describe the current operation objective or supplement the current page state.', example='Click the search button'),
+          type?: string(name='type', description='The type of the content item. Use text or input_text for text. Use image_url or input_image for screenshots.', example='text'),
+        }
+      ](name='content', description='The message content. For a user message, use a content array that contains exactly one current screenshot and optionally attached task text. Screenshots support public HTTPS URLs or Base64 image data URLs. When role is set to tool, fill in the actual execution result of the previous action, which can be a non-empty string, object, or array.'),
+      role?: string(name='role', description='The message role. The current input must end with a user message. If an execution receipt from the previous round exists, the preceding message must be a tool message.', example='user'),
+      toolCallId?: string(name='toolCallId', description='Required when role is set to tool. References the tool_call ID from the previous Mobile-Use Agent response.', example='call_gui_1'),
+    }
+  ](name='messages', description='The messages for the current Mobile-Use Agent step. The first step can only contain one user message. Subsequent steps can only contain one tool message followed by one user message. Complete multi-round history is not allowed.
+
+This parameter is required.'),
+  metadata?: {
+    appList?: [ string ](name='appList', description='The compatible alias for available_apps, which is also an array of app name strings.', example='["Chrome","Settings"]'),
+    availableApps?: [ string ](name='availableApps', description='The supplementary list of application names for the Standard Edition of Mobile-Use Agent. The JSON field is available_apps. The newly passed list replaces the previous supplementary items, but the default applications are retained. An empty array does not clear the default applications. The Dedicated Edition of Mobile-Use Agent does not use this list.', example='["Chrome","Settings"]'),
+    harnessMessage?: string(name='harnessMessage', description='The Mobile-Use Agent Harness receipt text for legacy clients. This cannot be passed at the same time as the preceding tool message. New clients should prioritize using [tool,user] messages.', example='previous action completed'),
+    screenHeight?: long(name='screenHeight', description='The screen height as a positive integer. For Base64 images, the width and height are parsed from the image itself. For URL images, this value is used for the runtime screen size.', example='1080'),
+    screenWidth?: long(name='screenWidth', description='The screen width as a positive integer. For Base64 images, the width and height are parsed from the image itself. For URL images, this value is used for the runtime screen size.', example='1920'),
+  }(name='metadata', description='The metadata for the Mobile-Use Agent step. Supports screen_width, screen_height, available_apps, and the compatibility field harness_message. The tool receipt and harness_message cannot be passed at the same time.'),
+  minP?: double(name='minP', description='The vLLM Min-P sampling parameter.', example='0.05'),
+  minTokens?: long(name='minTokens', description='The minimum number of tokens to generate.', example='1'),
+  mmProcessorKwargs?: {
+    maxDynamicPatch?: long(name='maxDynamicPatch', description='The maximum number of dynamic image patches allowed by the vision model.', example='8'),
+  }(name='mmProcessorKwargs', description='The multimodal preprocessor parameters, passed through to the Mobile-Use Agent primary model as-is by key.'),
+  model?: string(name='model', description='Reserved for OpenAI client compatibility. This parameter is ignored during routing. The model is determined by the published configuration of the instance, and the model field in the response is always an empty string.', example='" "'),
+  n?: long(name='n', description='Set this parameter to 1. Whether this parameter is accepted depends on the model. The current Mobile-Use Agent response does not return multiple candidate actions.', example='1'),
+  parallelToolCalls?: boolean(name='parallelToolCalls', description='The model-compatible switch to invoke parallel tool calling. This parameter does not expand the set of Mobile-Use Agent actions active for this operation.', example='false'),
+  presencePenalty?: double(name='presencePenalty', description='The presence penalty parameter, passed through to the Mobile-Use Agent primary model.', example='0.0'),
+  promptLogprobs?: long(name='promptLogprobs', description='A model-compatible parameter. The JSON field is prompt_logprobs. Whether this parameter is accepted depends on the model. The current Mobile-Use Agent response does not return input token probability details.', example='2'),
+  reasoningEffort?: string(name='reasoningEffort', description='The OpenAI-compatible reasoning effort, such as low, medium, or high.', example='medium'),
+  repetitionPenalty?: double(name='repetitionPenalty', description='The vLLM repetition penalty parameter.', example='1.1'),
+  responseFormat?: {
+    type?: string(name='type', description='The response format type, such as text, json_object, or json_schema.', example='json_object'),
+  }(name='responseFormat', description='The model-compatible structured output options. This parameter does not change the final Mobile-Use Agent tool calling structure when you invoke this operation. Avoid output constraint Settings that conflict with the action protocol.'),
+  seed?: long(name='seed', description='The random seed.', example='42'),
+  skipSpecialTokens?: boolean(name='skipSpecialTokens', description='Specifies whether to skip special tokens.', example='true'),
+  stop?: [ string ](name='stop', description='The stop sequences. This parameter is compatible with a single string or an array of strings. The array format is shown here.', example='["DONE"]'),
+  stopTokenIds?: [ long ](name='stopTokenIds', description='The list of vLLM stop token IDs.', example='[1,2]'),
+  stream?: boolean(name='stream', description='Specifies whether to use Server-Sent Events (SSE) for streaming responses. You must set this parameter to true for this operation.
+
+This parameter is required.', example='true'),
+  streamOptions?: {
+    includeUsage?: boolean(name='includeUsage', description='Specifies whether to output the usage statistics block before data:[DONE].', example='true'),
+  }(name='streamOptions', description='The OpenAI-compatible streaming options.'),
   structuredOutputs?: {
-    choice?: [ string ](name='choice', example='["tap","type"]'),
-  }(name='structuredOutputs'),
-  temperature?: double(name='temperature', example='0.2'),
-  topK?: long(name='topK', example='20'),
-  topLogprobs?: long(name='topLogprobs', example='3'),
-  topP?: double(name='topP', example='0.9'),
+    choice?: [ string ](name='choice', description='The set of allowed enum text values.', example='["tap","type"]'),
+  }(name='structuredOutputs', description='The vLLM structured output constraints.'),
+  temperature?: double(name='temperature', description='The sampling temperature, which overrides the default value of the Mobile-Use Agent primary model.', example='0.2'),
+  topK?: long(name='topK', description='The vLLM Top-K sampling parameter.', example='20'),
+  topLogprobs?: long(name='topLogprobs', description='A model-compatible parameter. The JSON field is top_logprobs. Whether this parameter is accepted depends on the model. The current Mobile-Use Agent response does not return candidate token probability details.', example='3'),
+  topP?: double(name='topP', description='The Top-P nucleus sampling parameter, which overrides the default value of the Mobile-Use Agent primary model.', example='0.9'),
 }
 
 model GuiChatCompletionStreamResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The request identity generated by the POP gateway for gateway Tracing Analysis. For the agent request ID, refer to qi_request_id in the SSE body.', example='request-20260904-001'),
 }
 
 model GuiChatCompletionStreamResponse = {
@@ -236,7 +397,20 @@ model GuiChatCompletionStreamResponse = {
 }
 
 /**
- * @summary 以 SSE 流式调用已发布 GUI Agent；兼容 OpenAI Chat Completions，输入屏幕截图与任务文本，返回下一步 GUI 操作。
+ * @summary Calls a published Mobile-Use Agent instance, which supports the Standard Edition and Dedicated Edition. Submits the task text and the current screen screenshot, passes the device and application context through metadata, and returns the next mobile UI operation by using Server-Sent Events (SSE). The caller executes the UI operation and then continues to call the API with the session ID and the latest screenshot.
+ *
+ * @description ### Prerequisites
+ * - Install the SDK from the SDK Center.
+ * - Activate the Mobile-Use Agent service and prepare the ID and access key of a published Mobile-Use Agent instance.
+ * - Mobile-Use Agent provides the Standard Edition and Dedicated Edition. Call the API based on the edition of the selected instance.
+ * - Use the SDK to complete AccessKey authentication. Place the instance access key in the X-QI-Agent-Api-Key header, which cannot replace the AccessKey signature.
+ * - Set Content-Type to application/json and Accept to text/event-stream. The stream parameter must be set to true.
+ * ### Call methods
+ * - Method and path: POST /gui/v1/chat/completions.
+ * - Use X-QI-Instance-Id to specify the instance and execute based on the published configurations. The model field in the request body is a compatibility placeholder and cannot be used to switch models.
+ * - The response consists of SSE incremental events rather than a complete JSON object. Continuously read the stream until it ends and check for errors within the stream.
+ * ### Session management
+ * You can omit X-QI-Session-Id in the first round. Save the qi_session_id from the SSE body and pass it in the request header with the same name for subsequent calls. Make sequential calls within the same session and use different identifiers for different sessions. Do not rely on the gateway to pass through custom response headers. The actual identifier is subject to the SSE body.
  *
  * @param request GuiChatCompletionStreamRequest
  * @param headers GuiChatCompletionStreamHeaders
@@ -378,7 +552,20 @@ async function guiChatCompletionStreamWithOptions(request: GuiChatCompletionStre
 }
 
 /**
- * @summary 以 SSE 流式调用已发布 GUI Agent；兼容 OpenAI Chat Completions，输入屏幕截图与任务文本，返回下一步 GUI 操作。
+ * @summary Calls a published Mobile-Use Agent instance, which supports the Standard Edition and Dedicated Edition. Submits the task text and the current screen screenshot, passes the device and application context through metadata, and returns the next mobile UI operation by using Server-Sent Events (SSE). The caller executes the UI operation and then continues to call the API with the session ID and the latest screenshot.
+ *
+ * @description ### Prerequisites
+ * - Install the SDK from the SDK Center.
+ * - Activate the Mobile-Use Agent service and prepare the ID and access key of a published Mobile-Use Agent instance.
+ * - Mobile-Use Agent provides the Standard Edition and Dedicated Edition. Call the API based on the edition of the selected instance.
+ * - Use the SDK to complete AccessKey authentication. Place the instance access key in the X-QI-Agent-Api-Key header, which cannot replace the AccessKey signature.
+ * - Set Content-Type to application/json and Accept to text/event-stream. The stream parameter must be set to true.
+ * ### Call methods
+ * - Method and path: POST /gui/v1/chat/completions.
+ * - Use X-QI-Instance-Id to specify the instance and execute based on the published configurations. The model field in the request body is a compatibility placeholder and cannot be used to switch models.
+ * - The response consists of SSE incremental events rather than a complete JSON object. Continuously read the stream until it ends and check for errors within the stream.
+ * ### Session management
+ * You can omit X-QI-Session-Id in the first round. Save the qi_session_id from the SSE body and pass it in the request header with the same name for subsequent calls. Make sequential calls within the same session and use different identifiers for different sessions. Do not rely on the gateway to pass through custom response headers. The actual identifier is subject to the SSE body.
  *
  * @param request GuiChatCompletionStreamRequest
  * @return GuiChatCompletionStreamResponse
@@ -391,104 +578,112 @@ async function guiChatCompletionStream(request: GuiChatCompletionStreamRequest):
 
 model PaChatCompletionStreamHeaders {
   commonHeaders?: map[string]string,
-  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='This parameter is required.', example='qis_xxx'),
-  xQIInstanceId?: string(name='X-QI-Instance-Id', description='This parameter is required.', example='PA_xxx'),
-  xQISessionId?: string(name='X-QI-Session-Id', example='session-xxx'),
+  xQIAgentApiKey?: string(name='X-QI-Agent-Api-Key', description='The Agent instance access key used for QICloud Customer API authentication.
+
+This parameter is required.', example='qis_xxx'),
+  xQIInstanceId?: string(name='X-QI-Instance-Id', description='The published Mobile Planner Agent instance ID. Must correspond to the X-QI-Agent-Api-Key.
+
+This parameter is required.', example='PA_xxx'),
+  xQISessionId?: string(name='X-QI-Session-Id', description='The optional session identifier. Can be omitted for the first turn, in which case the server generates one. Pass it back in subsequent turns to continue the Mobile Planner Agent session.', example='session-xxx'),
 }
 
 model PaChatCompletionStreamRequest {
-  allowedTokenIds?: [ long ](name='allowedTokenIds', example='[10,11]'),
-  badWords?: [ string ](name='badWords', example='["blocked"]'),
+  allowedTokenIds?: [ long ](name='allowedTokenIds', description='The whitelist of token IDs allowed for generation.', example='[10,11]'),
+  badWords?: [ string ](name='badWords', description='The list of words or strings prohibited from generation.', example='["blocked"]'),
   chatTemplateKwargs?: {
-    enableThinking?: boolean(name='enableThinking', example='true'),
-    preserveThinking?: boolean(name='preserveThinking', example='true'),
-  }(name='chatTemplateKwargs'),
-  frequencyPenalty?: double(name='frequencyPenalty', example='0.0'),
-  ignoreEos?: boolean(name='ignoreEos', example='false'),
-  includeReasoning?: boolean(name='includeReasoning', example='true'),
-  logprobs?: boolean(name='logprobs', example='false'),
-  maxCompletionTokens?: long(name='maxCompletionTokens', example='2048'),
-  maxTokens?: long(name='maxTokens', example='2048'),
+    enableThinking?: boolean(name='enableThinking', description='Controls whether the model generates reasoning_content through chat_template_kwargs. This value is passed to the model used by the Mobile Planner Agent.', example='true'),
+    preserveThinking?: boolean(name='preserveThinking', description='Specifies whether the model preserves and reuses existing reasoning content in subsequent turns. Passed through as-is per vLLM/Qwen chat_template_kwargs.', example='true'),
+  }(name='chatTemplateKwargs', description='The vLLM/OpenAI-Compatible template parameter object. Request values are merged with model defaults, with request keys taking precedence, and passed to the model as-is.'),
+  frequencyPenalty?: double(name='frequencyPenalty', description='The frequency penalty parameter passed through to the Mobile Planner Agent model.', example='0.0'),
+  ignoreEos?: boolean(name='ignoreEos', description='Specifies whether to ignore EOS and continue generation.', example='false'),
+  includeReasoning?: boolean(name='includeReasoning', description='Specifies whether to request reasoning content from the upstream. The actual capability depends on the model.', example='true'),
+  logprobs?: boolean(name='logprobs', description='A model-compatible parameter with the JSON field name logprobs. Whether it is accepted and takes effect depends on the model used by the instance. The current Agent response does not provide token log probability details.', example='false'),
+  maxCompletionTokens?: long(name='maxCompletionTokens', description='The maximum number of completion tokens. Must be greater than 0 if provided, and is passed as an OpenAI-compatible model parameter.', example='2048'),
+  maxTokens?: long(name='maxTokens', description='The OpenAI-compatible maximum number of generated tokens. Must be greater than 0 if provided.', example='2048'),
   messages?: [ 
     {
       content?: [ 
         {
           imageUrl?: {
-            url?: string(name='url', example='https://example.com/image.png'),
-          }(name='imageUrl'),
-          text?: string(name='text', example='请分析这张图片'),
-          type?: string(name='type', example='text'),
+            url?: string(name='url', description='The image URL. Remote images must use HTTPS. Base64 Data URLs are also accepted.', example='https://example.com/image.png'),
+          }(name='imageUrl', description='The image reference when type=image_url. Supports HTTPS URLs or data:image/...;base64,... format.'),
+          text?: string(name='text', description='The non-empty text when type=text.', example='Analyze this image'),
+          type?: string(name='type', description='The content part type. Mobile Planner Agent user messages support text or image_url.', example='text'),
         }
-      ](name='content', example='请分析图片内容'),
-      role?: string(name='role', example='user'),
-      toolCallId?: string(name='toolCallId', example='call_weather_1'),
+      ](name='content', description='The message content. Mobile Planner Agent supports text and multimodal content. Image URLs or base64 Data URLs are passed through to the Mobile Planner Agent model if it supports multimodal input.', example='Analyze the image content'),
+      role?: string(name='role', description='The message role: user, assistant, tool, system, or developer. system/developer is used for optional per-turn text instruction overrides. If omitted, the instructions from the instance configuration are used. Tool results use tool and are associated with tool_call_id.', example='user'),
+      toolCallId?: string(name='toolCallId', description='Required when role=tool. Must match an id from the preceding assistant.tool_calls.', example='call_weather_1'),
       toolCalls?: [ 
         {
           function?: {
-            arguments?: string(name='arguments', example='{"city":"杭州"}'),
-            name?: string(name='name', example='get_weather'),
-          }(name='function'),
-          id?: string(name='id', example='call_weather_1'),
-          type?: string(name='type', example='function'),
+            arguments?: string(name='arguments', description='The JSON object string of function arguments.', example='{"city":"Hangzhou"}'),
+            name?: string(name='name', description='The name of the function to call.', example='get_weather'),
+          }(name='function', description='The function information of a historical tool invocation entry, including name and arguments as a JSON character string. Retain the actual returned values in subsequent turns.'),
+          id?: string(name='id', description='The tool invocation ID. Subsequent tool messages reference this through tool_call_id.', example='call_weather_1'),
+          type?: string(name='type', description='The tool invocation type. Currently fixed as function.', example='function'),
         }
-      ](name='toolCalls'),
+      ](name='toolCalls', description='The list of function invocation entries that can be carried when role=assistant. Used for multi-turn tool invocation continuation.'),
     }
-  ](name='messages', description='This parameter is required.'),
-  minP?: double(name='minP', example='0.05'),
-  minTokens?: long(name='minTokens', example='1'),
+  ](name='messages', description='The list of conversation messages. The first call can submit one turn or an existing multi-turn conversation. When continuing with an existing session ID, retain the complete and unmodified historical message prefix and append the current turn messages. Tool results are associated through role=tool and the corresponding tool_call_id.
+
+This parameter is required.'),
+  minP?: double(name='minP', description='The vLLM Min-P sampling parameter.', example='0.05'),
+  minTokens?: long(name='minTokens', description='The minimum number of tokens to generate.', example='1'),
   mmProcessorKwargs?: {
-    maxDynamicPatch?: long(name='maxDynamicPatch', example='8'),
-  }(name='mmProcessorKwargs'),
-  model?: string(name='model'),
-  n?: long(name='n', example='1'),
-  parallelToolCalls?: boolean(name='parallelToolCalls', example='false'),
-  presencePenalty?: double(name='presencePenalty', example='0.0'),
-  promptLogprobs?: long(name='promptLogprobs', example='2'),
-  reasoningEffort?: string(name='reasoningEffort', example='high'),
-  repetitionPenalty?: double(name='repetitionPenalty', example='1.1'),
+    maxDynamicPatch?: long(name='maxDynamicPatch', description='Example: the maximum number of dynamic image patches allowed by the vision model.', example='8'),
+  }(name='mmProcessorKwargs', description='The multimodal preprocessor parameters passed through to vLLM as-is by key.'),
+  model?: string(name='model', description='Reserved for OpenAI client compatibility. Ignored during routing. The actual model is determined by the published instance configuration. The model field in the response is always an empty string.', example='" "'),
+  n?: long(name='n', description='Set this parameter to 1. Whether the model accepts this parameter depends on the model. The current Mobile Planner Agent response does not return multiple candidate results. Do not use this parameter for multiple-candidate responses.', example='1'),
+  parallelToolCalls?: boolean(name='parallelToolCalls', description='Specifies whether the model is allowed to generate multiple tool calling requests in parallel. The model invokes tools concurrently when this parameter is enabled.', example='false'),
+  presencePenalty?: double(name='presencePenalty', description='The presence penalty parameter, passed through to the Mobile Planner Agent model.', example='0.0'),
+  promptLogprobs?: long(name='promptLogprobs', description='A model compatibility parameter. The JSON field is prompt_logprobs. Whether the model accepts this parameter depends on the model. The current Agent response does not return probability details for input tokens.', example='2'),
+  reasoningEffort?: string(name='reasoningEffort', description='The OpenAI-compatible reasoning effort level, such as low, medium, or high.', example='high'),
+  repetitionPenalty?: double(name='repetitionPenalty', description='The vLLM repetition penalty parameter.', example='1.1'),
   responseFormat?: {
-    type?: string(name='type', example='json_object'),
-  }(name='responseFormat'),
-  seed?: long(name='seed', example='42'),
-  skipSpecialTokens?: boolean(name='skipSpecialTokens', example='true'),
-  stop?: [ string ](name='stop', example='["END"]'),
-  stopTokenIds?: [ long ](name='stopTokenIds', example='[1,2]'),
-  stream?: boolean(name='stream', description='This parameter is required.', example='true'),
+    type?: string(name='type', description='The response format type, such as text, json_object, or json_schema.', example='json_object'),
+  }(name='responseFormat', description='The structured response format, such as json_object or json_schema.'),
+  seed?: long(name='seed', description='The random seed.', example='42'),
+  skipSpecialTokens?: boolean(name='skipSpecialTokens', description='Specifies whether to skip special tokens.', example='true'),
+  stop?: [ string ](name='stop', description='The stop sequences. Compatible with a single string or an array of strings. This field is displayed in array format.', example='["END"]'),
+  stopTokenIds?: [ long ](name='stopTokenIds', description='The vLLM stop token ID list.', example='[1,2]'),
+  stream?: boolean(name='stream', description='Specifies whether to use SSE streaming responses. This parameter must be set to true for this operation.
+
+This parameter is required.', example='true'),
   streamOptions?: {
-    includeUsage?: boolean(name='includeUsage', example='true'),
-  }(name='streamOptions'),
+    includeUsage?: boolean(name='includeUsage', description='Specifies whether to output a usage statistics chunk before data:[DONE].', example='true'),
+  }(name='streamOptions', description='The OpenAI-compatible streaming options.'),
   structuredOutputs?: {
-    choice?: [ string ](name='choice', example='["yes","no"]'),
-  }(name='structuredOutputs'),
-  temperature?: double(name='temperature', example='0.2'),
-  toolChoice?: string(name='toolChoice', example='auto'),
+    choice?: [ string ](name='choice', description='The set of allowed enumeration text values.', example='["yes","no"]'),
+  }(name='structuredOutputs', description='The vLLM structured output constraints.'),
+  temperature?: double(name='temperature', description='The sampling temperature. Passed as an OpenAI-compatible model parameter to override the model default value.', example='0.2'),
+  toolChoice?: string(name='toolChoice', description='The tool choice strategy. Valid values: auto, none, required, or a named selection supported by the model.', example='auto'),
   tools?: [ 
     {
       function?: {
-        description?: string(name='description', example='查询指定城市天气'),
-        name?: string(name='name', example='get_weather'),
+        description?: string(name='description', description='The description of the function purpose. The model uses this to determine when to call the tool.', example='Query the weather for a specified city'),
+        name?: string(name='name', description='The function name. This parameter is required. Used to match assistant.tool_calls with subsequent tool results.', example='get_weather'),
         parameters?: {
           properties?: {
             city?: {
-              description?: string(name='description', example='要查询天气的城市名称'),
-              type?: string(name='type', example='string'),
-            }(name='city'),
-          }(name='properties'),
-          required?: [ string ](name='required'),
-          type?: string(name='type', example='object'),
-        }(name='parameters'),
-        strict?: boolean(name='strict', example='true'),
-      }(name='function'),
-      type?: string(name='type', example='function'),
+              description?: string(name='description', description='The sample parameter description.', example='The name of the city for which to query the weather'),
+              type?: string(name='type', description='The JSON Schema type of the sample city field.', example='string'),
+            }(name='city', description='The Schema for the sample business parameter city. The actual fields are determined by the caller\\\\"s tool definition.'),
+          }(name='properties', description='The property definitions of the JSON Schema.'),
+          required?: [ string ](name='required', description='The array of required field names in the JSON Schema.'),
+          type?: string(name='type', description='The root Schema type of the function parameters. Typically set to object.', example='object'),
+        }(name='parameters', description='The JSON Schema for function parameters, passed to the model as raw JSON. If not provided, an empty object Schema is used.'),
+        strict?: boolean(name='strict', description='Specifies whether the model must strictly follow the function parameter JSON Schema.', example='true'),
+      }(name='function', description='The function tool definition, including the name, description, and JSON Schema parameters.'),
+      type?: string(name='type', description='The tool type. This parameter must be set to function.', example='function'),
     }
-  ](name='tools'),
-  topK?: long(name='topK', example='20'),
-  topLogprobs?: long(name='topLogprobs', example='3'),
-  topP?: double(name='topP', example='0.9'),
+  ](name='tools', description='The array of function tool definitions available for this request. Mobile Planner Agent registers each named function in the runtime Toolkit and returns tool_calls in the streaming response.'),
+  topK?: long(name='topK', description='The vLLM Top-K sampling parameter.', example='20'),
+  topLogprobs?: long(name='topLogprobs', description='A model compatibility parameter. The JSON field is top_logprobs. Used for models that support this feature. The current Agent response does not provide candidate token probability details.', example='3'),
+  topP?: double(name='topP', description='Top-P sampling parameter. Passed as an OpenAI-compatible model parameter to override the model default value.', example='0.9'),
 }
 
 model PaChatCompletionStreamResponseBody = {
-  requestId?: string(name='requestId'),
+  requestId?: string(name='requestId', description='The request identity generated by the POP gateway for gateway Tracing Analysis. The Agent execute request ID is based on qi_request_id in the SSE body.', example='request-20260904-001'),
 }
 
 model PaChatCompletionStreamResponse = {
@@ -498,7 +693,19 @@ model PaChatCompletionStreamResponse = {
 }
 
 /**
- * @summary 以 SSE 流式调用已发布 PA Agent；兼容 OpenAI Chat Completions，支持多轮消息、工具调用、多模态输入与思考内容。
+ * @summary Invokes a published Mobile Planner Agent using OpenAI-Compatible Chat Completions messages to initiate a conversation or node planning, and returns text, model-provided reasoning content, and structured tool calling via SSE. Supports multi-turn sessions and model-supported image input. Business tools are executed by the caller.
+ *
+ * @description ### Before you begin
+ * - Install the SDK from the SDK center.
+ * - Activate the Mobile Planner Agent service and prepare the published Mobile Planner Agent instance ID and its access key.
+ * - Use the SDK to complete AccessKey authentication. The instance access key is placed in X-QI-Agent-Api-Key and cannot replace the AccessKey signature.
+ * - Set Content-Type: application/json and Accept: text/event-stream. The stream parameter must be set to true.
+ * ### How to call
+ * - Method and path: `POST /pa/v1/chat/completions`.
+ * - X-QI-Instance-Id specifies the instance and executes based on the published configuration. The model field in the request body is a compatibility placeholder and cannot switch models.
+ * - The response consists of SSE incremental events, not a single complete JSON object. Continue reading until the stream ends and check for errors within the stream.
+ * ### Session management
+ * You can omit X-QI-Session-Id for the first turn. Save qi_session_id from the SSE body and pass it back through the request header of the same name in subsequent turns. Call sequentially within the same session. Use different identifiers for different sessions. Do not rely on the gateway to pass through custom response headers. The actual identifier is based on the SSE body.
  *
  * @param request PaChatCompletionStreamRequest
  * @param headers PaChatCompletionStreamHeaders
@@ -643,7 +850,19 @@ async function paChatCompletionStreamWithOptions(request: PaChatCompletionStream
 }
 
 /**
- * @summary 以 SSE 流式调用已发布 PA Agent；兼容 OpenAI Chat Completions，支持多轮消息、工具调用、多模态输入与思考内容。
+ * @summary Invokes a published Mobile Planner Agent using OpenAI-Compatible Chat Completions messages to initiate a conversation or node planning, and returns text, model-provided reasoning content, and structured tool calling via SSE. Supports multi-turn sessions and model-supported image input. Business tools are executed by the caller.
+ *
+ * @description ### Before you begin
+ * - Install the SDK from the SDK center.
+ * - Activate the Mobile Planner Agent service and prepare the published Mobile Planner Agent instance ID and its access key.
+ * - Use the SDK to complete AccessKey authentication. The instance access key is placed in X-QI-Agent-Api-Key and cannot replace the AccessKey signature.
+ * - Set Content-Type: application/json and Accept: text/event-stream. The stream parameter must be set to true.
+ * ### How to call
+ * - Method and path: `POST /pa/v1/chat/completions`.
+ * - X-QI-Instance-Id specifies the instance and executes based on the published configuration. The model field in the request body is a compatibility placeholder and cannot switch models.
+ * - The response consists of SSE incremental events, not a single complete JSON object. Continue reading until the stream ends and check for errors within the stream.
+ * ### Session management
+ * You can omit X-QI-Session-Id for the first turn. Save qi_session_id from the SSE body and pass it back through the request header of the same name in subsequent turns. Call sequentially within the same session. Use different identifiers for different sessions. Do not rely on the gateway to pass through custom response headers. The actual identifier is based on the SSE body.
  *
  * @param request PaChatCompletionStreamRequest
  * @return PaChatCompletionStreamResponse
