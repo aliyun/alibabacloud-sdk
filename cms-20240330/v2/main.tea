@@ -1401,6 +1401,7 @@ model IncidentEventStruct {
 }
 
 model IncidentForView {
+  blockingExpireTimestamp?: long(name='blockingExpireTimestamp', example='-1 表示未屏蔽'),
   content?: string(name='content', description='The details of the incident.', example='"{"description":"ECS实例CPU过高","impact":"支付服务延迟"}"'),
   escalations?: [
     IncidentEscalationPolicyForView
@@ -1427,6 +1428,7 @@ model IncidentForView {
   state?: string(name='state', description='The current state of the incident.', example='"Open"'),
   subscriptionName?: string(name='subscriptionName', description='The name of the subscription policy.', example='"P1-Alert-Notification"'),
   subscriptionUuid?: string(name='subscriptionUuid', description='The UUID of the subscription policy.', example='"subscription-abc"'),
+  tags?: map[string]string(name='tags'),
   time?: long(name='time', description='The timestamp when the incident was created.', example='1743876000000'),
   title?: string(name='title', description='The title of the incident.', example='"支付服务不可用"'),
   userId?: string(name='userId', description='The ID of the user who created the incident.', example='"user-abc123"'),
@@ -3146,6 +3148,77 @@ model WorkspaceFilterSetting {
   workspaceUuids?: [ string ](name='workspaceUuids', description='The list of workspace UUIDs.'),
 }
 
+model ScheduleValue = {
+  contactId?: string(name='contactId', example='testId'),
+  contactName?: string(name='contactName', example='testName'),
+  end?: string(name='end', example='2024-10-01 02:00:00'),
+  start?: string(name='start', example='2024-10-01 22:00:00'),
+}
+
+model ActiveContactChannelRequest {
+  code?: string(name='code', example='0b9377d9c56b5c2ea8a41a2b3c4d5e6f'),
+  site?: string(name='site', example='cn_hangzhou'),
+}
+
+model ActiveContactChannelResponseBody = {
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
+}
+
+model ActiveContactChannelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ActiveContactChannelResponseBody(name='body'),
+}
+
+/**
+ * @summary 激活验证码
+ *
+ * @param request ActiveContactChannelRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ActiveContactChannelResponse
+ */
+@context("activeContactChannelWithContext")
+async function activeContactChannelWithOptions(request: ActiveContactChannelRequest, headers: map[string]string, runtime: $RuntimeOptions): ActiveContactChannelResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.code)) {
+    query['code'] = request.code;
+  }
+  if (!$isNull(request.site)) {
+    query['site'] = request.site;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ActiveContactChannel',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/contacts/action/activate`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 激活验证码
+ *
+ * @param request ActiveContactChannelRequest
+ * @return ActiveContactChannelResponse
+ */
+async function activeContactChannel(request: ActiveContactChannelRequest): ActiveContactChannelResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return activeContactChannelWithOptions(request, headers, runtime);
+}
+
 model AddContextsRequest {
   contextType?: string(name='contextType', description='The context type.
 
@@ -3715,6 +3788,217 @@ async function createAggTaskGroup(instanceId: string, request: CreateAggTaskGrou
   return createAggTaskGroupWithOptions(instanceId, request, headers, runtime);
 }
 
+model CreateAlertActionRequest {
+  alertActionId?: string(name='alertActionId', example='testId'),
+  alertActionName?: string(name='alertActionName', description='This parameter is required.', example='testName'),
+  ebParam?: {
+    ebSource?: string(name='ebSource', example='test'),
+    eventBusName?: string(name='eventBusName', example='test'),
+    regionId?: string(name='regionId', example='cn-heyuan'),
+    subject?: string(name='subject', example='test'),
+  }(name='ebParam'),
+  essParam?: {
+    essGroupId?: string(name='essGroupId', example='testId'),
+    essRuleId?: string(name='essRuleId', example='testId'),
+    regionId?: string(name='regionId', example='cn-hangzhou'),
+  }(name='essParam'),
+  fc3Param?: {
+    function?: string(name='function', example='test'),
+    qualifier?: string(name='qualifier', example='test'),
+    regionId?: string(name='regionId', example='cn-nanjing'),
+  }(name='fc3Param'),
+  fcParam?: {
+    function?: string(name='function', example='testFunction'),
+    regionId?: string(name='regionId', example='cn-hangzhou'),
+    service?: string(name='service', example='testService'),
+  }(name='fcParam'),
+  mnsParam?: {
+    mnsType?: string(name='mnsType', example='queue'),
+    name?: string(name='name', example='testName'),
+    regionId?: string(name='regionId', example='cn-beijing'),
+  }(name='mnsParam'),
+  pagerDutyParam?: {
+    key?: string(name='key', example='fds3wr54rvcxfr4543t6435'),
+    url?: string(name='url', example='https://events.pagerduty.com/v2/enqueue'),
+  }(name='pagerDutyParam'),
+  slsParam?: {
+    logstore?: string(name='logstore', example='testLogstore。'),
+    project?: string(name='project', example='testProject'),
+    regionId?: string(name='regionId', example='cn-zhangjiakou'),
+  }(name='slsParam'),
+  type?: string(name='type', description='This parameter is required.', example='FC'),
+  webhookParam?: {
+    contentType?: string(name='contentType', example='JSON'),
+    headers?: map[string]string(name='headers'),
+    method?: string(name='method', example='POST'),
+    url?: string(name='url', example='http://www.test.com'),
+  }(name='webhookParam'),
+}
+
+model CreateAlertActionResponseBody = {
+  alertActionId?: string(name='alertActionId', example='testId'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model CreateAlertActionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAlertActionResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建告警动作
+ *
+ * @param request CreateAlertActionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAlertActionResponse
+ */
+@context("createAlertActionWithContext")
+async function createAlertActionWithOptions(request: CreateAlertActionRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateAlertActionResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alertActionId)) {
+    body['alertActionId'] = request.alertActionId;
+  }
+  if (!$isNull(request.alertActionName)) {
+    body['alertActionName'] = request.alertActionName;
+  }
+  if (!$isNull(request.ebParam)) {
+    body['ebParam'] = request.ebParam;
+  }
+  if (!$isNull(request.essParam)) {
+    body['essParam'] = request.essParam;
+  }
+  if (!$isNull(request.fc3Param)) {
+    body['fc3Param'] = request.fc3Param;
+  }
+  if (!$isNull(request.fcParam)) {
+    body['fcParam'] = request.fcParam;
+  }
+  if (!$isNull(request.mnsParam)) {
+    body['mnsParam'] = request.mnsParam;
+  }
+  if (!$isNull(request.pagerDutyParam)) {
+    body['pagerDutyParam'] = request.pagerDutyParam;
+  }
+  if (!$isNull(request.slsParam)) {
+    body['slsParam'] = request.slsParam;
+  }
+  if (!$isNull(request.type)) {
+    body['type'] = request.type;
+  }
+  if (!$isNull(request.webhookParam)) {
+    body['webhookParam'] = request.webhookParam;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateAlertAction',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/alertAction`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建告警动作
+ *
+ * @param request CreateAlertActionRequest
+ * @return CreateAlertActionResponse
+ */
+async function createAlertAction(request: CreateAlertActionRequest): CreateAlertActionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createAlertActionWithOptions(request, headers, runtime);
+}
+
+model CreateAlertNotifyTemplateRequest {
+  alertNotifyTemplateId?: string(name='alertNotifyTemplateId', description='This parameter is required.', example='test'),
+  alertNotifyTemplateName?: string(name='alertNotifyTemplateName', example='test'),
+  programLang?: string(name='programLang', example='GO'),
+  templates?: map[string]object(name='templates', example='{"zh":{"title":"云监控报警: {{.incident.title}}","content":"**报警标题:** {{.incident.title}}\\\\n**级别:** {{.incident.severity}}\\\\n**事件数:** {{len .events}}","incidentLifeCycleNotifyTemplates":"{\\\\"IncidentCreationNotify\\\\":{\\\\"title\\\\":\\\\"云监控报警: {{.incident.title}}\\\\",\\\\"content\\\\":\\\\"**报警标题:** {{.incident.title}}\\\\\\\\n**级别:** {{.incident.severity}}\\\\",\\\\"enable\\\\":true},\\\\"IncidentResolutionNotify\\\\":{\\\\"title\\\\":\\\\"云监控报警已解决: {{.incident.title}}\\\\",\\\\"content\\\\":\\\\"**报警标题:** {{.incident.title}}\\\\\\\\n**级别:** {{.incident.severity}}\\\\",\\\\"enable\\\\":true}}"},"en":{"title":"CloudMonitor Alert: {{.incident.title}}","content":"**Alert Title:** {{.incident.title}}\\\\n**Severity:** {{.incident.severity}}\\\\n**Events:** {{len .events}}","incidentLifeCycleNotifyTemplates":"{\\\\"IncidentCreationNotify\\\\":{\\\\"title\\\\":\\\\"CloudMonitor Alert: {{.incident.title}}\\\\",\\\\"content\\\\":\\\\"**Alert Title:** {{.incident.title}}\\\\\\\\n**Severity:** {{.incident.severity}}\\\\",\\\\"enable\\\\":true},\\\\"IncidentResolutionNotify\\\\":{\\\\"title\\\\":\\\\"CloudMonitor Alert Resolved: {{.incident.title}}\\\\",\\\\"content\\\\":\\\\"**Alert Title:** {{.incident.title}}\\\\\\\\n**Severity:** {{.incident.severity}}\\\\",\\\\"enable\\\\":true}}"}}'),
+  type?: string(name='type', example='DING'),
+}
+
+model CreateAlertNotifyTemplateResponseBody = {
+  alertNotifyTemplateId?: string(name='alertNotifyTemplateId', example='testId'),
+  requestId?: string(name='requestId', example='8A33DBEA-*****-*****-*****-*****'),
+}
+
+model CreateAlertNotifyTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAlertNotifyTemplateResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建通知模板
+ *
+ * @param request CreateAlertNotifyTemplateRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAlertNotifyTemplateResponse
+ */
+@context("createAlertNotifyTemplateWithContext")
+async function createAlertNotifyTemplateWithOptions(request: CreateAlertNotifyTemplateRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateAlertNotifyTemplateResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alertNotifyTemplateId)) {
+    body['alertNotifyTemplateId'] = request.alertNotifyTemplateId;
+  }
+  if (!$isNull(request.alertNotifyTemplateName)) {
+    body['alertNotifyTemplateName'] = request.alertNotifyTemplateName;
+  }
+  if (!$isNull(request.programLang)) {
+    body['programLang'] = request.programLang;
+  }
+  if (!$isNull(request.templates)) {
+    body['templates'] = request.templates;
+  }
+  if (!$isNull(request.type)) {
+    body['type'] = request.type;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateAlertNotifyTemplate',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/alertNotifyTemplate`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建通知模板
+ *
+ * @param request CreateAlertNotifyTemplateRequest
+ * @return CreateAlertNotifyTemplateResponse
+ */
+async function createAlertNotifyTemplate(request: CreateAlertNotifyTemplateRequest): CreateAlertNotifyTemplateResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createAlertNotifyTemplateWithOptions(request, headers, runtime);
+}
+
 model CreateAlertRobotRequest {
   digitalEmployeeName?: string(name='digitalEmployeeName', description='The name of the digital employee.', example='apsara-ops'),
   lang?: string(name='lang', description='The language.', example='zh_CN'),
@@ -4031,6 +4315,164 @@ async function createCloudResource(): CreateCloudResourceResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return createCloudResourceWithOptions(headers, runtime);
+}
+
+model CreateContactRequest {
+  contactId?: string(name='contactId', example='testId'),
+  email?: string(name='email', example='test@aliyun.com'),
+  imUserIds?: map[string]string(name='imUserIds'),
+  lang?: string(name='lang', example='zh_CN'),
+  name?: string(name='name', example='test_07'),
+  phone?: string(name='phone', example='13012345678'),
+  workspace?: string(name='workspace', example='default-cms-5884500827389836-cn-hangzhou'),
+}
+
+model CreateContactResponseBody = {
+  contactId?: string(name='contactId', example='testId'),
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model CreateContactResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateContactResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建联系人
+ *
+ * @param request CreateContactRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateContactResponse
+ */
+@context("createContactWithContext")
+async function createContactWithOptions(request: CreateContactRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateContactResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.contactId)) {
+    body['contactId'] = request.contactId;
+  }
+  if (!$isNull(request.email)) {
+    body['email'] = request.email;
+  }
+  if (!$isNull(request.imUserIds)) {
+    body['imUserIds'] = request.imUserIds;
+  }
+  if (!$isNull(request.lang)) {
+    body['lang'] = request.lang;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.phone)) {
+    body['phone'] = request.phone;
+  }
+  if (!$isNull(request.workspace)) {
+    body['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateContact',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/contact`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建联系人
+ *
+ * @param request CreateContactRequest
+ * @return CreateContactResponse
+ */
+async function createContact(request: CreateContactRequest): CreateContactResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createContactWithOptions(request, headers, runtime);
+}
+
+model CreateContactGroupRequest {
+  contactGroupId?: string(name='contactGroupId', example='test'),
+  contacts?: [ string ](name='contacts'),
+  name?: string(name='name', example='test'),
+  workspace?: string(name='workspace', example='default-cms-5884500827389836-cn-hangzhou'),
+}
+
+model CreateContactGroupResponseBody = {
+  contactGroupId?: string(name='contactGroupId', example='test'),
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model CreateContactGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateContactGroupResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建联系人组
+ *
+ * @param request CreateContactGroupRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateContactGroupResponse
+ */
+@context("createContactGroupWithContext")
+async function createContactGroupWithOptions(request: CreateContactGroupRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateContactGroupResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.contactGroupId)) {
+    body['contactGroupId'] = request.contactGroupId;
+  }
+  if (!$isNull(request.contacts)) {
+    body['contacts'] = request.contacts;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.workspace)) {
+    body['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateContactGroup',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/contactGroup`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建联系人组
+ *
+ * @param request CreateContactGroupRequest
+ * @return CreateContactGroupResponse
+ */
+async function createContactGroup(request: CreateContactGroupRequest): CreateContactGroupResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createContactGroupWithOptions(request, headers, runtime);
 }
 
 model CreateContextStoreRequest {
@@ -5191,6 +5633,109 @@ async function createNotifyPolicy(request: CreateNotifyPolicyRequest): CreateNot
   return createNotifyPolicyWithOptions(request, headers, runtime);
 }
 
+model CreateOncallScheduleRequest {
+  oncallScheduleId?: string(name='oncallScheduleId', example='testOncallScheduleId'),
+  oncallScheduleName?: string(name='oncallScheduleName', example='testOncallScheduleName'),
+  rotations?: [ 
+    {
+      activeDays?: [ int32 ](name='activeDays', description='This parameter is required.'),
+      contacts?: [ string ](name='contacts', description='This parameter is required.'),
+      rotationEndTime?: string(name='rotationEndTime', description='This parameter is required.', example='24:00'),
+      rotationName?: string(name='rotationName', description='This parameter is required.', example='testRotationName'),
+      rotationStartTime?: string(name='rotationStartTime', description='This parameter is required.', example='00:00'),
+      shiftLength?: int32(name='shiftLength', example='1'),
+      shiftRecurrenceFrequency?: string(name='shiftRecurrenceFrequency', description='This parameter is required.', example='WEEKLY'),
+      startDate?: string(name='startDate', description='This parameter is required.', example='2024-08-14'),
+      timeZone?: string(name='timeZone', description='This parameter is required.', example='Asia/Shanghai'),
+    }
+  ](name='rotations'),
+  shiftRobotId?: string(name='shiftRobotId', example='testRobotId'),
+  substitudes?: [ 
+    {
+      contactId?: string(name='contactId', example='testId'),
+      endTime?: string(name='endTime', example='2024-10-15 18:00'),
+      replacedContactId?: string(name='replacedContactId', example='testId'),
+      startTime?: string(name='startTime', example='2024-10-10 09:00'),
+    }
+  ](name='substitudes'),
+  workspace?: string(name='workspace', example='default-cms-5884500827389836-cn-hangzhou'),
+}
+
+model CreateOncallScheduleResponseBody = {
+  oncallScheduleId?: string(name='oncallScheduleId', example='testOncallScheduleId'),
+  requestId?: string(name='requestId', example='3B311FD9-A60B-55E0-A896-A0C73*********'),
+}
+
+model CreateOncallScheduleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateOncallScheduleResponseBody(name='body'),
+}
+
+/**
+ * @summary 创建OncallSchedule
+ *
+ * @param request CreateOncallScheduleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateOncallScheduleResponse
+ */
+@context("createOncallScheduleWithContext")
+async function createOncallScheduleWithOptions(request: CreateOncallScheduleRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateOncallScheduleResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.oncallScheduleId)) {
+    body['oncallScheduleId'] = request.oncallScheduleId;
+  }
+  if (!$isNull(request.oncallScheduleName)) {
+    body['oncallScheduleName'] = request.oncallScheduleName;
+  }
+  if (!$isNull(request.rotations)) {
+    body['rotations'] = request.rotations;
+  }
+  if (!$isNull(request.shiftRobotId)) {
+    body['shiftRobotId'] = request.shiftRobotId;
+  }
+  if (!$isNull(request.substitudes)) {
+    body['substitudes'] = request.substitudes;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateOncallSchedule',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/oncallschedule`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 创建OncallSchedule
+ *
+ * @param request CreateOncallScheduleRequest
+ * @return CreateOncallScheduleResponse
+ */
+async function createOncallSchedule(request: CreateOncallScheduleRequest): CreateOncallScheduleResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createOncallScheduleWithOptions(request, headers, runtime);
+}
+
 model CreatePipelineRequest {
   description?: string(name='description', description='The pipeline description.', example='test'),
   executePolicy?: {
@@ -6283,6 +6828,144 @@ async function deleteAggTaskGroup(instanceId: string, groupId: string, request: 
   return deleteAggTaskGroupWithOptions(instanceId, groupId, request, headers, runtime);
 }
 
+model DeleteAlertActionsRequest {
+  alertActionIds?: [ string ](name='alertActionIds', description='This parameter is required.'),
+}
+
+model DeleteAlertActionsShrinkRequest {
+  alertActionIdsShrink?: string(name='alertActionIds', description='This parameter is required.'),
+}
+
+model DeleteAlertActionsResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeleteAlertActionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAlertActionsResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除告警动作
+ *
+ * @param tmpReq DeleteAlertActionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAlertActionsResponse
+ */
+@context("deleteAlertActionsWithContext")
+async function deleteAlertActionsWithOptions(tmpReq: DeleteAlertActionsRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteAlertActionsResponse {
+  tmpReq.validate();
+  var request = new DeleteAlertActionsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.alertActionIds)) {
+    request.alertActionIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.alertActionIds, 'alertActionIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.alertActionIdsShrink)) {
+    query['alertActionIds'] = request.alertActionIdsShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteAlertActions',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/alertActions`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除告警动作
+ *
+ * @param request DeleteAlertActionsRequest
+ * @return DeleteAlertActionsResponse
+ */
+async function deleteAlertActions(request: DeleteAlertActionsRequest): DeleteAlertActionsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteAlertActionsWithOptions(request, headers, runtime);
+}
+
+model DeleteAlertNotifyTemplatesRequest {
+  alertNotifyTemplateIds?: [ string ](name='alertNotifyTemplateIds', description='This parameter is required.'),
+}
+
+model DeleteAlertNotifyTemplatesShrinkRequest {
+  alertNotifyTemplateIdsShrink?: string(name='alertNotifyTemplateIds', description='This parameter is required.'),
+}
+
+model DeleteAlertNotifyTemplatesResponseBody = {
+  requestId?: string(name='requestId', example='0B9377D9-C56B-5C2E-A8A4-************'),
+}
+
+model DeleteAlertNotifyTemplatesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAlertNotifyTemplatesResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除报警通知模板
+ *
+ * @param tmpReq DeleteAlertNotifyTemplatesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAlertNotifyTemplatesResponse
+ */
+@context("deleteAlertNotifyTemplatesWithContext")
+async function deleteAlertNotifyTemplatesWithOptions(tmpReq: DeleteAlertNotifyTemplatesRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteAlertNotifyTemplatesResponse {
+  tmpReq.validate();
+  var request = new DeleteAlertNotifyTemplatesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.alertNotifyTemplateIds)) {
+    request.alertNotifyTemplateIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.alertNotifyTemplateIds, 'alertNotifyTemplateIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.alertNotifyTemplateIdsShrink)) {
+    query['alertNotifyTemplateIds'] = request.alertNotifyTemplateIdsShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteAlertNotifyTemplates',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/alertNotifyTemplates`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除报警通知模板
+ *
+ * @param request DeleteAlertNotifyTemplatesRequest
+ * @return DeleteAlertNotifyTemplatesResponse
+ */
+async function deleteAlertNotifyTemplates(request: DeleteAlertNotifyTemplatesRequest): DeleteAlertNotifyTemplatesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteAlertNotifyTemplatesWithOptions(request, headers, runtime);
+}
+
 model DeleteAlertRobotsRequest {
   robotIds?: [ string ](name='robotIds', description='The chatbot IDs.
 
@@ -6532,6 +7215,144 @@ async function deleteCloudResource(): DeleteCloudResourceResponse {
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteCloudResourceWithOptions(headers, runtime);
+}
+
+model DeleteContactGroupsRequest {
+  contactGroupIds?: [ string ](name='contactGroupIds', description='This parameter is required.'),
+}
+
+model DeleteContactGroupsShrinkRequest {
+  contactGroupIdsShrink?: string(name='contactGroupIds', description='This parameter is required.'),
+}
+
+model DeleteContactGroupsResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeleteContactGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteContactGroupsResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除联系人组
+ *
+ * @param tmpReq DeleteContactGroupsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteContactGroupsResponse
+ */
+@context("deleteContactGroupsWithContext")
+async function deleteContactGroupsWithOptions(tmpReq: DeleteContactGroupsRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteContactGroupsResponse {
+  tmpReq.validate();
+  var request = new DeleteContactGroupsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.contactGroupIds)) {
+    request.contactGroupIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.contactGroupIds, 'contactGroupIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.contactGroupIdsShrink)) {
+    query['contactGroupIds'] = request.contactGroupIdsShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteContactGroups',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/contactGroups`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除联系人组
+ *
+ * @param request DeleteContactGroupsRequest
+ * @return DeleteContactGroupsResponse
+ */
+async function deleteContactGroups(request: DeleteContactGroupsRequest): DeleteContactGroupsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteContactGroupsWithOptions(request, headers, runtime);
+}
+
+model DeleteContactsRequest {
+  contactIds?: [ string ](name='contactIds'),
+}
+
+model DeleteContactsShrinkRequest {
+  contactIdsShrink?: string(name='contactIds'),
+}
+
+model DeleteContactsResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeleteContactsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteContactsResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除联系人
+ *
+ * @param tmpReq DeleteContactsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteContactsResponse
+ */
+@context("deleteContactsWithContext")
+async function deleteContactsWithOptions(tmpReq: DeleteContactsRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteContactsResponse {
+  tmpReq.validate();
+  var request = new DeleteContactsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.contactIds)) {
+    request.contactIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.contactIds, 'contactIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.contactIdsShrink)) {
+    query['contactIds'] = request.contactIdsShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteContacts',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/contacts`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除联系人
+ *
+ * @param request DeleteContactsRequest
+ * @return DeleteContactsResponse
+ */
+async function deleteContacts(request: DeleteContactsRequest): DeleteContactsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteContactsWithOptions(request, headers, runtime);
 }
 
 model DeleteContextRequest {
@@ -7353,6 +8174,75 @@ async function deleteNotifyPolicy(request: DeleteNotifyPolicyRequest): DeleteNot
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteNotifyPolicyWithOptions(request, headers, runtime);
+}
+
+model DeleteOncallSchedulesRequest {
+  oncallScheduleIds?: [ string ](name='oncallScheduleIds'),
+}
+
+model DeleteOncallSchedulesShrinkRequest {
+  oncallScheduleIdsShrink?: string(name='oncallScheduleIds'),
+}
+
+model DeleteOncallSchedulesResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model DeleteOncallSchedulesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteOncallSchedulesResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除OncallSchedule
+ *
+ * @param tmpReq DeleteOncallSchedulesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteOncallSchedulesResponse
+ */
+@context("deleteOncallSchedulesWithContext")
+async function deleteOncallSchedulesWithOptions(tmpReq: DeleteOncallSchedulesRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteOncallSchedulesResponse {
+  tmpReq.validate();
+  var request = new DeleteOncallSchedulesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.oncallScheduleIds)) {
+    request.oncallScheduleIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.oncallScheduleIds, 'oncallScheduleIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.oncallScheduleIdsShrink)) {
+    query['oncallScheduleIds'] = request.oncallScheduleIdsShrink;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteOncallSchedules',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/oncallSchedule`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除OncallSchedule
+ *
+ * @param request DeleteOncallSchedulesRequest
+ * @return DeleteOncallSchedulesResponse
+ */
+async function deleteOncallSchedules(request: DeleteOncallSchedulesRequest): DeleteOncallSchedulesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteOncallSchedulesWithOptions(request, headers, runtime);
 }
 
 model DeletePipelineRequest {
@@ -9276,6 +10166,105 @@ async function getAggTaskGroup(instanceId: string, groupId: string, request: Get
   return getAggTaskGroupWithOptions(instanceId, groupId, request, headers, runtime);
 }
 
+model GetAlertActionRequest {
+}
+
+model GetAlertActionResponseBody = {
+  alertActions?: {
+    alertActionId?: string(name='alertActionId', example='testId'),
+    alertActionName?: string(name='alertActionName', example='testName'),
+    ebParam?: {
+      ebSource?: string(name='ebSource', example='test'),
+      eventBusName?: string(name='eventBusName', example='test'),
+      regionId?: string(name='regionId', example='cn-heyuan'),
+      subject?: string(name='subject', example='test'),
+    }(name='ebParam'),
+    essParam?: {
+      essGroupId?: string(name='essGroupId', example='test'),
+      essRuleId?: string(name='essRuleId', example='test'),
+      regionId?: string(name='regionId', example='cn-hangzhou'),
+    }(name='essParam'),
+    fc3Param?: {
+      function?: string(name='function', example='test'),
+      qualifier?: string(name='qualifier', example='test'),
+      regionId?: string(name='regionId', example='cn-qingdao'),
+    }(name='fc3Param'),
+    fcParam?: {
+      function?: string(name='function', example='test'),
+      regionId?: string(name='regionId', example='cn-hangzhou'),
+      service?: string(name='service', example='test'),
+    }(name='fcParam'),
+    mnsParam?: {
+      mnsType?: string(name='mnsType', example='queue'),
+      name?: string(name='name', example='test'),
+      regionId?: string(name='regionId', example='cn-beijing'),
+    }(name='mnsParam'),
+    pagerDutyParam?: {
+      key?: string(name='key', example='EWR4WR4T4GREG4ET453T5Y'),
+      url?: string(name='url', example='https://events.pagerduty.com/v2/enqueue'),
+    }(name='pagerDutyParam'),
+    slsParam?: {
+      logstore?: string(name='logstore', example='test'),
+      project?: string(name='project', example='test'),
+      regionId?: string(name='regionId', example='cn-beijing'),
+    }(name='slsParam'),
+    type?: string(name='type', example='FC'),
+    webhookParam?: {
+      contentType?: string(name='contentType', example='JSON'),
+      headers?: map[string]string(name='headers'),
+      method?: string(name='method', example='POST'),
+      url?: string(name='url', example='http://www.test.com'),
+    }(name='webhookParam'),
+  }(name='alertActions'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model GetAlertActionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAlertActionResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询告警动作
+ *
+ * @param request GetAlertActionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAlertActionResponse
+ */
+@context("getAlertActionWithContext")
+async function getAlertActionWithOptions(alertActionId: string, request: GetAlertActionRequest, headers: map[string]string, runtime: $RuntimeOptions): GetAlertActionResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetAlertAction',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/alertAction/${$URL.percentEncode(alertActionId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询告警动作
+ *
+ * @param request GetAlertActionRequest
+ * @return GetAlertActionResponse
+ */
+async function getAlertAction(alertActionId: string, request: GetAlertActionRequest): GetAlertActionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAlertActionWithOptions(alertActionId, request, headers, runtime);
+}
+
 model GetBizTraceRequest {
 }
 
@@ -10925,6 +11914,84 @@ async function getNotifyPolicy(request: GetNotifyPolicyRequest): GetNotifyPolicy
   return getNotifyPolicyWithOptions(request, headers, runtime);
 }
 
+model GetOncallScheduleRequest {
+}
+
+model GetOncallScheduleResponseBody = {
+  oncallScheduleId?: string(name='oncallScheduleId', example='testId'),
+  oncallScheduleName?: string(name='oncallScheduleName', example='testOncallScheduleName'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  rotations?: [ 
+    {
+      activeDays?: [ int32 ](name='activeDays'),
+      contacts?: [ string ](name='contacts'),
+      rotationEndTime?: string(name='rotationEndTime', example='24:00'),
+      rotationName?: string(name='rotationName', example='testName'),
+      rotationStartTime?: string(name='rotationStartTime', example='00:00'),
+      shiftLength?: int32(name='shiftLength', example='4'),
+      shiftRecurrenceFrequency?: string(name='shiftRecurrenceFrequency', example='WEEKLY'),
+      startDate?: string(name='startDate', example='2024-10-10'),
+      timeZone?: string(name='timeZone', example='Asia/Shanghai'),
+    }
+  ](name='rotations'),
+  shiftRobotId?: string(name='shiftRobotId', example='testId'),
+  substitudes?: [ 
+    {
+      contactId?: string(name='contactId', example='testId'),
+      endTime?: string(name='endTime', example='2024-10-15 18:00'),
+      replacedContactId?: string(name='replacedContactId', example='testId'),
+      startTime?: string(name='startTime', example='2024-10-10 09:00'),
+    }
+  ](name='substitudes'),
+  workspace?: string(name='workspace', example='default-cms-5884500827389836-cn-hangzhou'),
+}
+
+model GetOncallScheduleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetOncallScheduleResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询 OncallSchedule
+ *
+ * @param request GetOncallScheduleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetOncallScheduleResponse
+ */
+@context("getOncallScheduleWithContext")
+async function getOncallScheduleWithOptions(oncallScheduleId: string, request: GetOncallScheduleRequest, headers: map[string]string, runtime: $RuntimeOptions): GetOncallScheduleResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetOncallSchedule',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/oncallSchedule/${$URL.percentEncode(oncallScheduleId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询 OncallSchedule
+ *
+ * @param request GetOncallScheduleRequest
+ * @return GetOncallScheduleResponse
+ */
+async function getOncallSchedule(oncallScheduleId: string, request: GetOncallScheduleRequest): GetOncallScheduleResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getOncallScheduleWithOptions(oncallScheduleId, request, headers, runtime);
+}
+
 model GetPipelineRequest {
 }
 
@@ -12526,6 +13593,112 @@ async function listAlertActions(request: ListAlertActionsRequest): ListAlertActi
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return listAlertActionsWithOptions(request, headers, runtime);
+}
+
+model ListAlertNotifyTemplatesRequest {
+  alertNotifyTemplateIds?: [ string ](name='alertNotifyTemplateIds'),
+  alertNotifyTemplateName?: string(name='alertNotifyTemplateName', example='告警通知模板'),
+  pageNumber?: long(name='pageNumber', example='1'),
+  pageSize?: long(name='pageSize', example='10'),
+  programLang?: string(name='programLang', example='GO'),
+  type?: string(name='type', example='DING'),
+}
+
+model ListAlertNotifyTemplatesShrinkRequest {
+  alertNotifyTemplateIdsShrink?: string(name='alertNotifyTemplateIds'),
+  alertNotifyTemplateName?: string(name='alertNotifyTemplateName', example='告警通知模板'),
+  pageNumber?: long(name='pageNumber', example='1'),
+  pageSize?: long(name='pageSize', example='10'),
+  programLang?: string(name='programLang', example='GO'),
+  type?: string(name='type', example='DING'),
+}
+
+model ListAlertNotifyTemplatesResponseBody = {
+  alertNotifyTemplates?: [ 
+    {
+      alertNotifyTemplateId?: string(name='alertNotifyTemplateId', example='template-abc123'),
+      alertNotifyTemplateName?: string(name='alertNotifyTemplateName', example='高可用性告警模板'),
+      programLang?: string(name='programLang', example='GO'),
+      templates?: map[string]object(name='templates', example='{"zh":{"title":"云监控报警: {{.incident.title}}","content":"**报警标题:** {{.incident.title}}\\\\n**级别:** {{.incident.severity}}\\\\n**事件数:** {{len .events}}","incidentLifeCycleNotifyTemplates":{"IncidentCreationNotify":{"title":"云监控报警: {{.incident.title}}","content":"**报警标题:** {{.incident.title}}\\\\n**级别:** {{.incident.severity}}","enable":true},"IncidentResolutionNotify":{"title":"云监控报警已解决: {{.incident.title}}","content":"**报警标题:** {{.incident.title}}\\\\n**级别:** {{.incident.severity}}","enable":true}}},"en":{"title":"CloudMonitor Alert: {{.incident.title}}","content":"**Alert Title:** {{.incident.title}}\\\\n**Severity:** {{.incident.severity}}\\\\n**Events:** {{len .events}}","incidentLifeCycleNotifyTemplates":{"IncidentCreationNotify":{"title":"CloudMonitor Alert: {{.incident.title}}","content":"**Alert Title:** {{.incident.title}}\\\\n**Severity:** {{.incident.severity}}","enable":true},"IncidentResolutionNotify":{"title":"CloudMonitor Alert Resolved: {{.incident.title}}","content":"**Alert Title:** {{.incident.title}}\\\\n**Severity:** {{.incident.severity}}","enable":true}}}}'),
+      type?: string(name='type', example='DING'),
+    }
+  ](name='alertNotifyTemplates'),
+  pageNumber?: long(name='pageNumber', example='1'),
+  pageSize?: long(name='pageSize', example='10'),
+  requestId?: string(name='requestId', example='CD8BA7D6-995D-578D-9941-**********'),
+  total?: long(name='total', example='33'),
+}
+
+model ListAlertNotifyTemplatesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAlertNotifyTemplatesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询通知模板
+ *
+ * @param tmpReq ListAlertNotifyTemplatesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAlertNotifyTemplatesResponse
+ */
+@context("listAlertNotifyTemplatesWithContext")
+async function listAlertNotifyTemplatesWithOptions(tmpReq: ListAlertNotifyTemplatesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListAlertNotifyTemplatesResponse {
+  tmpReq.validate();
+  var request = new ListAlertNotifyTemplatesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.alertNotifyTemplateIds)) {
+    request.alertNotifyTemplateIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.alertNotifyTemplateIds, 'alertNotifyTemplateIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.alertNotifyTemplateIdsShrink)) {
+    query['alertNotifyTemplateIds'] = request.alertNotifyTemplateIdsShrink;
+  }
+  if (!$isNull(request.alertNotifyTemplateName)) {
+    query['alertNotifyTemplateName'] = request.alertNotifyTemplateName;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.programLang)) {
+    query['programLang'] = request.programLang;
+  }
+  if (!$isNull(request.type)) {
+    query['type'] = request.type;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListAlertNotifyTemplates',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/alertNotifyTemplate`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询通知模板
+ *
+ * @param request ListAlertNotifyTemplatesRequest
+ * @return ListAlertNotifyTemplatesResponse
+ */
+async function listAlertNotifyTemplates(request: ListAlertNotifyTemplatesRequest): ListAlertNotifyTemplatesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAlertNotifyTemplatesWithOptions(request, headers, runtime);
 }
 
 model ListAlertRobotsRequest {
@@ -14945,6 +16118,186 @@ async function listNotifyPolicies(request: ListNotifyPoliciesRequest): ListNotif
   return listNotifyPoliciesWithOptions(request, headers, runtime);
 }
 
+model ListOncallContactsRequest {
+  timestamp?: string(name='timestamp', example='1730183838000'),
+}
+
+model ListOncallContactsResponseBody = {
+  contactIds?: [ string ](name='contactIds'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model ListOncallContactsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOncallContactsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询值班人
+ *
+ * @param request ListOncallContactsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListOncallContactsResponse
+ */
+@context("listOncallContactsWithContext")
+async function listOncallContactsWithOptions(oncallScheduleId: string, request: ListOncallContactsRequest, headers: map[string]string, runtime: $RuntimeOptions): ListOncallContactsResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.timestamp)) {
+    query['timestamp'] = request.timestamp;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListOncallContacts',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/oncallSchedule/${$URL.percentEncode(oncallScheduleId)}/contacts`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询值班人
+ *
+ * @param request ListOncallContactsRequest
+ * @return ListOncallContactsResponse
+ */
+async function listOncallContacts(oncallScheduleId: string, request: ListOncallContactsRequest): ListOncallContactsResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listOncallContactsWithOptions(oncallScheduleId, request, headers, runtime);
+}
+
+model ListOncallSchedulesRequest {
+  oncallScheduleIds?: [ string ](name='oncallScheduleIds'),
+  oncallScheduleName?: string(name='oncallScheduleName', example='testOncallScheduleName'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+  workspace?: string(name='workspace', example='default-cms-5884500827389836-cn-hangzhou'),
+}
+
+model ListOncallSchedulesShrinkRequest {
+  oncallScheduleIdsShrink?: string(name='oncallScheduleIds'),
+  oncallScheduleName?: string(name='oncallScheduleName', example='testOncallScheduleName'),
+  pageNumber?: int32(name='pageNumber', example='1'),
+  pageSize?: int32(name='pageSize', example='10'),
+  workspace?: string(name='workspace', example='default-cms-5884500827389836-cn-hangzhou'),
+}
+
+model ListOncallSchedulesResponseBody = {
+  oncallSchedules?: [ 
+    {
+      oncallScheduleId?: string(name='oncallScheduleId', example='testId'),
+      oncallScheduleName?: string(name='oncallScheduleName', example='testName'),
+      rotations?: [ 
+        {
+          activeDays?: [ int32 ](name='activeDays'),
+          contacts?: [ string ](name='contacts'),
+          rotationEndTime?: string(name='rotationEndTime', example='24:00'),
+          rotationName?: string(name='rotationName', example='testName'),
+          rotationStartTime?: string(name='rotationStartTime', example='00:00'),
+          shiftLength?: int32(name='shiftLength', example='3'),
+          shiftRecurrenceFrequency?: string(name='shiftRecurrenceFrequency', example='WEEKLY'),
+          startDate?: string(name='startDate', example='2024-01-01'),
+          timeZone?: string(name='timeZone', example='Asia/Shanghai'),
+        }
+      ](name='rotations'),
+      shiftRobotId?: string(name='shiftRobotId', example='testId'),
+      substitudes?: [ 
+        {
+          contactId?: string(name='contactId', example='testId'),
+          endTime?: string(name='endTime', example='2024-10-15 18:00'),
+          replacedContactId?: string(name='replacedContactId', example='testId'),
+          startTime?: string(name='startTime', example='2024-10-10 09:00'),
+        }
+      ](name='substitudes'),
+      workspace?: string(name='workspace', example='default-cms-5884500827389836-cn-hangzhou'),
+    }
+  ](name='oncallSchedules'),
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  total?: int32(name='total', example='2'),
+}
+
+model ListOncallSchedulesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListOncallSchedulesResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询当前账号下所有值班排班的配置信息
+ *
+ * @param tmpReq ListOncallSchedulesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListOncallSchedulesResponse
+ */
+@context("listOncallSchedulesWithContext")
+async function listOncallSchedulesWithOptions(tmpReq: ListOncallSchedulesRequest, headers: map[string]string, runtime: $RuntimeOptions): ListOncallSchedulesResponse {
+  tmpReq.validate();
+  var request = new ListOncallSchedulesShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!$isNull(tmpReq.oncallScheduleIds)) {
+    request.oncallScheduleIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.oncallScheduleIds, 'oncallScheduleIds', 'json');
+  }
+  var query : map[string]any = {};
+  if (!$isNull(request.oncallScheduleIdsShrink)) {
+    query['oncallScheduleIds'] = request.oncallScheduleIdsShrink;
+  }
+  if (!$isNull(request.oncallScheduleName)) {
+    query['oncallScheduleName'] = request.oncallScheduleName;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.workspace)) {
+    query['workspace'] = request.workspace;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListOncallSchedules',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/oncallSchedules`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询当前账号下所有值班排班的配置信息
+ *
+ * @param request ListOncallSchedulesRequest
+ * @return ListOncallSchedulesResponse
+ */
+async function listOncallSchedules(request: ListOncallSchedulesRequest): ListOncallSchedulesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listOncallSchedulesWithOptions(request, headers, runtime);
+}
+
 model ListPipelinesRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='100'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='fff3442dac1de7950f44d5afc0c735ebd12e27f603b21d17ec30cb1d5c735b1ba7c4fb3a1c124bce'),
@@ -15815,7 +17168,7 @@ model ListSubscriptionsRequest {
   subscriptionId?: string(name='subscriptionId', example='123123123123'),
   subscriptionName?: string(name='subscriptionName', example='测试订阅'),
   subscriptionType?: string(name='subscriptionType', example='NORMAL'),
-  unbound?: boolean(name='unbound', example='true'),
+  unbound?: boolean(name='unbound', example='true', deprecated=true),
   workspace?: string(name='workspace', example='workspace-test'),
 }
 
@@ -16027,7 +17380,7 @@ async function listTagResources(request: ListTagResourcesRequest): ListTagResour
 
 model ListUserNotifyHistoriesRequest {
   batchId?: string(name='batchId', example='3fa85f64-5717-4562-b3fc-2c963f66afa7'),
-  bizSource?: string(name='bizSource', example='arms'),
+  bizSource?: string(name='bizSource', example='arms', deprecated=true),
   channel?: string(name='channel', example='DING'),
   channelCategory?: string(name='channelCategory', example='WEBHOOK'),
   from?: int32(name='from', example='1729400000'),
@@ -16039,7 +17392,7 @@ model ListUserNotifyHistoriesRequest {
   nextToken?: string(name='nextToken', example='2f8aKz3mNq9p****'),
   notifyStrategyId?: string(name='notifyStrategyId', example='2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e'),
   notifyStrategyName?: string(name='notifyStrategyName', example='默认通知策略'),
-  partitionKey?: string(name='partitionKey', example='1234567890123456'),
+  partitionKey?: string(name='partitionKey', example='1234567890123456', deprecated=true),
   receiver?: string(name='receiver', example='13800138000'),
   ruleId?: string(name='ruleId', example='3fa85f64-5717-4562-b3fc-2c963f66afa6'),
   ruleName?: string(name='ruleName', example='CPU使用率告警'),
@@ -16735,6 +18088,91 @@ async function previewDataPipeline(workspace: string, request: PreviewDataPipeli
   return previewDataPipelineWithOptions(workspace, request, headers, runtime);
 }
 
+model PreviewNotifyTemplateRequest {
+  data?: any(name='data', example='{"incident":{"title":"CPU使用率过高","severity":"P1"}}'),
+  templates?: [ 
+    {
+      key?: string(name='key', description='模板标识，前端自定义，原样返回。建议使用 title / content 等语义名称
+
+This parameter is required.', example='title'),
+      template?: string(name='template', description='Go template 语法的模板内容字符串
+
+This parameter is required.', example='云监控报警: {{.incident.title}}'),
+    }
+  ](name='templates', description='待渲染的模板列表，每项包含模板标识和模板内容
+
+This parameter is required.', example='[{"key":"title","template":"云监控报警: {{.incident.title}}"},{"key":"content","template":">- 级别: {{.incident.severity}}"}]'),
+}
+
+model PreviewNotifyTemplateResponseBody = {
+  data?: {
+    failed?: map[string]any(name='failed'),
+    success?: map[string]any(name='success'),
+  }(name='data'),
+  msg?: string(name='msg', example='success'),
+  requestId?: string(name='requestId', description='请求ID', example='452faed9-ab3b-4340-8a92-bc7d9b98f17a'),
+  success?: boolean(name='success'),
+}
+
+model PreviewNotifyTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PreviewNotifyTemplateResponseBody(name='body'),
+}
+
+/**
+ * @summary 预览通知模板渲染结果
+ *
+ * @description 传入 Go template 语法的模板内容和渲染上下文数据，返回各模板的渲染结果。支持同时预览多个模板（如 title 和 content），用于前端模板编辑器的实时预览能力。
+ *
+ * @param request PreviewNotifyTemplateRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PreviewNotifyTemplateResponse
+ */
+@context("previewNotifyTemplateWithContext")
+async function previewNotifyTemplateWithOptions(request: PreviewNotifyTemplateRequest, headers: map[string]string, runtime: $RuntimeOptions): PreviewNotifyTemplateResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.data)) {
+    body['data'] = request.data;
+  }
+  if (!$isNull(request.templates)) {
+    body['templates'] = request.templates;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'PreviewNotifyTemplate',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/v1/template/batchRender`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 预览通知模板渲染结果
+ *
+ * @description 传入 Go template 语法的模板内容和渲染上下文数据，返回各模板的渲染结果。支持同时预览多个模板（如 title 和 content），用于前端模板编辑器的实时预览能力。
+ *
+ * @param request PreviewNotifyTemplateRequest
+ * @return PreviewNotifyTemplateResponse
+ */
+async function previewNotifyTemplate(request: PreviewNotifyTemplateRequest): PreviewNotifyTemplateResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return previewNotifyTemplateWithOptions(request, headers, runtime);
+}
+
 model PutWorkspaceRequest {
   description?: string(name='description', description='The workspace description.', example='workspace test'),
   displayName?: string(name='displayName', description='The display name of the workspace.', example='workspace-test'),
@@ -16909,6 +18347,66 @@ async function queryAlertRules(request: QueryAlertRulesRequest): QueryAlertRules
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return queryAlertRulesWithOptions(request, headers, runtime);
+}
+
+model ResendVerifyActivateRequest {
+  channelType?: string(name='channelType', example='PHONE'),
+}
+
+model ResendVerifyActivateResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model ResendVerifyActivateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ResendVerifyActivateResponseBody(name='body'),
+}
+
+/**
+ * @summary 重新发送激活链接
+ *
+ * @param request ResendVerifyActivateRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ResendVerifyActivateResponse
+ */
+@context("resendVerifyActivateWithContext")
+async function resendVerifyActivateWithOptions(contactId: string, request: ResendVerifyActivateRequest, headers: map[string]string, runtime: $RuntimeOptions): ResendVerifyActivateResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.channelType)) {
+    body['channelType'] = request.channelType;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ResendVerifyActivate',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/contact/${$URL.percentEncode(contactId)}/action/reSendVerifyActivate`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 重新发送激活链接
+ *
+ * @param request ResendVerifyActivateRequest
+ * @return ResendVerifyActivateResponse
+ */
+async function resendVerifyActivate(contactId: string, request: ResendVerifyActivateRequest): ResendVerifyActivateResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return resendVerifyActivateWithOptions(contactId, request, headers, runtime);
 }
 
 model SearchContextRequest {
@@ -17585,6 +19083,199 @@ async function updateAggTaskGroupStatus(instanceId: string, groupId: string, req
   return updateAggTaskGroupStatusWithOptions(instanceId, groupId, request, headers, runtime);
 }
 
+model UpdateAlertActionRequest {
+  alertActionName?: string(name='alertActionName', example='testName'),
+  ebParam?: {
+    ebSource?: string(name='ebSource', example='test'),
+    eventBusName?: string(name='eventBusName', example='test'),
+    regionId?: string(name='regionId', example='cn-heyuan'),
+    subject?: string(name='subject', example='test'),
+  }(name='ebParam'),
+  essParam?: {
+    essGroupId?: string(name='essGroupId', example='testId'),
+    essRuleId?: string(name='essRuleId', example='testId'),
+    regionId?: string(name='regionId', example='cn-beijing'),
+  }(name='essParam'),
+  fc3Param?: {
+    function?: string(name='function', example='test'),
+    qualifier?: string(name='qualifier', example='test'),
+    regionId?: string(name='regionId', example='cn-heyuan'),
+  }(name='fc3Param'),
+  fcParam?: {
+    function?: string(name='function', example='testName'),
+    regionId?: string(name='regionId', example='cn-beijing'),
+    service?: string(name='service', example='testService'),
+  }(name='fcParam'),
+  mnsParam?: {
+    mnsType?: string(name='mnsType', example='queue'),
+    name?: string(name='name', example='testName'),
+    regionId?: string(name='regionId', example='cn-zhangjiakou'),
+  }(name='mnsParam'),
+  pagerDutyParam?: {
+    key?: string(name='key', example='fwe4rwr543t543t43t43t43'),
+    url?: string(name='url', example='https://events.pagerduty.com/v2/enqueue'),
+  }(name='pagerDutyParam'),
+  slsParam?: {
+    logstore?: string(name='logstore', example='testLogstore'),
+    project?: string(name='project', example='testProject'),
+    regionId?: string(name='regionId', example='cn-shanghai'),
+  }(name='slsParam'),
+  type?: string(name='type', example='FC'),
+  webhookParam?: {
+    contentType?: string(name='contentType', example='JSON'),
+    headers?: map[string]string(name='headers'),
+    method?: string(name='method', example='POST'),
+    url?: string(name='url', example='http://www.test.com'),
+  }(name='webhookParam'),
+}
+
+model UpdateAlertActionResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model UpdateAlertActionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAlertActionResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改告警动作
+ *
+ * @param request UpdateAlertActionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateAlertActionResponse
+ */
+@context("updateAlertActionWithContext")
+async function updateAlertActionWithOptions(alertActionId: string, request: UpdateAlertActionRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateAlertActionResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alertActionName)) {
+    body['alertActionName'] = request.alertActionName;
+  }
+  if (!$isNull(request.ebParam)) {
+    body['ebParam'] = request.ebParam;
+  }
+  if (!$isNull(request.essParam)) {
+    body['essParam'] = request.essParam;
+  }
+  if (!$isNull(request.fc3Param)) {
+    body['fc3Param'] = request.fc3Param;
+  }
+  if (!$isNull(request.fcParam)) {
+    body['fcParam'] = request.fcParam;
+  }
+  if (!$isNull(request.mnsParam)) {
+    body['mnsParam'] = request.mnsParam;
+  }
+  if (!$isNull(request.pagerDutyParam)) {
+    body['pagerDutyParam'] = request.pagerDutyParam;
+  }
+  if (!$isNull(request.slsParam)) {
+    body['slsParam'] = request.slsParam;
+  }
+  if (!$isNull(request.type)) {
+    body['type'] = request.type;
+  }
+  if (!$isNull(request.webhookParam)) {
+    body['webhookParam'] = request.webhookParam;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateAlertAction',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/alertAction/${$URL.percentEncode(alertActionId)}`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改告警动作
+ *
+ * @param request UpdateAlertActionRequest
+ * @return UpdateAlertActionResponse
+ */
+async function updateAlertAction(alertActionId: string, request: UpdateAlertActionRequest): UpdateAlertActionResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateAlertActionWithOptions(alertActionId, request, headers, runtime);
+}
+
+model UpdateAlertNotifyTemplateRequest {
+  alertNotifyTemplateName?: string(name='alertNotifyTemplateName', example='test'),
+  templates?: map[string]object(name='templates', example='{"zh":{"title":"云监控报警: {{.incident.title}}","content":"**报警标题:** {{.incident.title}}\\\\n**级别:** {{.incident.severity}}\\\\n**事件数:** {{len .events}}","incidentLifeCycleNotifyTemplates":"{\\\\"IncidentCreationNotify\\\\":{\\\\"title\\\\":\\\\"云监控报警: {{.incident.title}}\\\\",\\\\"content\\\\":\\\\"**报警标题:** {{.incident.title}}\\\\\\\\n**级别:** {{.incident.severity}}\\\\",\\\\"enable\\\\":true},\\\\"IncidentResolutionNotify\\\\":{\\\\"title\\\\":\\\\"云监控报警已解决: {{.incident.title}}\\\\",\\\\"content\\\\":\\\\"**报警标题:** {{.incident.title}}\\\\\\\\n**级别:** {{.incident.severity}}\\\\",\\\\"enable\\\\":true}}"},"en":{"title":"CloudMonitor Alert: {{.incident.title}}","content":"**Alert Title:** {{.incident.title}}\\\\n**Severity:** {{.incident.severity}}\\\\n**Events:** {{len .events}}","incidentLifeCycleNotifyTemplates":"{\\\\"IncidentCreationNotify\\\\":{\\\\"title\\\\":\\\\"CloudMonitor Alert: {{.incident.title}}\\\\",\\\\"content\\\\":\\\\"**Alert Title:** {{.incident.title}}\\\\\\\\n**Severity:** {{.incident.severity}}\\\\",\\\\"enable\\\\":true},\\\\"IncidentResolutionNotify\\\\":{\\\\"title\\\\":\\\\"CloudMonitor Alert Resolved: {{.incident.title}}\\\\",\\\\"content\\\\":\\\\"**Alert Title:** {{.incident.title}}\\\\\\\\n**Severity:** {{.incident.severity}}\\\\",\\\\"enable\\\\":true}}"}}'),
+}
+
+model UpdateAlertNotifyTemplateResponseBody = {
+  requestId?: string(name='requestId', example='264C3E89-XXXX-XXXX-XXXX-CE9C2196C7DC'),
+}
+
+model UpdateAlertNotifyTemplateResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateAlertNotifyTemplateResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改已存在的告警通知模板内容。
+ *
+ * @param request UpdateAlertNotifyTemplateRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateAlertNotifyTemplateResponse
+ */
+@context("updateAlertNotifyTemplateWithContext")
+async function updateAlertNotifyTemplateWithOptions(alertNotifyTemplateId: string, request: UpdateAlertNotifyTemplateRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateAlertNotifyTemplateResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.alertNotifyTemplateName)) {
+    body['alertNotifyTemplateName'] = request.alertNotifyTemplateName;
+  }
+  if (!$isNull(request.templates)) {
+    body['templates'] = request.templates;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateAlertNotifyTemplate',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/alertNotifyTemplate/${$URL.percentEncode(alertNotifyTemplateId)}`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改已存在的告警通知模板内容。
+ *
+ * @param request UpdateAlertNotifyTemplateRequest
+ * @return UpdateAlertNotifyTemplateResponse
+ */
+async function updateAlertNotifyTemplate(alertNotifyTemplateId: string, request: UpdateAlertNotifyTemplateRequest): UpdateAlertNotifyTemplateResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateAlertNotifyTemplateWithOptions(alertNotifyTemplateId, request, headers, runtime);
+}
+
 model UpdateAlertRobotRequest {
   digitalEmployeeName?: string(name='digitalEmployeeName', description='The name of the digital employee.', example='apsara-ops'),
   lang?: string(name='lang', description='The language.', example='zh_CN'),
@@ -17822,6 +19513,146 @@ async function updateBizTrace(bizTraceId: string, request: UpdateBizTraceRequest
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateBizTraceWithOptions(bizTraceId, request, headers, runtime);
+}
+
+model UpdateContactRequest {
+  email?: string(name='email', example='test@aliyun.com'),
+  imUserIds?: map[string]string(name='imUserIds'),
+  lang?: string(name='lang', example='zh_CN'),
+  name?: string(name='name', example='test'),
+  phone?: string(name='phone', example='150123456789'),
+}
+
+model UpdateContactResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model UpdateContactResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateContactResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改已存在的联系人的详细信息
+ *
+ * @param request UpdateContactRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateContactResponse
+ */
+@context("updateContactWithContext")
+async function updateContactWithOptions(contactId: string, request: UpdateContactRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateContactResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.email)) {
+    body['email'] = request.email;
+  }
+  if (!$isNull(request.imUserIds)) {
+    body['imUserIds'] = request.imUserIds;
+  }
+  if (!$isNull(request.lang)) {
+    body['lang'] = request.lang;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+  if (!$isNull(request.phone)) {
+    body['phone'] = request.phone;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateContact',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/contact/${$URL.percentEncode(contactId)}`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改已存在的联系人的详细信息
+ *
+ * @param request UpdateContactRequest
+ * @return UpdateContactResponse
+ */
+async function updateContact(contactId: string, request: UpdateContactRequest): UpdateContactResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateContactWithOptions(contactId, request, headers, runtime);
+}
+
+model UpdateContactGroupRequest {
+  contacts?: [ string ](name='contacts'),
+  name?: string(name='name', example='test'),
+}
+
+model UpdateContactGroupResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model UpdateContactGroupResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateContactGroupResponseBody(name='body'),
+}
+
+/**
+ * @summary 修改已存在的联系人组信息。
+ *
+ * @param request UpdateContactGroupRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateContactGroupResponse
+ */
+@context("updateContactGroupWithContext")
+async function updateContactGroupWithOptions(contactGroupId: string, request: UpdateContactGroupRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateContactGroupResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.contacts)) {
+    body['contacts'] = request.contacts;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateContactGroup',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/contactGroup/${$URL.percentEncode(contactGroupId)}`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 修改已存在的联系人组信息。
+ *
+ * @param request UpdateContactGroupRequest
+ * @return UpdateContactGroupResponse
+ */
+async function updateContactGroup(contactGroupId: string, request: UpdateContactGroupRequest): UpdateContactGroupResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateContactGroupWithOptions(contactGroupId, request, headers, runtime);
 }
 
 model UpdateContextRequest {
@@ -18999,6 +20830,97 @@ async function updateNotifyStrategy(notifyStrategyId: string, request: UpdateNot
   return updateNotifyStrategyWithOptions(notifyStrategyId, request, headers, runtime);
 }
 
+model UpdateOncallScheduleRequest {
+  oncallScheduleName?: string(name='oncallScheduleName', example='testName'),
+  rotations?: [ 
+    {
+      activeDays?: [ int32 ](name='activeDays', description='This parameter is required.'),
+      contacts?: [ string ](name='contacts', description='This parameter is required.'),
+      rotationEndTime?: string(name='rotationEndTime', description='This parameter is required.', example='24:00'),
+      rotationName?: string(name='rotationName', description='This parameter is required.', example='test'),
+      rotationStartTime?: string(name='rotationStartTime', description='This parameter is required.', example='00:00'),
+      shiftLength?: int32(name='shiftLength', example='3'),
+      shiftRecurrenceFrequency?: string(name='shiftRecurrenceFrequency', description='This parameter is required.', example='WEEKLY'),
+      startDate?: string(name='startDate', description='This parameter is required.', example='2024-04-04'),
+      timeZone?: string(name='timeZone', description='This parameter is required.', example='Asia/Shanghai'),
+    }
+  ](name='rotations'),
+  shiftRobotId?: string(name='shiftRobotId', example='testId'),
+  substitudes?: [ 
+    {
+      contactId?: string(name='contactId', example='testId'),
+      endTime?: string(name='endTime', example='2024-10-15 18:00'),
+      replacedContactId?: string(name='replacedContactId', example='testId'),
+      startTime?: string(name='startTime', example='2024-10-10 09:00'),
+    }
+  ](name='substitudes'),
+}
+
+model UpdateOncallScheduleResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+}
+
+model UpdateOncallScheduleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateOncallScheduleResponseBody(name='body'),
+}
+
+/**
+ * @summary 更新UpdateOncallSchedule
+ *
+ * @param request UpdateOncallScheduleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateOncallScheduleResponse
+ */
+@context("updateOncallScheduleWithContext")
+async function updateOncallScheduleWithOptions(oncallScheduleId: string, request: UpdateOncallScheduleRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateOncallScheduleResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.oncallScheduleName)) {
+    body['oncallScheduleName'] = request.oncallScheduleName;
+  }
+  if (!$isNull(request.rotations)) {
+    body['rotations'] = request.rotations;
+  }
+  if (!$isNull(request.shiftRobotId)) {
+    body['shiftRobotId'] = request.shiftRobotId;
+  }
+  if (!$isNull(request.substitudes)) {
+    body['substitudes'] = request.substitudes;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateOncallSchedule',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/oncallSchedule/${$URL.percentEncode(oncallScheduleId)}`,
+    method = 'PATCH',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 更新UpdateOncallSchedule
+ *
+ * @param request UpdateOncallScheduleRequest
+ * @return UpdateOncallScheduleResponse
+ */
+async function updateOncallSchedule(oncallScheduleId: string, request: UpdateOncallScheduleRequest): UpdateOncallScheduleResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateOncallScheduleWithOptions(oncallScheduleId, request, headers, runtime);
+}
+
 model UpdatePipelineRequest {
   description?: string(name='description', description='The pipeline description.', example='test pipeline'),
   executePolicy?: {
@@ -19817,5 +21739,70 @@ async function upsertUmodelData(workspace: string, request: UpsertUmodelDataRequ
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return upsertUmodelDataWithOptions(workspace, request, headers, runtime);
+}
+
+model ViewOncallScheduleRequest {
+  endDate?: string(name='endDate', example='2024-07-05'),
+  startDate?: string(name='startDate', example='2024-04-04'),
+}
+
+model ViewOncallScheduleResponseBody = {
+  requestId?: string(name='requestId', example='8FDE2569-626B-5176-9844-28877A*****'),
+  schedule?: map[string][ ScheduleValue   ](name='schedule', example='{"testName":[{"contactId":"testId","contactName":"张三","start":"2024-10-10 09:00","end":"2024-10-15 18:00"}]}'),
+}
+
+model ViewOncallScheduleResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ViewOncallScheduleResponseBody(name='body'),
+}
+
+/**
+ * @summary 查看值班日历
+ *
+ * @param request ViewOncallScheduleRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ViewOncallScheduleResponse
+ */
+@context("viewOncallScheduleWithContext")
+async function viewOncallScheduleWithOptions(oncallScheduleId: string, request: ViewOncallScheduleRequest, headers: map[string]string, runtime: $RuntimeOptions): ViewOncallScheduleResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.endDate)) {
+    query['endDate'] = request.endDate;
+  }
+  if (!$isNull(request.startDate)) {
+    query['startDate'] = request.startDate;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ViewOncallSchedule',
+    version = '2024-03-30',
+    protocol = 'HTTPS',
+    pathname = `/oncallSchedule/${$URL.percentEncode(oncallScheduleId)}/calendar`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查看值班日历
+ *
+ * @param request ViewOncallScheduleRequest
+ * @return ViewOncallScheduleResponse
+ */
+async function viewOncallSchedule(oncallScheduleId: string, request: ViewOncallScheduleRequest): ViewOncallScheduleResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return viewOncallScheduleWithOptions(oncallScheduleId, request, headers, runtime);
 }
 
