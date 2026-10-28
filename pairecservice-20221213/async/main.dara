@@ -33,7 +33,7 @@ function close(): void {
 model ApplyEngineConfigRequest {
   engineConfigId?: string(name='EngineConfigId', description='The engine configuration ID.', example='2', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='The instance ID. You can obtain this by calling the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) API.', example='pairec-cn-***test', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID. You can call the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation to obtain the instance ID.', example='pairec-cn-***test', position='Query'),
 }
 
 model ApplyEngineConfigResponseBody = {
@@ -110,10 +110,10 @@ async function backflowFeatureConsistencyCheckJobData(request: BackflowFeatureCo
 }
 
 model ChangeRecallManagementServiceVersionRequest {
-  recallManagementServiceId?: string(name='RecallManagementServiceId', description='The recall management service ID.', example='2', position='Path'),
+  recallManagementServiceId?: string(name='RecallManagementServiceId', description='The ID of the recall management service.', example='2', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec-cn-test123', position='Body'),
-  recallManagementServiceVersionId?: string(name='RecallManagementServiceVersionId', description='The recall management service version ID.', example='1', position='Body'),
+  recallManagementServiceVersionId?: string(name='RecallManagementServiceVersionId', description='The version ID of the recall management service.', example='1', position='Body'),
 }
 
 model ChangeRecallManagementServiceVersionResponseBody = {
@@ -127,12 +127,12 @@ model ChangeRecallManagementServiceVersionResponse = {
 }
 
 /**
-  * @description ## Request
-  * Use this API to change the version of a recall management service. Ensure that the provided `RecallManagementServiceId`, `InstanceId`, and target `RecallManagementServiceVersionId` are valid, and that you have the required permissions for these resources.
-  * - **RecallManagementServiceId**: The unique identifier of the recall management service.
-  * - **InstanceId**: The instance ID associated with the recall management service.
-  * - **RecallManagementServiceVersionId**: The target version ID to switch to.
-  * Note: Before changing the version, confirm that the new version is fully tested and ready for production.
+  * @description ## Request description
+  * You can call this API to change the version of a specific recall management service. Ensure that the provided `RecallManagementServiceId`, `InstanceId`, and target `RecallManagementServiceVersionId` are valid and that you have the required permissions to manage these resources.
+  * - **RecallManagementServiceId**: The unique identifier of the recall management service whose version you want to change.
+  * - **InstanceId**: Instance ID of the instance associated with the recall management service.
+  * - **RecallManagementServiceVersionId**: Instance ID of the target version to switch to.
+  * Note: Before you change the version, ensure that the new version has been fully tested and is ready to go live.
   * @param request  the request parameters of ChangeRecallManagementServiceVersion  ChangeRecallManagementServiceVersionRequest
   * @return ChangeRecallManagementServiceVersionResponse
  */
@@ -264,22 +264,56 @@ async function checkInstanceResources(request: CheckInstanceResourcesRequest): C
   return @handler.do('RESTFUL', 'CheckInstanceResources', 'POST', '/api/v1/instances/{InstanceId}/action/checkresources', 'json', false, 'json', request);
 }
 
+model CheckRecallManagementServiceRequest {
+  recallManagementServiceId?: string(name='RecallManagementServiceId', description='The recall management service ID.', example='3', position='Path'),
+  regionId?: string(name='RegionId', position='Host'),
+  contextParams?: map[string]any(name='ContextParams', description='The context parameters.', position='Body'),
+  exposureList?: [ string ](name='ExposureList', description='The exposure list.', position='Body'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='learn-pairec-xxx', position='Body'),
+  recallManagementServiceVersionId?: string(name='RecallManagementServiceVersionId', description='The recall management service version ID.', example='2', position='Body'),
+  recalls?: map[string]any(name='Recalls', description='The recall data details.', position='Body'),
+  retainFields?: [ string ](name='RetainFields', description='The retained fields.', position='Body'),
+  uid?: string(name='Uid', description='The user ID.', example='1001', position='Body'),
+}
+
+model CheckRecallManagementServiceResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
+  result?: map[string]any(name='Result', description='The result details.'),
+}
+
+model CheckRecallManagementServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CheckRecallManagementServiceResponseBody(name='body'),
+}
+
+/**
+  * @description ## Request description
+  * This operation checks the status or performance of a specific recall management service by using the recall management service ID and related parameters. Ensure that the InstanceId field is correct to target the right instance. To test a specific version of the service, provide the RecallManagementServiceVersionId. You can also customize the request by using parameters such as Recalls, ContextParams, ExposureList, and RetainFields to accurately simulate real-world scenarios.
+  * @param request  the request parameters of CheckRecallManagementService  CheckRecallManagementServiceRequest
+  * @return CheckRecallManagementServiceResponse
+ */
+async function checkRecallManagementService(request: CheckRecallManagementServiceRequest): CheckRecallManagementServiceResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CheckRecallManagementService', 'POST', '/api/v1/recallmanagementservices/{RecallManagementServiceId}/action/check', 'json', false, 'json', request);
+}
+
 model CheckTrafficControlTaskExpressionRequest {
   regionId?: string(name='RegionId', position='Host'),
-  expression: string(name='Expression', description='The expression to validate.
+  expression: string(name='Expression', description='The expression.
 
 This parameter is required.', example='event=exposure', position='Query'),
-  instanceId: string(name='InstanceId', description='The ID of the instance.
+  instanceId: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='pairec_123****', position='Query'),
-  tableMetaId: string(name='TableMetaId', description='The ID of the table.
+  tableMetaId: string(name='TableMetaId', description='The data table ID.
 
 This parameter is required.', example='1', position='Query'),
 }
 
 model CheckTrafficControlTaskExpressionResponseBody = {
   isValie?: boolean(name='IsValie', description='Indicates whether the expression is valid.', example='true'),
-  reason?: string(name='Reason', description='If `IsValid` is `false`, this field provides the reason for the failure.', example='""'),
+  reason?: string(name='Reason', description='This field is meaningful only when `IsValid` is `false`.', example='""'),
   requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
 }
 
@@ -290,8 +324,8 @@ model CheckTrafficControlTaskExpressionResponse = {
 }
 
 /**
-  * @description ## Description
-  * This operation validates a traffic control task expression for a specific instance and table. Provide the correct `InstanceId`, `TableMetaId`, and `Expression` parameters.
+  * @description ## Request description
+  * This API operation checks the validity of a traffic control task expression for a specified instance and data table. Make sure that the `InstanceId`, `TableMetaId`, and `Expression` parameters are accurate to correctly perform the validation.
   * @param request  the request parameters of CheckTrafficControlTaskExpression  CheckTrafficControlTaskExpressionRequest
   * @return CheckTrafficControlTaskExpressionResponse
  */
@@ -341,14 +375,14 @@ model CloneExperimentRequest {
 
 This parameter is required.', example='experiment_test', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The instance ID. Call the ListInstances operation to get the instance ID.
+  instanceId: string(name='InstanceId', description='The instance ID. You can obtain the instance ID by calling the ListInstances operation.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Body'),
 }
 
 model CloneExperimentResponseBody = {
-  experimentId?: string(name='ExperimentId', description='The ID of the cloned experiment.', example='3'),
-  requestId?: string(name='RequestId', description='The request ID.', example='F8F613A9-DF1C-551A-88E1-397A3981A785'),
+  experimentId?: string(name='ExperimentId', description='The experiment ID.', example='3'),
+  requestId?: string(name='RequestId', description='Id of the request', example='F8F613A9-DF1C-551A-88E1-397A3981A785'),
 }
 
 model CloneExperimentResponse = {
@@ -367,24 +401,27 @@ async function cloneExperiment(request: CloneExperimentRequest): CloneExperiment
 }
 
 model CloneExperimentGroupRequest {
-  experimentGroupId: string(name='ExperimentGroupId', description='The experiment group ID. You can get this ID by calling the ListExperimentGroups operation.
+  experimentGroupId: string(name='ExperimentGroupId', description='The ID of the experiment group. You can call the ListExperimentGroups operation to obtain the ID.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  environment: string(name='Environment', description='The target environment for the experiment group. ● Daily: Daily environment ● Pre: pre-release environment ● Prod: production environment
+  environment: string(name='Environment', description='The target environment. Valid values:
+- Daily: daily environment.
+- Pre: staging environment.
+- Prod: production environment.
 
 This parameter is required.', example='Daily', position='Body'),
-  instanceId: string(name='InstanceId', description='The instance ID. You can get this ID by calling the ListInstances operation.
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the ListInstances operation to obtain instance ID.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Body'),
-  layerId: string(name='LayerId', description='The layer ID. You can get this ID by calling the ListLayers operation.
+  layerId: string(name='LayerId', description='The ID of the layer. You can call the ListLayers operation to obtain the ID.
 
 This parameter is required.', example='3', position='Body'),
 }
 
 model CloneExperimentGroupResponseBody = {
   experimentGroupId?: string(name='ExperimentGroupId', description='The ID of the cloned experiment group.', example='3'),
-  requestId?: string(name='RequestId', description='The request ID, used for tracking and troubleshooting.', example='12A65C6C-AFA1-59B2-9A66-A9E0BB73F0E5'),
+  requestId?: string(name='RequestId', description='Id of the request', example='12A65C6C-AFA1-59B2-9A66-A9E0BB73F0E5'),
 }
 
 model CloneExperimentGroupResponse = {
@@ -403,17 +440,17 @@ async function cloneExperimentGroup(request: CloneExperimentGroupRequest): Clone
 }
 
 model CloneFeatureConsistencyCheckJobConfigRequest {
-  sourceFeatureConsistencyCheckJobConfigId: string(name='SourceFeatureConsistencyCheckJobConfigId', description='The ID of the source feature consistency check job configuration. To get the ID, call [ListFeatureConsistencyCheckJobConfigs](https://help.aliyun.com/document_detail/2557567.html).
+  sourceFeatureConsistencyCheckJobConfigId: string(name='SourceFeatureConsistencyCheckJobConfigId', description='The feature consistency check configuration ID. For more information about how to obtain the configuration ID, see [ListFeatureConsistencyCheckJobConfigs](https://help.aliyun.com/document_detail/2557567.html).
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The instance ID. To get the ID, call [ListInstances](https://help.aliyun.com/document_detail/2411819.html).
+  instanceId: string(name='InstanceId', description='The instance ID. For more information about how to obtain the instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).
 
 This parameter is required.', example='pairec-cn-********', position='Body'),
 }
 
 model CloneFeatureConsistencyCheckJobConfigResponseBody = {
-  featureConsistencyCheckId?: string(name='FeatureConsistencyCheckId', description='The ID of the new feature consistency check job configuration.', example='4'),
+  featureConsistencyCheckId?: string(name='FeatureConsistencyCheckId', description='The new feature consistency check configuration ID after cloning.', example='4'),
   requestId?: string(name='RequestId', description='The request ID.', example='74D958EF-3598-56FA-8296-FF1575CE43DF'),
 }
 
@@ -433,24 +470,27 @@ async function cloneFeatureConsistencyCheckJobConfig(request: CloneFeatureConsis
 }
 
 model CloneLaboratoryRequest {
-  laboratoryId: string(name='LaboratoryId', description='The laboratory ID. To obtain this ID, call the `ListLaboratories` operation.
+  laboratoryId: string(name='LaboratoryId', description='The ID of the laboratory. You can call the ListLaboratories operation to query the ID.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
   cloneExperimentGroup: boolean(name='CloneExperimentGroup', description='Specifies whether to clone the experiment groups.
 
 This parameter is required.', example='true', position='Body'),
-  environment: string(name='Environment', description='The destination environment. Valid values: Daily, Pre (pre-release), and Prod (production).
+  environment: string(name='Environment', description='The runtime environment. Valid values:
+- Daily: daily environment.
+- Pre: pre-release environment.
+- Prod: production environment.
 
 This parameter is required.', example='Daily', position='Body'),
-  instanceId: string(name='InstanceId', description='The instance ID. To obtain this ID, call the `ListInstances` operation.
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the ListInstances operation to query instance ID.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Body'),
 }
 
 model CloneLaboratoryResponseBody = {
   laboratoryId?: string(name='LaboratoryId', description='The ID of the cloned laboratory.', example='3'),
-  requestId?: string(name='RequestId', description='The request ID.', example='01D22D08-BA20-5F35-8302-99115F288220'),
+  requestId?: string(name='RequestId', description='Id of the request', example='01D22D08-BA20-5F35-8302-99115F288220'),
 }
 
 model CloneLaboratoryResponse = {
@@ -469,14 +509,14 @@ async function cloneLaboratory(request: CloneLaboratoryRequest): CloneLaboratory
 }
 
 model CloneTrafficControlTaskRequest {
-  trafficControlTaskId?: string(name='TrafficControlTaskId', description='Traffic control task ID', example='1', position='Path'),
+  trafficControlTaskId?: string(name='TrafficControlTaskId', description='The ID of the traffic shaping task.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='Instance ID.', example='pairec_123****', position='Body'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec_123****', position='Body'),
 }
 
 model CloneTrafficControlTaskResponseBody = {
-  requestId?: string(name='RequestId', description='Request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
-  trafficControlTaskId?: string(name='TrafficControlTaskId', description='Traffic control task ID.', example='3'),
+  requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
+  trafficControlTaskId?: string(name='TrafficControlTaskId', description='The ID of the traffic shaping task.', example='3'),
 }
 
 model CloneTrafficControlTaskResponse = {
@@ -487,7 +527,7 @@ model CloneTrafficControlTaskResponse = {
 
 /**
   * @description ## Request description
-  * This API clones an existing traffic control task to another specified instance. Ensure that the `InstanceId` you provide is valid and that you have the required permissions for the target instance.
+  * You can use this API to clone an existing traffic shaping task to another specified instance. Make sure that the `InstanceId` you provide is valid and that you have the required permissions to perform operations on the instance.
   * Note: The cloning process does not affect the status or configuration of the original task.
   * @param request  the request parameters of CloneTrafficControlTask  CloneTrafficControlTaskRequest
   * @return CloneTrafficControlTaskResponse
@@ -524,61 +564,53 @@ async function compareSampleConsistencyJob(request: CompareSampleConsistencyJobR
 
 model CreateABMetricRequest {
   regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
-  aggregationByUser?: boolean(name='AggregationByUser', position='Body'),
-  definition: string(name='Definition', description='The metric definition.
+  aggregationByUser?: boolean(name='AggregationByUser', description='Specifies whether to aggregate by user dimension when calculating significance. Two aggregation methods are available: by user and by sample.', position='Body'),
+  definition: string(name='Definition', description='The definition of the metric.
 
 This parameter is required.', example='sum(click_cnt)', position='Body'),
-  denominator?: string(name='Denominator', example='pv', position='Body'),
-  description: string(name='Description', description='The metric description.
+  denominator?: string(name='Denominator', description='The denominator used for significance calculation.', example='pv', position='Body'),
+  description: string(name='Description', description='The description of the metric.
 
-This parameter is required.', example='pv指标', position='Body'),
-  instanceId: string(name='InstanceId', description='The instance ID. Call the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation to obtain this ID.
+This parameter is required.', example='PV metric', position='Body'),
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation to obtain instance ID.
 
 This parameter is required.', example='pairec-cn-test1', position='Body'),
-  isBinomialDistribution?: boolean(name='IsBinomialDistribution', position='Body'),
-  leftMetricId?: string(name='LeftMetricId', description='The ID of the left metric used to calculate the derived metric.', example='2', position='Body'),
-  name: string(name='Name', description='The metric name.
+  isBinomialDistribution?: boolean(name='IsBinomialDistribution', description='Specifies whether the current metric follows a binomial distribution when the metric type is a derived metric. If yes, the mean and variance of the metric are calculated based on the binomial distribution.', position='Body'),
+  leftMetricId?: string(name='LeftMetricId', description='The ID of the left metric for a derived metric.', example='2', position='Body'),
+  name: string(name='Name', description='The name of the metric.
 
 This parameter is required.', example='pv', position='Body'),
-  needSignificance?: boolean(name='NeedSignificance', position='Body'),
-  numerator?: string(name='Numerator', example='click', position='Body'),
-  operator?: string(name='Operator', description='The operator used to calculate the derived metric. Valid values:
-
-- `Plus`: Addition
-
-- `Minus`: Subtraction
-
-- `Multiplication`: Multiplication
-
-- `Division`: Division', example='Division', position='Body'),
+  needSignificance?: boolean(name='NeedSignificance', description='Specifies whether to calculate significance.', position='Body'),
+  numerator?: string(name='Numerator', description='The numerator used for significance calculation.', example='click', position='Body'),
+  operator?: string(name='Operator', description='The operator used to calculate a derived metric. Valid values:
+- Plus: addition.
+- Minus: subtraction.
+- Multiplication: multiplication.
+- Division: division.', example='Division', position='Body'),
   realtime: boolean(name='Realtime', description='Specifies whether the metric is a real-time metric. Valid values:
-
-- `true`: The metric is real-time.
-
-- `false`: The metric is not real-time.
+- true: yes.
+- false: no.
 
 This parameter is required.', example='false', position='Body'),
-  resultResourceId?: string(name='ResultResourceId', description='The data source ID to which the results are written back. Call the ListInstanceResources operation to obtain this ID.', example='3', position='Body'),
-  rightMetricId?: string(name='RightMetricId', description='The ID of the right metric used to calculate the derived metric.', example='3', position='Body'),
-  sceneId: string(name='SceneId', description='The scene ID. Call the [ListScenes](https://help.aliyun.com/document_detail/2402581.html) operation to obtain this ID.
+  resultResourceId?: string(name='ResultResourceId', description='The ID of the data source to which the data table is written back. You can call the ListInstanceResources operation to obtain the ID.', example='3', position='Body'),
+  rightMetricId?: string(name='RightMetricId', description='The ID of the right metric for a derived metric.', example='3', position='Body'),
+  sceneId: string(name='SceneId', description='The ID of the scene. You can call the [ListScenes](https://help.aliyun.com/document_detail/2402581.html) operation to obtain the ID.
 
 This parameter is required.', example='1', position='Body'),
-  statisticsCycle?: int32(name='StatisticsCycle', description='The statistics cycle.', example='1', position='Body'),
-  tableMetaId: string(name='TableMetaId', description='The data table ID. Call the ListTableMetas operation to obtain this ID.
+  statisticsCycle?: int32(name='StatisticsCycle', description='The statistical period.', example='1', position='Body'),
+  tableMetaId: string(name='TableMetaId', description='The ID of the data table. You can call the ListTableMetas operation to obtain the ID.
 
 This parameter is required.', example='2', position='Body'),
-  type: string(name='Type', description='The metric type. Valid values:
-
-- `Single`: A single metric.
-
-- `Derived`: A derived metric.
+  type: string(name='Type', description='The type of the metric. Valid values:
+- Single: single metric.
+- Derived: derived metric.
 
 This parameter is required.', example='Single', position='Body'),
 }
 
 model CreateABMetricResponseBody = {
-  ABMetricId?: string(name='ABMetricId', description='The AB metric ID.', example='1'),
-  requestId?: string(name='RequestId', description='The request ID.', example='F7AC05FF-EDE7-5C2B-B9AE-33D6DF4178BA'),
+  ABMetricId?: string(name='ABMetricId', description='The ID of the AB test metric.', example='1'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='F7AC05FF-EDE7-5C2B-B9AE-33D6DF4178BA'),
 }
 
 model CreateABMetricResponse = {
@@ -598,29 +630,29 @@ async function createABMetric(request: CreateABMetricRequest): CreateABMetricRes
 
 model CreateABMetricGroupRequest {
   regionId?: string(name='RegionId', position='Host'),
-  ABMetricIds: string(name='ABMetricIds', description='The A/B metric IDs. Separate multiple IDs with commas (,).
+  ABMetricIds: string(name='ABMetricIds', description='The IDs of the AB test metrics, separated by commas.
 
 This parameter is required.', example='1,2', position='Body'),
   description: string(name='Description', description='The description of the metric group.
 
-This parameter is required.', example='访问量相关指标', position='Body'),
-  instanceId: string(name='InstanceId', description='The ID of the instance. You can call the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation to obtain this ID.
+This parameter is required.', example='Traffic-related metrics', position='Body'),
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation to obtain instance ID.
 
 This parameter is required.', example='pairec-cn-test1', position='Body'),
   name: string(name='Name', description='The name of the metric group.
 
 This parameter is required.', example='visits', position='Body'),
-  realtime: boolean(name='Realtime', description='Specifies whether the metric group is a real-time metric group.
+  realtime: boolean(name='Realtime', description='Specifies whether the metric group is real-time.
 
 This parameter is required.', example='false', position='Body'),
-  sceneId: string(name='SceneId', description='The ID of the scene. You can call the [ListScenes](https://help.aliyun.com/document_detail/2402581.html) operation to obtain this ID.
+  sceneId: string(name='SceneId', description='The ID of the scene. You can call the [ListScenes](https://help.aliyun.com/document_detail/2402581.html) operation to obtain the ID.
 
 This parameter is required.', example='1', position='Body'),
 }
 
 model CreateABMetricGroupResponseBody = {
-  ABMetricGroupId?: string(name='ABMetricGroupId', description='The ID of the A/B metric group.', example='1'),
-  requestId?: string(name='RequestId', description='The request ID.', example='E15A1443-7917-5BE0-AE70-25538ECF398D'),
+  ABMetricGroupId?: string(name='ABMetricGroupId', description='The ID of the metric group.', example='1'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='E15A1443-7917-5BE0-AE70-25538ECF398D'),
 }
 
 model CreateABMetricGroupResponse = {
@@ -679,20 +711,22 @@ model CreateCrowdRequest {
   description: string(name='Description', description='The description of the crowd.
 
 This parameter is required.', example='This is a test.', position='Body'),
-  instanceId: string(name='InstanceId', description='The instance ID. To get this ID, call the ListInstances operation.
+  instanceId: string(name='InstanceId', description='The ID of the instance. You can call the ListInstances operation to obtain the instance ID.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Body'),
-  label?: string(name='Label', description='The crowd label.', example='os=android', position='Body'),
-  name: string(name='Name', description='The crowd name.
+  label?: string(name='Label', description='The label of the crowd.', example='os=android', position='Body'),
+  name: string(name='Name', description='The name of the crowd.
 
-This parameter is required.', example='xx人群', position='Body'),
-  source?: string(name='Source', description='The source of the user data. Valid values: ● ManualInput: Users are provided in the Users parameter. ● UploadFile: Users are provided from an uploaded file.', example='ManualInput', position='Body'),
-  users?: string(name='Users', description='The users to include in the crowd. Separate multiple users with commas (,).', example='user1,user2,user3', position='Body'),
+This parameter is required.', example='SampleCrowd', position='Body'),
+  source?: string(name='Source', description='The source of the crowd. Valid values:
+- ManualInput: Manual input.
+- UploadFile: File upload.', example='ManualInput', position='Body'),
+  users?: string(name='Users', description='The users included in the crowd. Separate multiple users with commas.', example='user1,user2,user3', position='Body'),
 }
 
 model CreateCrowdResponseBody = {
-  crowdId?: string(name='CrowdId', description='The crowd ID.', example='3'),
-  requestId?: string(name='RequestId', description='The request ID.', example='59CE7EC6-F268-5D71-9215-32922CC50D72'),
+  crowdId?: string(name='CrowdId', description='The ID of the crowd.', example='3'),
+  requestId?: string(name='RequestId', description='Id of the request', example='59CE7EC6-F268-5D71-9215-32922CC50D72'),
 }
 
 model CreateCrowdResponse = {
@@ -857,29 +891,31 @@ async function createEngineConfig(request: CreateEngineConfigRequest): CreateEng
 model CreateExperimentRequest {
   regionId?: string(name='RegionId', position='Host'),
   config?: string(name='Config', description='The experiment configuration.', example='{"RankBy": "Score"}', position='Body'),
-  debugCrowdId?: string(name='DebugCrowdId', description='The ID of the debug crowd. Call the ListCrowds operation to obtain this ID.', example='3', position='Body'),
-  debugUsers?: string(name='DebugUsers', description='The UIDs of Alibaba Cloud accounts or RAM users for debugging. Separate multiple UIDs with a comma.', example='1124512470******,1124512471******,1124512472******', position='Body'),
-  description: string(name='Description', description='The experiment description.
+  debugCrowdId?: string(name='DebugCrowdId', description='The debug crowd ID. You can call the ListCrowds operation to obtain the debug crowd ID.', example='3', position='Body'),
+  debugUsers?: string(name='DebugUsers', description='The debug users. The value must be the UID of an Alibaba Cloud account or RAM user. Separate multiple UIDs with commas.', example='1124512470******,1124512471******,1124512472******', position='Body'),
+  description: string(name='Description', description='The description of the experiment.
 
 This parameter is required.', example='This is a test.', position='Body'),
-  experimentGroupId: string(name='ExperimentGroupId', description='The ID of the experiment group. Call the ListExperimentGroups operation to obtain this ID.
+  experimentGroupId: string(name='ExperimentGroupId', description='The experiment group ID. You can call the ListExperimentGroups operation to obtain the experiment group ID.
 
 This parameter is required.', example='3', position='Body'),
-  flowPercent?: int32(name='FlowPercent', description='The traffic distribution percentage.', example='100', position='Body'),
-  instanceId: string(name='InstanceId', description='The instance ID. Call the ListInstances operation to obtain this ID.
+  flowPercent?: int32(name='FlowPercent', description='The traffic allocation percentage.', example='100', position='Body'),
+  instanceId: string(name='InstanceId', description='The instance ID. You can call the ListInstances operation to obtain the instance ID.
 
 This parameter is required.', example='pairec-test1', position='Body'),
-  name: string(name='Name', description='The experiment name.
+  name: string(name='Name', description='The name of the experiment.
 
 This parameter is required.', example='experiment_test', position='Body'),
-  type: string(name='Type', description='The experiment type. Valid values:<br>● `Baseline`: Indicates a baseline experiment.<br>● `Normal`: Indicates a normal experiment.<br><br>
+  type: string(name='Type', description='The type of the experiment. Valid values:
+- Baseline: baseline experiment.
+- Normal: normal experiment.
 
 This parameter is required.', example='Baseline', position='Body'),
 }
 
 model CreateExperimentResponseBody = {
   experimentId?: string(name='ExperimentId', description='The experiment ID.', example='3'),
-  requestId?: string(name='RequestId', description='The unique identifier for the request.', example='3AAA45F6-0798-5461-9360-81D133823CE7'),
+  requestId?: string(name='RequestId', description='Id of the request', example='3AAA45F6-0798-5461-9360-81D133823CE7'),
 }
 
 model CreateExperimentResponse = {
@@ -900,41 +936,39 @@ async function createExperiment(request: CreateExperimentRequest): CreateExperim
 model CreateExperimentGroupRequest {
   regionId?: string(name='RegionId', position='Host'),
   config?: string(name='Config', description='The configuration of the experiment group.', example='{"RankBy": "Score"}', position='Body'),
-  crowdId?: string(name='CrowdId', description='The ID of the crowd for crowd targeting. You can obtain this ID by calling the ListCrowds operation.', example='1', position='Body'),
-  crowdTargetType?: string(name='CrowdTargetType', description='The crowd targeting type for the experiment group. Valid values:
-
-- `All`: All traffic
-
-- `Filter`: Traffic that matches the filter condition
-
-- `CrowdId`: Traffic from a specific crowd
-
-- `Random`: A random percentage of traffic', example='All', position='Body'),
-  debugCrowdId?: string(name='DebugCrowdId', description='The ID of the debug crowd. You can obtain this ID by calling the ListCrowds operation.', example='3', position='Body'),
-  debugUsers?: string(name='DebugUsers', description='The UIDs of the debug users. The value must be the UID of an Alibaba Cloud account or a RAM user. Separate multiple UIDs with a comma.', example='1124512470******,1124512471******,1124512472******', position='Body'),
+  crowdId?: string(name='CrowdId', description='The ID of the specified crowd for crowd targeting. You can call the ListCrowds operation to obtain the crowd ID.', example='1', position='Body'),
+  crowdTargetType?: string(name='CrowdTargetType', description='The type of traffic targeting for the experiment group. Valid values:
+- All: All traffic.
+- Filter: Traffic that uses filter conditions.
+- CrowdId: Traffic specified by a crowd ID.
+- Random: Random traffic based on a percentage.', example='All', position='Body'),
+  debugCrowdId?: string(name='DebugCrowdId', description='The ID of the debug crowd. You can call the ListCrowds operation to obtain the crowd ID.', example='3', position='Body'),
+  debugUsers?: string(name='DebugUsers', description='The debug users. The users must be the UIDs of Alibaba Cloud accounts or RAM users. Separate multiple UIDs with commas.', example='1124512470******,1124512471******,1124512472******', position='Body'),
   description?: string(name='Description', description='The description of the experiment group.', example='This is a test.', position='Body'),
-  distributionTimeDuration?: int32(name='DistributionTimeDuration', description='The time duration for traffic distribution.', example='3', position='Body'),
-  distributionType?: string(name='DistributionType', description='The distribution type. Valid values: `UserId` (by user ID) and `TimeDuration` (by time duration).', example='UserId', position='Body'),
-  filter?: string(name='Filter', description='The filter condition for crowd targeting.', example='gender=male', position='Body'),
-  instanceId: string(name='InstanceId', description='The instance ID. You can obtain this ID by calling the ListInstances operation.
+  distributionTimeDuration?: int32(name='DistributionTimeDuration', description='The time period for traffic distribution.', example='3', position='Body'),
+  distributionType?: string(name='DistributionType', description='The traffic distribution method. Valid values:
+- UserId: User ID.
+- TimeDuration: Time period.', example='UserId', position='Body'),
+  filter?: string(name='Filter', description='The filter conditions for crowd targeting.', example='gender=male', position='Body'),
+  instanceId: string(name='InstanceId', description='The ID of the instance. You can call the ListInstances operation to obtain the instance ID.
 
 This parameter is required.', example='pairec-test1', position='Body'),
-  layerId: string(name='LayerId', description='The ID of the layer. You can obtain this ID by calling the ListLayers operation.
+  layerId: string(name='LayerId', description='The ID of the layer. You can call the ListLayers operation to obtain the layer ID.
 
 This parameter is required.', example='3', position='Body'),
   name: string(name='Name', description='The name of the experiment group.
 
 This parameter is required.', example='experiment_group_test', position='Body'),
-  needAA: boolean(name='NeedAA', description='Specifies whether to create an A/A experiment group.
+  needAA: boolean(name='NeedAA', description='Specifies whether an AA experiment group is required.
 
 This parameter is required.', example='true', position='Body'),
-  randomFlow?: long(name='RandomFlow', description='The percentage of traffic to randomly allocate to this experiment group. This parameter is used only when `CrowdTargetType` is set to `Random`. Valid values: 0 to 100.', example='20', position='Body'),
-  reservedBuckets?: string(name='ReservedBuckets', description='A comma-separated list of reserved bucket numbers.', example='1,2,3', position='Body'),
+  randomFlow?: long(name='RandomFlow', description='The percentage of random traffic used to match the experiment group when the traffic targeting type is Random. Valid values: 0 to 100.', example='20', position='Body'),
+  reservedBuckets?: string(name='ReservedBuckets', description='The reserved bucket numbers.', example='1,2,3', position='Body'),
 }
 
 model CreateExperimentGroupResponseBody = {
   experimentGroupId?: string(name='ExperimentGroupId', description='The ID of the experiment group.', example='3'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='A04CB8C0-E74A-5E83-BC61-64D153574EC7'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A04CB8C0-E74A-5E83-BC61-64D153574EC7'),
 }
 
 model CreateExperimentGroupResponse = {
@@ -954,22 +988,19 @@ async function createExperimentGroup(request: CreateExperimentGroupRequest): Cre
 
 model CreateFeatureConsistencyCheckJobRequest {
   regionId?: string(name='RegionId', position='Host'),
-  environment: string(name='Environment', description='The environment where the job runs. Valid values:
-
-- Daily: the daily environment
-
-- Pre: the pre-production environment
-
-- Prod: the production environment
+  environment: string(name='Environment', description='The runtime environment. Valid values:
+- Daily: daily environment
+- Pre: staging environment
+- Prod: production environment
 
 This parameter is required.', example='Pre', position='Body'),
-  featureConsistencyCheckJobConfigId: string(name='FeatureConsistencyCheckJobConfigId', description='The feature consistency check job configuration ID. You can call the [ListFeatureConsistencyCheckJobConfigs](https://help.aliyun.com/document_detail/2557567.html) operation to obtain this ID.
+  featureConsistencyCheckJobConfigId: string(name='FeatureConsistencyCheckJobConfigId', description='The feature consistency check job configuration ID. For information about how to obtain the configuration ID, see [ListFeatureConsistencyCheckJobConfigs](https://help.aliyun.com/document_detail/2557567.html).
 
 This parameter is required.', example='3', position='Body'),
-  instanceId: string(name='InstanceId', description='The instance ID. You can obtain the instance ID on the [Instances](https://help.aliyun.com/document_detail/2411819.html) page.
+  instanceId: string(name='InstanceId', description='The instance ID. For information about how to obtain the instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).
 
 This parameter is required.', example='pairec-cn-********', position='Body'),
-  samplingDuration: int32(name='SamplingDuration', description='The sampling duration, in minutes.
+  samplingDuration: int32(name='SamplingDuration', description='The sampling duration in minutes.
 
 This parameter is required.', example='10', position='Body'),
 }
@@ -1100,23 +1131,19 @@ async function createFeatureConsistencyCheckJobConfig(request: CreateFeatureCons
 }
 
 model CreateInstanceResourceRequest {
-  instanceId: string(name='InstanceId', description='The instance ID. You can obtain this ID by calling the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation.
+  instanceId: string(name='InstanceId', description='The ID of the instance. You can call the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation to obtain the instance ID.
 
 This parameter is required.', example='pairec-cn-test1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
   category: string(name='Category', description='The resource category. Valid values:
-
 - DataManagement
-
 - Engine
-
 - Monitor
 
 This parameter is required.', example='DataManagement', position='Body'),
   group: string(name='Group', description='The resource group.
 
-If the resource category is DataManagement, valid values are:
-
+If the resource category is DataManagement, valid values:
 - storage
 
 - modelpipeline
@@ -1125,8 +1152,7 @@ If the resource category is DataManagement, valid values are:
 
 - modeltrain
 
-If the resource category is Engine, valid values are:
-
+If the resource category is Engine, valid values:
 - feature
 
 - predict
@@ -1135,8 +1161,7 @@ If the resource category is Engine, valid values are:
 
 - recengine
 
-If the resource category is Monitor, valid values are:
-
+If the resource category is Monitor, valid values:
 - logs
 
 - logsback
@@ -1162,9 +1187,9 @@ This parameter is required.', example='storage', position='Body'),
 
 - DataHub
 
-- ApsaraMQ for Kafka
+- Kafka
 
-- Realtime Compute for Apache Flink
+- Flinkvvp
 
 - ACR
 
@@ -1176,9 +1201,9 @@ This parameter is required.', example='storage', position='Body'),
 
 - MaxCompute
 
-- Graph Compute
+- GraphCompute
 
-- ApsaraDB for Redis
+- Redis
 
 This parameter is required.', example='OSS', position='Body'),
   uri: string(name='Uri', description='The resource URI.
@@ -1396,63 +1421,63 @@ model CreateRecallManagementServiceVersionRequest {
   regionId?: string(name='RegionId', position='Host'),
   configs?: {
     mergeConfig?: {
-      extendedConfig?: string(name='ExtendedConfig', description='This parameter is reserved for future use.', example='{"":""}'),
+      extendedConfig?: string(name='ExtendedConfig', description='The extended configuration for the merge configuration to facilitate future feature expansion.', example='{"":""}'),
       filterExpression?: string(name='FilterExpression', description='The filter expression.', example='age>10'),
-      filterRecallManagementTableIds?: [ string ](name='FilterRecallManagementTableIds', description='The IDs of tables to use for filtering results.'),
-      itemRecallManagementTableId?: string(name='ItemRecallManagementTableId', description='The item recall management table ID.', example='2'),
-      itemTableFields?: [ string ](name='ItemTableFields', description='The fields to return from the item table.'),
-      mergeType?: string(name='MergeType', description='The merge type. Valid values: `Weight` and `Alternate`.', example='Weight'),
-      recallManagementServiceVersionConfigId?: string(name='RecallManagementServiceVersionConfigId', description='The recall management service version configuration ID.', example='1'),
-    }(name='MergeConfig', description='**Specifies how to merge recall results.**'),
+      filterRecallManagementTableIds?: [ string ](name='FilterRecallManagementTableIds', description='The IDs of the filter tables.'),
+      itemRecallManagementTableId?: string(name='ItemRecallManagementTableId', description='The ID of the item table.', example='2'),
+      itemTableFields?: [ string ](name='ItemTableFields', description='The output fields of the item table.'),
+      mergeType?: string(name='MergeType', description='The merge type. Valid values: `Weight`: weight. `Alternate`: alternate.', example='Weight'),
+      recallManagementServiceVersionConfigId?: string(name='RecallManagementServiceVersionConfigId', description='The ID of the recall management service version configuration.', example='1'),
+    }(name='MergeConfig', description='**The merge configuration.**'),
     recallConfigs?: [ 
       {
-        description?: string(name='Description', description='The recall description.', example='this is etrec recall'),
-        extendedConfig?: string(name='ExtendedConfig', description='**This parameter is reserved for future use.**', example='""'),
-        itemConditionArray?: string(name='ItemConditionArray', description='The conditions for an item, formatted as an array.', example='[{"option":"<","field":"category","type":"STRING","value":"10"}]'),
-        itemConditionExpression?: string(name='ItemConditionExpression', description='The item condition expression.', example='age>20'),
+        description?: string(name='Description', description='The description of the recall.', example='this is etrec recall'),
+        extendedConfig?: string(name='ExtendedConfig', description='**The extended configuration for future feature expansion.**', example='""'),
+        itemConditionArray?: string(name='ItemConditionArray', description='The item conditions in array format.', example='[{"option":"<","field":"category","type":"STRING","value":"10"}]'),
+        itemConditionExpression?: string(name='ItemConditionExpression', description='The item conditional expression.', example='age>20'),
         itemVectorField?: string(name='ItemVectorField', description='The item vector field.', example='item_embedding'),
-        itemVectorRecallManagementTableId?: string(name='ItemVectorRecallManagementTableId', description='The item vector recall management table ID.', example='4'),
-        name?: string(name='Name', description='The recall name.', example='etrec'),
+        itemVectorRecallManagementTableId?: string(name='ItemVectorRecallManagementTableId', description='The ID of the item vector recall table.', example='4'),
+        name?: string(name='Name', description='The name of the recall.', example='etrec'),
         operators?: [ 
           {
             featureConfig?: {
               expression?: string(name='Expression', description='The feature expression.', example='category=3'),
               name?: string(name='Name', description='The feature name.', example='city'),
               type?: string(name='Type', description='The feature type.', example='string'),
-            }(name='FeatureConfig', description='The configuration for the feature operator.'),
+            }(name='FeatureConfig', description='The configuration of the Feature operator.'),
             filterConfig?: {
               experession?: string(name='Experession', description='The filter expression.', example='age>20'),
-            }(name='FilterConfig', description='The configuration for the filter operator.'),
+            }(name='FilterConfig', description='The configuration of the Filter operator.'),
             joinConfig?: {
-              field?: string(name='Field', description='**The field to join on.**', example='item_id'),
-              outputFields?: [ string ](name='OutputFields', description='**The fields to include from the joined table.**', example='item_id'),
-              recallManagementTableId?: string(name='RecallManagementTableId', description='**The ID of the table to join with.**', example='4'),
-            }(name='JoinConfig', description='The configuration for the Join operator.'),
+              field?: string(name='Field', description='**The Join field.**', example='item_id'),
+              outputFields?: [ string ](name='OutputFields', description='**The output fields.**', example='item_id'),
+              recallManagementTableId?: string(name='RecallManagementTableId', description='**The ID of the Join table.**', example='4'),
+            }(name='JoinConfig', description='The configuration of the Join operator.'),
             operatorType?: string(name='OperatorType', description='The operator type.', example='Filter'),
             triggerConfig?: {
               field?: string(name='Field', description='The field name.', example='user_id'),
               fieldQuantityLimit?: int32(name='FieldQuantityLimit', description='The limit on the number of fields.', example='20'),
-              isRandSort?: boolean(name='IsRandSort', description='Specifies whether to sort randomly.', example='false'),
-              sortField?: string(name='SortField', description='The sort field.', example='create_time'),
-            }(name='TriggerConfig', description='The configuration for the Trigger operator.'),
+              isRandSort?: boolean(name='IsRandSort', description='Specifies whether to enable random sorting.', example='false'),
+              sortField?: string(name='SortField', description='The sort fields.', example='create_time'),
+            }(name='TriggerConfig', description='The configuration of the Trigger operator.'),
           }
-        ](name='Operators', description='A list of operators.'),
-        priority?: long(name='Priority', description='The priority. A lower value indicates a higher priority.', example='1'),
-        recallManagementTableId?: string(name='RecallManagementTableId', description='The recall management table ID.', example='1'),
+        ](name='Operators', description='The list of operators.'),
+        priority?: long(name='Priority', description='The priority. A smaller value indicates a higher priority.', example='1'),
+        recallManagementTableId?: string(name='RecallManagementTableId', description='The ID of the recall management table.', example='1'),
         recallType?: string(name='RecallType', description='The recall type.', example='X2I'),
         sortFields?: string(name='SortFields', description='The sort fields.', example='name'),
         userVectorField?: string(name='UserVectorField', description='The user vector field.', example='user_embedding'),
-        userVectorRecallManagementTableId?: string(name='UserVectorRecallManagementTableId', description='The user vector recall management table ID.', example='3'),
+        userVectorRecallManagementTableId?: string(name='UserVectorRecallManagementTableId', description='The ID of the user vector recall table.', example='3'),
       }
-    ](name='RecallConfigs', description='A list of recall configurations.'),
+    ](name='RecallConfigs', description='The list of recall configurations.'),
   }(name='Configs', description='The configuration details.', position='Body'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='learn-pairec-xxx', position='Body'),
-  sourceRecallManagementServiceVersionId?: string(name='SourceRecallManagementServiceVersionId', description='The source recall management service version ID.', example='4', position='Body'),
+  sourceRecallManagementServiceVersionId?: string(name='SourceRecallManagementServiceVersionId', description='The ID of the source recall management service version.', example='4', position='Body'),
 }
 
 model CreateRecallManagementServiceVersionResponseBody = {
   recallManagementServiceVersionId?: string(name='RecallManagementServiceVersionId', description='The ID of the recall management service version.', example='1'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
+  requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
 }
 
 model CreateRecallManagementServiceVersionResponse = {
@@ -1462,13 +1487,13 @@ model CreateRecallManagementServiceVersionResponse = {
 }
 
 /**
-  * @description ## Request
-  * - Use this API to create a new version of a recall management service.
-  * - To create a new version from an existing one, specify the source recall management service version ID.
-  * - You can configure detailed recall rules, such as the recall name, description, priority, and recall type.
-  * - Configure operators such as filter, trigger, feature extraction, and join.
-  * - The merge configuration specifies how to merge multiple recall results and supports two merge methods: weight-based and alternating.
-  * - All configuration items are optional.
+  * @description ## Request description
+  * - This operation allows you to create a new version for a specific recall management service.
+  * - You can create a new version based on an existing version by specifying the source recall management service version ID.
+  * - You can configure detailed recall rules, including but not limited to the recall name, description, priority, and recall type.
+  * - The operation provides flexible operator configuration options, such as filtering, triggering, feature extraction, and join operations, to meet various business requirements.
+  * - The merge configuration allows you to specify how to merge multiple recall results. Two merge methods are supported: weight and alternate.
+  * - All configuration items are optional. Specify them as needed.
   * @param request  the request parameters of CreateRecallManagementServiceVersion  CreateRecallManagementServiceVersionRequest
   * @return CreateRecallManagementServiceVersionResponse
  */
@@ -1738,20 +1763,20 @@ async function createSampleConsistencyJob(request: CreateSampleConsistencyJobReq
 
 model CreateSceneRequest {
   regionId?: string(name='RegionId', position='Host'),
-  description?: string(name='Description', description='The scene description.', example='This is a test.', position='Body'),
+  description?: string(name='Description', description='The scenario description.', example='This is a test.', position='Body'),
   flows?: [ 
     {
-      flowCode?: string(name='FlowCode', description='The flow code.', example='liuliang1'),
-      flowName?: string(name='FlowName', description='The flow name.', example='流量1'),
+      flowCode?: string(name='FlowCode', description='The traffic code.', example='liuliang1'),
+      flowName?: string(name='FlowName', description='The traffic name.', example='Traffic 1'),
     }
-  ](name='Flows', description='The flows.', position='Body'),
+  ](name='Flows', description='The traffic list.', position='Body'),
   instanceId?: string(name='InstanceId', description='The instance ID. You can call the ListInstances operation to obtain the instance ID.', example='pairec-cn-abcdefg1234', position='Body'),
-  name?: string(name='Name', description='The scene name.', example='scene1', position='Body'),
+  name?: string(name='Name', description='The scenario name.', example='scene1', position='Body'),
 }
 
 model CreateSceneResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='FCF741D8-9C30-578E-807F-B935487DB34A'),
-  sceneId?: string(name='SceneId', description='The scene ID.', example='3'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FCF741D8-9C30-578E-807F-B935487DB34A'),
+  sceneId?: string(name='SceneId', description='The scenario ID.', example='3'),
 }
 
 model CreateSceneResponse = {
@@ -2306,9 +2331,9 @@ async function deleteLaboratory(request: DeleteLaboratoryRequest): DeleteLaborat
 }
 
 model DeleteLayerRequest {
-  layerId?: string(name='LayerId', description='Layer ID, which can be obtained by calling the ListLayers API.', example='3', position='Path'),
+  layerId?: string(name='LayerId', description='The layer ID. You can call the ListLayers operation to obtain the layer ID.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='Instance ID, which can be obtained by calling the ListInstances API.', example='pairec-cn-abcdefg1234', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID. You can call the ListInstances operation to obtain the instance ID.', example='pairec-cn-abcdefg1234', position='Query'),
 }
 
 model DeleteLayerResponseBody = {
@@ -2358,7 +2383,7 @@ async function deleteParam(request: DeleteParamRequest): DeleteParamResponse {
 model DeleteRecallManagementServiceRequest {
   recallManagementServiceId?: string(name='RecallManagementServiceId', description='The ID of the recall management service.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='pairec-cn-test123', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec-cn-test123', position='Query'),
 }
 
 model DeleteRecallManagementServiceResponseBody = {
@@ -2373,7 +2398,7 @@ model DeleteRecallManagementServiceResponse = {
 
 /**
   * @description ## Request description
-  * This operation deletes a recall management service based on the RecallManagementServiceId and InstanceId. Before you call this API, ensure you have the correct information for the service to be deleted.
+  * This API operation deletes a specific recall management service based on the provided recall management service ID and instance ID. Make sure that you have obtained the information about the service to be deleted before you call this operation.
   * @param request  the request parameters of DeleteRecallManagementService  DeleteRecallManagementServiceRequest
   * @return DeleteRecallManagementServiceResponse
  */
@@ -2390,7 +2415,7 @@ model DeleteRecallManagementServiceVersionRequest {
 }
 
 model DeleteRecallManagementServiceVersionResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
 }
 
 model DeleteRecallManagementServiceVersionResponse = {
@@ -2400,8 +2425,8 @@ model DeleteRecallManagementServiceVersionResponse = {
 }
 
 /**
-  * @description ## Request
-  * This operation deletes a specific version of a recall management service. You must provide the recall management service ID, the recall management service version ID, and the instance ID. This operation is irreversible, so back up all critical data before proceeding.
+  * @description ## Request description
+  * This operation allows you to delete a specific version of a recall management service by providing the recall management service ID, recall management service version ID, and instance ID. Back up important data before calling this operation because the deletion is irreversible.
   * @param request  the request parameters of DeleteRecallManagementServiceVersion  DeleteRecallManagementServiceVersionRequest
   * @return DeleteRecallManagementServiceVersionResponse
  */
@@ -2442,7 +2467,7 @@ async function deleteRecallManagementServiceVersionConfig(request: DeleteRecallM
 }
 
 model DeleteRecallManagementTableRequest {
-  recallManagementTableId: string(name='RecallManagementTableId', description='The ID of the recall management table.
+  recallManagementTableId: string(name='RecallManagementTableId', description='The ID of the data table.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
@@ -2452,7 +2477,7 @@ This parameter is required.', example='pairec-cn-test123', position='Query'),
 }
 
 model DeleteRecallManagementTableResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
 }
 
 model DeleteRecallManagementTableResponse = {
@@ -2462,10 +2487,10 @@ model DeleteRecallManagementTableResponse = {
 }
 
 /**
-  * @description ## Request
-  * - The required **path parameter** `RecallManagementTableId` specifies the ID of the recall management table to delete.
-  * - The required **query parameter** `InstanceId` specifies the ID of the instance.
-  * - A successful operation returns a `RequestId` in the response body for request tracking.
+  * @description ## Request description
+  * - The **path parameter** `RecallManagementTableId` is required and specifies instance ID of the data table to delete.
+  * - The **query parameter** `InstanceId` is also required and specifies instance ID of the instance on which the operation is performed.
+  * - After a successful execution, a response body containing the request ID (`RequestId`) is returned, which can be used to track the request.
   * @param request  the request parameters of DeleteRecallManagementTable  DeleteRecallManagementTableRequest
   * @return DeleteRecallManagementTableResponse
  */
@@ -2551,9 +2576,9 @@ async function deleteSampleConsistencyJob(request: DeleteSampleConsistencyJobReq
 }
 
 model DeleteSceneRequest {
-  sceneId?: string(name='SceneId', description='Scenario ID, which can be obtained by calling the ListScenes API.', example='3', position='Path'),
+  sceneId?: string(name='SceneId', description='The ID of the scenario. You can call the ListScenes operation to obtain the ID.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='Instance ID, which can be obtained by calling the ListInstances API.', example='pairec-cn-abcdefg1234', position='Query'),
+  instanceId?: string(name='InstanceId', description='Instance ID of the instance. You can call the ListInstances operation to obtain instance ID.', example='pairec-cn-abcdefg1234', position='Query'),
 }
 
 model DeleteSceneResponseBody = {
@@ -2576,20 +2601,20 @@ async function deleteScene(request: DeleteSceneRequest): DeleteSceneResponse {
 }
 
 model DeleteSubCrowdRequest {
-  crowdId: string(name='CrowdId', description='The crowd ID. You can obtain this ID by calling the `ListCrowds` operation.
+  crowdId: string(name='CrowdId', description='The crowd ID. You can obtain the ID by calling the ListCrowds operation.
 
 This parameter is required.', example='3', position='Path'),
-  subCrowdId: string(name='SubCrowdId', description='The subcrowd ID. You can obtain this ID by calling the `ListSubCrowds` operation.
+  subCrowdId: string(name='SubCrowdId', description='The sub-crowd ID. You can obtain the ID by calling the ListSubCrowds operation.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The instance ID. You can obtain this ID by calling the `ListInstances` operation.
+  instanceId: string(name='InstanceId', description='The instance ID. You can obtain the ID by calling the ListInstances operation.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Query'),
 }
 
 model DeleteSubCrowdResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='EE97D06A-2AA0-5AD9-B6CF-8A267924D691'),
+  requestId?: string(name='RequestId', description='Id of the request', example='EE97D06A-2AA0-5AD9-B6CF-8A267924D691'),
 }
 
 model DeleteSubCrowdResponse = {
@@ -2637,7 +2662,7 @@ async function deleteTableMeta(request: DeleteTableMetaRequest): DeleteTableMeta
 }
 
 model DeleteTrafficControlTargetRequest {
-  trafficControlTargetId?: string(name='TrafficControlTargetId', description='The traffic control target ID.', example='1', position='Path'),
+  trafficControlTargetId?: string(name='TrafficControlTargetId', description='The ID of the traffic control target.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec-1324***', position='Query'),
 }
@@ -2653,10 +2678,10 @@ model DeleteTrafficControlTargetResponse = {
 }
 
 /**
-  * @description ## Request
-  * - **TrafficControlTargetId** is a required path parameter that specifies the traffic control target to delete.
-  * - **InstanceId** is a required query parameter that specifies the instance ID for this operation.
-  * - A successful response includes a `RequestId` field to track the request.
+  * @description ## Request description
+  * - **TrafficControlTargetId** is a required path parameter used as the identity of the specific traffic control target to delete.
+  * - **InstanceId** is a required query parameter that specifies the instance ID to execute the operation.
+  * - A successful response returns a `RequestId` field for tracking the request.
   * @param request  the request parameters of DeleteTrafficControlTarget  DeleteTrafficControlTargetRequest
   * @return DeleteTrafficControlTargetResponse
  */
@@ -2666,13 +2691,13 @@ async function deleteTrafficControlTarget(request: DeleteTrafficControlTargetReq
 }
 
 model DeleteTrafficControlTaskRequest {
-  trafficControlTaskId?: string(name='TrafficControlTaskId', description='The ID of the traffic control task.', example='1', position='Path'),
+  trafficControlTaskId?: string(name='TrafficControlTaskId', description='The traffic control task ID.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance.', example='pairec-1324***', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec-1324***', position='Query'),
 }
 
 model DeleteTrafficControlTaskResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
+  requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
 }
 
 model DeleteTrafficControlTaskResponse = {
@@ -2682,10 +2707,10 @@ model DeleteTrafficControlTaskResponse = {
 }
 
 /**
-  * @description ## Description
-  * - This API uses `TrafficControlTaskId` and `InstanceId` to delete a traffic control task.
-  * - Ensure the `TrafficControlTaskId` and `InstanceId` are correct, or the operation may fail.
-  * - This operation is irreversible. Proceed with caution.
+  * @description ## Request description
+  * - This API locates and deletes a specific traffic control task by providing the `TrafficControlTaskId` and `InstanceId`.
+  * - Ensure that the provided `TrafficControlTaskId` and `InstanceId` are correct. Otherwise, the deletion may fail.
+  * - Once the deletion is complete, the related data cannot be recovered. Proceed with caution.
   * @param request  the request parameters of DeleteTrafficControlTask  DeleteTrafficControlTaskRequest
   * @return DeleteTrafficControlTaskResponse
  */
@@ -2767,17 +2792,15 @@ async function exportRecallManagementTable(request: ExportRecallManagementTableR
 model GenerateAlgorithmCustomizationScriptRequest {
   algorithmCustomizationId?: string(name='AlgorithmCustomizationId', description='The algorithm customization ID.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  deployMode?: string(name='DeployMode', description='The deployment mode. Valid values:
-
-- **EasyDeploy**: Performs a one-click deployment.
-
-- **GenerateScript**: Generates a deployment script.', example='EasyDeploy', position='Body'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance. To obtain this ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).', example='pairec-test-xxx', position='Body'),
-  moduleFieldTypes?: map[string]any(name='ModuleFieldTypes', description='The data types of fields in the JSON configuration.', example='{"item_table":"array"}', position='Body'),
+  deployMode?: string(name='DeployMode', description='Specifies whether to generate a deployment script or perform one-click deployment. Valid values:
+- EasyDeploy: one-click deployment
+- GenerateScript: script generation', example='EasyDeploy', position='Body'),
+  instanceId?: string(name='InstanceId', description='The instance ID. For information about how to obtain the instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).', example='pairec-test-xxx', position='Body'),
+  moduleFieldTypes?: map[string]any(name='ModuleFieldTypes', description='The types of fields in the JSON configuration.', example='{"item_table":"array"}', position='Body'),
 }
 
 model GenerateAlgorithmCustomizationScriptResponseBody = {
-  logId?: string(name='LogId', description='The log ID.', example='4'),
+  logId?: string(name='LogId', description='The ID of the generated log.', example='4'),
   ossAddress?: string(name='OssAddress', description='The OSS address of the generated package.', example='oss:xxxx'),
   requestId?: string(name='RequestId', description='The request ID.', example='6CF1E160-3F36-5E73-A170-C75504F05BBC'),
 }
@@ -2802,7 +2825,7 @@ model GenerateTrafficControlTaskCodeRequest {
 
 This parameter is required.', example='7', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  environment?: string(name='Environment', description='The environment type. Valid values: `Daily` (daily environment), `Pre` (pre-release environment), and `Prod` (production environment).', example='Daily', position='Body'),
+  environment?: string(name='Environment', description='The environment to which the parameter belongs. Valid values: Daily (daily environment), Pre (pre-release environment), and Prod (production environment).', example='Daily', position='Body'),
   instanceId: string(name='InstanceId', description='The instance ID.
 
 This parameter is required.', example='pairec-test1', position='Body'),
@@ -2810,7 +2833,7 @@ This parameter is required.', example='pairec-test1', position='Body'),
 
 model GenerateTrafficControlTaskCodeResponseBody = {
   code?: string(name='Code', description='The generated Flink code.', example='Create Table xxx.......'),
-  preNeedConfig?: boolean(name='PreNeedConfig', description='Indicates whether the engine configuration for the pre-release environment is incomplete.', example='False'),
+  preNeedConfig?: boolean(name='PreNeedConfig', description='Indicates whether configuration information is missing for the engine configuration in the pre-release environment.', example='False'),
   requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
 }
 
@@ -2821,10 +2844,10 @@ model GenerateTrafficControlTaskCodeResponse = {
 }
 
 /**
-  * @description ## Description
-  * - This API generates Flink code for a specified traffic control task ID, instance ID, and environment type.
-  * - The `Environment` parameter accepts three values: `Daily` for the daily environment, `Pre` for the pre-release environment, and `Prod` for the production environment.
-  * - Check the `PreNeedConfig` field in the response. A `true` value indicates that necessary configuration information might be missing in the pre-release environment. If this occurs, add or adjust the required settings.
+  * @description ## Request description
+  * - This API operation generates the corresponding Flink code based on the specified traffic control task ID, instance ID, and environment type.
+  * - The Environment parameter supports three values: Daily (daily environment), Pre (pre-release environment), and Prod (production environment). Make sure to select the correct value to meet your requirements.
+  * - Check the PreNeedConfig field in the response. If the value is true, it indicates that required configuration information may be missing in the pre-release environment. Adjust or supplement the relevant settings as needed.
   * @param request  the request parameters of GenerateTrafficControlTaskCode  GenerateTrafficControlTaskCodeRequest
   * @return GenerateTrafficControlTaskCodeResponse
  */
@@ -2916,24 +2939,24 @@ async function getABMetric(request: GetABMetricRequest): GetABMetricResponse {
 }
 
 model GetABMetricGroupRequest {
-  ABMetricGroupId: string(name='ABMetricGroupId', description='The metric group ID.
+  ABMetricGroupId: string(name='ABMetricGroupId', description='The ID of the metric group.
 
 This parameter is required.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The instance ID. You can get this ID by calling the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation.
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation to query instance ID.
 
 This parameter is required.', example='pairec-cn-test1', position='Query'),
 }
 
 model GetABMetricGroupResponseBody = {
-  ABMetricIds?: string(name='ABMetricIds', description='A comma-separated list of A/B testing metric IDs.', example='1,2'),
-  ABMetricNames?: string(name='ABMetricNames', description='A comma-separated list of A/B testing metric names.', example='pv,uv'),
-  description?: string(name='Description', description='The metric group description.', example='访问量相关指标'),
-  name?: string(name='Name', description='The metric group name.', example='visits'),
+  ABMetricIds?: string(name='ABMetricIds', description='The IDs of the ABTest metrics, separated by commas.', example='1,2'),
+  ABMetricNames?: string(name='ABMetricNames', description='The names of the ABTest metrics, separated by commas.', example='pv,uv'),
+  description?: string(name='Description', description='The description of the metric group.', example='Traffic-related metrics'),
+  name?: string(name='Name', description='The name of the metric group.', example='visits'),
   owner?: string(name='Owner', description='The owner.', example='2799614***'),
-  realtime?: boolean(name='Realtime', description='Whether the metric group is a real-time metric group.', example='false'),
-  requestId?: string(name='RequestId', description='The request ID.', example='01D22D08-BA20-5F35-8302-99115F288220'),
-  sceneId?: string(name='SceneId', description='The scene ID. You can get this ID by calling the [ListScenes](https://icms.alibaba-inc.com/content/learn/pai?l=1\\\\&m=16768\\\\&n=4298955) operation.', example='1'),
+  realtime?: boolean(name='Realtime', description='Indicates whether the metric group is real-time.', example='false'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='01D22D08-BA20-5F35-8302-99115F288220'),
+  sceneId?: string(name='SceneId', description='The ID of the scene. You can obtain the ID by calling the [ListScenes](https://icms.alibaba-inc.com/content/learn/pai?l=1&m=16768&n=4298955) operation.', example='1'),
 }
 
 model GetABMetricGroupResponse = {
@@ -3083,33 +3106,37 @@ async function getEngineConfig(request: GetEngineConfigRequest): GetEngineConfig
 }
 
 model GetExperimentRequest {
-  experimentId: string(name='ExperimentId', description='The experiment ID. You can obtain this ID by calling the ListExperiments operation.
+  experimentId: string(name='ExperimentId', description='The ID of the experiment. You can call the ListExperiments operation to obtain the ID.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The instance ID. You can obtain this ID by calling the ListInstances operation.
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the ListInstances operation to obtain instance ID.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Query'),
 }
 
 model GetExperimentResponseBody = {
-  aliasExperimentId?: string(name='AliasExperimentId', description='The alias of the experiment.', example='L1#EG1#E1'),
-  buckets?: string(name='Buckets', description='A comma-separated list of bucket numbers.', example='1,2,3'),
-  config?: string(name='Config', description='The experiment configuration, in JSON format.', example='{"RankBy": "Score"}'),
-  debugCrowdId?: string(name='DebugCrowdId', description='The debug crowd ID.', example='3'),
-  debugUsers?: string(name='DebugUsers', description='The UIDs of debug users, which can be the UIDs of an Alibaba Cloud main account or a RAM user. Separate multiple UIDs with a comma (,).', example='1124512470******,1124512471******,1124512472******'),
-  description?: string(name='Description', description='The experiment description.', example='This is a test.'),
-  experimentGroupId?: string(name='ExperimentGroupId', description='The experiment group ID.', example='3'),
-  flowPercent?: int32(name='FlowPercent', description='The traffic percentage.', example='100'),
-  gmtCreateTime?: string(name='GmtCreateTime', description='The creation time, in ISO 8601 format.', example='2021-12-15T23:24:33.132+08:00'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='The modification time, in ISO 8601 format.', example='2021-12-15T23:24:33.132+08:00'),
-  laboratoryId?: string(name='LaboratoryId', description='The laboratory ID.', example='3'),
-  layerId?: string(name='LayerId', description='The layer ID.', example='3'),
-  name?: string(name='Name', description='The experiment name.', example='experiment_test1'),
-  requestId?: string(name='RequestId', description='The request ID.', example='74D958EF-3598-56FA-8296-FF1575CE43DF'),
-  sceneId?: string(name='SceneId', description='The scene ID.', example='3'),
-  status?: string(name='Status', description='The status of the experiment. Valid values:<br>● Offline<br>● Online<br><br>', example='Offline'),
-  type?: string(name='Type', description='The type of the experiment. Valid values:<br>● Baseline: a baseline experiment.<br>● Normal: a normal experiment.<br><br>', example='Baseline'),
+  aliasExperimentId?: string(name='AliasExperimentId', description='The alias of the experiment ID.', example='L1#EG1#E1'),
+  buckets?: string(name='Buckets', description='The allocated bucket numbers.', example='1,2,3'),
+  config?: string(name='Config', description='The configuration of the experiment.', example='{"RankBy": "Score"}'),
+  debugCrowdId?: string(name='DebugCrowdId', description='The ID of the debug crowd.', example='3'),
+  debugUsers?: string(name='DebugUsers', description='The debug users. The value must be the UIDs of Alibaba Cloud accounts or RAM users. Separate multiple UIDs with commas.', example='1124512470******,1124512471******,1124512472******'),
+  description?: string(name='Description', description='The description of the experiment.', example='This is a test.'),
+  experimentGroupId?: string(name='ExperimentGroupId', description='The ID of the experiment group.', example='3'),
+  flowPercent?: int32(name='FlowPercent', description='The traffic allocation percentage.', example='100'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='The creation time.', example='2021-12-15T23:24:33.132+08:00'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='The update time.', example='2021-12-15T23:24:33.132+08:00'),
+  laboratoryId?: string(name='LaboratoryId', description='The ID of the laboratory.', example='3'),
+  layerId?: string(name='LayerId', description='The ID of the layer.', example='3'),
+  name?: string(name='Name', description='The name of the experiment.', example='experiment_test1'),
+  requestId?: string(name='RequestId', description='Id of the request', example='74D958EF-3598-56FA-8296-FF1575CE43DF'),
+  sceneId?: string(name='SceneId', description='The ID of the scene.', example='3'),
+  status?: string(name='Status', description='The status filter. Valid values:
+- Offline: offline
+- Online: online', example='Offline'),
+  type?: string(name='Type', description='The type of the experiment. Valid values:
+- Baseline: baseline experiment
+- Normal: normal experiment', example='Baseline'),
 }
 
 model GetExperimentResponse = {
@@ -3128,11 +3155,11 @@ async function getExperiment(request: GetExperimentRequest): GetExperimentRespon
 }
 
 model GetExperimentGroupRequest {
-  experimentGroupId: string(name='ExperimentGroupId', description='The ID of the experiment group. You can call the `ListExperimentGroups` operation to obtain this ID.
+  experimentGroupId: string(name='ExperimentGroupId', description='The ID of the experiment group. You can obtain the ID by calling the ListExperimentGroups operation.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The ID of the instance. You can call the `ListInstances` operation to obtain this ID.
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can obtain instance ID by calling the ListInstances operation.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Query'),
 }
@@ -3140,37 +3167,33 @@ This parameter is required.', example='pairec-cn-abcdefg1234', position='Query')
 model GetExperimentGroupResponseBody = {
   config?: string(name='Config', description='The configuration of the experiment group.', example='{"RankBy": "Score"}'),
   crowdId?: string(name='CrowdId', description='The ID of the crowd.', example='3'),
-  crowdTargetType?: string(name='CrowdTargetType', description='The method for targeting traffic to the experiment group. Valid values:
-
-- `All`: all traffic
-
-- `Filter`: traffic that matches the filter
-
-- `CrowdId`: traffic from the specified crowd
-
-- `Random`: a random percentage of traffic', example='All'),
+  crowdTargetType?: string(name='CrowdTargetType', description='The type of traffic targeting for the experiment group. Valid values:
+- All: All traffic.
+- Filter: Traffic that uses filter conditions.
+- CrowdId: Traffic targeted by a specified crowd ID.
+- Random: Random traffic based on a percentage.', example='All'),
   debugCrowdId?: string(name='DebugCrowdId', description='The ID of the debug crowd.', example='4'),
-  debugUsers?: string(name='DebugUsers', description='The user IDs for debugging, separated by commas.', example='1124512470******,1124512471******,1124512472******'),
+  debugUsers?: string(name='DebugUsers', description='The debug users. Separate multiple users with commas.', example='1124512470******,1124512471******,1124512472******'),
   description?: string(name='Description', description='The description of the experiment group.', example='This is a test.'),
-  distributionTimeDuration?: int32(name='DistributionTimeDuration', description='The distribution duration.', example='5'),
-  distributionType?: string(name='DistributionType', description='The traffic distribution method.
-● `UserId`: Distributes traffic by user ID.
-● `TimeDuration`: Distributes traffic by time period.', example='UserId'),
-  filter?: string(name='Filter', description='The filter.', example='gender=female'),
-  holdingBuckets?: string(name='HoldingBuckets', description='The bucket IDs that correspond to the `RandomFlow` percentage. This parameter is returned only when `CrowdTargetType` is set to `Random`.', example='1,2,3,4'),
+  distributionTimeDuration?: int32(name='DistributionTimeDuration', description='The time period for traffic distribution.', example='5'),
+  distributionType?: string(name='DistributionType', description='The traffic distribution method. Valid values:
+- UserId: User ID.
+- TimeDuration: Time period.', example='UserId'),
+  filter?: string(name='Filter', description='The filter conditions.', example='gender=female'),
+  holdingBuckets?: string(name='HoldingBuckets', description='The specific bucket numbers returned based on the RandomFlow value when the traffic targeting type is Random.', example='1,2,3,4'),
   laboratoryId?: string(name='LaboratoryId', description='The ID of the laboratory.', example='4'),
   layerId?: string(name='LayerId', description='The ID of the layer.', example='3'),
   name?: string(name='Name', description='The name of the experiment group.', example='experiment_group1'),
-  needAA?: boolean(name='NeedAA', description='Indicates whether an A/B test is required.', example='true'),
-  owner?: string(name='Owner', description='The owner of the experiment group.', example='1124512470******'),
-  randomFlow?: long(name='RandomFlow', description='The percentage of traffic from 0 to 100 that is randomly allocated to this experiment group. This parameter is returned only when `CrowdTargetType` is set to `Random`.', example='20'),
-  requestId?: string(name='RequestId', description='The request ID.', example='BDB621CB-A81E-5D39-8793-39A365CBCC74'),
-  reservedBuckets?: string(name='ReservedBuckets', description='The reserved bucket IDs.', example='1,2,3,4'),
+  needAA?: boolean(name='NeedAA', description='Indicates whether an AB experiment group is required.', example='true'),
+  owner?: string(name='Owner', description='The creator.', example='1124512470******'),
+  randomFlow?: long(name='RandomFlow', description='The percentage of random traffic used to match the experiment group when the traffic targeting type is Random. Valid values: 0 to 100.', example='20'),
+  requestId?: string(name='RequestId', description='Id of the request', example='BDB621CB-A81E-5D39-8793-39A365CBCC74'),
+  reservedBuckets?: string(name='ReservedBuckets', description='The reserved bucket numbers.', example='1,2,3,4'),
   sceneId?: string(name='SceneId', description='The ID of the scene.', example='1'),
   status?: string(name='Status', description='The status of the experiment group. Valid values:
-● `Offline`: The experiment group is not launched.
-● `Online`: The experiment group is launched.
-● `Pushed`: The experiment group is fully launched.', example='Offline'),
+- Offline: Not online.
+- Online: Online.
+- Pushed: Fully rolled out.', example='Offline'),
 }
 
 model GetExperimentGroupResponse = {
@@ -3329,7 +3352,7 @@ model GetInstanceResponseBody = {
     dataManagements?: [ 
       {
         componentCode?: string(name='ComponentCode', description='The code of the component.', example='storage'),
-        meta?: map[string]any(name='Meta', description='The metadata.'),
+        meta?: map[string]any(name='Meta', description='The metadata.', example='""'),
         type?: string(name='Type', description='The type of the component.', example='OSS'),
       }
     ](name='DataManagements', description='The modeling environments.'),
@@ -3343,38 +3366,38 @@ model GetInstanceResponseBody = {
     monitors?: [ 
       {
         componentCode?: string(name='ComponentCode', description='The code of the component.', example='featuresets'),
-        meta?: map[string]any(name='Meta', description='The metadata.'),
+        meta?: map[string]any(name='Meta', description='The metadata.', example='""'),
         type?: string(name='Type', description='The type of the component.', example='Platform'),
       }
     ](name='Monitors', description='The supporting features.'),
   }(name='Config', description='The configuration of the instance.'),
-  expiredTime?: string(name='ExpiredTime', description='The time when the instance expires. The time is displayed in UTC and follows the ISO 8601 standard.', example='2022-12-14T00:00:00Z'),
+  expiredTime?: string(name='ExpiredTime', description='The time when the instance expires. The time follows the ISO 8601 standard and is displayed in UTC.', example='2022-12-14T00:00:00Z'),
   featureStoreInfo?: {
-    featureDBStatus?: string(name='FeatureDBStatus', description='The status of FeatureDB.'),
-    instanceId?: string(name='InstanceId', description='The ID of the Feature Store instance.'),
+    featureDBStatus?: string(name='FeatureDBStatus', description='The status of FeatureDB.', example='""'),
+    instanceId?: string(name='InstanceId', description='The ID of the Feature Store instance.', example='learn-pairec-xxx'),
   }(name='FeatureStoreInfo', description='The Feature Store information.'),
-  gmtCreateTime?: string(name='GmtCreateTime', description='The time when the instance was created. The time is displayed in UTC and follows the ISO 8601 standard.', example='2022-10-13T04:55:12Z'),
-  gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the instance was updated. The time is displayed in UTC and follows the ISO 8601 standard.', example='2022-11-05T09:02:30Z'),
+  gmtCreateTime?: string(name='GmtCreateTime', description='The time when the instance was created. The time follows the ISO 8601 standard and is displayed in UTC.', example='2022-10-13T04:55:12Z'),
+  gmtModifiedTime?: string(name='GmtModifiedTime', description='The time when the instance was updated. The time follows the ISO 8601 standard and is displayed in UTC.', example='2022-11-05T09:02:30Z'),
   instanceId?: string(name='InstanceId', description='The ID of the instance.', example='pairec-test1'),
   operatingTool?: {
     isEnable?: boolean(name='IsEnable', description='Specifies whether the operations tool is enabled for the instance. Valid values:
 - True: Enabled.
 - False: Disabled.', example='True'),
-  }(name='OperatingTool', description='The configurations of the operations tool.'),
+  }(name='OperatingTool', description='The configurations related to the operations tool.'),
   recommendCustomization?: {
-    isEnable?: boolean(name='IsEnable', description='Specifies whether recommendation customization is enabled.'),
+    isEnable?: boolean(name='IsEnable', description='Specifies whether recommendation customization is enabled.', example='false'),
   }(name='RecommendCustomization', description='The recommendation customization configurations.'),
   regionId?: string(name='RegionId', description='The region ID. Valid values:
-- cn-shenzhen: Shenzhen.
-- cn-hangzhou: Hangzhou.
-- cn-beijing: Beijing.
-- cn-shanghai: Shanghai.', example='cn-shenzhen'),
+- cn-shenzhen: Shenzhen
+- cn-hangzhou: Hangzhou
+- cn-beijing: Beijing
+- cn-shanghai: Shanghai', example='cn-shenzhen'),
   requestId?: string(name='RequestId', description='The ID of the request.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
   status?: string(name='Status', description='The instance status. Valid values:
-- Initializing: Initializing.
-- Stopped: Stopped.
-- Running: Running.', example='Initializing'),
-  type?: string(name='Type', description='The instance type. Valid values:
+- Initializing: Initialization.
+- Stopped: The service is stopped.
+- Running: The instance is running.', example='Initializing'),
+  type?: string(name='Type', description='The type of the instance. Valid values:
 - basic: Basic Edition.
 - highleve: Upgraded Edition.
 - advance: Advanced Edition.
@@ -3513,30 +3536,40 @@ async function getInstanceResourceTable(request: GetInstanceResourceTableRequest
 }
 
 model GetLaboratoryRequest {
-  laboratoryId: string(name='LaboratoryId', description='The laboratory ID. You can obtain this ID by calling the ListLaboratories operation.
+  laboratoryId: string(name='LaboratoryId', description='The ID of the laboratory. You can call the ListLaboratories operation to obtain the ID.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The instance ID. You can obtain this ID by calling the ListInstances operation.
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the ListInstances operation to obtain instance ID.
 
 This parameter is required.', example='pairec-test1', position='Query'),
 }
 
 model GetLaboratoryResponseBody = {
   bucketCount?: int32(name='BucketCount', description='The number of buckets.', example='100'),
-  bucketType?: string(name='BucketType', description='The bucketing method. Valid values:', example='Filter'),
-  buckets?: string(name='Buckets', description='The assigned buckets.', example='1,2,3,10-20'),
-  crowdId?: string(name='CrowdId', description='The crowd ID.', example='3'),
-  debugCrowdId?: string(name='DebugCrowdId', description='The debug crowd ID.', example='3'),
+  bucketType?: string(name='BucketType', description='The bucketing method. Valid values:
+- Uid: UID bucketing (default).
+- UidHash: UID hashing.
+- Filter: Filter condition bucketing.', example='Filter'),
+  buckets?: string(name='Buckets', description='The assigned bucket numbers.', example='1,2,3,10-20'),
+  crowdId?: string(name='CrowdId', description='The ID of the crowd.', example='3'),
+  debugCrowdId?: string(name='DebugCrowdId', description='The ID of the debug crowd.', example='3'),
   debugUsers?: string(name='DebugUsers', description='The debug users.', example='user1,user2,user3'),
-  description?: string(name='Description', description='The laboratory description.', example='This is a test.'),
-  environment?: string(name='Environment', description='The environment. Valid values:', example='Daily'),
-  filter?: string(name='Filter', description='The filter.', example='filter=xxx'),
-  name?: string(name='Name', description='The laboratory name.', example='laboratory1'),
-  requestId?: string(name='RequestId', description='The request ID.', example='1C0898E5-9220-5443-B2D9-445FF0688215'),
+  description?: string(name='Description', description='The description of the laboratory.', example='This is a test.'),
+  environment?: string(name='Environment', description='The runtime environment. Valid values:
+- Daily: Daily environment.
+- Pre: Staging environment.
+- Prod: Production environment.', example='Daily'),
+  filter?: string(name='Filter', description='The filter condition.', example='filter=xxx'),
+  name?: string(name='Name', description='The name of the laboratory.', example='laboratory1'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1C0898E5-9220-5443-B2D9-445FF0688215'),
   sceneId?: string(name='SceneId', description='The scene ID.', example='3'),
-  status?: string(name='Status', description='The status of the laboratory. Valid values:', example='Offline'),
-  type?: string(name='Type', description='The laboratory type. Valid values:', example='Base'),
+  status?: string(name='Status', description='The status. Valid values:
+- Offline: Not online.
+- Online: Online.', example='Offline'),
+  type?: string(name='Type', description='The type of the laboratory. Valid values:
+- Base
+- NonBase', example='Base'),
 }
 
 model GetLaboratoryResponse = {
@@ -3591,27 +3624,27 @@ async function getLayer(request: GetLayerRequest): GetLayerResponse {
 
 model GetRecallManagementConfigRequest {
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='The instance ID. You can call the ListInstances operation to obtain the instance ID.', example='learn-pairec-xxx', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance. You can call the ListInstances operation to obtain the instance ID.', example='learn-pairec-xxx', position='Query'),
 }
 
 model GetRecallManagementConfigResponseBody = {
   networkConfigs?: [ 
     {
-      privateLinkAddress?: string(name='PrivateLinkAddress', description='The private endpoint.', example='http://xxx'),
-      publicEndpoint?: string(name='PublicEndpoint', description='The public endpoint.', example='""'),
+      privateLinkAddress?: string(name='PrivateLinkAddress', description='The private network endpoint.', example='http://xxx'),
+      publicEndpoint?: string(name='PublicEndpoint', description='The public network connection endpoint.', example='""'),
       status?: string(name='Status', description='The network connectivity status. Valid values:
 
-- Connecting: connecting.
+- Connecting: Connecting.
 
-- Connected: connected.
+- Connected: Connected.
 
-- ConnectionFailed: connection failed.
+- ConnectionFailed: Connection failed.
 
-- Updating: updating.
+- Updating: Updating.
 
-- UpdateFailed: update failed.', example='Connecting'),
+- UpdateFailed: Update failed.', example='Connecting'),
       token?: string(name='Token', description='The public network connection token.', example='""'),
-      vpcId?: string(name='VpcId', description='The virtual private cloud (VPC) ID.', example='vpc-xxx'),
+      vpcId?: string(name='VpcId', description='The ID of the virtual private cloud (VPC).', example='vpc-xxx'),
       vswitchIds?: map[string]string(name='VswitchIds', description='The zones.'),
     }
   ](name='NetworkConfigs', description='The network configuration information.'),
@@ -4049,21 +4082,21 @@ async function getSampleConsistencyJob(request: GetSampleConsistencyJobRequest):
 }
 
 model GetSceneRequest {
-  sceneId?: string(name='SceneId', description='The scene ID. You can get this ID by calling the ListScenes operation.', example='3', position='Path'),
+  sceneId?: string(name='SceneId', description='The scenario ID. You can obtain this ID by calling the ListScenes operation.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='The instance ID. You can get this ID by calling the ListInstances operation.', example='pairec-cn-abcdefg1234', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID. You can obtain this ID by calling the ListInstances operation.', example='pairec-cn-abcdefg1234', position='Query'),
 }
 
 model GetSceneResponseBody = {
-  description?: string(name='Description', description='The scene description.', example='This is a test.'),
+  description?: string(name='Description', description='The description of the scenario.', example='This is a test.'),
   flows?: [ 
     {
-      flowCode?: string(name='FlowCode', description='The flow code.', example='liuliang1'),
-      flowName?: string(name='FlowName', description='The flow name.', example='流量1'),
+      flowCode?: string(name='FlowCode', description='The code of the flow.', example='liuliang1'),
+      flowName?: string(name='FlowName', description='The name of the flow.', example='Flow 1'),
     }
-  ](name='Flows', description='A list of flows.'),
-  name?: string(name='Name', description='The scene name.', example='scene1'),
-  requestId?: string(name='RequestId', description='The request ID.', example='B8987BF7-6028-5B17-80E0-251B7BD67BBA'),
+  ](name='Flows', description='The list of flows.'),
+  name?: string(name='Name', description='The name of the scenario.', example='scene1'),
+  requestId?: string(name='RequestId', description='Id of the request', example='B8987BF7-6028-5B17-80E0-251B7BD67BBA'),
 }
 
 model GetSceneResponse = {
@@ -5337,12 +5370,12 @@ async function listFeatureConsistencyCheckJobFeatureReports(request: ListFeature
 }
 
 model ListFeatureConsistencyCheckJobScoreReportsRequest {
-  featureConsistencyCheckJobId: string(name='FeatureConsistencyCheckJobId', description='The ID of the feature consistency check job. To obtain the job ID, see [ListFeatureConsistencyCheckJobs](https://help.aliyun.com/document_detail/2557561.html).
+  featureConsistencyCheckJobId: string(name='FeatureConsistencyCheckJobId', description='The ID of the feature consistency check job report. The ID of the feature consistency check job. To obtain the job ID, see [ListFeatureConsistencyCheckJobs](https://help.aliyun.com/document_detail/2557561.html).
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  excludeRequestIds?: [ string ](name='ExcludeRequestIds', description='A list of request IDs to exclude from the feature comparison.', shrink='json', position='Query'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance. To obtain the instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).', example='pairec-cn-********', position='Query'),
+  excludeRequestIds?: [ string ](name='ExcludeRequestIds', description='The list of request IDs to exclude during feature comparison.', shrink='json', position='Query'),
+  instanceId?: string(name='InstanceId', description='The ID of the instance. For information about how to obtain the instance ID, see [ListInstances](https://help.aliyun.com/document_detail/2411819.html).', example='pairec-cn-********', position='Query'),
 }
 
 model ListFeatureConsistencyCheckJobScoreReportsResponseBody = {
@@ -5351,13 +5384,13 @@ model ListFeatureConsistencyCheckJobScoreReportsResponseBody = {
   reportsOfScoreDiff?: [ 
     {
       logItemId?: string(name='LogItemId', description='The item ID.', example='4'),
-      logRequestId?: string(name='LogRequestId', description='The request ID recorded in the log.', example='323'),
+      logRequestId?: string(name='LogRequestId', description='The request ID.', example='323'),
       logUserId?: string(name='LogUserId', description='The user ID.', example='3'),
       scoreDiff?: string(name='ScoreDiff', description='The score difference.', example='0.00000234'),
-      scoreDiffDetail?: string(name='ScoreDiffDetail', description='The score difference details.', example='{}'),
+      scoreDiffDetail?: string(name='ScoreDiffDetail', description='The score comparison details.', example='{}'),
     }
-  ](name='ReportsOfScoreDiff', description='A list of score difference reports.'),
-  requestId?: string(name='RequestId', description='The ID of the request.', example='F0AB6527-093F-5C44-B3BD-42C8C210C619'),
+  ](name='ReportsOfScoreDiff', description='The score comparison report.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='F0AB6527-093F-5C44-B3BD-42C8C210C619'),
 }
 
 model ListFeatureConsistencyCheckJobScoreReportsResponse = {
@@ -5437,7 +5470,7 @@ model ListInstanceResourceSchemasRequest {
   instanceId?: string(name='InstanceId', description='The instance ID.', example='featureStore-cn-test1', position='Path'),
   resourceId?: string(name='ResourceId', description='The resource ID.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  schemaName?: string(name='SchemaName', description='Filters schemas by a name prefix.', example='default', position='Query'),
+  schemaName?: string(name='SchemaName', description='The prefix used to filter schema names.', example='default', position='Query'),
 }
 
 model ListInstanceResourceSchemasResponseBody = {
@@ -5447,7 +5480,7 @@ model ListInstanceResourceSchemasResponseBody = {
       schemaName?: string(name='SchemaName', description='The schema name.', example='default'),
     }
   ](name='Schemas', description='The list of schemas.'),
-  totalCount?: long(name='TotalCount', description='The total count of schemas.', example='10'),
+  totalCount?: long(name='TotalCount', description='The total number of schemas.', example='10'),
 }
 
 model ListInstanceResourceSchemasResponse = {
@@ -5457,8 +5490,8 @@ model ListInstanceResourceSchemasResponse = {
 }
 
 /**
-  * @description ## Description
-  * To retrieve a list of all schemas for a specified resource, provide the instance ID (InstanceId) and resource ID (ResourceId). Use the optional SchemaName parameter to filter the schemas by a name prefix.
+  * @description ## Request description
+  * Provide the instance ID (InstanceId) and resource ID (ResourceId) to retrieve a list of all schemas for the instance resource. You can use the optional SchemaName parameter to filter results by name prefix and locate the required schemas more precisely.
   * @param request  the request parameters of ListInstanceResourceSchemas  ListInstanceResourceSchemasRequest
   * @return ListInstanceResourceSchemasResponse
  */
@@ -5502,20 +5535,20 @@ async function listInstanceResourceTables(request: ListInstanceResourceTablesReq
 }
 
 model ListInstanceResourcesRequest {
-  instanceId: string(name='InstanceId', description='The instance ID. You can obtain the instance ID by calling the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation.
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation to obtain instance ID.
 
 This parameter is required.', example='pairec-cn-test1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  category?: string(name='Category', description='The category of the resource. Valid values:
+  category?: string(name='Category', description='The resource category. Valid values:
 
 - DataManagement
 
 - Engine
 
 - Monitor', example='DataManagement', position='Query'),
-  group?: string(name='Group', description='The group of the resource.
+  group?: string(name='Group', description='The resource group.
 
-If `Category` is `DataManagement`, valid values are:
+If the resource category is DataManagement, valid values are:
 
 - storage
 
@@ -5525,7 +5558,7 @@ If `Category` is `DataManagement`, valid values are:
 
 - modeltrain
 
-If `Category` is `Engine`, valid values are:
+If the resource category is Engine, valid values are:
 
 - feature
 
@@ -5535,7 +5568,7 @@ If `Category` is `Engine`, valid values are:
 
 - recengine
 
-If `Category` is `Monitor`, valid values are:
+If the resource category is Monitor, valid values are:
 
 - logs
 
@@ -5544,7 +5577,7 @@ If `Category` is `Monitor`, valid values are:
 - coldstart
 
 - deploy', example='storage', position='Query'),
-  type?: string(name='Type', description='The type of the resource. If specified, only resources of this type are returned.
+  type?: string(name='Type', description='The resource type filter. Valid values:
 
 - Hologres
 
@@ -5560,9 +5593,9 @@ If `Category` is `Monitor`, valid values are:
 
 - DataHub
 
-- ApsaraMQ for Kafka
+- Kafka
 
-- Realtime Compute for Apache Flink
+- Flinkvvp
 
 - ACR
 
@@ -5574,28 +5607,28 @@ If `Category` is `Monitor`, valid values are:
 
 - MaxCompute
 
-- Graph Compute Service
+- GraphCompute
 
-- ApsaraDB for Redis', example='OSS', position='Query'),
+- Redis', example='OSS', position='Query'),
 }
 
 model ListInstanceResourcesResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='9763624B-5FBB-5E3A-9193-B1ADB554CEAE'),
   resources?: [ 
     {
-      category?: string(name='Category', description='The category of the resource. Valid values:
+      category?: string(name='Category', description='The resource category. Valid values:
 
 - DataManagement
 
 - Engine
 
 - Monitor', example='DataManagement'),
-      config?: string(name='Config', description='The configuration of the resource.', example='{}'),
+      config?: string(name='Config', description='The configuration information of the resource.', example='{}'),
       gmtCreateAt?: string(name='GmtCreateAt', description='The creation time.', example='2020-10-13 17:34:52'),
       gmtModifiedAt?: string(name='GmtModifiedAt', description='The update time.', example='2020-10-13 17:34:52'),
-      group?: string(name='Group', description='The group of the resource.
+      group?: string(name='Group', description='The resource group.
 
-If `Category` is `DataManagement`, valid values are:
+If the resource category is DataManagement, valid values are:
 
 - storage
 
@@ -5605,7 +5638,7 @@ If `Category` is `DataManagement`, valid values are:
 
 - modeltrain
 
-If `Category` is `Engine`, valid values are:
+If the resource category is Engine, valid values are:
 
 - feature
 
@@ -5615,7 +5648,7 @@ If `Category` is `Engine`, valid values are:
 
 - recengine
 
-If `Category` is `Monitor`, valid values are:
+If the resource category is Monitor, valid values are:
 
 - logs
 
@@ -5625,7 +5658,7 @@ If `Category` is `Monitor`, valid values are:
 
 - deploy', example='storage'),
       resourceId?: string(name='ResourceId', description='The resource ID.', example='reso-2s416t***'),
-      type?: string(name='Type', description='The type of the resource.
+      type?: string(name='Type', description='The resource type. Valid values:
 
 - Hologres
 
@@ -5641,9 +5674,9 @@ If `Category` is `Monitor`, valid values are:
 
 - DataHub
 
-- ApsaraMQ for Kafka
+- Kafka
 
-- Realtime Compute for Apache Flink
+- Flinkvvp
 
 - ACR
 
@@ -5655,12 +5688,12 @@ If `Category` is `Monitor`, valid values are:
 
 - MaxCompute
 
-- Graph Compute Service
+- GraphCompute
 
-- ApsaraDB for Redis', example='OSS'),
-      uri?: string(name='Uri', description='The resource URI.', example='bucket-test-123'),
+- Redis', example='OSS'),
+      uri?: string(name='Uri', description='The URI of the resource.', example='bucket-test-123'),
     }
-  ](name='Resources', description='A list of resource objects.'),
+  ](name='Resources', description='The list of resource objects.'),
   totalCount?: long(name='TotalCount', description='The total number of resources.', example='10'),
 }
 
@@ -5888,18 +5921,18 @@ async function listLayers(request: ListLayersRequest): ListLayersResponse {
 
 model ListParamsRequest {
   regionId?: string(name='RegionId', position='Host'),
-  encrypted?: boolean(name='Encrypted', position='Query'),
+  encrypted?: boolean(name='Encrypted', description='Specifies whether the parameter is encrypted.', example='false', position='Query'),
   environment?: string(name='Environment', description='The environment to which the parameter belongs. Valid values:
 - Daily: daily environment
-- Pre: pre-release environment
+- Pre: staging environment
 - Prod: production environment', example='Daily', position='Query'),
-  instanceId: string(name='InstanceId', description='The instance ID. You can call the ListInstances operation to obtain the instance ID.
+  instanceId: string(name='InstanceId', description='The instance ID. You can obtain this ID by calling the ListInstances operation.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Query'),
-  name?: string(name='Name', description='The parameter name.', example='home', position='Query'),
+  name?: string(name='Name', description='The name of the parameter.', example='home', position='Query'),
   pageNumber?: int32(name='PageNumber', description='The page number.', example='1', position='Query'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='50', position='Query'),
-  sceneId: string(name='SceneId', description='The scene ID. You can call the ListScenes operation to obtain the scene ID.
+  pageSize?: int32(name='PageSize', description='The page size.', example='50', position='Query'),
+  sceneId: string(name='SceneId', description='The scene ID. You can obtain this ID by calling the ListScenes operation.
 
 This parameter is required.', example='3', position='Query'),
 }
@@ -5909,12 +5942,12 @@ model ListParamsResponseBody = {
     {
       environment?: string(name='Environment', description='The environment to which the parameter belongs. Valid values:
 - Daily: daily environment
-- Prepub: pre-release environment
+- Prepub: staging environment
 - Product: production environment', example='Daily'),
-      gmtModifiedTime?: string(name='GmtModifiedTime', description='The update time. The time is formatted in ISO 8601 and includes the time zone offset.', example='2021-12-15T23:24:33.132+08:00'),
-      name?: string(name='Name', description='The parameter name.', example='home'),
+      gmtModifiedTime?: string(name='GmtModifiedTime', description='The update time. The time follows the ISO 8601 standard and includes the time zone offset.', example='2021-12-15T23:24:33.132+08:00'),
+      name?: string(name='Name', description='The name of the parameter.', example='home'),
       paramId?: string(name='ParamId', description='The parameter ID.', example='4'),
-      value?: string(name='Value', description='The parameter value.', example='house'),
+      value?: string(name='Value', description='The value of the parameter.', example='house'),
     }
   ](name='Params', description='The list of parameters.'),
   requestId?: string(name='RequestId', description='Id of the request', example='A2D07551-38DA-531E-9B22-877D1D86A579'),
@@ -6339,26 +6372,26 @@ async function listSampleConsistencyJobs(request: ListSampleConsistencyJobsReque
 
 model ListScenesRequest {
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance. You can obtain this ID by calling the `ListInstances` operation.', example='pairec-cn-abcdefg1234', position='Query'),
-  name?: string(name='Name', description='The name of the scene to use as a filter.', example='scene1', position='Query'),
+  instanceId?: string(name='InstanceId', description='The instance ID. You can call the ListInstances operation to obtain the instance ID.', example='pairec-cn-abcdefg1234', position='Query'),
+  name?: string(name='Name', description='The scene name filter.', example='scene1', position='Query'),
 }
 
 model ListScenesResponseBody = {
-  requestId?: string(name='RequestId', description='The unique identifier for the request.', example='B8987BF7-6028-5B17-80E0-251B7BD67BBA'),
+  requestId?: string(name='RequestId', description='Id of the request', example='B8987BF7-6028-5B17-80E0-251B7BD67BBA'),
   scenes?: [ 
     {
-      description?: string(name='Description', description='The description of the scene.', example='This is a test.'),
+      description?: string(name='Description', description='The scene description.', example='This is a test.'),
       flows?: [ 
         {
-          flowCode?: string(name='FlowCode', description='The code of the flow.', example='liuliang1'),
-          flowName?: string(name='FlowName', description='The name of the flow.', example='流量1'),
+          flowCode?: string(name='FlowCode', description='The flow code.', example='liuliang1'),
+          flowName?: string(name='FlowName', description='The flow name.', example='Flow 1'),
         }
-      ](name='Flows', description='The list of flows associated with the scene.'),
-      name?: string(name='Name', description='The name of the scene.', example='scene1'),
-      sceneId?: string(name='SceneId', description='The unique ID of the scene.', example='3'),
+      ](name='Flows', description='The list of flows.'),
+      name?: string(name='Name', description='The scene name.', example='scene1'),
+      sceneId?: string(name='SceneId', description='The scene ID.', example='3'),
     }
   ](name='Scenes', description='The list of scenes.'),
-  totalCount?: long(name='TotalCount', description='The total number of scenes.', example='10'),
+  totalCount?: long(name='TotalCount', description='The total number of elements in the list.', example='10'),
 }
 
 model ListScenesResponse = {
@@ -6690,17 +6723,17 @@ async function listTrafficControlTasks(request: ListTrafficControlTasksRequest):
 }
 
 model OfflineExperimentRequest {
-  experimentId: string(name='ExperimentId', description='The ID of the experiment. You can get this ID by calling the ListExperiments API.
+  experimentId: string(name='ExperimentId', description='The ID of the experiment. You can call the ListExperiments operation to obtain the experiment ID.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The ID of the instance. You can get this ID by calling the ListInstances API.
+  instanceId: string(name='InstanceId', description='The ID of the instance. You can call the ListInstances operation to obtain the instance ID.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Body'),
 }
 
 model OfflineExperimentResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='872951C9-7755-5FA1-AACD-7F9375A6D27A'),
+  requestId?: string(name='RequestId', description='Id of the request', example='872951C9-7755-5FA1-AACD-7F9375A6D27A'),
 }
 
 model OfflineExperimentResponse = {
@@ -6719,7 +6752,7 @@ async function offlineExperiment(request: OfflineExperimentRequest): OfflineExpe
 }
 
 model OfflineExperimentGroupRequest {
-  experimentGroupId: string(name='ExperimentGroupId', description='The ID of the experiment group. You can obtain this ID by calling the ListExperimentGroups operation.
+  experimentGroupId: string(name='ExperimentGroupId', description='The ID of the experiment group. You can obtain the ID by calling the ListExperimentGroups operation.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
@@ -6729,7 +6762,7 @@ This parameter is required.', example='pairec-cn-abcdefg1234', position='Body'),
 }
 
 model OfflineExperimentGroupResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='518C64F6-DFF7-11ED-85B0-00163E14B3D1'),
+  requestId?: string(name='RequestId', description='Id of the request', example='518C64F6-DFF7-11ED-85B0-00163E14B3D1'),
 }
 
 model OfflineExperimentGroupResponse = {
@@ -6748,17 +6781,17 @@ async function offlineExperimentGroup(request: OfflineExperimentGroupRequest): O
 }
 
 model OfflineLaboratoryRequest {
-  laboratoryId: string(name='LaboratoryId', description='The laboratory ID. Call the `ListLaboratories` operation to obtain this ID.
+  laboratoryId: string(name='LaboratoryId', description='The ID of the laboratory. You can call the ListLaboratories operation to obtain the ID.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId: string(name='InstanceId', description='The instance ID. Call the `ListInstances` operation to obtain this ID.
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the ListInstances operation to obtain instance ID.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Body'),
 }
 
 model OfflineLaboratoryResponseBody = {
-  requestId?: string(name='RequestId', description='The unique ID generated for the request.', example='59CE7EC6-F268-5D71-9215-32922CC50D72'),
+  requestId?: string(name='RequestId', description='Id of the request', example='59CE7EC6-F268-5D71-9215-32922CC50D72'),
 }
 
 model OfflineLaboratoryResponse = {
@@ -6806,15 +6839,15 @@ async function offlineRecallManagementService(request: OfflineRecallManagementSe
 }
 
 model OnlineExperimentRequest {
-  experimentId: string(name='ExperimentId', description='The ID of the experiment, which you can obtain by calling the ListExperiments API.
+  experimentId: string(name='ExperimentId', description='The experiment ID. You can obtain it by calling the ListExperiments operation.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  instanceId?: string(name='InstanceId', description='The ID of the instance, which you can obtain by calling the ListInstances API.', example='pairec-cn-abcdefg1234', position='Body'),
+  instanceId?: string(name='InstanceId', description='The instance ID. You can obtain it by calling the ListInstances operation.', example='pairec-cn-abcdefg1234', position='Body'),
 }
 
 model OnlineExperimentResponseBody = {
-  requestId?: string(name='RequestId', description='The ID of the request.', example='6CF1E160-3F36-5E73-A170-C75504F05BBC'),
+  requestId?: string(name='RequestId', description='Id of the request', example='6CF1E160-3F36-5E73-A170-C75504F05BBC'),
 }
 
 model OnlineExperimentResponse = {
@@ -7064,15 +7097,15 @@ async function queryDataDiagnosisStatistics(request: QueryDataDiagnosisStatistic
 }
 
 model QueryRecallManagementTableRecordsRequest {
-  recallManagementTableId?: string(name='RecallManagementTableId', description='The recall management table ID.', example='3', position='Path'),
+  recallManagementTableId?: string(name='RecallManagementTableId', description='The table ID.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec-cn-test123', position='Query'),
-  primaryKeys?: bytes(name='PrimaryKeys', description='The primary keys of the records to retrieve.', example='["1001","1002"]', position='Query'),
-  recallManagementTableVersionId?: string(name='RecallManagementTableVersionId', description='The recall management table version ID. If you omit this parameter, the API uses the currently published version.', example='1', position='Query'),
+  primaryKeys?: bytes(name='PrimaryKeys', description='The primary keys for the query.', example='["1001","1002"]', position='Query'),
+  recallManagementTableVersionId?: string(name='RecallManagementTableVersionId', description='The version ID of the recall management table. Default value: the current published version.', example='1', position='Query'),
 }
 
 model QueryRecallManagementTableRecordsResponseBody = {
-  records?: [ map[string]any ](name='Records', description='A list of the retrieved records.'),
+  records?: [ map[string]any ](name='Records', description='The data list.'),
   requestId?: string(name='RequestId', description='The request ID.', example='7D59453C-48AA-5FC5-8848-2D373BD1A17F'),
 }
 
@@ -7083,8 +7116,8 @@ model QueryRecallManagementTableRecordsResponse = {
 }
 
 /**
-  * @description ## Request
-  * This API retrieves records from a specific recall management table using the provided primary keys. You must provide a valid `InstanceId` and `RecallManagementTableId`, and a non-empty `PrimaryKeys` list. If you specify `RecallManagementTableVersionId`, the API returns records from that version; otherwise, it uses the currently published version.
+  * @description ## Request description
+  * This operation retrieves data records from a specific recall management table based on the specified primary keys. Ensure that the provided `InstanceId` and `RecallManagementTableId` are valid and that the `PrimaryKeys` list is not empty. If `RecallManagementTableVersionId` is specified, data of that version is returned. Otherwise, the current published version is used by default.
   * @param request  the request parameters of QueryRecallManagementTableRecords  QueryRecallManagementTableRecordsRequest
   * @return QueryRecallManagementTableRecordsResponse
  */
@@ -7206,35 +7239,32 @@ async function queryTrafficControlTargetItemReportDetail(request: QueryTrafficCo
 model QueryTrafficControlTaskDeployResultRequest {
   trafficControlTaskId?: string(name='TrafficControlTaskId', description='The traffic control task ID.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  environment?: string(name='Environment', description='The environment. Valid values:
-- Daily: daily environment.
-- Pre: staging environment.
-- Prod: production environment.', example='Daily', position='Query'),
+  environment?: string(name='Environment', description='The environment. Valid values: Daily (daily environment), Pre (staging environment), and Prod (production environment).', example='Daily', position='Query'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec_123****', position='Query'),
 }
 
 model QueryTrafficControlTaskDeployResultResponseBody = {
-  deployMessage?: string(name='DeployMessage', description='The message returned for the Flink platform deployment operation.', example='deploy job draft success'),
+  deployMessage?: string(name='DeployMessage', description='The message about the deployment operation on the Flink platform.', example='deploy job draft success'),
   deployStatus?: string(name='DeployStatus', description='The status of deploying the draft. Valid values:
-- Failed: failed.
-- Running: running.
-- Success: succeeded.', example='Success'),
-  draftMessage?: string(name='DraftMessage', description='The message returned for pushing the draft to Flink.', example='push draft success'),
+- `Failed`: Failed.
+- `Running`: Running.
+- `Success`: Successful.', example='Success'),
+  draftMessage?: string(name='DraftMessage', description='The message about pushing the draft to Flink.', example='push draft success'),
   draftStatus?: string(name='DraftStatus', description='The status of pushing the draft to Flink. Valid values:
-- Failed: failed.
-- Running: running.
-- Success: succeeded.', example='Success'),
-  prepareMessage?: string(name='PrepareMessage', description='The message returned for the preparation phase.', example='success'),
+- `Failed`: Failed.
+- `Running`: Running.
+- `Success`: Successful.', example='Success'),
+  prepareMessage?: string(name='PrepareMessage', description='The message about the preparation phase.', example='success'),
   prepareStatus?: string(name='PrepareStatus', description='The status of the preparation phase. Valid values:
-- Failed: failed.
-- Running: running.
-- Success: succeeded.', example='Success'),
+- `Failed`: Failed.
+- `Running`: Running.
+- `Success`: Successful.', example='Success'),
   requestId?: string(name='RequestId', description='The request ID.', example='728C5E01-ABF6-5AA8-B9FC-B3BA05DECC77'),
-  startMessage?: string(name='StartMessage', description='The message returned for starting the Flink task.', example='start job success'),
+  startMessage?: string(name='StartMessage', description='The message about starting the Flink task.', example='start job success'),
   startStatus?: string(name='StartStatus', description='The status of starting the Flink task. Valid values:
-- Failed: failed.
-- Running: running.
-- Success: succeeded.', example='Success'),
+- `Failed`: Failed.
+- `Running`: Running.
+- `Success`: Successful.', example='Success'),
   stopMessage?: string(name='StopMessage', description='The stop details.', example='""'),
   stopStatus?: string(name='StopStatus', description='The stop status.', example='Success'),
   trafficControlTaskId?: string(name='TrafficControlTaskId', description='The traffic control task ID.', example='3'),
@@ -7247,8 +7277,8 @@ model QueryTrafficControlTaskDeployResultResponse = {
 }
 
 /**
-  * @description ## Operation description
-  * You can call this operation to query the deployment result of a traffic control task specified by TrafficControlTaskId for a given instance ID and environment. Make sure that the specified InstanceId is associated with your account and that the Environment parameter value is valid (Daily for daily environment, Pre for staging environment, Prod for production environment). All request parameters are required.
+  * @description ## Request description
+  * You can use this API to query the deployment results of a traffic control task with a specific TrafficControlTaskId for a given instance ID and environment. Make sure that the provided InstanceId is associated with your account and the Environment parameter value meets your expectations (Daily: daily environment, Pre: staging environment, Prod: production environment). All request parameters are required.
   * @param request  the request parameters of QueryTrafficControlTaskDeployResult  QueryTrafficControlTaskDeployResultRequest
   * @return QueryTrafficControlTaskDeployResultResponse
  */
@@ -7320,9 +7350,9 @@ async function queryTrafficControlTaskItemReport(request: QueryTrafficControlTas
 }
 
 model ReleaseTrafficControlTaskRequest {
-  trafficControlTaskId?: string(name='TrafficControlTaskId', description='The traffic control task ID.', example='1', position='Path'),
+  trafficControlTaskId?: string(name='TrafficControlTaskId', description='The ID of the traffic control task.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  environment?: string(name='Environment', description='The execution environment for the traffic control task. Valid values: `Daily`, `Pre`, and `Prod`.', example='Daily', position='Body'),
+  environment?: string(name='Environment', description='The environment. Valid values: Daily (daily environment), Pre (staging environment), and Prod (production environment).', example='Daily', position='Body'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec_123****', position='Body'),
 }
 
@@ -7337,12 +7367,12 @@ model ReleaseTrafficControlTaskResponse = {
 }
 
 /**
-  * @description ## Request
-  * Use this API to release a traffic control task for a specific instance and environment (Daily, Pre, or Prod). Your request must include the `TrafficControlTaskId`, `InstanceId`, and `Environment` parameters.
-  * - `TrafficControlTaskId`: The unique ID of the traffic control task.
-  * - `InstanceId`: The ID of the target instance.
-  * - `Environment`: The execution environment for the traffic control task. Valid values: `Daily`, `Pre`, and `Prod`.
-  * The request succeeds only if all required parameters are provided correctly. A successful response includes a `RequestId`.
+  * @description ## Request description
+  * This API allows you to publish a traffic control task for a specific instance ID and environment (daily, staging, or production). Make sure to correctly specify the `TrafficControlTaskId`, `InstanceId`, and `Environment` parameters in the request.
+  * - `TrafficControlTaskId`: the unique identifier of the traffic control task to be published.
+  * - `InstanceId`: the ID of the target instance to which the traffic control settings will be applied.
+  * - `Environment`: the environment in which the traffic control task is executed. Valid values: Daily (daily environment), Pre (staging environment), and Prod (production environment). Select an environment based on your business requirements.
+  * Note: The request is processed and a RequestId is returned in the response only when all required fields are correctly provided.
   * @param request  the request parameters of ReleaseTrafficControlTask  ReleaseTrafficControlTaskRequest
   * @return ReleaseTrafficControlTaskResponse
  */
@@ -7584,11 +7614,14 @@ async function startTrafficControlTarget(request: StartTrafficControlTargetReque
 }
 
 model StartTrafficControlTaskRequest {
-  trafficControlTaskId: string(name='TrafficControlTaskId', description='The traffic control task ID.
+  trafficControlTaskId: string(name='TrafficControlTaskId', description='The ID of the traffic shaping task.
 
 This parameter is required.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  environment?: string(name='Environment', description='The target environment. Valid values:', example='Pre', position='Body'),
+  environment?: string(name='Environment', description='The environment. Valid values:
+- Daily: the daily environment.
+- Pre: the staging environment.
+- Prod: the production environment.', example='Pre', position='Body'),
   instanceId?: string(name='InstanceId', description='The instance ID.', example='pairec-123***', position='Body'),
 }
 
@@ -7603,11 +7636,11 @@ model StartTrafficControlTaskResponse = {
 }
 
 /**
-  * @description ## Request details
-  * - This operation starts the traffic control task identified by `TrafficControlTaskId`.
+  * @description ## Request description
+  * - This API operation starts the traffic shaping task identified by the specified `TrafficControlTaskId`.
   * - `InstanceId` specifies the target instance.
-  * - `Environment` specifies the target environment. Valid values: Daily, Pre, and Prod.
-  * - Ensure that all required parameters are set correctly before you call this operation. The specified `TrafficControlTaskId` must exist in the system.
+  * - The `Environment` parameter defines the target environment for this operation (daily, staging, or production).
+  * - Ensure that all required parameters are correctly configured before you call this operation. Specifically, the `TrafficControlTaskId` must exist in the system.
   * @param request  the request parameters of StartTrafficControlTask  StartTrafficControlTaskRequest
   * @return StartTrafficControlTaskResponse
  */
@@ -7815,64 +7848,56 @@ async function terminateFeatureConsistencyCheckJob(request: TerminateFeatureCons
 }
 
 model UpdateABMetricRequest {
-  ABMetricId: string(name='ABMetricId', description='The ABTest metric ID.
+  ABMetricId: string(name='ABMetricId', description='The ID of the AB test metric.
 
 This parameter is required.', example='1', position='Path'),
   regionId?: string(name='RegionId', example='cn-hangzhou', position='Host'),
-  aggregationByUser?: boolean(name='AggregationByUser', description='Specifies whether to aggregate by user dimension when calculating significance. Two aggregation methods are supported: by user and by sample.', example='True', position='Body'),
-  definition: string(name='Definition', description='The metric definition.
+  aggregationByUser?: boolean(name='AggregationByUser', description='Specifies whether to aggregate data by user dimension when calculating significance. There are two logic types: by user and by sample.', example='True', position='Body'),
+  definition: string(name='Definition', description='The definition of the metric.
 
 This parameter is required.', example='sum(click_cnt)', position='Body'),
-  denominator?: string(name='Denominator', description='The denominator used in significance calculation.', example='pv', position='Body'),
-  description: string(name='Description', description='The metric description.
+  denominator?: string(name='Denominator', description='The denominator for significance calculation.', example='pv', position='Body'),
+  description: string(name='Description', description='The description of the metric.
 
-This parameter is required.', example='pv 指标', position='Body'),
-  instanceId: string(name='InstanceId', description='The instance ID. You can obtain it by calling the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation.
+This parameter is required.', example='PV metric', position='Body'),
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can obtain instance ID by calling the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation.
 
 This parameter is required.', example='pairec-cn-test123', position='Body'),
-  isBinomialDistribution?: boolean(name='IsBinomialDistribution', description='Specifies whether the current metric follows a binomial distribution when the metric type is a derived metric. If set to true, the mean and variance of the metric are calculated based on the binomial distribution.', example='False', position='Body'),
-  leftMetricId?: string(name='LeftMetricId', description='The left metric ID of the derived metric.', example='2', position='Body'),
-  name: string(name='Name', description='The metric name.
+  isBinomialDistribution?: boolean(name='IsBinomialDistribution', description='Specifies whether the current metric follows a binomial distribution when the metric type is a derived metric. If yes, the mean and variance of the metric are calculated based on the binomial distribution.', example='False', position='Body'),
+  leftMetricId?: string(name='LeftMetricId', description='The ID of the left metric for the derived metric.', example='2', position='Body'),
+  name: string(name='Name', description='The name of the metric.
 
 This parameter is required.', example='pv', position='Body'),
   needSignificance?: boolean(name='NeedSignificance', description='Specifies whether to calculate significance.', example='True', position='Body'),
-  numerator?: string(name='Numerator', description='The numerator used in significance calculation.', example='click', position='Body'),
+  numerator?: string(name='Numerator', description='The numerator for significance calculation.', example='click', position='Body'),
   operator?: string(name='Operator', description='The operator for derived metric calculation. Valid values:
-
 - Plus: addition
-
 - Minus: subtraction
-
 - Multiplication: multiplication
-
 - Division: division', example='Division', position='Body'),
   realtime: boolean(name='Realtime', description='Specifies whether the metric is a real-time metric. Valid values:
-
-- true
-
-- false
+- true: yes
+- false: no
 
 This parameter is required.', example='false', position='Body'),
-  resultResourceId?: string(name='ResultResourceId', description='The ID of the data source for the write-back data table. You can obtain it by calling the ListInstanceResources operation.', example='3', position='Body'),
-  rightMetricId?: string(name='RightMetricId', description='The right metric ID of the derived metric.', example='3', position='Body'),
-  sceneId: string(name='SceneId', description='The scene ID. You can obtain it by calling the [ListScenes](https://help.aliyun.com/document_detail/2402581.html) operation.
+  resultResourceId?: string(name='ResultResourceId', description='The ID of the data source for the data table write-back. You can obtain the ID by calling the ListInstanceResources operation.', example='3', position='Body'),
+  rightMetricId?: string(name='RightMetricId', description='The ID of the right metric for the derived metric.', example='3', position='Body'),
+  sceneId: string(name='SceneId', description='The ID of the scene. You can obtain the ID by calling the [ListScenes](https://help.aliyun.com/document_detail/2402581.html) operation.
 
 This parameter is required.', example='1', position='Body'),
   statisticsCycle?: int32(name='StatisticsCycle', description='The statistical period.', example='1', position='Body'),
-  tableMetaId: string(name='TableMetaId', description='The data table ID. You can obtain it by calling the ListTableMetas operation.
+  tableMetaId: string(name='TableMetaId', description='The ID of the data table. You can obtain the ID by calling the ListTableMetas operation.
 
 This parameter is required.', example='2', position='Body'),
-  type: string(name='Type', description='The metric type. Valid values:
-
-- Single: single metric.
-
-- Derived: derived metric.
+  type: string(name='Type', description='The type of the metric. Valid values:
+- Single: single metric
+- Derived: derived metric
 
 This parameter is required.', example='Single', position='Body'),
 }
 
 model UpdateABMetricResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='6CF1E160-3F36-5E73-A170-C75504F05BBC'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='6CF1E160-3F36-5E73-A170-C75504F05BBC'),
 }
 
 model UpdateABMetricResponse = {
@@ -7882,12 +7907,12 @@ model UpdateABMetricResponse = {
 }
 
 /**
-  * @description ## Operation description
-  * This API operation allows you to update the attributes of a specified ABTest metric, including whether to calculate significance and the aggregation method. Make sure that you have obtained the correct `ABMetricId` before calling this operation.
+  * @description ## Request description
+  * This API operation allows you to update the properties of a specified AB test metric, including whether to calculate significance and the aggregation method. Make sure that you have obtained the correct `ABMetricId` before calling this operation.
   * - `NeedSignificance`: Specifies whether to perform significance analysis on the current metric. Default value: `false`.
-  * - `AggregationByUser`: When significance calculation is enabled, specifies whether to aggregate data by user or by sample. Default value: `false` (by sample).
-  * - `Numerator` and `Denominator`: The specific definitions of the numerator and denominator used in significance calculation.
-  * - `IsBinomialDistribution`: Valid only for derived metrics. Specifies whether the metric follows a binomial distribution, which affects subsequent data processing logic.
+  * - `AggregationByUser`: When significance calculation is selected, specifies whether to aggregate data by user or by sample. Default value: `false` (by sample).
+  * - `Numerator` and `Denominator`: Represent the specific definitions of the numerator and denominator when performing significance calculation.
+  * - `IsBinomialDistribution`: Valid only for derived metrics. Indicates whether the metric follows a binomial distribution, which affects subsequent data processing logic.
   * Note: You do not need to provide all fields at the same time. Include only the parameters whose values you want to change in the request body.
   * @param request  the request parameters of UpdateABMetric  UpdateABMetricRequest
   * @return UpdateABMetricResponse
@@ -8120,45 +8145,43 @@ async function updateExperiment(request: UpdateExperimentRequest): UpdateExperim
 }
 
 model UpdateExperimentGroupRequest {
-  experimentGroupId: string(name='ExperimentGroupId', description='The ID of the experiment group. You can obtain this ID by calling the ListExperimentGroups API.
+  experimentGroupId: string(name='ExperimentGroupId', description='The ID of the experiment group. You can call the ListExperimentGroups operation to obtain the ID.
 
 This parameter is required.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
   config?: string(name='Config', description='The configuration of the experiment group.', example='{"RankBy": "Score"}', position='Body'),
-  crowdId?: string(name='CrowdId', description='The ID of the crowd for crowd targeting. You can obtain this ID by calling the ListCrowds API.', example='3', position='Body'),
-  crowdTargetType?: string(name='CrowdTargetType', description='The type of crowd targeting for the experiment group. Valid values:
-
-- All: all traffic
-
-- Filter: traffic that matches the filter condition
-
-- CrowdId: traffic from the specified crowd ID
-
-- Random: a random percentage of traffic', example='All', position='Body'),
-  debugCrowdId?: string(name='DebugCrowdId', description='The ID of the debug crowd. You can obtain this ID by calling the ListCrowds API.', example='3', position='Body'),
-  debugUsers?: string(name='DebugUsers', description='A comma-separated list of UIDs for debug users. The UIDs can belong to Alibaba Cloud main accounts or sub-accounts.', example='user1,user2,user3', position='Body'),
+  crowdId?: string(name='CrowdId', description='The ID of the specified crowd for crowd targeting. You can call the ListCrowds operation to obtain the ID.', example='3', position='Body'),
+  crowdTargetType?: string(name='CrowdTargetType', description='The type of traffic targeting for the experiment group. Valid values:
+* All: All traffic.
+* Filter: Traffic that uses filter conditions.
+* CrowdId: Traffic specified by a crowd ID.
+* Random: Random traffic based on a percentage.', example='All', position='Body'),
+  debugCrowdId?: string(name='DebugCrowdId', description='The ID of the debug crowd. You can call the ListCrowds operation to obtain the ID.', example='3', position='Body'),
+  debugUsers?: string(name='DebugUsers', description='The debug users. The value must be the UID of an Alibaba Cloud account or RAM user. Separate multiple UIDs with commas (,).', example='user1,user2,user3', position='Body'),
   description: string(name='Description', description='The description of the experiment group.
 
 This parameter is required.', example='This is a test.', position='Body'),
-  distributionTimeDuration?: int32(name='DistributionTimeDuration', description='The time duration for traffic distribution.', example='3', position='Body'),
-  distributionType?: string(name='DistributionType', description='The distribution type. ● UserId: Distributes traffic by user ID. ● TimeDuration: Distributes traffic by time duration.', example='UserId', position='Body'),
-  filter?: string(name='Filter', description='The filter condition for crowd targeting.', example='gender=male', position='Body'),
-  instanceId: string(name='InstanceId', description='The ID of the instance. You can obtain this ID by calling the ListInstances API.
+  distributionTimeDuration?: int32(name='DistributionTimeDuration', description='The time period for traffic distribution.', example='3', position='Body'),
+  distributionType?: string(name='DistributionType', description='The traffic distribution method. Valid values:
+● UserId: User ID.
+● TimeDuration: Time period.', example='UserId', position='Body'),
+  filter?: string(name='Filter', description='The filter conditions specified for crowd targeting.', example='gender=male', position='Body'),
+  instanceId: string(name='InstanceId', description='Instance ID of the instance. You can call the ListInstances operation to obtain instance ID.
 
 This parameter is required.', example='pairec-cn-abcdefg1234', position='Body'),
-  layerId: string(name='LayerId', description='The ID of the layer. You can obtain this ID by calling the ListLayers API.
+  layerId: string(name='LayerId', description='The ID of the layer. You can call the ListLayers operation to obtain the ID.
 
 This parameter is required.', example='3', position='Body'),
   name: string(name='Name', description='The name of the experiment group.
 
 This parameter is required.', example='experiment_group1', position='Body'),
   needAA?: boolean(name='NeedAA', description='Specifies whether an AA experiment group is required.', example='true', position='Body'),
-  randomFlow?: long(name='RandomFlow', description='If CrowdTargetType is set to Random, this parameter specifies the percentage of traffic (from 0 to 100) to route to the experiment group.', example='20', position='Body'),
-  reservcedBuckets?: string(name='ReservcedBuckets', description='The reserved buckets.', example='1,2,3', position='Body'),
+  randomFlow?: long(name='RandomFlow', description='The percentage of random traffic used to match the experiment group when the traffic targeting type is set to Random. Valid values: 0 to 100.', example='20', position='Body'),
+  reservcedBuckets?: string(name='ReservcedBuckets', description='The reserved bucket numbers.', example='1,2,3', position='Body'),
 }
 
 model UpdateExperimentGroupResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='F7AC05FF-EDE7-5C2B-B9AE-33D6DF4178BA'),
+  requestId?: string(name='RequestId', description='Id of the request', example='F7AC05FF-EDE7-5C2B-B9AE-33D6DF4178BA'),
 }
 
 model UpdateExperimentGroupResponse = {
@@ -8700,21 +8723,21 @@ async function updateResourceRuleItem(request: UpdateResourceRuleItemRequest): U
 }
 
 model UpdateSceneRequest {
-  sceneId?: string(name='SceneId', description='The scene ID. To obtain the ID, call the `ListScenes` API.', example='3', position='Path'),
+  sceneId?: string(name='SceneId', description='The ID of the scene. You can call the ListScenes operation to obtain the ID.', example='3', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  description?: string(name='Description', description='The scene description.', example='This is a test.', position='Body'),
+  description?: string(name='Description', description='The description of the scene.', example='This is a test.', position='Body'),
   flows?: [ 
     {
-      flowCode?: string(name='FlowCode', description='The flow code.', example='liuliang1'),
-      flowName?: string(name='FlowName', description='The flow name.', example='流量1'),
+      flowCode?: string(name='FlowCode', description='The code of the flow.', example='liuliang1'),
+      flowName?: string(name='FlowName', description='The name of the flow.', example='Flow 1'),
     }
-  ](name='Flows', description='The flows.', position='Body'),
-  instanceId?: string(name='InstanceId', description='The instance ID. To obtain the ID, call the `ListInstances` API.', example='pairec-cn-abcdefg1234', position='Body'),
-  name?: string(name='Name', description='The scene name.', example='scene1', position='Body'),
+  ](name='Flows', description='The list of flows.', position='Body'),
+  instanceId?: string(name='InstanceId', description='Instance ID of the instance. You can call the ListInstances operation to obtain instance ID.', example='pairec-cn-abcdefg1234', position='Body'),
+  name?: string(name='Name', description='The name of the scene.', example='scene1', position='Body'),
 }
 
 model UpdateSceneResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID.', example='FC17887E-3C82-5096-8AA6-F4C2E7417245'),
+  requestId?: string(name='RequestId', description='Id of the request', example='FC17887E-3C82-5096-8AA6-F4C2E7417245'),
 }
 
 model UpdateSceneResponse = {
@@ -8733,43 +8756,43 @@ async function updateScene(request: UpdateSceneRequest): UpdateSceneResponse {
 }
 
 model UpdateTableMetaRequest {
-  tableMetaId: string(name='TableMetaId', description='The table meta ID.
+  tableMetaId: string(name='TableMetaId', description='The ID of the data table.
 
 This parameter is required.', example='1', position='Path'),
   regionId?: string(name='RegionId', position='Host'),
-  description?: string(name='Description', description='The description of the data table.', example='this is a test table', position='Body'),
+  description?: string(name='Description', description='The description of the table.', example='this is a test table', position='Body'),
   fields: [ 
     {
       dataType?: string(name='DataType', description='The data type of the field.', example='primary_key'),
-      isDimensionField: boolean(name='IsDimensionField', description='Indicates whether the field is a dimension field.
+      isDimensionField: boolean(name='IsDimensionField', description='Specifies whether the field is a dimension field.
 
 This parameter is required.', example='false'),
-      isPartitionField: string(name='IsPartitionField', description='Indicates whether the field is a partition field.
+      isPartitionField: string(name='IsPartitionField', description='Specifies whether the field is a partition field.
 
 This parameter is required.', example='true'),
-      meaning: string(name='Meaning', description='The business meaning of the field.
+      meaning: string(name='Meaning', description='The meaning of the field.
 
-This parameter is required.', example='名称字段'),
-      name: string(name='Name', description='The field name.
+This parameter is required.', example='Name field'),
+      name: string(name='Name', description='The name of the field.
 
 This parameter is required.', example='name'),
-      type: string(name='Type', description='The data type of the field.
+      type: string(name='Type', description='The type of the field.
 
 This parameter is required.', example='BIGINT'),
     }
-  ](name='Fields', description='The fields of the data table.
+  ](name='Fields', description='The list of table fields.
 
 This parameter is required.', position='Body'),
   instanceId: string(name='InstanceId', description='The instance ID. You can call the [ListInstances](https://help.aliyun.com/document_detail/2411819.html) operation to obtain the instance ID.
 
 This parameter is required.', example='pairec-cn-test1', position='Body'),
-  module: string(name='Module', description='The module to which the data table belongs.
+  module: string(name='Module', description='The module of the data table.
 
-- ABTest: a data table for A/B testing.
+- ABTest: experiment data table.
 
-- ExperimentTool: a data table for experiment tools.
+- ExperimentTool: experiment tool table.
 
-- DataDiagnosis: a data table for data diagnosis.
+- DataDiagnosis: data diagnosis.
 
 This parameter is required.', example='ABTest', position='Body'),
   name: string(name='Name', description='The name of the data table.
