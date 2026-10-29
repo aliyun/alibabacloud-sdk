@@ -13,7 +13,7 @@ init(config: OpenApi.Config){
   super(config);
   @endpointRule = 'regional';
   @endpointMap = {
-    cn-hangzhou = 'saf.cn-shanghai.aliyuncs.com',
+    'cn-hangzhou' = 'saf.cn-shanghai.aliyuncs.com',
   };
 
   checkConfig(config);
@@ -31,81 +31,53 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
-model ExecuteExtendServiceRequest {
-  region?: string(name='Region'),
-  service?: string(name='Service'),
-  serviceParameters?: string(name='ServiceParameters'),
-}
-
-model ExecuteExtendServiceResponseBody = {
-  code?: string(name='Code'),
-  data?: {
-    invokeResult?: string(name='InvokeResult'),
-  }(name='Data'),
-  httpStatusCode?: string(name='HttpStatusCode'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-  success?: boolean(name='Success'),
-}
-
-model ExecuteExtendServiceResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ExecuteExtendServiceResponseBody(name='body'),
-}
-
-async function executeExtendServiceWithOptions(request: ExecuteExtendServiceRequest, runtime: Util.RuntimeOptions): ExecuteExtendServiceResponse {
-  Util.validateModel(request);
-  var query = {};
-  if (!Util.isUnset(request.region)) {
-    query['Region'] = request.region;
-  }
-  if (!Util.isUnset(request.service)) {
-    query['Service'] = request.service;
-  }
-  if (!Util.isUnset(request.serviceParameters)) {
-    query['ServiceParameters'] = request.serviceParameters;
-  }
-  var req = new OpenApi.OpenApiRequest{ 
-    query = OpenApiUtil.query(query),
-  };
-  var params = new OpenApi.Params{
-    action = 'ExecuteExtendService',
-    version = '2019-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function executeExtendService(request: ExecuteExtendServiceRequest): ExecuteExtendServiceResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return executeExtendServiceWithOptions(request, runtime);
-}
-
 model ExecuteRequestRequest {
-  service?: string(name='Service'),
-  serviceParameters?: string(name='ServiceParameters'),
+  service?: string(name='Service', description='The service product code. For custom events, set this parameter to saf_de.
+
+This parameter is required.', example='account_abuse_pro'),
+  serviceParameters?: string(name='ServiceParameters', description='The service input parameters in JSON format. This must be a complete JSON string. For custom events, you must include the eventCode property.
+
+This parameter is required.', example='{"accountId": "1233***"}'),
 }
 
 model ExecuteRequestResponseBody = {
-  code?: int32(name='Code'),
-  data?: map[string]any(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  accessDeniedDetail?: {
+    authAction?: string(name='AuthAction', description='The specific action that the caller attempted to perform, such as s3:PutObject or ec2:DescribeInstances.', example='yundun-saf:Execute'),
+    authPrincipalDisplayName?: string(name='AuthPrincipalDisplayName', description='The human-readable display name of the request principal, such as the username or role name.', example='29918048924096****'),
+    authPrincipalOwnerId?: string(name='AuthPrincipalOwnerId', description='The UID of the Alibaba Cloud account to which the request principal belongs.', example='178059440630****'),
+    authPrincipalType?: string(name='AuthPrincipalType', description='The identity type of the request principal. Valid values:
+- SubUser: RAM user created by an Alibaba Cloud account.
+- AssumedRoleUser: Temporary identity obtained by assuming a role.', example='SubUser'),
+    encodedDiagnosticMessage?: string(name='EncodedDiagnosticMessage', description='The Base64-encoded permission diagnostic log used for troubleshooting and automated analysis.', example='AQIBIAAAA...r+ow=='),
+    noPermissionType?: string(name='NoPermissionType', description='The specific denial type for the access denied scenario. Valid values:
+- ImplicitDeny: Implicit deny due to the lack of explicit authorization.
+- ExplicitDeny: Explicit deny where the operation is explicitly denied in the policy.', example='ImplicitDeny'),
+    policyType?: string(name='PolicyType', description='The scope and type of the policy in the access denied scenario. Valid values:
+- AccountLevelIdentityBasedPolicy: Account-level identity-based policy that applies to the entire Alibaba Cloud account.
+- ResourceGroupLevelIdentityBasedPolicy: Resource group-level identity-based policy that applies to a specific resource group.
+- SessionPolicy: Session policy that applies to a temporary session.
+- ControlPolicy: Control policy used for core permission control.
+- AssumeRolePolicy: Trust policy that defines which entities can assume the role.', example='AccountLevelIdentityBasedPolicy'),
+  }(name='AccessDeniedDetail', description='The diagnostic details for access denial.'),
+  code?: int32(name='Code', description='The status code.', example='200'),
+  data?: map[string]any(name='Data', description='The response data, which includes fields such as tags, score, and extend.', example='{"score": 80.4, "tags": "ra0601,rnk0002,rn0312"}'),
+  message?: string(name='Message', description='The result message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A5F41DC6-2070-5CE7-8B2D-7A23D882932D'),
 }
 
 model ExecuteRequestResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ExecuteRequestResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExecuteRequestResponseBody(name='body'),
 }
 
+/**
+ * @summary Detects risks. This API operation supports public service invocation and allows you to invoke custom events.
+ *
+ * @param request ExecuteRequestRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ExecuteRequestResponse
+ */
 async function executeRequestWithOptions(request: ExecuteRequestRequest, runtime: Util.RuntimeOptions): ExecuteRequestResponse {
   Util.validateModel(request);
   var query = {};
@@ -132,30 +104,47 @@ async function executeRequestWithOptions(request: ExecuteRequestRequest, runtime
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Detects risks. This API operation supports public service invocation and allows you to invoke custom events.
+ *
+ * @param request ExecuteRequestRequest
+ * @return ExecuteRequestResponse
+ */
 async function executeRequest(request: ExecuteRequestRequest): ExecuteRequestResponse {
   var runtime = new Util.RuntimeOptions{};
   return executeRequestWithOptions(request, runtime);
 }
 
 model ExecuteRequestMLRequest {
-  lang?: string(name='Lang'),
-  service?: string(name='Service'),
-  serviceParameters?: string(name='ServiceParameters'),
+  lang?: string(name='Lang', description='The language.', example='en'),
+  service?: string(name='Service', description='The service product code. Set this parameter to saf_de because this operation supports only custom events.
+
+This parameter is required.', example='saf_de'),
+  serviceParameters?: string(name='ServiceParameters', description='The service input parameters in JSON format. You must include the eventCode property of the custom event in the JSON string.
+
+This parameter is required.', example='{"accountId": "1233***"}'),
 }
 
 model ExecuteRequestMLResponseBody = {
-  code?: int32(name='Code'),
-  data?: map[string]any(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: int32(name='Code', description='The status code.', example='200'),
+  data?: map[string]any(name='Data', description='The data information, including fields such as tags, score, and extend.', example='{"score": 80.4, "tags": "ra0601,rnk0002,rn0312"}'),
+  message?: string(name='Message', description='The result message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A5F41DC6-2070-5CE7-8B2D-7A23D882932D'),
 }
 
 model ExecuteRequestMLResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ExecuteRequestMLResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExecuteRequestMLResponseBody(name='body'),
 }
 
+/**
+ * @summary Detects risks. This operation supports only custom event calls and is available only in the Malaysia region.
+ *
+ * @param request ExecuteRequestMLRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ExecuteRequestMLResponse
+ */
 async function executeRequestMLWithOptions(request: ExecuteRequestMLRequest, runtime: Util.RuntimeOptions): ExecuteRequestMLResponse {
   Util.validateModel(request);
   var query = {};
@@ -185,30 +174,47 @@ async function executeRequestMLWithOptions(request: ExecuteRequestMLRequest, run
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Detects risks. This operation supports only custom event calls and is available only in the Malaysia region.
+ *
+ * @param request ExecuteRequestMLRequest
+ * @return ExecuteRequestMLResponse
+ */
 async function executeRequestML(request: ExecuteRequestMLRequest): ExecuteRequestMLResponse {
   var runtime = new Util.RuntimeOptions{};
   return executeRequestMLWithOptions(request, runtime);
 }
 
 model ExecuteRequestSGRequest {
-  lang?: string(name='Lang'),
-  service?: string(name='Service'),
-  serviceParameters?: string(name='ServiceParameters'),
+  lang?: string(name='Lang', description='The language.', example='en'),
+  service?: string(name='Service', description='The service product code. For custom events, set this parameter to saf_de.
+
+This parameter is required.', example='account_abuse_intl_pro'),
+  serviceParameters?: string(name='ServiceParameters', description='The service input parameters in JSON format. For custom events, you must include the eventCode property in the JSON string.
+
+This parameter is required.', example='{"accountId": "1233***"}'),
 }
 
 model ExecuteRequestSGResponseBody = {
-  code?: int32(name='Code'),
-  data?: map[string]any(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: int32(name='Code', description='The status code.', example='200'),
+  data?: map[string]any(name='Data', description='The data information, including fields such as tags, score, and extend.', example='{"score": 80.4, "tags": "ra0601,rnk0002,rn0312"}'),
+  message?: string(name='Message', description='The result message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A5F41DC6-2070-5CE7-8B2D-7A23D882932D'),
 }
 
 model ExecuteRequestSGResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: ExecuteRequestSGResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ExecuteRequestSGResponseBody(name='body'),
 }
 
+/**
+ * @summary Detects risks. This API allows you to invoke public services and custom events.
+ *
+ * @param request ExecuteRequestSGRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ExecuteRequestSGResponse
+ */
 async function executeRequestSGWithOptions(request: ExecuteRequestSGRequest, runtime: Util.RuntimeOptions): ExecuteRequestSGResponse {
   Util.validateModel(request);
   var query = {};
@@ -238,63 +244,42 @@ async function executeRequestSGWithOptions(request: ExecuteRequestSGRequest, run
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Detects risks. This API allows you to invoke public services and custom events.
+ *
+ * @param request ExecuteRequestSGRequest
+ * @return ExecuteRequestSGResponse
+ */
 async function executeRequestSG(request: ExecuteRequestSGRequest): ExecuteRequestSGResponse {
   var runtime = new Util.RuntimeOptions{};
   return executeRequestSGWithOptions(request, runtime);
 }
 
-model GetTokenResponseBody = {
-  code?: int32(name='Code'),
-  data?: map[string]any(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
-}
-
-model GetTokenResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: GetTokenResponseBody(name='body'),
-}
-
-async function getTokenWithOptions(runtime: Util.RuntimeOptions): GetTokenResponse {
-  var req = new OpenApi.OpenApiRequest{};
-  var params = new OpenApi.Params{
-    action = 'GetToken',
-    version = '2019-05-21',
-    protocol = 'HTTPS',
-    pathname = '/',
-    method = 'POST',
-    authType = 'AK',
-    style = 'RPC',
-    reqBodyType = 'formData',
-    bodyType = 'json',
-  };
-  return callApi(params, req, runtime);
-}
-
-async function getToken(): GetTokenResponse {
-  var runtime = new Util.RuntimeOptions{};
-  return getTokenWithOptions(runtime);
-}
-
 model RequestDecisionRequest {
-  eventCode?: string(name='EventCode'),
-  serviceParameters?: string(name='ServiceParameters'),
+  eventCode?: string(name='EventCode', description='The event code.', example='de_*'),
+  serviceParameters?: string(name='ServiceParameters', description='The service input parameters. The value is a complete JSON string.', example='{"accountId": "1233***"}'),
 }
 
 model RequestDecisionResponseBody = {
-  code?: long(name='Code'),
-  data?: map[string]any(name='Data'),
-  message?: string(name='Message'),
-  requestId?: string(name='RequestId'),
+  code?: long(name='Code', description='The status code.', example='200'),
+  data?: map[string]any(name='Data', description='The data information, which includes fields such as tags, score, and extend.', example='{"score": 80.4, "tags": "ra0601,rnk0002,rn0312"}'),
+  message?: string(name='Message', description='The result message.', example='OK'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A5F41DC6-2070-5CE7-8B2D-7A23D882932D'),
 }
 
 model RequestDecisionResponse = {
-  headers: map[string]string(name='headers'),
-  statusCode: int32(name='statusCode'),
-  body: RequestDecisionResponseBody(name='body'),
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RequestDecisionResponseBody(name='body'),
 }
 
+/**
+ * @summary Detects risks. This operation supports only custom event calls.
+ *
+ * @param request RequestDecisionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RequestDecisionResponse
+ */
 async function requestDecisionWithOptions(request: RequestDecisionRequest, runtime: Util.RuntimeOptions): RequestDecisionResponse {
   Util.validateModel(request);
   var query = {};
@@ -321,6 +306,12 @@ async function requestDecisionWithOptions(request: RequestDecisionRequest, runti
   return callApi(params, req, runtime);
 }
 
+/**
+ * @summary Detects risks. This operation supports only custom event calls.
+ *
+ * @param request RequestDecisionRequest
+ * @return RequestDecisionResponse
+ */
 async function requestDecision(request: RequestDecisionRequest): RequestDecisionResponse {
   var runtime = new Util.RuntimeOptions{};
   return requestDecisionWithOptions(request, runtime);
