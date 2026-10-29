@@ -685,10 +685,10 @@ async function addKnowledgeFile(request: AddKnowledgeFileRequest): AddKnowledgeF
 }
 
 model AddKnowledgeTagsRequest {
-  DBClusterId: string(name='DBClusterId', description='The database cluster ID.
+  DBClusterId: string(name='DBClusterId', description='The ID of the database cluster.
 
 This parameter is required.', example='am-bp19aaaaaa****', position='Query'),
-  fileId?: string(name='FileId', example='21321', position='Query'),
+  fileId?: string(name='FileId', description='The ID of the file.', example='21321', position='Query'),
   fileLocation?: string(name='FileLocation', description='The location of the knowledge base document.', example='oss://bucketName/path/to/file.pdf', position='Query'),
   tags?: string(name='Tags', description='The JSON string of the tag array. Each tag must be in the following format: {"tag_key":"key_name","tag_value":"value"}.', example='[{"tag_key":"biz.scene","tag_value":"test"}]', position='Query'),
 }
@@ -697,7 +697,7 @@ model AddKnowledgeTagsResponseBody = {
   data?: {
     fileLocation?: string(name='FileLocation', description='The location of the knowledge base file.', example='oss://bucketName/path/to/file.pdf'),
     message?: string(name='Message', description='The message.', example='1 tag skipped'),
-    replaced?: int32(name='Replaced', description='The number of tags that were successfully updated.', example='1'),
+    replaced?: int32(name='Replaced', description='The number of tags that were successfully modified.', example='1'),
     skipped?: [ 
       {
         reason?: string(name='Reason', description='The reason why the tag was skipped.', example='conflict'),
@@ -705,7 +705,7 @@ model AddKnowledgeTagsResponseBody = {
         tagValue?: string(name='TagValue', description='The value of the tag.', example='skipValue'),
       }
     ](name='Skipped', description='The list of skipped tags.'),
-    success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
+    success?: boolean(name='Success', description='Specifies whether the request was successful. Valid values:
 - **true**: The request was successful.
 - **false**: The request failed.', example='true'),
     written?: int32(name='Written', description='The number of tags that were successfully added.', example='2'),
@@ -10360,6 +10360,44 @@ async function existRunningSQLEngine(request: ExistRunningSQLEngineRequest): Exi
   return @handler.do('RPC', 'ExistRunningSQLEngine', 'POST', '/', 'json', true, 'form', request);
 }
 
+model ForkKnowledgeFileRequest {
+  DBClusterId: string(name='DBClusterId', description='The ADB instance ID.
+
+This parameter is required.', example='am-bp19aaaaaa****', position='Query'),
+  fileId?: string(name='FileId', description='The ID of the knowledge base file. You must specify either this parameter or FileLocation, but not both. Use a decimal positive integer string without leading zeros. Valid values: 1 to 9223372036854775807.', example='123', position='Query'),
+  fileLocation?: string(name='FileLocation', description='The address of a single file in the knowledge base. You must specify either this parameter or FileId, but not both. You cannot specify a directory. The address must uniquely locate an active file.', example='oss://bucket/doc.pdf', position='Query'),
+  tags?: string(name='Tags', description='The initial business tags for the new record. Use a JSON string of a JSON object or an array of tag_key/tag_value objects. If omitted, the source tags are not inherited.', example='{"biz.game":"yys"}', position='Query'),
+  uploadUser?: string(name='UploadUser', description='The initial authorized user for the new record. You can pass a JSON string of a single user identifier or a user array. If omitted, no initial user authorization is applied, and the source authorization is not inherited.', example='["alice","bob"]', position='Query'),
+}
+
+model ForkKnowledgeFileResponseBody = {
+  data?: {
+    fileId?: string(name='FileId', description='The ID of the newly created reference record, represented as a decimal string. Use this ID for subsequent management of the record. This parameter is returned only when the operation is successful.', example='456'),
+    fileLocation?: string(name='FileLocation', description='The address of the new reference record, in the format of fork://<source file ID>/<new file ID>. This parameter is returned only when the operation is successful.', example='fork://123/456'),
+    message?: string(name='Message', description='The description of the operation result. If the business operation fails, this parameter indicates the cause or the security error code.', example='Fork succeeded'),
+    ownerFileId?: string(name='OwnerFileId', description='The ID of the content host file, represented as a decimal string. Currently, this value is the same as the source file ID. This parameter is returned only when the operation is successful.', example='123'),
+    processStatus?: string(name='ProcessStatus', description='The status of the new reference record. The value is fixed to DUPLICATED. This parameter is returned only when the operation is successful.', example='DUPLICATED'),
+    sourceFileId?: string(name='SourceFileId', description='The ID of the source file, represented as a decimal string. This parameter is returned only when the operation is successful.', example='123'),
+    success?: boolean(name='Success', description='Indicates whether the business operation is successful. If the operation fails, the Data parameter contains only Success and Message.', example='true'),
+  }(name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model ForkKnowledgeFileResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ForkKnowledgeFileResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ForkKnowledgeFile  ForkKnowledgeFileRequest
+  * @return ForkKnowledgeFileResponse
+ */
+async function forkKnowledgeFile(request: ForkKnowledgeFileRequest): ForkKnowledgeFileResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ForkKnowledgeFile', 'POST', '/', 'json', false, 'json', request);
+}
+
 model GenerateSqlBySemanticSqlRequest {
   DBClusterId: string(name='DBClusterId', description='The ID of the ADB cluster.
 
@@ -11989,44 +12027,45 @@ async function listApsWebhook(request: ListApsWebhookRequest): ListApsWebhookRes
 }
 
 model ListKnowledgeFilesRequest {
-  DBClusterId: string(name='DBClusterId', description='The ADB instance ID.
+  DBClusterId: string(name='DBClusterId', description='The ID of the ADB instance.
 
 This parameter is required.', example='am-bp19aaaaaa****', position='Query'),
   fileIds?: string(name='FileIds', description='The JSON string of the file ID array, which contains up to 200 positive integers.', example='[1001,1002,1003]', position='Query'),
-  page?: string(name='Page', description='The page number, starting from 1. If this parameter is not specified, the default value is 1.', example='1', position='Query'),
-  pageSize?: string(name='PageSize', description='The number of entries per page. Valid values: 1 to 100. If this parameter is not specified, the default value is 20.', example='20', position='Query'),
+  fileLocation?: string(name='FileLocation', description='The URL of the knowledge base file.', example='oss://bucket_name/path/to/file', position='Query'),
+  page?: string(name='Page', description='The page number. Pages start from 1. If you do not specify this parameter, the default value is 1.', example='1', position='Query'),
+  pageSize?: string(name='PageSize', description='The number of entries per page. Valid values: 1 to 100. If you do not specify this parameter, the default value is 20.', example='20', position='Query'),
   status?: string(name='Status', description='The processing status. Valid values: PENDING, PROCESSING, COMPLETED, FAILED, DUPLICATED, and SKIPPED.', example='FAILED', position='Query'),
-  user?: string(name='User', description='The stable ID of the authorized user. If this parameter is not specified, all files in the knowledge base can be queried.', example='u123', position='Query'),
+  user?: string(name='User', description='The stable ID of the authorized user. If you do not specify this parameter, all files in the knowledge base can be queried.', example='u123', position='Query'),
 }
 
 model ListKnowledgeFilesResponseBody = {
   data?: {
     files?: [ 
       {
-        createdAt?: string(name='CreatedAt', description='The time when the file was added to the knowledge base. The format is yyyy-MM-dd HH:mm:ss.', example='2026-06-09 10:27:35'),
+        createdAt?: string(name='CreatedAt', description='The time when the file was added to the knowledge base. The time is in the yyyy-MM-dd HH:mm:ss format.', example='2026-06-09 10:27:35'),
         fileId?: long(name='FileId', description='The ID of the file.', example='137'),
         fileSizeBytes?: long(name='FileSizeBytes', description='The size of the file.', example='1024'),
         fileUrl?: string(name='FileUrl', description='The OSS URL of the file.', example='oss://bucketName/path/to/file'),
         format?: string(name='Format', description='The format of the file.', example='mp4'),
         isDirectory?: boolean(name='IsDirectory', description='Indicates whether the file is a directory.', example='false'),
-        ownerFileId?: long(name='OwnerFileId', description='The file_id of the content host.', example='122'),
+        ownerFileId?: long(name='OwnerFileId', description='The `file_id` of the content host.', example='122'),
         pageCount?: int32(name='PageCount', description='The total number of pages in the file, such as the number of pages in a PDF file.', example='2'),
-        processMessage?: string(name='ProcessMessage', description='The processing information of the knowledge base file.', example='successful'),
+        processMessage?: string(name='ProcessMessage', description='The processing message of the knowledge base file.', example='successful'),
         processStatus?: string(name='ProcessStatus', description='The status of the file in the knowledge base. Valid values:
 
 - Processing: The file is being processed.
 
 - Finished: The file has been processed.', example='Finished'),
-        updatedAt?: string(name='UpdatedAt', description='The update time. The format is yyyy-MM-dd HH:mm:ss.', example='2026-06-10 10:23:46'),
+        updatedAt?: string(name='UpdatedAt', description='The time when the file was updated. The time is in the yyyy-MM-dd HH:mm:ss format.', example='2026-06-10 10:23:46'),
       }
     ](name='Files', description='The list of file information.'),
     message?: string(name='Message', description='The message returned for the request.', example='Successful'),
     page?: int32(name='Page', description='The current page number.', example='1'),
     pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
-    success?: boolean(name='Success', description='Indicates whether the request was successful. Valid values:
-- **true**: The request was successful.
-- **false**: The request failed.', example='true'),
-    total?: long(name='Total', description='The total number of records.', example='100'),
+    success?: boolean(name='Success', description='Indicates whether the request is successful. Valid values:
+- **true**: The request is successful.
+- **false**: The request fails.', example='true'),
+    total?: long(name='Total', description='The total number of entries.', example='100'),
   }(name='Data', description='The returned data.'),
   requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
 }
@@ -15019,6 +15058,40 @@ model SuspendApsJobResponse = {
 async function suspendApsJob(request: SuspendApsJobRequest): SuspendApsJobResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'SuspendApsJob', 'POST', '/', 'json', true, 'form', request);
+}
+
+model TriggerKnowledgeFileParseRequest {
+  DBClusterId: string(name='DBClusterId', description='The ADB instance ID.
+
+This parameter is required.', example='am-bp19aaaaaa****', position='Query'),
+  fileId?: string(name='FileId', description='The ID of the knowledge base file. You must specify either this parameter or FileLocation, but not both.', example='123', position='Query'),
+  fileLocation?: string(name='FileLocation', description='The URL of a single knowledge base file. You must specify either this parameter or FileId, but not both. You cannot specify a directory. The URL must uniquely point to an existing file.', example='oss://bucket/doc.pdf', position='Query'),
+}
+
+model TriggerKnowledgeFileParseResponseBody = {
+  data?: {
+    fileId?: string(name='FileId', description='The ID of the file submitted for reparsing, which is a decimal string. This parameter is returned only when the request is successful.', example='123'),
+    message?: string(name='Message', description='The description of the operation result. If the operation fails, this parameter indicates the cause or the security error code.', example='Reparse task submitted'),
+    previousStatus?: string(name='PreviousStatus', description='The status before submission. Valid values: PENDING, COMPLETED, FAILED, SKIPPED, and DUPLICATED. This parameter is returned only when the request is successful.', example='COMPLETED'),
+    processStatus?: string(name='ProcessStatus', description='The status after submission. The value is fixed to PENDING. This parameter is returned only when the request is successful.', example='PENDING'),
+    success?: boolean(name='Success', description='Indicates whether the operation is successful. If the operation fails, the Data parameter contains only the Success and Message parameters.', example='true'),
+  }(name='Data', description='The returned data.'),
+  requestId?: string(name='RequestId', description='Id of the request', example='1AD222E9-E606-4A42-BF6D-8A4442913CEF'),
+}
+
+model TriggerKnowledgeFileParseResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TriggerKnowledgeFileParseResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of TriggerKnowledgeFileParse  TriggerKnowledgeFileParseRequest
+  * @return TriggerKnowledgeFileParseResponse
+ */
+async function triggerKnowledgeFileParse(request: TriggerKnowledgeFileParseRequest): TriggerKnowledgeFileParseResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'TriggerKnowledgeFileParse', 'POST', '/', 'json', false, 'json', request);
 }
 
 model UnbindAccountRequest {
