@@ -21,8 +21,9 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'Httpdns';
   @version = '2016-02-01';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'cn-hangzhou' = 'httpdns-api.aliyuncs.com',
   };
 }
 
@@ -31,13 +32,15 @@ function close(): void {
 }
 
 model AddDomainRequest {
-  accountId?: string(name='AccountId', example='123456', position='Query'),
-  domainName: string(name='DomainName', description='This parameter is required.', example='www.example.com', position='Query'),
+  accountId?: string(name='AccountId', description='The HTTPDNS account ID.', example='123456', position='Query'),
+  domainName: string(name='DomainName', description='The domain name.
+
+This parameter is required.', example='www.example.com', position='Query'),
 }
 
 model AddDomainResponseBody = {
-  domainName?: string(name='DomainName', example='www.example.com'),
-  requestId?: string(name='RequestId', example='ADA27798-6911-4B06-AF34-53F62F62XXXX'),
+  domainName?: string(name='DomainName', description='The domain name.', example='www.example.com'),
+  requestId?: string(name='RequestId', description='The request ID.', example='ADA27798-6911-4B06-AF34-53F62F62XXXX'),
 }
 
 model AddDomainResponse = {
@@ -55,14 +58,82 @@ async function addDomain(request: AddDomainRequest): AddDomainResponse {
   return @handler.do('RPC', 'AddDomain', 'POST', '/', 'json', false, 'json', request);
 }
 
+model CreateSdnsRuleCategoryRequest {
+  clientIpRanges?: [ string ](name='ClientIpRanges', description='The array of client IP address ranges required for the IP_RANGE pattern. Send this parameter as a JSON form field. Do not specify this parameter for the LINE pattern. This parameter supports single IPv4 and IPv6 addresses, CIDR blocks, and start-end ranges. Multiple entries have an OR relationship. For CIDR blocks, the IPv4 prefix length ranges from 0 to 32, and the IPv6 prefix length ranges from 0 to 128. Start-end ranges are inclusive and must belong to the same address family, and the start address cannot be greater than the end address. Duplicates, inclusions, and overlaps are allowed within the same policy. When the policy is saved and read back, the array sequence, duplicates, and original text of each string are preserved. The array can contain up to 2,000 array elements. The total number of parsed non-empty address expressions ranges from 1 to 2,000, and duplicates are counted. We recommend that you specify one expression per array element. It is compatible with line breaks within an array element. Each expression can contain up to 128 characters, including leading and trailing spaces. The serialized UTF-8 JSON content cannot exceed 65,535 bytes. The quantity and byte limits take effect simultaneously. Overlaps are not allowed between different IP_RANGE policies for the same account, domain name, and address family. Disabled policies are also checked. Disabling a policy does not release the ranges. This limit does not compare independent configurations of LINE policies and the legacy SetIPRegionResult operation.', shrink='json', position='Body'),
+  domainName?: string(name='DomainName', description='The domain name connected to HTTPDNS for the current account. This parameter is required.', example='api.example.com', position='Body'),
+  enable?: boolean(name='Enable', description='Specifies whether to enable the policy upon creation. If this parameter is omitted or set to false, the policy is disabled (Status=0). If this parameter is set to true, the policy is enabled (Status=1), and you do not need to call the enable operation. This parameter applies to the LINE and IP_RANGE modes. Actual resolution still requires waiting for configuration propagation.', position='Body'),
+  lineId?: string(name='LineId', description='The line identifier required for the LINE mode. Valid values:
+- internal: the Chinese mainland.
+- overseas: outside the Chinese mainland.
+
+Do not specify this parameter for the IP_RANGE mode.', example='internal', position='Body'),
+  matchType?: string(name='MatchType', description='The match type. Valid values:
+- LINE: the line mode.
+- IP_RANGE: the client IP address range mode.
+
+If this parameter is omitted, it is processed as LINE. To create an IP address range policy, you must explicitly set this parameter to IP_RANGE and provide ClientIpRanges. You cannot provide LineId or Paths at the same time. The match type cannot be changed after creation.', example='IP_RANGE', position='Body'),
+  paths?: [ 
+    {
+      id?: string(name='Id', description='The code of the option at this level. For example, chinanet at the isps level indicates China Telecom. Use valid options for the associated line and maintain consistent hierarchical subordination.', example='chinanet'),
+      key?: string(name='Key', description='The level identifier. For the Chinese mainland, use isps, subRegions, and provinces. For regions outside the Chinese mainland, use continents and geoRegions. This parameter corresponds to Level.', example='isps'),
+      level?: int32(name='Level', description='The sequence number of the line level. For the Chinese mainland, the values are 1 (ISP), 2 (region), and 3 (province). For regions outside the Chinese mainland, the values are 1 (continent) and 2 (region).', example='1'),
+    }
+  ](name='Paths', description='The line selection path that describes the line conditions at each level. This parameter applies only to the LINE mode. The IP_RANGE mode does not use line paths. When you create a line policy, provide valid options at each level. Use x for the default option. For the Chinese mainland, the levels include ISP, region, and province. For regions outside the Chinese mainland, the levels include continent and region.', shrink='json', position='Body'),
+  rules?: [ 
+    {
+      argKeys?: [ string ](name='ArgKeys', description='The optional list of custom parameter names used to record the display order. Omit this parameter when matching only by IP address range. If Args is used, the names must correspond to the parameter names in Args.'),
+      args?: map[string]string(name='Args', description='The optional custom parameter conditions. The key is the parameter name, and the value is the match value. Omit this parameter when matching only by IP address range. You do not need to add business parameters.'),
+      name?: string(name='Name', description='The rule name. This parameter is required and cannot be null. We recommend that you use a non-empty name with business meaning. This parameter cannot replace the policy Id.', example='Default rule'),
+      records?: [ 
+        {
+          ip?: string(name='Ip', description='The single destination IP address corresponding to the record. If Type is set to 1, the value is an IPv4 address, such as 192.0.2.200. If Type is set to 28, the value is an IPv6 address, such as 2001:db8::200. Do not use CIDR blocks, start-end ranges, or domain names.', example='192.0.2.200'),
+          type?: int32(name='Type', description='The DNS record type. Valid values:
+- 1: A record.
+- 28: AAAA record.
+
+Specify an integer. Do not use the string A or AAAA.', example='1'),
+          typeLabel?: string(name='TypeLabel', description='The auxiliary display text for the record type. This parameter does not participate in matching or resolution decisions and can be omitted in the request.', example='A'),
+          weight?: int32(name='Weight', description='The relative weight of the record. This parameter is used to select one record of the same queried type only when ResultMode is set to 1. We recommend that you set this parameter to a positive integer from 1 to 100. The sum of the weights of all records does not need to be 100. This parameter does not participate in selection when ResultMode is set to 0.', example='100'),
+        }
+      ](name='Records', description='The list of configured resolution records, which can include A and AAAA records. Actual resolution returns only records of the queried type. If the list is empty or does not contain records of the queried type, the system continues to fall back.'),
+      resultMode?: int32(name='ResultMode', description='The record return mode. Valid values:
+- 0: returns all records of the queried type.
+- 1: returns one record of the queried type based on the weight.', example='0'),
+      ttl?: int32(name='Ttl', description='The cache validity period of the record, in seconds. This parameter must be a positive integer.', example='60'),
+    }
+  ](name='Rules', description='The complete list of rules. This parameter is required and must contain at least one rule. When matching only by IP address range, configure a default rule without ArgKeys and Args, and configure the A or AAAA destination addresses in the Records of this rule. When saved, the serialized UTF-8 JSON content must be less than 65,535 bytes.', shrink='json', position='Body'),
+}
+
+model CreateSdnsRuleCategoryResponseBody = {
+  id?: string(name='Id', description='The ID of the policy created and saved in this request. This ID is consistent with the ID in the list and details, and is used for querying, updating, enabling, disabling, and deleting the policy. The ID is saved as a string to avoid precision loss of large integers.', example='123456789012345678'),
+  requestId?: string(name='RequestId', description='The ID of the request. This ID is used to troubleshoot call issues and is not the policy ID.', example='50F9C40E-188D-4208-BE2C-74271337****'),
+}
+
+model CreateSdnsRuleCategoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSdnsRuleCategoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of CreateSdnsRuleCategory  CreateSdnsRuleCategoryRequest
+  * @return CreateSdnsRuleCategoryResponse
+ */
+async function createSdnsRuleCategory(request: CreateSdnsRuleCategoryRequest): CreateSdnsRuleCategoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateSdnsRuleCategory', 'POST', '/', 'json', true, 'form', request);
+}
+
 model DeleteDomainRequest {
-  accountId?: string(name='AccountId', example='12****', position='Query'),
-  domainName: string(name='DomainName', description='This parameter is required.', example='www.example.com', position='Query'),
+  accountId?: string(name='AccountId', description='The HTTPDNS account ID.', example='12****', position='Query'),
+  domainName: string(name='DomainName', description='The domain name.
+
+This parameter is required.', example='www.example.com', position='Query'),
 }
 
 model DeleteDomainResponseBody = {
-  domainName?: string(name='DomainName', example='www.example.com'),
-  requestId?: string(name='RequestId', example='FA8C2599-362D-4113-8FB4-E88A40C2****'),
+  domainName?: string(name='DomainName', description='The domain name.', example='www.example.com'),
+  requestId?: string(name='RequestId', description='The request ID.', example='FA8C2599-362D-4113-8FB4-E88A40C2****'),
 }
 
 model DeleteDomainResponse = {
@@ -81,23 +152,23 @@ async function deleteDomain(request: DeleteDomainRequest): DeleteDomainResponse 
 }
 
 model DescribeDomainsRequest {
-  accountId?: string(name='AccountId', example='123456', position='Query'),
-  pageNumber?: long(name='PageNumber', example='1', minimum=1, position='Query'),
-  pageSize?: long(name='PageSize', example='10', minimum=1, maximum=100, position='Query'),
+  accountId?: string(name='AccountId', description='The HTTPDNS account ID.', example='123456', position='Query'),
+  pageNumber?: long(name='PageNumber', description='The current page number. Minimum value: 1. Default value: 1.', example='1', minimum=1, position='Query'),
+  pageSize?: long(name='PageSize', description='The number of entries per page for a paged query. Maximum value: 100. Default value: 20.', example='10', minimum=1, maximum=100, position='Query'),
 }
 
 model DescribeDomainsResponseBody = {
   domains?: {
     domain?: [ 
     {
-      domainName?: string(name='DomainName', example='www.aliyun.com'),
+      domainName?: string(name='DomainName'),
     }
   ](name='Domain')
   }(name='Domains'),
-  pageNumber?: long(name='PageNumber', example='1'),
-  pageSize?: long(name='PageSize', example='20'),
-  requestId?: string(name='RequestId', example='A6B3BB61-69CB-50E0-9DC0-0C1658D44A47'),
-  totalCount?: long(name='TotalCount', example='12'),
+  pageNumber?: long(name='PageNumber', description='The current page number.', example='1'),
+  pageSize?: long(name='PageSize', description='The page size.', example='20'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A6B3BB61-69CB-50E0-9DC0-0C1658D44A47'),
+  totalCount?: long(name='TotalCount', description='The total number of entries.', example='12'),
 }
 
 model DescribeDomainsResponse = {
@@ -120,23 +191,26 @@ model GetAccountInfoRequest {
 
 model GetAccountInfoResponseBody = {
   accountInfo?: {
-    accountId?: string(name='AccountId', example='1337****'),
-    dohEnabled?: boolean(name='DohEnabled'),
-    dohResolveAllEnabled?: boolean(name='DohResolveAllEnabled'),
-    monthDohResolveCount?: long(name='MonthDohResolveCount'),
-    monthFreeCount?: int32(name='MonthFreeCount', example='1500000'),
-    monthHttpAesResolveCount?: long(name='MonthHttpAesResolveCount'),
-    monthHttpsAesResolveCount?: long(name='MonthHttpsAesResolveCount'),
-    monthHttpsResolveCount?: int32(name='MonthHttpsResolveCount', example='3'),
-    monthResolveCount?: int32(name='MonthResolveCount', example='9927326'),
-    packageCount?: int32(name='PackageCount', example='0'),
-    signSecret?: string(name='SignSecret', example='50F9C40E****'),
-    signedCount?: long(name='SignedCount', example='611523'),
-    unsignedCount?: long(name='UnsignedCount', example='1523'),
-    unsignedEnabled?: boolean(name='UnsignedEnabled', example='true'),
-    userStatus?: int32(name='UserStatus', example='1'),
-  }(name='AccountInfo'),
-  requestId?: string(name='RequestId', example='50F9C40E-188D-4208-BE2C-74271337****'),
+    accountId?: string(name='AccountId', description='The account ID.', example='1337****'),
+    dohEnabled?: boolean(name='DohEnabled', description='Indicates whether the DNS over HTTPS (DoH) feature is enabled.', example='true'),
+    dohResolveAllEnabled?: boolean(name='DohResolveAllEnabled', description='Indicates whether DoH is used to resolve all domain names.', example='true'),
+    monthDohResolveCount?: long(name='MonthDohResolveCount', description='The number of DoH resolutions for the current month.', example='10000'),
+    monthFreeCount?: int32(name='MonthFreeCount', description='The monthly free resolution quota. This is the number of times you can call the HTTPDNS service for domain name resolution free of charge each calendar month.', example='1500000'),
+    monthHttpAesResolveCount?: long(name='MonthHttpAesResolveCount', description='The number of HTTP AES-encrypted resolutions for the current month.', example='0'),
+    monthHttpsAesResolveCount?: long(name='MonthHttpsAesResolveCount', description='The number of HTTPS AES-encrypted resolutions for the current month.', example='0'),
+    monthHttpsResolveCount?: int32(name='MonthHttpsResolveCount', description='The total number of HTTPS resolutions for the current month.', example='3'),
+    monthResolveCount?: int32(name='MonthResolveCount', description='The total number of HTTP resolutions for the current month.', example='9927326'),
+    packageCount?: int32(name='PackageCount', description='The number of resource plans. This is a legacy field and is always set to 0.', example='0'),
+    signSecret?: string(name='SignSecret', description='The signing secret.', example='50F9C40E****'),
+    signedCount?: long(name='SignedCount', description='The number of requests to authenticated API operations.', example='611523'),
+    unsignedCount?: long(name='UnsignedCount', description='The number of requests to unauthenticated API operations.', example='1523'),
+    unsignedEnabled?: boolean(name='UnsignedEnabled', description='Indicates whether unauthenticated API operations are enabled.', example='true'),
+    userStatus?: int32(name='UserStatus', description='The HTTPDNS account status code. Valid values:
+- 1: The account is normal.
+- 2: The account has an overdue payment.
+- 3: The account is suspended.', example='1'),
+  }(name='AccountInfo', description='The current account information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='50F9C40E-188D-4208-BE2C-74271337****'),
 }
 
 model GetAccountInfoResponse = {
@@ -155,21 +229,25 @@ async function getAccountInfo(request: GetAccountInfoRequest): GetAccountInfoRes
 }
 
 model GetResolveCountSummaryRequest {
-  granularity: string(name='Granularity', description='This parameter is required.', example='day', position='Query'),
-  timeSpan: int32(name='TimeSpan', description='This parameter is required.', example='7', position='Query'),
+  granularity: string(name='Granularity', description='The data granularity of the statistics. Valid values: **day** and **month**.
+
+This parameter is required.', example='day', position='Query'),
+  timeSpan: int32(name='TimeSpan', description='The time span for the statistics.
+
+This parameter is required.', example='7', position='Query'),
 }
 
 model GetResolveCountSummaryResponseBody = {
-  requestId?: string(name='RequestId', example='3106FFF3-3612-542A-B2CD-3CF4CD48****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='3106FFF3-3612-542A-B2CD-3CF4CD48****'),
   resolveSummary?: {
     doh?: long(name='Doh'),
-    http?: long(name='Http', example='123'),
-    http6?: long(name='Http6', example='123'),
+    http?: long(name='Http', description='The number of IPv4 HTTP resolution requests.', example='123'),
+    http6?: long(name='Http6', description='The number of IPv6 HTTP resolution requests.', example='123'),
     httpAes?: string(name='HttpAes'),
-    https?: long(name='Https', example='123'),
-    https6?: long(name='Https6', example='123'),
+    https?: long(name='Https', description='The number of IPv4 HTTPS resolution requests.', example='123'),
+    https6?: long(name='Https6', description='The number of IPv6 HTTPS resolution requests.', example='123'),
     httpsAes?: string(name='HttpsAes'),
-  }(name='ResolveSummary'),
+  }(name='ResolveSummary', description='The statistics result.'),
 }
 
 model GetResolveCountSummaryResponse = {
@@ -188,22 +266,28 @@ async function getResolveCountSummary(request: GetResolveCountSummaryRequest): G
 }
 
 model GetResolveStatisticsRequest {
-  domainName: string(name='DomainName', description='This parameter is required.', example='www.aliyun.com', position='Query'),
-  granularity: string(name='Granularity', description='This parameter is required.', example='month', position='Query'),
-  protocolName?: string(name='ProtocolName', example='https', position='Query'),
-  timeSpan: int32(name='TimeSpan', description='This parameter is required.', example='2', position='Query'),
+  domainName: string(name='DomainName', description='The domain name for which to retrieve statistics information.
+
+This parameter is required.', example='www.aliyun.com', position='Query'),
+  granularity: string(name='Granularity', description='The data granularity. Valid values: **day** and **month**.
+
+This parameter is required.', example='month', position='Query'),
+  protocolName?: string(name='ProtocolName', description='The protocol type for resolution. Valid values: http (default) and https.', example='https', position='Query'),
+  timeSpan: int32(name='TimeSpan', description='The length of the time span.
+
+This parameter is required.', example='2', position='Query'),
 }
 
 model GetResolveStatisticsResponseBody = {
   dataPoints?: {
     dataPoint?: [ 
     {
-      count?: int32(name='Count', example='9703'),
-      time?: int32(name='Time', example='1488297600'),
+      count?: int32(name='Count'),
+      time?: int32(name='Time'),
     }
   ](name='DataPoint')
   }(name='DataPoints'),
-  requestId?: string(name='RequestId', example='50F9C40E-188D-B00B-BE2C-7427E531****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='50F9C40E-188D-B00B-BE2C-7427E531****'),
 }
 
 model GetResolveStatisticsResponse = {
@@ -222,8 +306,8 @@ async function getResolveStatistics(request: GetResolveStatisticsRequest): GetRe
 }
 
 model ListDomainsRequest {
-  pageNumber?: int32(name='PageNumber', example='1', minimum=1, position='Query'),
-  pageSize?: int32(name='PageSize', example='20', minimum=1, maximum=500, position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The number of the current page. Starting value: 1. Default value: 1.', example='1', minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page for paging in a paged query. Settings: Maximum value: 100. Default value: 20.', example='20', minimum=1, maximum=500, position='Query'),
   search?: string(name='Search', position='Query'),
   withoutMeteringData?: boolean(name='WithoutMeteringData', position='Query'),
 }
@@ -232,22 +316,22 @@ model ListDomainsResponseBody = {
   domainInfos?: {
     domainInfo?: [ 
     {
-      domainName?: string(name='DomainName', example='www.example.com'),
+      domainName?: string(name='DomainName'),
       resolveHttpAes?: long(name='ResolveHttpAes'),
       resolveHttpsAes?: long(name='ResolveHttpsAes'),
-      resolved?: long(name='Resolved', example='10'),
-      resolved6?: long(name='Resolved6', example='20'),
+      resolved?: long(name='Resolved'),
+      resolved6?: long(name='Resolved6'),
       resolvedDoh?: long(name='ResolvedDoh'),
-      resolvedHttps?: long(name='ResolvedHttps', example='10'),
-      resolvedHttps6?: long(name='ResolvedHttps6', example='20'),
+      resolvedHttps?: long(name='ResolvedHttps'),
+      resolvedHttps6?: long(name='ResolvedHttps6'),
       timeModified?: long(name='TimeModified'),
     }
   ](name='DomainInfo')
   }(name='DomainInfos'),
-  pageNumber?: long(name='PageNumber', example='1'),
-  pageSize?: long(name='PageSize', example='5'),
-  requestId?: string(name='RequestId', example='50F9C40E-188D-4208-BE2C-7427E531****'),
-  totalCount?: long(name='TotalCount', example='18'),
+  pageNumber?: long(name='PageNumber', description='The total number of domain names in the list.', example='1'),
+  pageSize?: long(name='PageSize', description='The number of domain names returned in this query.', example='5'),
+  requestId?: string(name='RequestId', description='The request ID.', example='50F9C40E-188D-4208-BE2C-7427E531****'),
+  totalCount?: long(name='TotalCount', description='The total number of domain names in the list.', example='18'),
 }
 
 model ListDomainsResponse = {
@@ -257,6 +341,9 @@ model ListDomainsResponse = {
 }
 
 /**
+  * @description # Operation description
+  * - You can specify the page number (PageNumber) and the number of entries per page (PageSize) for the query.
+  * - By default, the domain name list is sorted in descending order of the time when the domain names were added.
   * @param request  the request parameters of ListDomains  ListDomainsRequest
   * @return ListDomainsResponse
  */
@@ -266,13 +353,13 @@ async function listDomains(request: ListDomainsRequest): ListDomainsResponse {
 }
 
 model RefreshResolveCacheRequest {
-  domains?: [ string ](name='Domains', shrink='json', position='Query'),
+  domains?: [ string ](name='Domains', description='The list of domain names to refresh.', shrink='json', position='Query'),
 }
 
 model RefreshResolveCacheResponseBody = {
   code?: string(name='Code', description='Id of the request', example='200'),
-  message?: string(name='Message', example='success'),
-  requestId?: string(name='RequestId', example='FA8C2599-362D-4113-8FB4-E88A40C2****'),
+  message?: string(name='Message', description='The response message.', example='success'),
+  requestId?: string(name='RequestId', description='The request ID.', example='FA8C2599-362D-4113-8FB4-E88A40C2****'),
 }
 
 model RefreshResolveCacheResponse = {
@@ -288,5 +375,343 @@ model RefreshResolveCacheResponse = {
 async function refreshResolveCache(request: RefreshResolveCacheRequest): RefreshResolveCacheResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RPC', 'RefreshResolveCache', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SdnsDeleteRuleCategoryRequest {
+  id?: string(name='Id', description='The policy ID of the current account. This parameter is required. You can obtain the ID from the Id field in the response of CreateSdnsRuleCategory or the list returned by SdnsListRuleCategories. Use a decimal string to prevent precision loss of large integers.', example='123456789012345678', position='Query'),
+}
+
+model SdnsDeleteRuleCategoryResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID, which is used to troubleshoot API call issues. This is not the policy ID.', example='50F9C40E-188D-4208-BE2C-74271337****'),
+}
+
+model SdnsDeleteRuleCategoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SdnsDeleteRuleCategoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SdnsDeleteRuleCategory  SdnsDeleteRuleCategoryRequest
+  * @return SdnsDeleteRuleCategoryResponse
+ */
+async function sdnsDeleteRuleCategory(request: SdnsDeleteRuleCategoryRequest): SdnsDeleteRuleCategoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SdnsDeleteRuleCategory', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SdnsGetRuleCategoryRequest {
+  id?: string(name='Id', example='123456789012345678', position='Query'),
+}
+
+model SdnsGetRuleCategoryResponseBody = {
+  data?: {
+    clientIpRanges?: [ string ](name='ClientIpRanges'),
+    domainName?: string(name='DomainName', example='api.example.com'),
+    id?: string(name='Id', example='123456789012345678'),
+    matchType?: string(name='MatchType', example='IP_RANGE'),
+    recordLine?: {
+      lineId?: string(name='LineId', example='internal'),
+      lineLabel?: string(name='LineLabel', example='中国地区'),
+      paths?: [ 
+        {
+          id?: string(name='Id', example='chinanet'),
+          key?: string(name='Key', example='isps'),
+          label?: string(name='Label', example='电信'),
+          level?: int32(name='Level', example='1'),
+        }
+      ](name='Paths'),
+    }(name='RecordLine'),
+    region?: {
+      area?: {
+        id?: string(name='Id', example='huadong'),
+        label?: string(name='Label', example='华东'),
+      }(name='Area'),
+      city?: {
+        id?: string(name='Id', example='"x"'),
+        label?: string(name='Label', example='""'),
+      }(name='City'),
+      continent?: {
+        id?: string(name='Id', example='cn'),
+        label?: string(name='Label', example='亚洲'),
+      }(name='Continent'),
+      country?: {
+        id?: string(name='Id', example='cn'),
+        label?: string(name='Label', example='中国大陆'),
+      }(name='Country'),
+      isp?: {
+        id?: string(name='Id', example='chinanet'),
+        label?: string(name='Label', example='电信'),
+      }(name='Isp'),
+      province?: {
+        id?: string(name='Id', example='zhejiang'),
+        label?: string(name='Label', example='浙江'),
+      }(name='Province'),
+    }(name='Region'),
+    rules?: [ 
+      {
+        argKeys?: [ string ](name='ArgKeys'),
+        args?: map[string]string(name='Args'),
+        name?: string(name='Name', example='默认规则'),
+        records?: [ 
+          {
+            ip?: string(name='Ip', example='192.0.2.200'),
+            type?: int32(name='Type', example='1'),
+            typeLabel?: string(name='TypeLabel', example='A'),
+            weight?: int32(name='Weight', example='100'),
+          }
+        ](name='Records'),
+        resultMode?: int32(name='ResultMode', example='0'),
+        ttl?: int32(name='Ttl', example='60'),
+      }
+    ](name='Rules'),
+    status?: int32(name='Status', example='0'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', example='50F9C40E-188D-4208-BE2C-74271337****'),
+}
+
+model SdnsGetRuleCategoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SdnsGetRuleCategoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SdnsGetRuleCategory  SdnsGetRuleCategoryRequest
+  * @return SdnsGetRuleCategoryResponse
+ */
+async function sdnsGetRuleCategory(request: SdnsGetRuleCategoryRequest): SdnsGetRuleCategoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SdnsGetRuleCategory', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SdnsListRuleCategoriesRequest {
+  domainName?: string(name='DomainName', description='The domain name that is connected to HTTPDNS under the current account. This parameter is required.', example='api.example.com', position='Query'),
+}
+
+model SdnsListRuleCategoriesResponseBody = {
+  list?: [ 
+    {
+      clientIpRanges?: [ string ](name='ClientIpRanges', description='The array of original CIDR blocks from the most recent successful submission for an IP_RANGE policy. The order, duplicates, and content of each string are preserved. The response is a JSON array, not a text string of an array. This field is not used for LINE policies.'),
+      domainName?: string(name='DomainName', description='The domain name to which the policy is bound.', example='api.example.com'),
+      id?: string(name='Id', description='The ID of the policy, which can be used to query, update, enable, disable, or delete the policy. Treat it as a string to avoid precision loss of large integers.', example='123456789012345678'),
+      matchType?: string(name='MatchType', description='The match type of the policy. Valid values: LINE: line policy. IP_RANGE: client CIDR block policy.', example='IP_RANGE'),
+      recordLine?: {
+        lineId?: string(name='LineId', description='The line identifier. Valid values: internal: the Chinese mainland. overseas: outside the Chinese mainland.', example='internal'),
+        lineLabel?: string(name='LineLabel', description='The display name of the line.', example='The Chinese mainland'),
+        paths?: [ 
+          {
+            id?: string(name='Id', description='The code of the option at this level. For example, chinanet at the isps level indicates China Telecom. Use valid options for the associated line and maintain consistent hierarchical relationships.', example='chinanet'),
+            key?: string(name='Key', description='The level identifier. For the Chinese mainland, valid values are isps, subRegions, and provinces. For regions outside the Chinese mainland, valid values are continents and geoRegions. This corresponds to the Level field.', example='isps'),
+            label?: string(name='Label', description='The display name of the line option. The display name of the default option can be empty.', example='China Telecom'),
+            level?: int32(name='Level', description='The sequence number of the line level. For the Chinese mainland, the values are 1 (ISP), 2 (region), and 3 (province). For regions outside the Chinese mainland, the values are 1 (continent) and 2 (geographical region).', example='1'),
+          }
+        ](name='Paths', description='The line selection path, which describes the line conditions at each level. This field applies only to LINE policies. IP_RANGE policies do not use line paths.'),
+      }(name='RecordLine', description='The line display information for a LINE policy. This field can be empty or omitted for an IP_RANGE policy.'),
+      region?: {
+        area?: {
+          id?: string(name='Id', description='The code of the region. The value x indicates the default item.', example='huadong'),
+          label?: string(name='Label', description='The display name of the region. An empty string can be returned for the default item.', example='East China'),
+        }(name='Area', description='The code and display name of the region.'),
+        city?: {
+          id?: string(name='Id', description='The code of the city. This is a reserved field for compatibility. The default value is x, which indicates that no city is specified. The example uses the JSON string literal "x", where the double quotes are not part of the actual field content.', example='"x"'),
+          label?: string(name='Label', description='The display name of the city. This is a reserved field for compatibility, and an empty string is returned. The example uses the JSON literal "" to represent an empty string, where the double quotes are not part of the actual field content.', example='""'),
+        }(name='City', description='The code and display name of the city. This is a reserved field for compatibility. City-level granularity is not currently provided.'),
+        continent?: {
+          id?: string(name='Id', description='The code of the continent. The value x indicates the default item.', example='cn'),
+          label?: string(name='Label', description='The display name of the continent. An empty string can be returned for the default item.', example='Asia'),
+        }(name='Continent', description='The code and display name of the continent.'),
+        country?: {
+          id?: string(name='Id', description='The code of the country or region. The value x indicates the default item.', example='cn'),
+          label?: string(name='Label', description='The display name of the country or region. An empty string can be returned for the default item.', example='The Chinese mainland'),
+        }(name='Country', description='The code and display name of the country or region.'),
+        isp?: {
+          id?: string(name='Id', description='The code of the ISP. The value x indicates the default item.', example='chinanet'),
+          label?: string(name='Label', description='The display name of the ISP. An empty string can be returned for the default item.', example='China Telecom'),
+        }(name='Isp', description='The code and display name of the ISP.'),
+        province?: {
+          id?: string(name='Id', description='The code of the province. The value x indicates the default item.', example='zhejiang'),
+          label?: string(name='Label', description='The display name of the province. An empty string can be returned for the default item.', example='Zhejiang'),
+        }(name='Province', description='The code and display name of the province.'),
+      }(name='Region', description='The line and region display information for compatibility with existing clients. This field applies only to LINE policies and can be empty or omitted for IP_RANGE policies.'),
+      rules?: [ 
+        {
+          argKeys?: [ string ](name='ArgKeys', description='The names and display order of custom parameters. This field can be empty if no custom parameters are used.'),
+          args?: map[string]string(name='Args', description='The custom parameter matching conditions attached to the rule. If not configured, no parameter restrictions are applied.'),
+          name?: string(name='Name', description='The name of the rule, which is used to identify the rule and cannot replace the policy ID.', example='Default rule'),
+          records?: [ 
+            {
+              ip?: string(name='Ip', description='The single destination IP address corresponding to the record. When Type is 1, it is an IPv4 address, such as 192.0.2.200. When Type is 28, it is an IPv6 address, such as 2001:db8::200. CIDR blocks, IP ranges, or domain names are not used.', example='192.0.2.200'),
+              type?: int32(name='Type', description='The DNS record type. Valid values: 1: A record. 28: AAAA record. Enter an integer instead of the string A or AAAA.', example='1'),
+              typeLabel?: string(name='TypeLabel', description='The auxiliary display text for the record type, which is not used for matching or resolution decisions. This field can be omitted in requests.', example='A'),
+              weight?: int32(name='Weight', description='The relative weight of the record, which is used to select one record of the same query type only when ResultMode is 1. Set this to a positive integer from 1 to 100. The sum of the weights of all records does not need to be 100. This field is not used for selection when ResultMode is 0.', example='100'),
+            }
+          ](name='Records', description='The list of configured DNS records, which can include A and AAAA records. Actual resolution returns only records of the queried type. If the list is empty or contains no records of the queried type, the system continues to fall back.'),
+          resultMode?: int32(name='ResultMode', description='The record return mode. Valid values: 0: returns all records of the queried type. 1: returns one record of the queried type based on weight.', example='0'),
+          ttl?: int32(name='Ttl', description='The cache validity period of the record, in seconds. This value must be a positive integer.', example='60'),
+        }
+      ](name='Rules', description='The list of custom resolution rules included in the policy. If multiple rules have no parameter conditions, only the first rule is prioritized. Multiple return addresses should be configured in a single rule.'),
+      status?: int32(name='Status', description='The status of the policy. Valid values: 0: disabled. 1: enabled. After a policy is enabled, actual resolution requires waiting for configuration propagation.', example='0'),
+    }
+  ](name='List', description='The list of all custom resolution policies for the domain name, including LINE and IP_RANGE policies, as well as enabled and disabled policies. The order of the list is not guaranteed.'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used to troubleshoot call issues and is not the policy ID.', example='50F9C40E-188D-4208-BE2C-74271337****'),
+}
+
+model SdnsListRuleCategoriesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SdnsListRuleCategoriesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SdnsListRuleCategories  SdnsListRuleCategoriesRequest
+  * @return SdnsListRuleCategoriesResponse
+ */
+async function sdnsListRuleCategories(request: SdnsListRuleCategoriesRequest): SdnsListRuleCategoriesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SdnsListRuleCategories', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SdnsSwitchRuleCategoryRequest {
+  enable: boolean(name='Enable', description='This parameter is required.', position='Query'),
+  id?: string(name='Id', example='123456789012345678', position='Query'),
+}
+
+model SdnsSwitchRuleCategoryResponseBody = {
+  requestId?: string(name='RequestId', example='50F9C40E-188D-4208-BE2C-74271337****'),
+}
+
+model SdnsSwitchRuleCategoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SdnsSwitchRuleCategoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SdnsSwitchRuleCategory  SdnsSwitchRuleCategoryRequest
+  * @return SdnsSwitchRuleCategoryResponse
+ */
+async function sdnsSwitchRuleCategory(request: SdnsSwitchRuleCategoryRequest): SdnsSwitchRuleCategoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SdnsSwitchRuleCategory', 'POST', '/', 'json', false, 'json', request);
+}
+
+model SdnsVerifyRuleCategoryRequest {
+  args?: map[string]string(name='Args', description='The parameter object used for the current validation. If no custom parameters are used, pass an empty JSON object {}. Do not pass an empty string or null.', shrink='json', position='Body'),
+  cip?: string(name='Cip', description='The simulated client IP address. This parameter is required in IP_RANGE mode. Supports a single IPv4 or IPv6 address. CIDR blocks and start-to-end ranges are not supported. This parameter is used for CIDR block matching in the current request and does not change the source of the actual DNS resolution request.', example='198.51.100.10', position='Body'),
+  clientIpRanges?: [ string ](name='ClientIpRanges', description='The array of client CIDR blocks that must be provided in the IP_RANGE pattern. Send this parameter as a JSON form field. Do not pass this parameter in the LINE pattern. Supports single IPv4 and IPv6 addresses, CIDR blocks, and start-to-end ranges. Multiple entries have an OR relationship. For CIDR blocks, the IPv4 prefix length ranges from 0 to 32, and the IPv6 prefix length ranges from 0 to 128. Start-to-end ranges are inclusive and must belong to the same address family, with the start address not greater than the end address. Overlapping, containing, and duplicate ranges are allowed within the same policy. When the policy is saved and read back, the array sequence, duplicate items, and the original text of each string are preserved. The array can contain up to 2,000 array elements. The total number of parsed non-empty address expressions ranges from 1 to 2,000, including duplicates. Specify one expression per array element. It is compatible with line breaks within an array element. Each expression can contain up to 128 characters, including leading and trailing whitespace. The serialized UTF-8 JSON content cannot exceed 65,535 bytes. Both the quantity and byte limits apply simultaneously. To authenticate, the system only checks the ranges that you commit and does not check for conflicts with saved policies.', shrink='json', position='Body'),
+  matchType?: string(name='MatchType', description='The match type. Valid values:
+- LINE: line mode
+- IP_RANGE: client CIDR block mode
+If this parameter is omitted, LINE is used. In IP_RANGE mode, you must provide both ClientIpRanges and Cip.', example='IP_RANGE', position='Body'),
+  rules?: [ 
+    {
+      argKeys?: [ string ](name='ArgKeys', description='The optional list of custom parameter names, used to record the display order. Omit this parameter if you only match CIDR blocks. If you use Args, the names must correspond to the parameter names in Args.'),
+      args?: map[string]string(name='Args', description='The optional custom parameter conditions. The key is the parameter name and the value is the match value. Omit this parameter if you only match CIDR blocks. You do not need to add business parameters.'),
+      name?: string(name='Name', description='The rule name. This parameter is required and cannot be null. Use a non-empty name with business meaning. This parameter cannot replace the policy ID.', example='Default rule'),
+      records?: [ 
+        {
+          ip?: string(name='Ip', description='The single destination IP address for the record. If Type is set to 1, specify an IPv4 address, such as 192.0.2.200. If Type is set to 28, specify an IPv6 address, such as 2001:db8::200. Do not use CIDR blocks, start-to-end ranges, or domain names.', example='192.0.2.200'),
+          type?: int32(name='Type', description='The DNS record type. Valid values:
+- 1: A record
+- 28: AAAA record
+Specify an integer. Do not use the strings A or AAAA.', example='1'),
+          typeLabel?: string(name='TypeLabel', description='The auxiliary display text for the record type. This parameter does not participate in matching or resolution decisions and can be omitted in the request.', example='A'),
+          weight?: int32(name='Weight', description='The relative weight of the record. This parameter is used to select one record of the same query type only when ResultMode is set to 1. Set this parameter to a positive integer from 1 to 100. The sum of the weights of all records does not need to be 100. This parameter does not participate in selection when ResultMode is set to 0.', example='100'),
+        }
+      ](name='Records', description='The list of configured DNS records, which can include A and AAAA records. Actual DNS resolution returns only records of the queried type. If the list is empty or does not contain records of the queried type, the system continues to fall back. This operation returns the records configured in the rule and does not filter them by query type.'),
+      resultMode?: int32(name='ResultMode', description='The record return mode. Valid values:
+- 0: Returns all records of the queried type.
+- 1: Returns one record of the queried type based on weight.
+Policy validation only returns the rule configuration and does not perform weight sampling.', example='0'),
+      ttl?: int32(name='Ttl', description='The cache validity period of the record, in seconds. This parameter must be a positive integer.', example='60'),
+    }
+  ](name='Rules', description='The complete list of rules. This parameter is required and must contain at least one rule. If you only need to match CIDR blocks, configure a default rule without ArgKeys and Args, and configure the A/AAAA destination addresses in the Records field of this rule. This operation is used for match validation and does not save the rules.', shrink='json', position='Body'),
+}
+
+model SdnsVerifyRuleCategoryResponseBody = {
+  data?: {
+    argKeys?: [ string ](name='ArgKeys', description='The custom parameter names and their display order. This field can be empty if no custom parameters are used.'),
+    args?: map[string]string(name='Args', description='The custom parameter match conditions attached to the rule. If not configured, no parameter restrictions are attached.'),
+    name?: string(name='Name', description='The rule name, used to identify the rule. This field cannot replace the policy ID.', example='Default rule'),
+    records?: [ 
+      {
+        ip?: string(name='Ip', description='The single destination IP address for the record. If Type is set to 1, specify an IPv4 address, such as 192.0.2.200. If Type is set to 28, specify an IPv6 address, such as 2001:db8::200. Do not use CIDR blocks, start-to-end ranges, or domain names.', example='192.0.2.200'),
+        type?: int32(name='Type', description='The DNS record type. Valid values:
+- 1: A record
+- 28: AAAA record
+Specify an integer. Do not use the strings A or AAAA.', example='1'),
+        typeLabel?: string(name='TypeLabel', description='The auxiliary display text for the record type. This parameter does not participate in matching or resolution decisions and can be omitted in the request.', example='A'),
+        weight?: int32(name='Weight', description='The relative weight of the record. This parameter is used to select one record of the same query type only when ResultMode is set to 1. Set this parameter to a positive integer from 1 to 100. The sum of the weights of all records does not need to be 100. This parameter does not participate in selection when ResultMode is set to 0.', example='100'),
+      }
+    ](name='Records', description='The list of configured DNS records, which can include A and AAAA records. Actual DNS resolution returns only records of the queried type. If the list is empty or does not contain records of the queried type, the system continues to fall back. This operation returns the records configured in the rule and does not filter them by query type.'),
+    resultMode?: int32(name='ResultMode', description='The record return mode. Valid values:
+- 0: Returns all records of the queried type.
+- 1: Returns one record of the queried type based on weight.
+Policy validation only returns the rule configuration and does not perform weight sampling.', example='0'),
+    ttl?: int32(name='Ttl', description='The cache validity period of the record, in seconds. This parameter must be a positive integer.', example='60'),
+  }(name='Data', description='The configuration of the matched rule. If no rules are matched, this field is empty or omitted. This field does not represent the final response of the actual resolution chain.'),
+  requestId?: string(name='RequestId', description='The ID of the request, used to troubleshoot call issues. This field is not the policy ID.', example='50F9C40E-188D-4208-BE2C-74271337****'),
+}
+
+model SdnsVerifyRuleCategoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SdnsVerifyRuleCategoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of SdnsVerifyRuleCategory  SdnsVerifyRuleCategoryRequest
+  * @return SdnsVerifyRuleCategoryResponse
+ */
+async function sdnsVerifyRuleCategory(request: SdnsVerifyRuleCategoryRequest): SdnsVerifyRuleCategoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'SdnsVerifyRuleCategory', 'POST', '/', 'json', true, 'form', request);
+}
+
+model UpdateSdnsRuleCategoryRequest {
+  clientIpRanges?: string(name='ClientIpRanges', description='The JSON text string of the IP address range array. This parameter is used only to update IP_RANGE policies. If this parameter is omitted, the original IP address ranges are retained. If this parameter is provided, the original IP address ranges are replaced as a whole. You cannot pass an empty string, an empty array [], null, or a non-string array. Single IP addresses, CIDR blocks, and start-end ranges of IPv4 and IPv6 are supported. Multiple entries have an OR relationship. For CIDR blocks, the IPv4 prefix length ranges from 0 to 32, and the IPv6 prefix length ranges from 0 to 128. Start-end ranges are inclusive and must belong to the same address family, and the start address must not be greater than the end address. Overlapping, containing, and duplicate ranges are allowed within the same policy. When the policy is saved and read back, the array order, duplicate items, and the original text of each string are retained. An array can contain up to 2,000 array elements. The total number of parsed non-empty address expressions ranges from 1 to 2,000, and duplicate items are counted. We recommend that you specify one expression per element. It is compatible with line breaks within an element. Each expression can contain up to 128 characters, including leading and trailing whitespace. The serialized UTF-8 JSON sequence cannot exceed 65,535 bytes. The quantity and byte limits take effect at the same time. Overlapping is not allowed among different IP_RANGE policies of the same account, the same domain name, and the same address family. Disabled policies are also checked. Disabling a policy does not release its IP address ranges. This limit does not compare LINE policies and the independent configurations of the legacy SetIPRegionResult operation. The new ranges do not conflict with the old ranges of the same policy during an update. Send this parameter as a single form field, and do not add quotes to the JSON text again.', example='["198.51.100.0/24","2001:db8:1::/64"]', position='Body'),
+  id?: string(name='Id', description='The ID of the policy for the current account. This parameter is required. You can obtain the ID from the Id field in the response of CreateSdnsRuleCategory or from the list returned by SdnsListRuleCategories. Use a decimal string to avoid precision loss for large integers.', example='123456789012345678', position='Body'),
+  rules?: [ 
+    {
+      argKeys?: [ string ](name='ArgKeys', description='The optional list of custom parameter names, which is used to record the display order. Omit this parameter if you match only by IP address range. If you use Args, the names must correspond to the parameter names in Args.'),
+      args?: map[string]string(name='Args', description='The optional custom parameter conditions. The key is the parameter name, and the value is the match value. Omit this parameter if you match only by IP address range. You do not need to add business parameters.'),
+      name?: string(name='Name', description='The name of the rule. This parameter is required and cannot be null. We recommend that you use a non-empty name that has business meaning. The name cannot replace the policy ID.', example='Default rule'),
+      records?: [ 
+        {
+          ip?: string(name='Ip', description='The single destination IP address corresponding to the record. When Type is set to 1, the IP address is an IPv4 address, such as 192.0.2.200. When Type is set to 28, the IP address is an IPv6 address, such as 2001:db8::200. Do not use CIDR blocks, start-end ranges, or domain names.', example='192.0.2.200'),
+          type?: int32(name='Type', description='The DNS record type. Valid values:
+- 1: A record.
+- 28: AAAA record.
+Specify an integer. Do not use the string A or AAAA.', example='1'),
+          typeLabel?: string(name='TypeLabel', description='The auxiliary display text for the record type. This text is not used for matching or DNS resolution decisions. You can omit this parameter in the request.', example='A'),
+          weight?: int32(name='Weight', description='The relative weight of the record. This parameter is used to select one record of the same queried type only when ResultMode is set to 1. We recommend that you set this parameter to a positive integer from 1 to 100. The sum of the weights of all records does not need to be 100. This parameter is not used for selection when ResultMode is set to 0.', example='100'),
+        }
+      ](name='Records', description='The list of configured DNS records. The list can include A and AAAA records. Actual DNS resolution returns only the records of the queried type. If the list is empty or does not contain records of the queried type, the system continues to fall back.'),
+      resultMode?: int32(name='ResultMode', description='The record return mode. Valid values:
+- 0: Returns all records of the queried type.
+- 1: Returns one record of the queried type based on the weight.', example='0'),
+      ttl?: int32(name='Ttl', description='The cache validity period of the record, in seconds. The value must be a positive integer.', example='60'),
+    }
+  ](name='Rules', description='The complete list of rules. This parameter is required and must contain at least one rule. If you match only by IP address range, you can configure a default rule without ArgKeys and Args, and configure the A or AAAA destination addresses in the Records field of the rule. The update replaces the original rule list as a whole. Old rules that are not included in the new list are removed. When the rules are saved, the serialized UTF-8 JSON content must be less than 65,535 bytes.', shrink='json', position='Body'),
+}
+
+model UpdateSdnsRuleCategoryResponseBody = {
+  requestId?: string(name='RequestId', description='The ID of the request. You can use the ID to troubleshoot call issues. This ID is not the policy ID.', example='50F9C40E-188D-4208-BE2C-74271337****'),
+}
+
+model UpdateSdnsRuleCategoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateSdnsRuleCategoryResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateSdnsRuleCategory  UpdateSdnsRuleCategoryRequest
+  * @return UpdateSdnsRuleCategoryResponse
+ */
+async function updateSdnsRuleCategory(request: UpdateSdnsRuleCategoryRequest): UpdateSdnsRuleCategoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'UpdateSdnsRuleCategory', 'POST', '/', 'json', true, 'form', request);
 }
 
