@@ -161,14 +161,15 @@ The value can contain letters, digits, hyphens (-), underscores (_), and commas 
 }
 
 model FileTypeFilters {
-  excludeDir?: boolean(name='ExcludeDir', description='Specifies whether to filter out files in directories.', example='fasle'),
-  excludeSymlink?: boolean(name='ExcludeSymlink', description='Specifies whether to filter out symbolic links.', example='fasle'),
+  excludeDir?: boolean(name='ExcludeDir', description='The directory files to filter.', example='false'),
+  excludeSymlink?: boolean(name='ExcludeSymlink', description='The symbolic links to filter.', example='false'),
 }
 
 model FilterRule {
-  fileTypeFilters?: FileTypeFilters(name='FileTypeFilters', description='The filter based on the file type.'),
-  keyFilters?: KeyFilters(name='KeyFilters', description='The filter based on the file name.'),
-  lastModifiedFilters?: LastModifiedFilters(name='LastModifiedFilters', description='The filter based on the file modification time.'),
+  fileTypeFilters?: FileTypeFilters(name='FileTypeFilters', description='The file type filters.'),
+  keyFilters?: KeyFilters(name='KeyFilters', description='The file name filters.'),
+  lastModifiedFilters?: LastModifiedFilters(name='LastModifiedFilters', description='The file modification time filters.'),
+  prefixFilters?: PrefixFilters(name='PrefixFilters', description='The object prefix filter rules. Only Includes is supported. This filter applies only to full migration tasks.'),
 }
 
 model GetAddressResp {
@@ -337,8 +338,8 @@ model KeyFilterItem {
 }
 
 model KeyFilters {
-  excludes?: KeyFilterItem(name='Excludes', description='The excluded file name.'),
-  includes?: KeyFilterItem(name='Includes', description='The included file name.'),
+  excludes?: KeyFilterItem(name='Excludes', description='The excluded file names.'),
+  includes?: KeyFilterItem(name='Includes', description='The included file names.'),
 }
 
 model LastModifiedFilters {
@@ -387,9 +388,9 @@ model ListJobInfo {
 model ListJobResp {
   importJob?: [
     GetJobResp
-  ](name='ImportJob', description='The queried tasks.'),
-  nextMarker?: string(name='NextMarker', description='The position from which the next list operation starts.', example='test_nex_marker'),
-  truncated?: boolean(name='Truncated', description='Indicates whether the queried results are truncated.', example='true'),
+  ](name='ImportJob', description='The task detail list.'),
+  nextMarker?: string(name='NextMarker', description='The start point for the next task listing.', example='test_nex_marker'),
+  truncated?: boolean(name='Truncated', description='Indicates whether the result is truncated.', example='true'),
 }
 
 model ListTunnelResp {
@@ -405,15 +406,23 @@ Valid values:
 *   false', example='true'),
 }
 
+model PrefixFilters {
+  includes?: PrefixFiltersIncludeItem(name='Includes', description='The collection of object prefixes to migrate, where multiple prefixes are matched using OR logic.'),
+}
+
+model PrefixFiltersIncludeItem {
+  prefix?: [ string ](name='Prefix', description='The full object key prefix. A maximum of 10,000 prefixes are supported by default, and each prefix can be up to 1,024 bytes in length.', example='source-prefix/dir-a/'),
+}
+
 model ScheduleRule {
-  maxScheduleCount?: long(name='MaxScheduleCount', description='The maximum number of times that the migration task is automatically scheduled. Each time the migration task is run, the execution ID increases by one until the task is run the specified number of times. The task is automatically scheduled based on the specified start time and pause time. The task is no longer automatically scheduled after the task is run the specified number of times. However, you can still manually start the task.', example='1'),
-  startCronExpression?: string(name='StartCronExpression', description='The time when the migration task started. You can use a CRON expression to specify the time. The interval at which the migration task is run is at least 1 hour.', example='0 0 * * * ?'),
-  suspendCronExpression?: string(name='SuspendCronExpression', description='The time when the migration task paused. You can use a CRON expression to specify the time. The interval at which the migration task is run is at least 1 hour.', example='0 0 * * * ?'),
+  maxScheduleCount?: long(name='MaxScheduleCount', description='The maximum number of automatic scheduling rounds. Within this limit, a task execution ID is automatically scheduled based on the start and pause times. One round consists of a complete task execution from start to finish. If the limit is exceeded, automatic scheduling stops, but the task can still be executed manually.', example='1'),
+  startCronExpression?: string(name='StartCronExpression', description='The start time specified by a cron expression. The interval must be at least 1 hour.', example='0 0 * * * ?'),
+  suspendCronExpression?: string(name='SuspendCronExpression', description='The pause time specified by a cron expression. The interval must be at least 1 hour.', example='0 0 * * * ?'),
 }
 
 model TimeFilter {
-  endTime?: string(name='EndTime', description='The time when the migration task ended.', example='2006-12-31T59:59:59Z'),
-  startTime?: string(name='StartTime', description='The time when the migration task started.', example='2006-01-01T00:00:00Z'),
+  endTime?: string(name='EndTime', description='The end time.', example='2006-12-31T59:59:59Z'),
+  startTime?: string(name='StartTime', description='The start time.', example='2006-01-01T00:00:00Z'),
 }
 
 model TunnelQos {
@@ -646,7 +655,7 @@ async function createJob(userid: string, request: CreateJobRequest): CreateJobRe
 }
 
 model CreateReportRequest {
-  createReport?: CreateReportInfo(name='CreateReport', description='The details for creating the migration report.'),
+  createReport?: CreateReportInfo(name='CreateReport', description='The details for creating a migration report.'),
 }
 
 model CreateReportResponse = {
@@ -657,8 +666,8 @@ model CreateReportResponse = {
 /**
  * @summary Creates a migration report.
  *
- * @description *   To create a migration report, you must have the permission on mgw:CreateImportReport.
- * *   If you specify that a migration report is to be generated when you create a migration task, you do not need to call this operation. If you do not specify that a migration report is to be generated when you create a migration task, you can call this operation to create a migration report for an execution with the specified ID.
+ * @description - To create a migration report, you must have the mgw:CreateImportReport permission.
+ * - If you specified to create a migration report when creating the task, you do not need to call this operation. Otherwise, you can call this operation to create a migration report for a specified execution ID.
  *
  * @param request CreateReportRequest
  * @param headers map
@@ -696,8 +705,8 @@ async function createReportWithOptions(userid: string, request: CreateReportRequ
 /**
  * @summary Creates a migration report.
  *
- * @description *   To create a migration report, you must have the permission on mgw:CreateImportReport.
- * *   If you specify that a migration report is to be generated when you create a migration task, you do not need to call this operation. If you do not specify that a migration report is to be generated when you create a migration task, you can call this operation to create a migration report for an execution with the specified ID.
+ * @description - To create a migration report, you must have the mgw:CreateImportReport permission.
+ * - If you specified to create a migration report when creating the task, you do not need to call this operation. Otherwise, you can call this operation to create a migration report for a specified execution ID.
  *
  * @param request CreateReportRequest
  * @return CreateReportResponse
@@ -1141,11 +1150,11 @@ async function getAgentStatus(userid: string, agentName: string): GetAgentStatus
 }
 
 model GetJobRequest {
-  byVersion?: string(name='byVersion', description='Specifies whether to obtain the details of the migration task by using the task ID.', example='false'),
+  byVersion?: string(name='byVersion', description='Specifies whether to retrieve the task by task ID.', example='false'),
 }
 
 model GetJobResponseBody = {
-  importJob?: GetJobResp(name='ImportJob', description='The details for obtaining the details of the migration task.'),
+  importJob?: GetJobResp(name='ImportJob', description='The task details.'),
 }
 
 model GetJobResponse = {
@@ -1155,9 +1164,9 @@ model GetJobResponse = {
 }
 
 /**
- * @summary Obtains the details of a migration task.
+ * @summary Retrieves the details of a migration task.
  *
- * @description *   To query the information about a migration task, you must have the permission on mgw:GetImportJob.
+ * @description - To retrieve a migration task, you must have the mgw:GetImportJob permission.
  *
  * @param request GetJobRequest
  * @param headers map
@@ -1192,9 +1201,9 @@ async function getJobWithOptions(userid: string, jobName: string, request: GetJo
 }
 
 /**
- * @summary Obtains the details of a migration task.
+ * @summary Retrieves the details of a migration task.
  *
- * @description *   To query the information about a migration task, you must have the permission on mgw:GetImportJob.
+ * @description - To retrieve a migration task, you must have the mgw:GetImportJob permission.
  *
  * @param request GetJobRequest
  * @return GetJobResponse
@@ -1208,11 +1217,11 @@ async function getJob(userid: string, jobName: string, request: GetJobRequest): 
 model GetJobResultRequest {
   runtimeId?: int32(name='runtimeId', description='The execution ID of the task.
 
-This parameter is required.', example='2'),
+This parameter is required.', example='1'),
 }
 
 model GetJobResultResponseBody = {
-  importJobResult?: GetJobResultResp(name='ImportJobResult', description='The details for obtaining the retries of the migration task.'),
+  importJobResult?: GetJobResultResp(name='ImportJobResult', description='The details of the task retry information.'),
 }
 
 model GetJobResultResponse = {
@@ -1222,10 +1231,10 @@ model GetJobResultResponse = {
 }
 
 /**
- * @summary Obtains the list of files that fail to be migrated when files fail to be migrated during a migration task.
+ * @summary Retrieves the retry information for failed files in a migration task.
  *
- * @description *   To query the retry information about a migration task, you must have the permission on mgw:GetImportJobResult.
- * *   If files fail to be migrated during a migration task, a list of files that fail to be migrated is generated. You can call this operation to query this list. You can create a data address based on this list and create a subtask. This way, you can migrate these files again.
+ * @description - To retrieve task retry information, you must have the mgw:GetImportJobResult permission.
+ * - If a task has failed files, the migration service generates a list of these failed files. Call this operation to retrieve the details of the list. You can then create a new data address and a subtask to remigrate the failed files.
  *
  * @param request GetJobResultRequest
  * @param headers map
@@ -1260,10 +1269,10 @@ async function getJobResultWithOptions(userid: string, jobName: string, request:
 }
 
 /**
- * @summary Obtains the list of files that fail to be migrated when files fail to be migrated during a migration task.
+ * @summary Retrieves the retry information for failed files in a migration task.
  *
- * @description *   To query the retry information about a migration task, you must have the permission on mgw:GetImportJobResult.
- * *   If files fail to be migrated during a migration task, a list of files that fail to be migrated is generated. You can call this operation to query this list. You can create a data address based on this list and create a subtask. This way, you can migrate these files again.
+ * @description - To retrieve task retry information, you must have the mgw:GetImportJobResult permission.
+ * - If a task has failed files, the migration service generates a list of these failed files. Call this operation to retrieve the details of the list. You can then create a new data address and a subtask to remigrate the failed files.
  *
  * @param request GetJobResultRequest
  * @return GetJobResultResponse
@@ -1544,18 +1553,18 @@ async function listAgent(userid: string, request: ListAgentRequest): ListAgentRe
 }
 
 model ListJobRequest {
-  all?: boolean(name='all', description='Specifies whether to return subtasks.\\\\
-Valid values: true and false.', example='true'),
-  count?: int32(name='count', description='Specifies the number of migration tasks to be returned.\\\\
-Valid values: 0 - 1000 (excluding 0).\\\\
+  all?: boolean(name='all', description='Specifies whether to return subtasks.  
+Valid values: true, false.', example='true'),
+  count?: int32(name='count', description='Specifies the number of migration tasks to return.  
+Valid values: 1 to 1000.  
 Default value: 1000.', example='1000'),
-  marker?: string(name='marker', description='The marker after which the migration tasks are listed.\\\\
-By default, this parameter is left empty.', example='test_marker'),
-  parentName?: string(name='parentName', description='The name of the parent task. If this parameter is specified, all subtasks of the parent task are returned.', example='test_parent_job_name'),
+  marker?: string(name='marker', description='Specifies the marker after which migration tasks are listed.  
+Default value: None.', example='test_marker'),
+  parentName?: string(name='parentName', description='The name of the parent task. If you specify this parameter, all subtasks of the parent task are returned.', example='test_parent_job_name'),
 }
 
 model ListJobResponseBody = {
-  importJobList?: ListJobResp(name='ImportJobList', description='The queried migration tasks.'),
+  importJobList?: ListJobResp(name='ImportJobList', description='The details of the migration task list.'),
 }
 
 model ListJobResponse = {
@@ -1565,9 +1574,9 @@ model ListJobResponse = {
 }
 
 /**
- * @summary Lists the migration tasks created by a user in the specific region.
+ * @summary Lists the migration tasks in the region.
  *
- * @description *   To query a list of migration tasks, you must have the permission on mgw:ListImportJob.
+ * @description - To list migration tasks, you must have the mgw:ListImportJob permission.
  *
  * @param request ListJobRequest
  * @param headers map
@@ -1611,9 +1620,9 @@ async function listJobWithOptions(userid: string, request: ListJobRequest, heade
 }
 
 /**
- * @summary Lists the migration tasks created by a user in the specific region.
+ * @summary Lists the migration tasks in the region.
  *
- * @description *   To query a list of migration tasks, you must have the permission on mgw:ListImportJob.
+ * @description - To list migration tasks, you must have the mgw:ListImportJob permission.
  *
  * @param request ListJobRequest
  * @return ListJobResponse
