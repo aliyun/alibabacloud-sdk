@@ -247,18 +247,20 @@ async function getKnowledgeBasePreSignedUrl(datasetId: string, request: GetKnowl
 model SearchKnowledgeBaseRequest {
   documentIds?: [ string ](name='documentIds', description='The list of document IDs.'),
   enableKnowledgeGraph?: boolean(name='enableKnowledgeGraph', description='Specifies whether to enable the knowledge graph.', example='false'),
+  evidencePageToken?: string(name='evidencePageToken', description='Optional. This parameter is returned conditionally and can be passed only when includeWiki is set to true. Omit this parameter for the first evidence page. For subsequent pages, pass the evidenceNextToken from the previous page as is. The candidate pool, subject, parameters, and page size are fixed and expire after 5 minutes without renewal. If the token expires, a 409 error is returned and no automatic re-search is performed. The pageNumber parameter only controls the legacy results. Constraints: {"minLength":1,"maxLength":4096}.', example='example-opaque-next-token'),
   image?: {
     base64?: string(name='base64', description='The Base64-encoded image.', example='data:image/png;base64,iVBORw0KGgoAAA...'),
     objectKey?: string(name='objectKey', description='The object key of the image.', example='uploaded/invoice.png'),
-    url?: string(name='url', description='The image URL.', example='https://example.com/invoice.png'),
-  }(name='image', description='The image retrieval input.'),
+    url?: string(name='url', description='The URL of the image.', example='https://example.com/invoice.png'),
+  }(name='image', description='The image search input.'),
+  includeWiki?: boolean(name='includeWiki', description='Optional. This parameter is returned conditionally and is added for compatibility. Default value: false. If set to true, the unified evidenceResults are additionally returned, and Wiki content is not disguised as original text. Constraints: {"default":false}.', example='true'),
   pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='5'),
-  query?: string(name='query', description='The retrieval query.', example='What is the tax amount on the invoice?'),
-  rerankModelId?: long(name='rerankModelId', description='The reranking model ID.', example='123'),
-  rerankModelName?: string(name='rerankModelName', description='The name of a reranking model that the tenant has activated. If both rerankModelName and rerankModelId are specified, this parameter takes precedence.', example='qwen3-rerank'),
+  pageSize?: int32(name='pageSize', description='The number of items per page.', example='5'),
+  query?: string(name='query', description='The search query.', example='What is the tax amount on the invoice?'),
+  rerankModelId?: long(name='rerankModelId', description='The ID of the rerank model.', example='123'),
+  rerankModelName?: string(name='rerankModelName', description='The name of the rerank model activated for the tenant. If both rerankModelId and this parameter are specified, this parameter takes precedence.', example='qwen3-rerank'),
   retrievalConfig?: {
-    candidateCount?: int32(name='candidateCount', description='The number of candidate recall results.', example='5'),
+    candidateCount?: int32(name='candidateCount', description='The number of recalled candidates.', example='5'),
     enableQueryExpansion?: boolean(name='enableQueryExpansion', description='Specifies whether to enable query expansion.', example='true'),
     minScore?: float(name='minScore', description='The minimum relevance score.', example='0.2'),
     semanticWeight?: float(name='semanticWeight', description='The weight of semantic relevance.', example='0.5'),
@@ -274,16 +276,94 @@ model SearchKnowledgeBaseRequest {
     ](name='conditions', description='The list of tag conditions.'),
     relation?: string(name='relation', description='The logical relation between conditions.', example='or'),
   }(name='tagFilter', description='The tag filter.'),
-  version?: string(name='version', description='The knowledge base version.', example='v1'),
+  version?: string(name='version', description='The version of the knowledge base.', example='v1'),
 }
 
 model SearchKnowledgeBaseResponseBody = {
-  accessDeniedDetail?: string(name='accessDeniedDetail', description='The details of the access denial due to a permission verification failure.', example='{"PolicyType":"AccountLevelIdentityBasedPolicy","NoPermissionType":"ImplicitDeny","AuthAction":"milvusknowledgebase:SearchKnowledgeBase"}'),
-  code?: int32(name='code', description='The return code.', example='0'),
+  accessDeniedDetail?: string(name='accessDeniedDetail', description='The access denial details.', example='{"PolicyType":"AccountLevelIdentityBasedPolicy","NoPermissionType":"ImplicitDeny","AuthAction":"milvusknowledgebase:SearchKnowledgeBase"}'),
+  code?: int32(name='code', description='The status code.', example='0'),
+  evidenceNextToken?: string(name='evidenceNextToken', description='Optional. Conditionally returned. Required when includeWiki is set to true. The cursor for the next page of evidence. Null for the last page. Not used for legacy results pagination. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minLength":1,"maxLength":4096}.', example='example-opaque-next-token'),
+  evidenceResults?: [ 
+    {
+      batchId?: string(name='batchId', description='Required. Always returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='null'),
+      chunkId?: string(name='chunkId', description='Required. Always returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='null'),
+      content?: string(name='content', description='Required. Always returned. The readable evidence text. Constraints: {"maxLength":65535}.
+
+This parameter is required.', example='The warranty period for Product A is 18 months'),
+      documentId?: string(name='documentId', description='Required. Always returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='null'),
+      entityId?: string(name='entityId', description='Required. Always returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='null'),
+      evidenceId?: string(name='evidenceId', description='Required. Always returned. The opaque business ID generated by the server. Validates ownership and does not accept arbitrary paths. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='wiki_section_page_1_sec_1_rev_7'),
+      kind?: string(name='kind', description='Required. Always returned. The actual evidence object type. Constraints: {"enum":["raw","wiki_page","wiki_section","graph_fact"],"maxLength":64}.
+
+This parameter is required.', example='wiki_section'),
+      knowledgeBaseId?: string(name='knowledgeBaseId', description='Required. Always returned. The opaque business ID generated by the server. Validates ownership and does not accept arbitrary paths. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='example_kb'),
+      pageId?: string(name='pageId', description='Required. Always returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='page_1'),
+      relationId?: string(name='relationId', description='Required. Always returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='null'),
+      revisionId?: string(name='revisionId', description='Required. Always returned. The opaque business ID generated by the server. Validates ownership and does not accept arbitrary paths. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='example_value'),
+      score?: double(name='score', description='Required. Always returned. The finite numerical value used for unified ranking. For hybrid, it is the relevance of the existing Dealer.rerank. For rerank, it is the text and model hybrid relevance of the existing Dealer.rerank_by_model, along the semanticWeight and rank feature, which is not a relevance probability. The minScore is applied according to the existing unified scoring rules. Can be null for non-ranking fact evidence. Null is allowed. The not-equal-to condition can be omitted.
+
+This parameter is required.', example='0.62'),
+      sectionId?: string(name='sectionId', description='Required. Always returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='sec_1'),
+      sourceRefCount?: long(name='sourceRefCount', description='Required. Always returned. The total number of source chunk references. Authorization is performed on the full set. Constraints: {"minimum":1,"maximum":9223372036854775807}.
+
+This parameter is required.', example='1'),
+      sourceRefs?: [ 
+        {
+          chunkId?: string(name='chunkId', description='Required. Always returned. The opaque business ID generated by the server. Validates ownership and does not accept arbitrary paths. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='example_value'),
+          documentId?: string(name='documentId', description='Required. Always returned. The opaque business ID generated by the server. Validates ownership and does not accept arbitrary paths. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='example_value'),
+          documentName?: string(name='documentName', description='Optional. Conditionally returned. The document name returned only after authorization. Constraints: {"maxLength":1024}.', example='example_value'),
+          mediaEndMs?: long(name='mediaEndMs', description='Optional. Conditionally returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minimum":0,"maximum":9223372036854775807}.', example='0'),
+          mediaStartMs?: long(name='mediaStartMs', description='Optional. Conditionally returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minimum":0,"maximum":9223372036854775807}.', example='0'),
+          pageNumber?: long(name='pageNumber', description='Optional. Conditionally returned. Null is allowed. The semantics of null values follow the field description. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minimum":1,"maximum":9223372036854775807}.', example='1'),
+          sourceRevisionId?: string(name='sourceRevisionId', description='Required. Always returned. The opaque business ID generated by the server. Validates ownership and does not accept arbitrary paths. Constraints: {"minLength":1,"maxLength":128,"pattern":"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"}.
+
+This parameter is required.', example='example_value'),
+          version?: string(name='version', description='Required. Always returned. The display name of the version. Does not fall back to draft if invalid or unavailable. Constraints: {"maxLength":64,"pattern":"^(DRAFT|LATEST_PUBLISHED|v[1-9][0-9]*)$","default":"DRAFT"}.
+
+This parameter is required.', example='DRAFT'),
+        }
+      ](name='sourceRefs', description='Required. Always returned. The actually supported sources. Constraints: {"minItems":1,"maxItems":1000}.
+
+This parameter is required.', example='[{"documentId":"doc_manual","chunkId":"chunk_1","sourceRevisionId":"source_rev_7","version":"DRAFT","contentHash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}]'),
+      sourceRefsTruncated?: boolean(name='sourceRefsTruncated', description='Required. Always returned. True when a single sourceRefs contains only the first 1000 items. You can paginate and verify by using sourceTaskId.
+
+This parameter is required.', example='false'),
+      sourceTaskId?: string(name='sourceTaskId', description='Required. Always returned. The entry point for complete sources. Must be a non-null locator when sourceRefsTruncated is true. The source operation references held by the artifact or revision remain readable, and archiving task details does not delete this source manifest. Null is allowed. The not-equal-to condition can be omitted. Constraints: {"minLength":32,"maxLength":32,"pattern":"^[0-9a-f]{32}$"}.
+
+This parameter is required.', example='null'),
+      title?: string(name='title', description='Required. Always returned. The display title after authorization. Constraints: {"maxLength":1024}.
+
+This parameter is required.', example='Warranty instructions'),
+    }
+  ](name='evidenceResults', description='Optional. Conditionally returned. Returned only when includeWiki is set to true. The current page of unified and merged evidence. Constraints: {"minItems":0,"maxItems":100}.', example='[{"evidenceId":"wiki_section_page_1_sec_1_rev_7","kind":"wiki_section","knowledgeBaseId":"example_kb","documentId":null,"chunkId":null,"pageId":"page_1","sectionId":"sec_1","entityId":null,"relationId":null,"revisionId":"rev_7","batchId":"batch_7","title":"Warranty instructions","content":"The warranty period for Product A is 18 months.","score":0.62,"sourceRefs":[{"documentId":"doc_manual","chunkId":"chunk_1","sourceRevisionId":"source_rev_7","version":"DRAFT"}],"sourceRefCount":1,"sourceRefsTruncated":false,"sourceTaskId":"11111111111111111111111111111111"}]'),
   httpStatusCode?: int32(name='httpStatusCode', description='The HTTP status code.', example='0'),
-  message?: string(name='message', description='The return message.', example='success'),
+  message?: string(name='message', description='The returned message.', example='success'),
   pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='5'),
+  pageSize?: int32(name='pageSize', description='The number of items per page.', example='5'),
   queryLabels?: [ string ](name='queryLabels', description='The query labels.'),
   requestId?: string(name='requestId', description='The request ID.', example='019FCC42-90DE-56D3-A10D-3C06995DED17'),
   results?: [ 
@@ -299,36 +379,36 @@ model SearchKnowledgeBaseResponseBody = {
           url?: string(name='url', description='The temporary access URL.', example='https://example.com/signed-image'),
         }
       ](name='images', description='The list of associated images.'),
-      knowledgeBaseId?: string(name='knowledgeBaseId', description='The knowledge base ID.', example='kd-xxxxxxxxxx'),
+      knowledgeBaseId?: string(name='knowledgeBaseId', description='The ID of the knowledge base.', example='kd-xxxxxxxxxx'),
       locations?: [ 
         {
-          bottom?: int32(name='bottom', description='The bottom boundary.', example='364'),
-          left?: int32(name='left', description='The left boundary.', example='13'),
+          bottom?: int32(name='bottom', description='The bottom edge.', example='364'),
+          left?: int32(name='left', description='The left edge.', example='13'),
           pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-          right?: int32(name='right', description='The right boundary.', example='566'),
-          top?: int32(name='top', description='The top boundary.', example='12'),
+          right?: int32(name='right', description='The right edge.', example='566'),
+          top?: int32(name='top', description='The top edge.', example='12'),
         }
       ](name='locations', description='The list of document locations.'),
-      mediaEndMs?: long(name='mediaEndMs', description='The end time of the audio or video chunk in the original media, in milliseconds. This field is not returned for non-media chunks.', example='8400'),
-      mediaStartMs?: long(name='mediaStartMs', description='The start time of the audio or video chunk in the original media, in milliseconds. This field is not returned for non-media chunks.', example='1250'),
+      mediaEndMs?: long(name='mediaEndMs', description='The end time of the audio or video chunk in the original media, in milliseconds. This parameter is not returned for non-media chunks.', example='8400'),
+      mediaStartMs?: long(name='mediaStartMs', description='The start time of the audio or video chunk in the original media, in milliseconds. This parameter is not returned for non-media chunks.', example='1250'),
       mediaTimeline?: [ 
         {
           endMs?: long(name='endMs', description='The end time of the segment.', example='4200'),
           startMs?: long(name='startMs', description='The start time of the segment.', example='1250'),
-          text?: string(name='text', description='The segment text.', example='The first sentence'),
+          text?: string(name='text', description='The text of the segment.', example='The first sentence'),
         }
-      ](name='mediaTimeline', description='The time ranges of sentence-level or paragraph-level content within the chunk in the original media. This field is not returned for non-audio chunks.'),
+      ](name='mediaTimeline', description='The time range of each sentence or paragraph within the chunk in the original media. This parameter is not returned for non-audio chunks.'),
       parentChunkId?: string(name='parentChunkId', description='The parent chunk ID.', example='parent-chunk-id'),
-      scalarFields?: any(name='scalarFields', description='The scalar columns of the structured knowledge base. The columns are returned by their original column names and are not used in retrieval.', example='{"question":"How do I reset it?","category":"account"}'),
+      scalarFields?: any(name='scalarFields', description='The scalar columns of the structured knowledge base. The columns are returned by their original names and are not used for retrieval.', example='{"question":"How do I reset it?","category":"account"}'),
       score?: float(name='score', description='The overall relevance score.', example='0.26136884'),
       scoreDetails?: {
         keywordScore?: float(name='keywordScore', description='The keyword relevance score.', example='0.0000000014285714'),
         semanticScore?: float(name='semanticScore', description='The semantic relevance score.', example='0.5227377'),
       }(name='scoreDetails', description='The relevance score details.'),
-      tags?: [ string ](name='tags', description='The list of labels.'),
+      tags?: [ string ](name='tags', description='The list of tags.'),
     }
   ](name='results', description='The list of retrieval results.'),
-  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.', example='true'),
   totalCount?: long(name='totalCount', description='The total number of results.', example='2'),
 }
 
@@ -339,9 +419,9 @@ model SearchKnowledgeBaseResponse = {
 }
 
 /**
- * @summary Retrieves documents from a knowledge base.
+ * @summary Searches a knowledge base.
  *
- * @description Retrieves documents from a specified knowledge base by question or image. Use DRAFT, LATEST_PUBLISHED, or vN display names for the version. Pass tag filter conditions using the actual backend operators.
+ * @description Searches a specified knowledge base by using a query or an image. For the version, use the display name DRAFT, LATEST_PUBLISHED, or vN. Pass tag filter conditions based on the actual operators used by the backend.
  *
  * @param request SearchKnowledgeBaseRequest
  * @param headers map
@@ -357,8 +437,14 @@ async function searchKnowledgeBaseWithOptions(knowledgeBaseId: string, request: 
   if (!Util.isUnset(request.enableKnowledgeGraph)) {
     body['enableKnowledgeGraph'] = request.enableKnowledgeGraph;
   }
+  if (!Util.isUnset(request.evidencePageToken)) {
+    body['evidencePageToken'] = request.evidencePageToken;
+  }
   if (!Util.isUnset(request.image)) {
     body['image'] = request.image;
+  }
+  if (!Util.isUnset(request.includeWiki)) {
+    body['includeWiki'] = request.includeWiki;
   }
   if (!Util.isUnset(request.pageNumber)) {
     body['pageNumber'] = request.pageNumber;
@@ -404,9 +490,9 @@ async function searchKnowledgeBaseWithOptions(knowledgeBaseId: string, request: 
 }
 
 /**
- * @summary Retrieves documents from a knowledge base.
+ * @summary Searches a knowledge base.
  *
- * @description Retrieves documents from a specified knowledge base by question or image. Use DRAFT, LATEST_PUBLISHED, or vN display names for the version. Pass tag filter conditions using the actual backend operators.
+ * @description Searches a specified knowledge base by using a query or an image. For the version, use the display name DRAFT, LATEST_PUBLISHED, or vN. Pass tag filter conditions based on the actual operators used by the backend.
  *
  * @param request SearchKnowledgeBaseRequest
  * @return SearchKnowledgeBaseResponse
