@@ -32,39 +32,44 @@ function close(): void {
 
 model CreatePentestTaskRequest {
   operationInput: {
-    assetSource: string(name='AssetSource', description='资产来源。SAS_HOST：云安全中心主机资产，校验当前账号下是否存在该公网 IP；ATTACK_SURFACE_ASSET：攻击面资产，校验当前账号下是否存在对应 IP 或域名资产；CUSTOM_ASSET：自定义资产，按当前账号、完整 scan_url 和 ACTIVE 状态匹配。
+    assetSource: string(name='AssetSource', description='The asset source. SAS_HOST: verifies the public IP addresses of Security Center hosts under the current account. ATTACK_SURFACE_ASSET: verifies the IP addresses or domain name assets of the attack surface under the current account. CUSTOM_ASSET: verifies targets based on the ACTIVE custom asset records of the current account, and supports normalized hostname and authenticated parent domain name matching.
 
 This parameter is required.', example='CUSTOM_ASSET'),
-    description?: string(name='Description', example='检查授权网站的安全风险'),
-    execMode?: string(name='ExecMode', description='执行模式：IMMEDIATE 表示立即执行，SCHEDULED 表示定时执行。', example='IMMEDIATE'),
-    ipDomains: string(name='IpDomains', description='待检测的公网 IP、域名或完整扫描 URL；多个目标使用英文逗号分隔，最多 5 个。
+    credentials?: map[string]any(name='Credentials', description='The optional identity credential object for the scan target. The top-level keys are custom identity names, and the values are credential configurations. Supports account (username/password), cookies array, localStorage, sessionStorage, and extraHeaders. Internal key names retain their original case. For the specific structure, see the following example. If this parameter is not passed, no identity credentials are injected. This object is not returned in creation and query responses.'),
+    creditsLimitAction?: string(name='CreditsLimitAction', description='The action to take after the MaxCredits limit is reached. STOP: stops the task. PAUSE: pauses the task. Default value: STOP. Use this parameter with MaxCredits.', example='STOP'),
+    description?: string(name='Description', description='The task description, which is used to record the description information of the task.', example='Check security risks of authorized websites'),
+    execMode?: string(name='ExecMode', description='The execution mode. IMMEDIATE: executes immediately, which may be queued due to concurrency limits. SCHEDULED: executes at a scheduled time, which is currently not supported by OpenAPI. Default value: IMMEDIATE. Use IMMEDIATE.', example='IMMEDIATE'),
+    ipDomains: string(name='IpDomains', description='The public IP addresses, domain names, or URLs to be scanned. Separate multiple targets with commas. After removing whitespace, there should be 1 to 5 targets. Pass targets that are authorized under the current account and can pass asset ownership verification. If you need to specify HTTP or HTTPS, explicitly write the protocol in the target URL.
 
 This parameter is required.', example='https://example.com/'),
-    name: string(name='Name', description='任务名称，长度为 1 到 100 个字符。
+    maxCredits?: long(name='MaxCredits', description='The maximum credits usage for a single task, which must be an integer greater than 0. If this parameter is not passed, no task-level limit is set. When multiple targets are created at a time, each task uses this limit separately.', example='500000', minimum=1),
+    name: string(name='Name', description='The task name, which must be 1 to 100 characters in length and cannot contain only whitespace.
 
-This parameter is required.', example='网站安全检查', minLength=1, maxLength=100),
-    pentestRequirement?: string(name='PentestRequirement', description='补充渗透测试要求，最长 5000 个字符；与 VulnCheckItems 不能同时为空。', example='检查网站是否存在未授权访问和 SQL 注入风险', maxLength=5000),
-    reportLanguage?: string(name='ReportLanguage', description='报告语言：zh 表示中文，en 表示英文。', example='zh'),
-    scenario?: string(name='Scenario', description='渗透测试场景，当前仅支持 Web 漏洞检测。', example='WEB_VULN'),
-    scheduleTime?: string(name='ScheduleTime', description='定时执行时间；ExecMode 为 SCHEDULED 时传入，格式 yyyy-MM-dd HH:mm:ss，且不能早于当前时间。', example='2026-10-01 10:00:00'),
-    vulnCheckItems?: [ string ](name='VulnCheckItems', description='漏洞检测项；与 PentestRequirement 不能同时为空。'),
-  }(name='OperationInput', description='This parameter is required.', shrink='json', position='Query'),
-  operationType?: string(name='OperationType', description='网关内部固定路由参数，不对调用方暴露。', example='createPentestTask', position='Query'),
+This parameter is required.', example='Website security check', minLength=1, maxLength=100),
+    pentestRequirement?: string(name='PentestRequirement', description='The supplementary penetration testing requirements, up to 5,000 characters. If VulnCheckItems is not provided, non-whitespace content must be provided. Both fields can also be provided at the same time.', example='Check unauthorized access risks of authorized websites', maxLength=5000),
+    reportLanguage?: string(name='ReportLanguage', description='The report language. zh indicates Chinese, and en indicates English. Default value: zh.', example='zh'),
+    scenario?: string(name='Scenario', description='The test scenario. Currently, only WEB_VULN (web vulnerability detection) is supported. Default value: WEB_VULN.', example='WEB_VULN'),
+    scheduleTime?: string(name='ScheduleTime', description='The scheduled execution time. Pass this parameter when ExecMode is SCHEDULED. The format is yyyy-MM-dd HH:mm:ss, and the time cannot be earlier than the current time.', example='2026-12-01 10:00:00'),
+    vulnCheckItems?: [ string ](name='VulnCheckItems', description='The list of vulnerability check items, which contains 1 to 5 unique check items and cannot be an empty array. This parameter and PentestRequirement cannot be empty at the same time.'),
+  }(name='OperationInput', description='The business parameter object, which is passed in JSON format. Provide the object and its required fields.
+
+This parameter is required.', shrink='json', position='Query'),
+  operationType?: string(name='OperationType', description='The internal fixed routing parameter of the gateway, which is not exposed to callers.', example='createPentestTask', position='Query'),
 }
 
 model CreatePentestTaskResponseBody = {
-  requestId?: string(name='RequestId', example='72C16BE5-08B3-48D1-8D10-6C15F5A93E27'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate calls and troubleshoot issues.', example='72C16BE5-08B3-48D1-8D10-6C15F5A93E27'),
   taskList?: [ 
     {
-      createdAt?: long(name='CreatedAt', example='1788825600'),
-      name?: string(name='Name', example='网站安全检查'),
-      progress?: int32(name='Progress', example='0'),
-      scanId?: string(name='ScanId', example='b82f6e42-cc4d-4a39-96a4-4159cff16785'),
-      status?: string(name='Status', example='QUEUED'),
-      targetUrl?: string(name='TargetUrl', example='https://example.com/'),
-      taskId?: string(name='TaskId', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
+      createdAt?: long(name='CreatedAt', description='The task creation time. It is a UNIX timestamp in seconds, which is the number of seconds since 1970-01-01 00:00:00 UTC.', example='1793577600'),
+      name?: string(name='Name', description='The task name. When multiple targets are created at a time, serial numbers such as -1 and -2 are appended to the passed name.', example='Website security check'),
+      progress?: int32(name='Progress', description='The task execution progress, which is updated by the server. It is 0 upon initialization.', example='0'),
+      scanId?: string(name='ScanId', description='The ID of the current scan for the task. It may be empty if no scan record is generated.', example='b82f6e42-cc4d-4a39-96a4-4159cff16785'),
+      status?: string(name='Status', description='The task status. PENDING: pending start. QUEUED: queued. STARTING: starting. RUNNING: running. PAUSED: paused. SUCCESS: executed successfully. FAILED: execution failed. STOPPED: stopped. TIMEOUT: execution timed out. ABNORMAL: execution abnormal. DELETED: deleted. A successful execution does not mean that no vulnerabilities are found.', example='QUEUED'),
+      targetUrl?: string(name='TargetUrl', description='The scan target address of the task. It includes the corresponding protocol prefix if a protocol is specified.', example='https://example.com/'),
+      taskId?: string(name='TaskId', description='The task ID. Use this value to query vulnerabilities and reports later.', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
     }
-  ](name='TaskList'),
+  ](name='TaskList', description='The list of tasks created in this request, where each target corresponds to one task.'),
 }
 
 model CreatePentestTaskResponse = {
@@ -74,6 +79,50 @@ model CreatePentestTaskResponse = {
 }
 
 /**
+  * @description Creates penetration testing tasks for authorized assets of the current account and returns the task IDs. You can specify up to five targets at a time, and one task is created for each target.
+  * Before you call this operation, you must activate the AgenticBAS service or meet the validity period and quota conditions of the trial service. The target assets must meet the ownership verification requirements of the selected asset source. Business parameters are passed in OperationInput. VulnCheckItems and PentestRequirement cannot be empty at the same time. Currently, only IMMEDIATE execution is supported, and scheduled execution is not supported.
+  * A successful creation response only indicates that the tasks are created and does not wait for the scan to complete. Save the TaskId in TaskList, query the status and usage by calling DescribePentestTaskList, and then use the same TaskId to query vulnerabilities or reports. Tasks may enter a queue. If a report is not generated, the query response may not contain a download link.
+  * Credentials use an object structure of "identity name -> credential configuration". The following are synthetic examples. Replace them with authorized test identities in actual calls.
+  * ```json
+  * {
+  *   "Credentials": {
+  *     "accountUser": {
+  *       "account": {
+  *         "username": "example-user",
+  *         "password": "example-password"
+  *       }
+  *     },
+  *     "cookieUser": {
+  *       "cookies": [
+  *         {
+  *           "name": "session",
+  *           "value": "example-session",
+  *           "domain": "example.com",
+  *           "path": "/",
+  *           "secure": true,
+  *           "httpOnly": true,
+  *           "sameSite": "Lax"
+  *         }
+  *       ]
+  *     },
+  *     "localUser": {
+  *       "localStorage": {
+  *         "access_token": "example-local-token"
+  *       }
+  *     },
+  *     "sessionUser": {
+  *       "sessionStorage": {
+  *         "session_token": "example-session-token"
+  *       }
+  *     },
+  *     "headerUser": {
+  *       "extraHeaders": {
+  *         "Authorization": "Bearer example-token"
+  *       }
+  *     }
+  *   }
+  * }
+  * ```
   * @param request  the request parameters of CreatePentestTask  CreatePentestTaskRequest
   * @return CreatePentestTaskResponse
  */
@@ -84,18 +133,22 @@ async function createPentestTask(request: CreatePentestTaskRequest): CreatePente
 
 model DescribePentestReportContentRequest {
   operationInput: {
-    scanId?: string(name='ScanId', example='b82f6e42-cc4d-4a39-96a4-4159cff16785'),
-    taskId: string(name='TaskId', description='This parameter is required.', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
-  }(name='OperationInput', description='This parameter is required.', shrink='json', position='Query'),
-  operationType?: string(name='OperationType', description='网关内部固定路由参数，不对调用方暴露。', example='getPentestReportContent', position='Query'),
+    scanId?: string(name='ScanId', description='The scan ID of a specific execution of the task. If omitted, the current scan ID of the task is used. If specified, the value must be the current or a historical scan ID of the task. You can obtain the current scan ID from TaskList[].ScanId returned by DescribePentestTaskList.', example='b82f6e42-cc4d-4a39-96a4-4159cff16785'),
+    taskId: string(name='TaskId', description='The task ID to which the report belongs. This parameter is required and must belong to the current account. You can obtain the task ID from CreatePentestTask or TaskList[].TaskId returned by DescribePentestTaskList.
+
+This parameter is required.', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
+  }(name='OperationInput', description='The business parameter object for the operation, passed in JSON format. This object and its required fields must be provided.
+
+This parameter is required.', shrink='json', position='Query'),
+  operationType?: string(name='OperationType', description='The fixed operation identifier defined by the system. The value for this operation is getPentestReportContent. You do not need to pass in this parameter. Do not set it to any other value. This parameter is currently not exposed in the SDK.', example='getPentestReportContent', position='Query'),
 }
 
 model DescribePentestReportContentResponseBody = {
   report?: {
-    downloadUrl?: string(name='DownloadUrl', example='https://example.com/workspace/reports/report_final.pdf'),
-    expiresAt?: long(name='ExpiresAt', example='1788829200'),
-  }(name='Report'),
-  requestId?: string(name='RequestId', example='72C16BE5-08B3-48D1-8D10-6C15F5A93E27'),
+    downloadUrl?: string(name='DownloadUrl', description='The pre-signed OSS download URL for the PDF report. The URL is valid for 1 hour. After it expires, call this operation again to obtain a new URL. The example uses example.com with the signature omitted to illustrate the URL format only and cannot be used for actual downloads. Keep the actual URL secure.', example='https://example.com/workspace/reports/report_final.pdf'),
+    expiresAt?: long(name='ExpiresAt', description='The expiration time of the download URL, expressed as a UNIX timestamp in seconds, representing the number of seconds elapsed since 1970-01-01 00:00:00 UTC. This field is returned only when the download URL is successfully generated. The value is approximately 3600 seconds after the URL generation time.', example='1788829200'),
+  }(name='Report', description='The report download information. This field may be empty if the task has not yet generated a scan ID. The download URL and expiration time may be empty if the report is unavailable.'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate and troubleshoot issues.', example='72C16BE5-08B3-48D1-8D10-6C15F5A93E27'),
 }
 
 model DescribePentestReportContentResponse = {
@@ -115,36 +168,76 @@ async function describePentestReportContent(request: DescribePentestReportConten
 
 model DescribePentestTaskListRequest {
   operationInput?: {
-    currentPage?: int32(name='CurrentPage', example='1'),
-    keyword?: string(name='Keyword', example='网站'),
-    maxResults?: int32(name='MaxResults', example='10'),
-    nextToken?: string(name='NextToken', example='unused-token'),
-    pageSize?: int32(name='PageSize', example='10'),
-    status?: string(name='Status', example='RUNNING'),
-  }(name='OperationInput', shrink='json', position='Query'),
-  operationType?: string(name='OperationType', description='网关内部固定路由参数，不对调用方暴露。', example='listPentestTask', position='Query'),
+    currentPage?: int32(name='CurrentPage', description='The page number of the query. Pages start from 1. Default value: 1.', example='1'),
+    keyword?: string(name='Keyword', description='The keyword in the task name for fuzzy match. If this parameter is omitted, tasks are not filtered by name.', example='Website'),
+    maxResults?: int32(name='MaxResults', description='The internal reserved field of the API operation. Omit this parameter when you call the operation.', example='10'),
+    nextToken?: string(name='NextToken', description='The internal reserved field of the API operation. Omit this parameter when you call the operation.', example='unused-token'),
+    pageSize?: int32(name='PageSize', description='The number of entries to return on each page. The value must be a positive integer. Default value: 10.', example='10'),
+    status?: string(name='Status', description='The task status. Valid values:
+- PENDING: The task is pending to start.
+- QUEUED: The task is queued.
+- STARTING: The task is starting.
+- RUNNING: The task is running.
+- PAUSED: The task is paused.
+- SUCCESS: The task is executed successfully.
+- FAILED: The task failed to be executed.
+- STOPPED: The task is stopped.
+- TIMEOUT: The task execution timed out.
+- ABNORMAL: The task execution is abnormal.
+- DELETED: The task is deleted.
+A successful execution does not mean that no vulnerabilities are found. If this parameter is omitted, no status condition is specified.', example='RUNNING'),
+  }(name='OperationInput', description='The business parameter object, which is passed in JSON format. This parameter is optional. If this parameter is omitted, the default query conditions are used.', shrink='json', position='Query'),
+  operationType?: string(name='OperationType', description='The internal fixed routing parameter of the gateway, which is not exposed to the caller.', example='listPentestTask', position='Query'),
 }
 
 model DescribePentestTaskListResponseBody = {
-  maxResults?: int32(name='MaxResults', example='10'),
-  nextToken?: string(name='NextToken', example='unused-token'),
+  maxResults?: int32(name='MaxResults', description='The internal reserved field of the API operation. Omit this parameter when you call the operation.', example='10'),
+  nextToken?: string(name='NextToken', description='The internal reserved field of the API operation. Omit this parameter when you call the operation.', example='unused-token'),
   pageInfo?: {
-    currentPage?: int32(name='CurrentPage', example='1'),
-    pageSize?: int32(name='PageSize', example='10'),
-    totalCount?: int32(name='TotalCount', example='1'),
-  }(name='PageInfo'),
-  requestId?: string(name='RequestId', example='72C16BE5-08B3-48D1-8D10-6C15F5A93E27'),
+    currentPage?: int32(name='CurrentPage', description='The page number of the returned entries. Pages start from 1.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of entries returned per page in the current query.', example='10'),
+    totalCount?: int32(name='TotalCount', description='The total number of entries that meet the query conditions. If no entries match the conditions, the value is 0.', example='1'),
+  }(name='PageInfo', description='The pagination information, which is used to determine whether to query the next page.'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate the call and troubleshoot issues.', example='72C16BE5-08B3-48D1-8D10-6C15F5A93E27'),
   taskList?: [ 
     {
-      createdAt?: long(name='CreatedAt', example='1788825600'),
-      name?: string(name='Name', example='网站安全检查'),
-      progress?: int32(name='Progress', example='0'),
-      scanId?: string(name='ScanId', example='b82f6e42-cc4d-4a39-96a4-4159cff16785'),
-      status?: string(name='Status', example='RUNNING'),
-      targetUrl?: string(name='TargetUrl', example='https://example.com/'),
-      taskId?: string(name='TaskId', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
+      completedAt?: long(name='CompletedAt', description='The end time of the task. If the task has not ended, this parameter may be empty. The value is a UNIX timestamp in seconds, which is the number of seconds that have elapsed since 00:00:00 UTC on January 1, 1970.', example='1793577720'),
+      createdAt?: long(name='CreatedAt', description='The creation time of the task. The value is a UNIX timestamp in seconds, which is the number of seconds that have elapsed since 00:00:00 UTC on January 1, 1970.', example='1793577600'),
+      creditsUsed?: long(name='CreditsUsed', description='The cumulative number of credits used by the task, which indicates the usage rather than the amount. If no usage data is available, this parameter may be empty.', example='100'),
+      duration?: long(name='Duration', description='The execution duration of the task, in seconds. The value is the cumulative duration of execution segments. For a running task, the current segment is added. Paused periods are not included. For old records, the duration may be calculated retroactively based on the start and end times. If the data required for calculation is missing, this parameter may be empty.', example='120'),
+      failureReason?: string(name='FailureReason', description='The reason why the task failed. If no failure information is available, this parameter may be empty.', example='Task execution timed out'),
+      name?: string(name='Name', description='The name of the task. When multiple targets are created at a time, serial numbers such as -1 and -2 are appended to the specified name.', example='Website security check'),
+      progress?: int32(name='Progress', description='The execution progress of the task, which is updated by the server. The initial value is 0.', example='100'),
+      scanId?: string(name='ScanId', description='The ID of the current scan for the task. If no scan record is generated, this parameter may be empty.', example='b82f6e42-cc4d-4a39-96a4-4159cff16785'),
+      scanMode?: string(name='ScanMode', description='The scan mode used by the task. By default, the current create API operation uses the STANDARD mode.', example='STANDARD'),
+      startedAt?: long(name='StartedAt', description='The time when the task was last started or resumed. If the task has not started, this parameter may be empty. The value is a UNIX timestamp in seconds, which is the number of seconds that have elapsed since 00:00:00 UTC on January 1, 1970.', example='1793577600'),
+      status?: string(name='Status', description='The task status. Valid values:
+- PENDING: The task is pending to start.
+- QUEUED: The task is queued.
+- STARTING: The task is starting.
+- RUNNING: The task is running.
+- PAUSED: The task is paused.
+- SUCCESS: The task is executed successfully.
+- FAILED: The task failed to be executed.
+- STOPPED: The task is stopped.
+- TIMEOUT: The task execution timed out.
+- ABNORMAL: The task execution is abnormal.
+- DELETED: The task is deleted.
+A successful execution does not mean that no vulnerabilities are found.', example='SUCCESS'),
+      targetAssetType?: string(name='TargetAssetType', description='The type identifier of the task target. The current create API operation uses the URL type.', example='URL'),
+      targetUrl?: string(name='TargetUrl', description='The scan target address of the task. If a protocol is specified, the corresponding protocol prefix is included.', example='https://example.com/'),
+      taskId?: string(name='TaskId', description='The task ID. This value is used when you subsequently query vulnerabilities and reports.', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
+      updatedAt?: long(name='UpdatedAt', description='The last update time of the task record. The value is a UNIX timestamp in seconds, which is the number of seconds that have elapsed since 00:00:00 UTC on January 1, 1970.', example='1793577720'),
+      vulnStats?: {
+        critical?: long(name='Critical', description='The number of critical vulnerabilities.', example='0'),
+        high?: long(name='High', description='The number of high-risk vulnerabilities.', example='1'),
+        info?: long(name='Info', description='The number of informational vulnerabilities.', example='0'),
+        low?: long(name='Low', description='The number of low-risk vulnerabilities.', example='0'),
+        medium?: long(name='Medium', description='The number of medium-risk vulnerabilities.', example='0'),
+        total?: long(name='Total', description='The total number of vulnerabilities, which is equal to the sum of the numbers of vulnerabilities at all severity levels.', example='1'),
+      }(name='VulnStats', description='The number of vulnerabilities grouped by severity level. Total is the sum of the numbers of vulnerabilities at all severity levels.'),
     }
-  ](name='TaskList'),
+  ](name='TaskList', description='The list of tasks on the current page that meet the query conditions. If no results are found, an empty array is returned.'),
 }
 
 model DescribePentestTaskListResponse = {
@@ -154,6 +247,9 @@ model DescribePentestTaskListResponse = {
 }
 
 /**
+  * @description Queries the penetration testing tasks of the current account by using paging and returns the task status, execution duration, Credits usage, time, and vulnerability statistics.
+  * Use OperationInput to specify query conditions. Paging is implemented by using CurrentPage and PageSize. By default, the first page is queried and each page contains 10 entries. You can filter tasks by task name keyword and task status.
+  * The response includes TaskList and PageInfo. Duration indicates the execution duration in seconds. CreditsUsed indicates the used Credits. Tasks that have not started may not have a start time or execution duration, and unfinished tasks may not have a completion time. UNIX timestamps uniformly use UNIX seconds. When displaying, you can convert them to the time zone of the caller.
   * @param request  the request parameters of DescribePentestTaskList  DescribePentestTaskListRequest
   * @return DescribePentestTaskListResponse
  */
@@ -164,40 +260,54 @@ async function describePentestTaskList(request: DescribePentestTaskListRequest):
 
 model DescribePentestVulnListRequest {
   operationInput: {
-    currentPage?: int32(name='CurrentPage', example='1'),
-    maxResults?: int32(name='MaxResults', example='10'),
-    nextToken?: string(name='NextToken', example='unused-token'),
-    pageSize?: int32(name='PageSize', example='10'),
-    severities?: [ string ](name='Severities'),
-    taskId: string(name='TaskId', description='This parameter is required.', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
-    vulnType?: string(name='VulnType', example='SQL_INJECTION'),
-  }(name='OperationInput', description='This parameter is required.', shrink='json', position='Query'),
-  operationType?: string(name='OperationType', description='网关内部固定路由参数，不对调用方暴露。', example='listPentestVuln', position='Query'),
+    currentPage?: int32(name='CurrentPage', description='The page number to query, starting from 1. Default value: 1.', example='1'),
+    maxResults?: int32(name='MaxResults', description='Not exposed in the SDK. Not supported. Do not specify this parameter. Use PageSize for pagination size. The example value only indicates the integer type.', example='10'),
+    nextToken?: string(name='NextToken', description='Not exposed in the SDK. Not supported. Do not specify this parameter. Use CurrentPage and PageSize for pagination. The example value is not a valid pagination token.', example='unused-token'),
+    pageSize?: int32(name='PageSize', description='The number of records to return per page. Default value: 10. Use a positive integer.', example='10'),
+    severities?: [ string ](name='Severities', description='Filters vulnerabilities by severity level. You can specify up to 100 values. Multiple values are evaluated with an OR condition. If you do not specify this parameter or pass an empty array, no severity filter is applied.'),
+    taskId: string(name='TaskId', description='The ID of the task to query. This parameter is required. Obtain the value from TaskList[].TaskId returned by CreatePentestTask or DescribePentestTaskList. The task must belong to the current account.
+
+This parameter is required.', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
+    vulnType?: string(name='VulnType', description='Not exposed in the SDK. Not supported. Do not specify this parameter. Filtering by vulnerability type is not supported. The VulnType field in the response list still displays the actual vulnerability type.', example='SQL_INJECTION'),
+  }(name='OperationInput', description='The business parameter object for the operation, passed in JSON format. You must provide this object and all required fields within it.
+
+This parameter is required.', shrink='json', position='Query'),
+  operationType?: string(name='OperationType', description='Not exposed in the SDK. A fixed operation identifier defined by the system. The value for this operation is listPentestVuln. You do not need to specify this parameter. Do not set it to other values.', example='listPentestVuln', position='Query'),
 }
 
 model DescribePentestVulnListResponseBody = {
-  maxResults?: int32(name='MaxResults', example='10'),
-  nextToken?: string(name='NextToken', example='unused-token'),
+  maxResults?: int32(name='MaxResults', description='Not exposed in the SDK. Not supported. Do not rely on this response field. Read PageInfo.PageSize for the number of records per page. The example value only indicates the data type and does not represent an actual response value.', example='10'),
+  nextToken?: string(name='NextToken', description='Not exposed in the SDK. Not supported. A valid next-page token is not returned. Use PageInfo to query the next page. The example value is not a usable token.', example='unused-token'),
   pageInfo?: {
-    currentPage?: int32(name='CurrentPage', example='1'),
-    pageSize?: int32(name='PageSize', example='10'),
-    totalCount?: int32(name='TotalCount', example='1'),
-  }(name='PageInfo'),
-  requestId?: string(name='RequestId', example='72C16BE5-08B3-48D1-8D10-6C15F5A93E27'),
+    currentPage?: int32(name='CurrentPage', description='The page number of the returned results, starting from 1.', example='1'),
+    pageSize?: int32(name='PageSize', description='The number of records per page used in the current query.', example='10'),
+    totalCount?: int32(name='TotalCount', description='The total number of records that match the query conditions. The value is 0 if no records are found.', example='1'),
+  }(name='PageInfo', description='The pagination information for the current page. Use CurrentPage, PageSize, and TotalCount to determine whether to query the next page.'),
+  requestId?: string(name='RequestId', description='The request ID, which is used to locate and troubleshoot issues.', example='72C16BE5-08B3-48D1-8D10-6C15F5A93E27'),
   vulnList?: [ 
     {
-      affectedUrl?: string(name='AffectedUrl', example='https://example.com/search'),
-      cvss?: double(name='Cvss', example='9.8'),
-      discoveredAt?: long(name='DiscoveredAt', example='1788825600'),
-      severity?: string(name='Severity', example='HIGH'),
-      status?: string(name='Status', example='EXPLOITABLE'),
-      taskId?: string(name='TaskId', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
-      title?: string(name='Title', example='SQL 注入漏洞'),
-      verificationStatus?: string(name='VerificationStatus', example='EXPLOITABLE'),
-      vulnId?: string(name='VulnId', example='vuln-example-001'),
-      vulnType?: string(name='VulnType', example='SQL_INJECTION'),
+      affectedUrl?: string(name='AffectedUrl', description='The URL affected by the vulnerability.', example='https://example.com/search'),
+      cvss?: double(name='Cvss', description='The CVSS score of the vulnerability, provided by the scan results. This field may be empty if no score data is available.', example='9.8'),
+      discoveredAt?: long(name='DiscoveredAt', description='The time when the vulnerability was discovered, expressed as a UNIX timestamp in seconds since 1970-01-01 00:00:00 UTC.', example='1788825600'),
+      severity?: string(name='Severity', description='The severity level of the vulnerability. Common values: CRITICAL, HIGH, MEDIUM, LOW, and INFO.', example='HIGH'),
+      status?: string(name='Status', description='The verification status of the vulnerability. Valid values:
+- EXPLOITABLE: The vulnerability is exploitable.
+- NOT_EXPLOITABLE: The vulnerability is not exploitable.
+- VERIFYING: The vulnerability is being verified.
+
+This field currently returns the same status as VerificationStatus.', example='EXPLOITABLE'),
+      taskId?: string(name='TaskId', description='The ID of the task to which the vulnerability belongs.', example='d89742f4-59a8-4ec8-98db-d109c2365392'),
+      title?: string(name='Title', description='The title of the vulnerability, provided by the scan results.', example='SQL Injection Vulnerability'),
+      verificationStatus?: string(name='VerificationStatus', description='The verification status of the vulnerability. Valid values:
+- EXPLOITABLE: The vulnerability is exploitable.
+- NOT_EXPLOITABLE: The vulnerability is not exploitable.
+- VERIFYING: The vulnerability is being verified.
+
+This field currently returns the same status as Status.', example='EXPLOITABLE'),
+      vulnId?: string(name='VulnId', description='The vulnerability ID, which uniquely identifies a vulnerability record discovered by the scan.', example='vuln-example-001'),
+      vulnType?: string(name='VulnType', description='The vulnerability type, provided by the scan results. This response field does not indicate that the VulnType filter in the request has taken effect.', example='SQL_INJECTION'),
     }
-  ](name='VulnList'),
+  ](name='VulnList', description='The list of vulnerabilities on the current page that match the query conditions. An empty array is returned if no results are found.'),
 }
 
 model DescribePentestVulnListResponse = {
