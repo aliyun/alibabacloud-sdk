@@ -2,6 +2,7 @@
  *
  */
 import Util;
+import GatewayClient;
 import XML;
 import Credential;
 import FileForm;
@@ -14,11 +15,11 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
+  @productId = 'DtsAI';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
-  @endpointMap = {
-    'cn-beijing' = 'dtsai.cn-beijing.aliyuncs.com',
-  };
-
+  
   checkConfig(config);
   @endpoint = getEndpoint('dtsai', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
 }
@@ -35,8 +36,8 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 }
 
 model AuthorizeFileUploadRequest {
-  agentName?: string(name='AgentName', description='The Agent or client source that initiates the call, such as codex, cursor, or openapi. Maximum length: 32 characters. Used only for statistics and does not participate in authentication, throttling, quota, or billing.', example='codex'),
-  batchSize?: string(name='BatchSize'),
+  agentName?: string(name='AgentName', description='The source of the agent or client that initiates the call, such as codex, cursor, or openapi. The maximum length is 32 characters. This parameter is used only for statistics and does not participate in authentication, throttling, quota management, or billing.', example='codex'),
+  batchSize?: string(name='BatchSize', description='The number of OSS PostObject direct upload authorizations returned in this request.', example='10'),
   fileFormat?: string(name='FileFormat', description='The format of the file to be uploaded.', example='pdf'),
   regionId?: string(name='RegionId', description='The region ID, such as cn-beijing.
 
@@ -47,23 +48,23 @@ model AuthorizeFileUploadResponseBody = {
   accessKeyId?: string(name='AccessKeyId', description='The temporary AccessKey ID used for OSS PostObject.', example='STS.NV5xxx'),
   authorizations?: [ 
     {
-      encodedPolicy?: string(name='EncodedPolicy'),
-      objectKey?: string(name='ObjectKey'),
-      signature?: string(name='Signature'),
+      encodedPolicy?: string(name='EncodedPolicy', description='The Base64-encoded PostObject policy, which includes the object key and file size limits.', example='eyJleHBpcmF0aW9uIjo...'),
+      objectKey?: string(name='ObjectKey', description='The object key that must be used exactly as provided for the upload.', example='0a1b_123456_0123456789abcdef0123456789abcdef'),
+      signature?: string(name='Signature', description='The policy signature.', example='masked-signature'),
     }
-  ](name='Authorizations'),
+  ](name='Authorizations', description='The list of OSS PostObject direct upload authorizations returned in batch.'),
   bucket?: string(name='Bucket', description='The destination OSS bucket.', example='dts-ai-upload-cn-beijing7500163e0eae09'),
-  encodedPolicy?: string(name='EncodedPolicy', description='The Base64-encoded PostObject policy, which includes the ObjectKey and file size limits.', example='eyJleHBpcmF0aW9uIjo...'),
+  encodedPolicy?: string(name='EncodedPolicy', description='The Base64-encoded PostObject policy, which includes the object key and file size limits.', example='eyJleHBpcmF0aW9uIjo...'),
   endpoint?: string(name='Endpoint', description='OSS Endpoint', example='oss-cn-beijing.aliyuncs.com'),
   errorCode?: string(name='ErrorCode', description='The error code.', example='InvalidParameter'),
   errorMessage?: string(name='ErrorMessage', description='The error message.', example='The parameter [Query] is not valid.'),
-  expireTime?: long(name='ExpireTime'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The business-level HTTP status code.', example='200'),
-  objectKey?: string(name='ObjectKey', description='The object key that must be used as-is for the upload.', example='0a1b_123456_0123456789abcdef0123456789abcdef'),
+  expireTime?: long(name='ExpireTime', description='The expiration time of the OSS PostObject direct upload authorization.', example='0'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The business semantic status code.', example='200'),
+  objectKey?: string(name='ObjectKey', description='The object key that must be used exactly as provided for the upload.', example='0a1b_123456_0123456789abcdef0123456789abcdef'),
   requestId?: string(name='RequestId', description='The request ID.', example='A30D0930-xxxx-xxxx-xxxx-C2C661CC8B58'),
-  securityToken?: string(name='SecurityToken', description='The Security Token Service (STS) temporary security token.', example='CAISxxx'),
+  securityToken?: string(name='SecurityToken', description='The temporary Security Token Service (STS) token.', example='CAISxxx'),
   signature?: string(name='Signature', description='The policy signature.', example='masked-signature'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model AuthorizeFileUploadResponse = {
@@ -73,7 +74,7 @@ model AuthorizeFileUploadResponse = {
 }
 
 /**
- * @summary Uploads a file directly to the Bucket/ObjectKey specified in the response, and then uses the object URL as OssFileUrl to create a parsing task.
+ * @summary Grants OSS PostObject direct upload authorization for callers to upload files directly to the specified bucket and object key, and then use the object URL as OssFileUrl to create a parsing task.
  *
  * @param request AuthorizeFileUploadRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -112,7 +113,7 @@ async function authorizeFileUploadWithOptions(request: AuthorizeFileUploadReques
 }
 
 /**
- * @summary Uploads a file directly to the Bucket/ObjectKey specified in the response, and then uses the object URL as OssFileUrl to create a parsing task.
+ * @summary Grants OSS PostObject direct upload authorization for callers to upload files directly to the specified bucket and object key, and then use the object URL as OssFileUrl to create a parsing task.
  *
  * @param request AuthorizeFileUploadRequest
  * @return AuthorizeFileUploadResponse
@@ -123,22 +124,23 @@ async function authorizeFileUpload(request: AuthorizeFileUploadRequest): Authori
 }
 
 model CreateDocParserJobRequest {
-  agentName?: string(name='AgentName', description='The agent name.'),
-  asrLanguage?: string(name='AsrLanguage', description='The language type for speech recognition.'),
-  audioClipOutput?: boolean(name='AudioClipOutput', description='The audio clip output.'),
-  audioWindowSeconds?: int32(name='AudioWindowSeconds', description='The audio window duration in seconds.'),
-  chunkSummary?: boolean(name='ChunkSummary', description='The chunk summary information.'),
+  agentName?: string(name='AgentName', description='The name of the agent.', example='codex'),
+  asrLanguage?: string(name='AsrLanguage', description='The Automatic Speech Recognition (ASR) language hint. Valid values: auto, zh, and en. Default value: auto. If set to auto, the language field in the result is empty.', example='zh'),
+  audioClipOutput?: boolean(name='AudioClipOutput', description='Specifies whether to output segmented audio clips to OSS. Default value: true.', example='true'),
+  audioWindowSeconds?: int32(name='AudioWindowSeconds', description='The audio chunk window duration in seconds. This parameter takes effect only for pure audio files. Valid values: 10 to 600. If this parameter is passed in a video request, an InvalidParameter error is returned.', example='200'),
+  chunkSummary?: boolean(name='ChunkSummary', description='Specifies whether to generate a one-sentence summary for each segment. Default value: true.', example='true'),
+  documentStructure?: boolean(name='DocumentStructure', description='Specifies whether to extract the directory and section structure of the document.'),
   fileFormat?: string(name='FileFormat', description='The format of the input file. Valid values:
 
 - **pdf**: PDF file.
 
-- **docx**: Word file in docx format.
+- **docx**: Word file in DOCX format.
 
-- **doc**: Word file in doc format.
+- **doc**: Word file in DOC format.
 
-- **pptx**: PPT file in pptx format.
+- **pptx**: PowerPoint file in PPTX format.
 
-- **ppt**: PPT file in ppt format.
+- **ppt**: PowerPoint file in PPT format.
 
 - **txt**: Plain text file.
 
@@ -151,55 +153,56 @@ model CreateDocParserJobRequest {
 - **jpeg**: JPEG image.
 
 This parameter is required.', example='pdf'),
-  fileName?: string(name='FileName', description='The file name, which must include the file name extension.
+  fileName?: string(name='FileName', description='The name of the file, which must include the file name extension.
 
 This parameter is required.', example='document.pdf'),
   fileUrl?: string(name='FileUrl', description='The HTTP or HTTPS URL of the file to be parsed.
->SDKs for various programming languages additionally provide a `CreateDocParserJobAdvance` method that supports passing a local file stream directly (such as Java InputStream), without the need to upload the file to OSS and construct a FileUrl in advance. When using the Advance method, replace the `FileUrl` parameter (URL string) with the `FileUrlObject` parameter (file stream). All other request parameters remain unchanged. The SDK automatically performs the following operations:
->1. Obtains temporary OSS upload credentials.
->2. Uploads the file stream directly to OSS.
->3. Calls the CreateDocParserJob operation using the generated OSS URL.', example='https://xxx.oss-cn-beijing.aliyuncs.com/document.pdf?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx'),
-  frameOutput?: boolean(name='FrameOutput', description='The frame output result.'),
-  globalSummary?: boolean(name='GlobalSummary', description='The global summary information.'),
-  imageMode?: string(name='ImageMode', description='The image processing format.'),
-  imageUnderstanding?: string(name='ImageUnderstanding', description='The image understanding and analysis setting.'),
-  mediaChunkIntervalSeconds?: int32(name='MediaChunkIntervalSeconds', description='The media chunk interval in seconds.'),
-  mediaChunkStrategy?: string(name='MediaChunkStrategy', description='The media chunk strategy.'),
-  mediaFramesPerMinute?: double(name='MediaFramesPerMinute', description='The number of media frames per minute.'),
-  mediaMaxFrameBudget?: int32(name='MediaMaxFrameBudget', description='The maximum frame budget for media.'),
-  mediaMinFrameBudget?: int32(name='MediaMinFrameBudget', description='The minimum frame budget for media.'),
-  ossFileUrl?: string(name='OssFileUrl', description='The OSS file URL.'),
+> SDKs for various programming languages also provide the `CreateDocParserJobAdvance` method, which allows you to pass a local file stream (such as InputStream in Java) directly without uploading the file to OSS and constructing a FileUrl in advance. When you use the Advance method, replace the `FileUrl` parameter (URL string) with the `FileUrlObject` parameter (file stream) and keep other request parameters unchanged. The SDK automatically performs the following operations:
+> 1. Obtains temporary OSS upload credentials.
+> 2. Uploads the file stream directly to OSS.
+> 3. Calls the CreateDocParserJob operation by using the generated OSS URL.', example='https://xxx.oss-cn-beijing.aliyuncs.com/document.pdf?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx'),
+  frameOutput?: boolean(name='FrameOutput', description='Specifies whether to output the original images of keyframes to OSS. This parameter takes effect only for videos. Default value: true. The media references in the result are oss:// protocol addresses, and the caller must have OSS permissions to read them.', example='true'),
+  globalSummary?: boolean(name='GlobalSummary', description='Specifies whether to generate a global summary for the entire media. Default value: true.', example='true'),
+  imageMode?: string(name='ImageMode', description='The image handling mode. Valid values: ignore, base64, placeholder, and oss. Default value: oss. If set to oss, image links are returned in the body text.', example='ignore'),
+  imageUnderstanding?: string(name='ImageUnderstanding', description='Specifies whether to generate image understanding text. Valid values: full and none. Default value: full.', example='full'),
+  mediaChunkIntervalSeconds?: int32(name='MediaChunkIntervalSeconds', description='The media chunking interval in seconds. This parameter takes effect only for videos and when the chunking strategy is set to interval. Valid values: 5 to 600.', example='200'),
+  mediaChunkStrategy?: string(name='MediaChunkStrategy', description='The chunking strategy. This parameter takes effect only for videos. Valid values: scene and interval. Default value: scene, which chunks the video by scene. If set to interval, the video is chunked by fixed intervals.', example='scene'),
+  mediaFramesPerMinute?: double(name='MediaFramesPerMinute', description='The number of media frames extracted per minute. This parameter takes effect only for videos. Valid values: 0 to 30. A value of 0 indicates that the dynamic frame budget is disabled.', example='200'),
+  mediaMaxFrameBudget?: int32(name='MediaMaxFrameBudget', description='The maximum media frame budget. This parameter takes effect only for videos. It specifies the upper limit of the frame budget. Valid values: 1 to 600. If the lower limit is also set, the lower limit must not be greater than the upper limit.', example='200'),
+  mediaMinFrameBudget?: int32(name='MediaMinFrameBudget', description='The minimum media frame budget. This parameter takes effect only for videos. It specifies the lower limit of the frame budget. Valid values: 1 to 600. If the upper limit is also set, the lower limit must not be greater than the upper limit.', example='100'),
+  ossFileUrl?: string(name='OssFileUrl', description='The OSS file URL.', example='https://pop-file-upload-cn-beijing.oss-cn-beijing.aliyuncs.com/121852226****'),
   outputFormat?: string(name='OutputFormat', description='The output format of the parsing result. Valid values:
 
 - **markdown**: Markdown format.
 
 This parameter is required.', example='markdown'),
-  parseScene?: string(name='ParseScene', description='The parsing scene.'),
+  parseScene?: string(name='ParseScene', description='The parsing scene. This parameter takes effect only for document and image parsing. Valid values: general and formula_ocr. Default value: general. If set to formula_ocr, full-page OCR is performed and formulas are output in LaTeX format.', example='formula_ocr'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing'),
-  responseMode?: string(name='ResponseMode', description='The response mode.'),
-  resultType?: string(name='ResultType', description='The result type.'),
-  tableFormat?: string(name='TableFormat', description='The table processing format.'),
+  responseMode?: string(name='ResponseMode', description='The response mode. Valid values: async and sync. Default value: async, which returns only the JobId and requires the caller to poll for the result. If set to sync, the parsing result is returned synchronously within the same request. For more information, see the response description below.', example='sync'),
+  resultType?: string(name='ResultType', description='The result return method. Valid values: content and url. Default value: content, which returns the Markdown body text. If set to url, a temporary OSS download URL is returned.', example='content'),
+  tableFormat?: string(name='TableFormat', description='The table format. Valid values: html and markdown. Default value: markdown.', example='html'),
 }
 
 model CreateDocParserJobAdvanceRequest {
-  agentName?: string(name='AgentName', description='The agent name.'),
-  asrLanguage?: string(name='AsrLanguage', description='The language type for speech recognition.'),
-  audioClipOutput?: boolean(name='AudioClipOutput', description='The audio clip output.'),
-  audioWindowSeconds?: int32(name='AudioWindowSeconds', description='The audio window duration in seconds.'),
-  chunkSummary?: boolean(name='ChunkSummary', description='The chunk summary information.'),
+  agentName?: string(name='AgentName', description='The name of the agent.', example='codex'),
+  asrLanguage?: string(name='AsrLanguage', description='The Automatic Speech Recognition (ASR) language hint. Valid values: auto, zh, and en. Default value: auto. If set to auto, the language field in the result is empty.', example='zh'),
+  audioClipOutput?: boolean(name='AudioClipOutput', description='Specifies whether to output segmented audio clips to OSS. Default value: true.', example='true'),
+  audioWindowSeconds?: int32(name='AudioWindowSeconds', description='The audio chunk window duration in seconds. This parameter takes effect only for pure audio files. Valid values: 10 to 600. If this parameter is passed in a video request, an InvalidParameter error is returned.', example='200'),
+  chunkSummary?: boolean(name='ChunkSummary', description='Specifies whether to generate a one-sentence summary for each segment. Default value: true.', example='true'),
+  documentStructure?: boolean(name='DocumentStructure', description='Specifies whether to extract the directory and section structure of the document.'),
   fileFormat?: string(name='FileFormat', description='The format of the input file. Valid values:
 
 - **pdf**: PDF file.
 
-- **docx**: Word file in docx format.
+- **docx**: Word file in DOCX format.
 
-- **doc**: Word file in doc format.
+- **doc**: Word file in DOC format.
 
-- **pptx**: PPT file in pptx format.
+- **pptx**: PowerPoint file in PPTX format.
 
-- **ppt**: PPT file in ppt format.
+- **ppt**: PowerPoint file in PPT format.
 
 - **txt**: Plain text file.
 
@@ -212,49 +215,49 @@ model CreateDocParserJobAdvanceRequest {
 - **jpeg**: JPEG image.
 
 This parameter is required.', example='pdf'),
-  fileName?: string(name='FileName', description='The file name, which must include the file name extension.
+  fileName?: string(name='FileName', description='The name of the file, which must include the file name extension.
 
 This parameter is required.', example='document.pdf'),
   fileUrlObject?: readable(name='FileUrl', description='The HTTP or HTTPS URL of the file to be parsed.
->SDKs for various programming languages additionally provide a `CreateDocParserJobAdvance` method that supports passing a local file stream directly (such as Java InputStream), without the need to upload the file to OSS and construct a FileUrl in advance. When using the Advance method, replace the `FileUrl` parameter (URL string) with the `FileUrlObject` parameter (file stream). All other request parameters remain unchanged. The SDK automatically performs the following operations:
->1. Obtains temporary OSS upload credentials.
->2. Uploads the file stream directly to OSS.
->3. Calls the CreateDocParserJob operation using the generated OSS URL.', example='https://xxx.oss-cn-beijing.aliyuncs.com/document.pdf?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx'),
-  frameOutput?: boolean(name='FrameOutput', description='The frame output result.'),
-  globalSummary?: boolean(name='GlobalSummary', description='The global summary information.'),
-  imageMode?: string(name='ImageMode', description='The image processing format.'),
-  imageUnderstanding?: string(name='ImageUnderstanding', description='The image understanding and analysis setting.'),
-  mediaChunkIntervalSeconds?: int32(name='MediaChunkIntervalSeconds', description='The media chunk interval in seconds.'),
-  mediaChunkStrategy?: string(name='MediaChunkStrategy', description='The media chunk strategy.'),
-  mediaFramesPerMinute?: double(name='MediaFramesPerMinute', description='The number of media frames per minute.'),
-  mediaMaxFrameBudget?: int32(name='MediaMaxFrameBudget', description='The maximum frame budget for media.'),
-  mediaMinFrameBudget?: int32(name='MediaMinFrameBudget', description='The minimum frame budget for media.'),
-  ossFileUrl?: string(name='OssFileUrl', description='The OSS file URL.'),
+> SDKs for various programming languages also provide the `CreateDocParserJobAdvance` method, which allows you to pass a local file stream (such as InputStream in Java) directly without uploading the file to OSS and constructing a FileUrl in advance. When you use the Advance method, replace the `FileUrl` parameter (URL string) with the `FileUrlObject` parameter (file stream) and keep other request parameters unchanged. The SDK automatically performs the following operations:
+> 1. Obtains temporary OSS upload credentials.
+> 2. Uploads the file stream directly to OSS.
+> 3. Calls the CreateDocParserJob operation by using the generated OSS URL.', example='https://xxx.oss-cn-beijing.aliyuncs.com/document.pdf?Expires=xxx&OSSAccessKeyId=xxx&Signature=xxx'),
+  frameOutput?: boolean(name='FrameOutput', description='Specifies whether to output the original images of keyframes to OSS. This parameter takes effect only for videos. Default value: true. The media references in the result are oss:// protocol addresses, and the caller must have OSS permissions to read them.', example='true'),
+  globalSummary?: boolean(name='GlobalSummary', description='Specifies whether to generate a global summary for the entire media. Default value: true.', example='true'),
+  imageMode?: string(name='ImageMode', description='The image handling mode. Valid values: ignore, base64, placeholder, and oss. Default value: oss. If set to oss, image links are returned in the body text.', example='ignore'),
+  imageUnderstanding?: string(name='ImageUnderstanding', description='Specifies whether to generate image understanding text. Valid values: full and none. Default value: full.', example='full'),
+  mediaChunkIntervalSeconds?: int32(name='MediaChunkIntervalSeconds', description='The media chunking interval in seconds. This parameter takes effect only for videos and when the chunking strategy is set to interval. Valid values: 5 to 600.', example='200'),
+  mediaChunkStrategy?: string(name='MediaChunkStrategy', description='The chunking strategy. This parameter takes effect only for videos. Valid values: scene and interval. Default value: scene, which chunks the video by scene. If set to interval, the video is chunked by fixed intervals.', example='scene'),
+  mediaFramesPerMinute?: double(name='MediaFramesPerMinute', description='The number of media frames extracted per minute. This parameter takes effect only for videos. Valid values: 0 to 30. A value of 0 indicates that the dynamic frame budget is disabled.', example='200'),
+  mediaMaxFrameBudget?: int32(name='MediaMaxFrameBudget', description='The maximum media frame budget. This parameter takes effect only for videos. It specifies the upper limit of the frame budget. Valid values: 1 to 600. If the lower limit is also set, the lower limit must not be greater than the upper limit.', example='200'),
+  mediaMinFrameBudget?: int32(name='MediaMinFrameBudget', description='The minimum media frame budget. This parameter takes effect only for videos. It specifies the lower limit of the frame budget. Valid values: 1 to 600. If the upper limit is also set, the lower limit must not be greater than the upper limit.', example='100'),
+  ossFileUrl?: string(name='OssFileUrl', description='The OSS file URL.', example='https://pop-file-upload-cn-beijing.oss-cn-beijing.aliyuncs.com/121852226****'),
   outputFormat?: string(name='OutputFormat', description='The output format of the parsing result. Valid values:
 
 - **markdown**: Markdown format.
 
 This parameter is required.', example='markdown'),
-  parseScene?: string(name='ParseScene', description='The parsing scene.'),
+  parseScene?: string(name='ParseScene', description='The parsing scene. This parameter takes effect only for document and image parsing. Valid values: general and formula_ocr. Default value: general. If set to formula_ocr, full-page OCR is performed and formulas are output in LaTeX format.', example='formula_ocr'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing'),
-  responseMode?: string(name='ResponseMode', description='The response mode.'),
-  resultType?: string(name='ResultType', description='The result type.'),
-  tableFormat?: string(name='TableFormat', description='The table processing format.'),
+  responseMode?: string(name='ResponseMode', description='The response mode. Valid values: async and sync. Default value: async, which returns only the JobId and requires the caller to poll for the result. If set to sync, the parsing result is returned synchronously within the same request. For more information, see the response description below.', example='sync'),
+  resultType?: string(name='ResultType', description='The result return method. Valid values: content and url. Default value: content, which returns the Markdown body text. If set to url, a temporary OSS download URL is returned.', example='content'),
+  tableFormat?: string(name='TableFormat', description='The table format. Valid values: html and markdown. Default value: markdown.', example='html'),
 }
 
 model CreateDocParserJobResponseBody = {
   errorCode?: string(name='ErrorCode', description='The error code.', example='InvalidParameter'),
   errorMessage?: string(name='ErrorMessage', description='The error message.', example='The parameter is not valid.'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
-  jobId?: string(name='JobId', description='The document parsing task ID.', example='job_abc123'),
+  jobId?: string(name='JobId', description='The ID of the document parsing task.', example='job_abc123'),
   requestId?: string(name='RequestId', description='The request ID.', example='A30D0930-xxxx-xxxx-xxxx-C2C661CC8B58'),
-  result?: string(name='Result', description='The result data.'),
-  resultType?: string(name='ResultType', description='The result type.'),
-  resultUrl?: string(name='ResultUrl', description='The result URL.'),
-  status?: string(name='Status', description='The status information.'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  result?: string(name='Result', description='The result data.', example='# Document Title'),
+  resultType?: string(name='ResultType', description='The result type.', example='content'),
+  resultUrl?: string(name='ResultUrl', description='The URL of the result.', example='http://shuanglu-prod.oss-cn-shanghai-finance-1-pub.aliyuncs.com/idrs/24/local/remoteresult?Expires=1764472809&OSSAccessKeyId=****&Signature=****'),
+  status?: string(name='Status', description='The status information.', example='running'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model CreateDocParserJobResponse = {
@@ -267,7 +270,7 @@ model CreateDocParserJobResponse = {
  * @summary Creates a document parsing task.
  *
  * @description - Region: Only China (Beijing) is supported.
- * - Fees: The service is free of charge during the public preview period.
+ * - Billing: Free to use during the public preview. No fees are charged.
  *
  * @param request CreateDocParserJobRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -290,6 +293,9 @@ async function createDocParserJobWithOptions(request: CreateDocParserJobRequest,
   }
   if (!Util.isUnset(request.chunkSummary)) {
     query['ChunkSummary'] = request.chunkSummary;
+  }
+  if (!Util.isUnset(request.documentStructure)) {
+    query['DocumentStructure'] = request.documentStructure;
   }
   if (!Util.isUnset(request.fileFormat)) {
     query['FileFormat'] = request.fileFormat;
@@ -369,7 +375,7 @@ async function createDocParserJobWithOptions(request: CreateDocParserJobRequest,
  * @summary Creates a document parsing task.
  *
  * @description - Region: Only China (Beijing) is supported.
- * - Fees: The service is free of charge during the public preview period.
+ * - Billing: Free to use during the public preview. No fees are charged.
  *
  * @param request CreateDocParserJobRequest
  * @return CreateDocParserJobResponse
@@ -465,14 +471,14 @@ async function createDocParserJobAdvance(request: CreateDocParserJobAdvanceReque
 }
 
 model DescribeDocParserJobResultRequest {
-  agentName?: string(name='AgentName', description='The agent name.'),
-  jobId?: string(name='JobId', description='The document parsing task ID, obtained by calling CreateDocParserJob.
+  agentName?: string(name='AgentName', description='The agent name.', example='codex'),
+  jobId?: string(name='JobId', description='The document parsing task ID. You can obtain this ID by calling CreateDocParserJob.
 
 This parameter is required.', example='job_abc123'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing'),
-  resultType?: string(name='ResultType', description='The result type.'),
+  resultType?: string(name='ResultType', description='The result type.', example='content'),
 }
 
 model DescribeDocParserJobResultResponseBody = {
@@ -481,8 +487,8 @@ model DescribeDocParserJobResultResponseBody = {
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
   requestId?: string(name='RequestId', description='The request ID.', example='A30D0930-xxxx-xxxx-xxxx-C2C661CC8B58'),
   result?: string(name='Result', description='The document parsing result. The format is determined by the OutputFormat parameter specified in the CreateDocParserJob request.', example='# Document Title'),
-  resultType?: string(name='ResultType', description='The result format.'),
-  resultUrl?: string(name='ResultUrl', description='oss url'),
+  resultType?: string(name='ResultType', description='The result format.', example='content'),
+  resultUrl?: string(name='ResultUrl', description='oss url', example='http://shuanglu-prod.oss-cn-shanghai-finance-1-pub.aliyuncs.com/idrs/24/local/remoteresult?Expires=1764472809&OSSAccessKeyId=****&Signature=****'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -551,8 +557,8 @@ async function describeDocParserJobResult(request: DescribeDocParserJobResultReq
 }
 
 model DescribeDocParserJobStatusRequest {
-  agentName?: string(name='AgentName', description='The agent name.'),
-  jobId?: string(name='JobId', description='The ID of the document parsing task. You can obtain this ID by calling CreateDocParserJob.
+  agentName?: string(name='AgentName', description='The agent name.', example='codex'),
+  jobId?: string(name='JobId', description='The ID of the document parsing task. You can obtain the ID by calling CreateDocParserJob.
 
 This parameter is required.', example='job_abc123'),
   regionId?: string(name='RegionId', description='The region ID.
@@ -578,7 +584,7 @@ model DescribeDocParserJobStatusResponseBody = {
 
 - **failed**: Failed. The reason is provided in FailureMessage.
 
-- **cancelled**: Cancelled.', example='running'),
+- **cancelled**: Canceled.', example='running'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
 }
 
@@ -642,44 +648,44 @@ async function describeDocParserJobStatus(request: DescribeDocParserJobStatusReq
 }
 
 model WebFetchRequest {
-  agentName?: string(name='AgentName', description='The agent name.'),
+  agentName?: string(name='AgentName', description='The agent name.', example='codex'),
   outputFormat?: string(name='OutputFormat', description='The output format. Valid values:
 
 - **markdown**: Markdown format.
 
 - **html**: HTML format.
 
-- **text**: Plain text format.', example='markdown'),
+- **text**: plain text format.', example='markdown'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing'),
-  url?: string(name='Url', description='The URL of the target web page to crawl.
+  url?: string(name='Url', description='The URL of the target web page to fetch.
 
 This parameter is required.', example='https://xxx/projects/spring-boot'),
 }
 
 model WebFetchResponseBody = {
-  content?: string(name='Content', description='The content of the web page.', example='Spring Boot makes it easy to create stand-alone, production-grade Spring based Applications.'),
+  content?: string(name='Content', description='The web page content.', example='Spring Boot makes it easy to create stand-alone, production-grade Spring based Applications.'),
   contentFormat?: string(name='ContentFormat', description='The actual output format. Valid values:
 
 - **markdown**: Markdown format.
 
 - **html**: HTML format.
 
-- **text**: Plain text format.', example='markdown'),
+- **text**: plain text format.', example='markdown'),
   errorCode?: string(name='ErrorCode', description='The error code.', example='ErrorMessage Code'),
   errorMessage?: string(name='ErrorMessage', description='The error message.', example='ErrorMessage Example'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
   requestId?: string(name='RequestId', description='The request ID.', example='A30D0930-xxxx-xxxx-xxxx-C2C661CC8B58'),
   success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
-  title?: string(name='Title', description='The title of the web page.', example='Spring Boot'),
+  title?: string(name='Title', description='The web page title.', example='Spring Boot'),
   url?: string(name='Url', description='The URL of the web page.', example='https://xxxx/projects/spring-boot'),
   urlType?: string(name='UrlType', description='The URL classification result. Valid values:
-- **static_html**: A static HTML page.
-- **dynamic_js**: A single-page application (SPA) page that requires JavaScript rendering.
-- **audio**: An audio file.
-- **video**: A video file.
-- **document**: A document file (PDF, Word, PPT, or Excel).
+- **static_html**: Static HTML page.
+- **dynamic_js**: Single-page application (SPA) page that requires JavaScript rendering.
+- **audio**: Audio file.
+- **video**: Video file.
+- **document**: Document file (PDF, Word, PPT, or Excel).
 - **unknown**: Unrecognizable.', example='static_html'),
 }
 
@@ -690,10 +696,16 @@ model WebFetchResponse = {
 }
 
 /**
- * @summary Retrieves the content of a web page.
+ * @summary Retrieves web page content.
  *
- * @description - Region: Only China (Beijing) and Singapore regions are supported.
- * - Fees: Free of charge during the public preview period.
+ * @description - Region: Only China (Beijing) is supported.
+ * - Fees: The service is free of charge during the public preview period.
+ * General notes:
+ * - WebFetch and WebSearch are AI-based automated information retrieval tools. Search keywords, target web pages, and content extraction results are automatically generated and processed by DTS based on your instruction intent. Understanding deviations, omissions, or errors may occur. 
+ * - The information returned by both features is sourced from third-party public networks. DTS does not verify, review, or endorse such content. The content does not represent the views or positions of DTS. The original source is responsible for its authenticity, accuracy, completeness, timeliness, and legality. 
+ * - DTS makes no express or implied warranties regarding the accuracy, completeness, timeliness, legality, security, or fitness for a particular purpose of the search and retrieval results. DTS does not guarantee that the service is always available, uninterrupted, or error-free. 
+ * - You are responsible for evaluating and assuming the risks of using the results. Before using the results for decision-making, citation, public release, commercial use, or other scenarios, verify the content independently and comply with applicable laws, regulations, and the terms and intellectual property requirements of third-party websites. You assume all liability for any losses or disputes arising from the use of the results.
+ * - The results do not constitute opinions or advice in professional fields such as law, medicine, finance, or investment. For significant matters, consult qualified professionals.
  *
  * @param request WebFetchRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -732,10 +744,16 @@ async function webFetchWithOptions(request: WebFetchRequest, runtime: Util.Runti
 }
 
 /**
- * @summary Retrieves the content of a web page.
+ * @summary Retrieves web page content.
  *
- * @description - Region: Only China (Beijing) and Singapore regions are supported.
- * - Fees: Free of charge during the public preview period.
+ * @description - Region: Only China (Beijing) is supported.
+ * - Fees: The service is free of charge during the public preview period.
+ * General notes:
+ * - WebFetch and WebSearch are AI-based automated information retrieval tools. Search keywords, target web pages, and content extraction results are automatically generated and processed by DTS based on your instruction intent. Understanding deviations, omissions, or errors may occur. 
+ * - The information returned by both features is sourced from third-party public networks. DTS does not verify, review, or endorse such content. The content does not represent the views or positions of DTS. The original source is responsible for its authenticity, accuracy, completeness, timeliness, and legality. 
+ * - DTS makes no express or implied warranties regarding the accuracy, completeness, timeliness, legality, security, or fitness for a particular purpose of the search and retrieval results. DTS does not guarantee that the service is always available, uninterrupted, or error-free. 
+ * - You are responsible for evaluating and assuming the risks of using the results. Before using the results for decision-making, citation, public release, commercial use, or other scenarios, verify the content independently and comply with applicable laws, regulations, and the terms and intellectual property requirements of third-party websites. You assume all liability for any losses or disputes arising from the use of the results.
+ * - The results do not constitute opinions or advice in professional fields such as law, medicine, finance, or investment. For significant matters, consult qualified professionals.
  *
  * @param request WebFetchRequest
  * @return WebFetchResponse
@@ -746,23 +764,23 @@ async function webFetch(request: WebFetchRequest): WebFetchResponse {
 }
 
 model WebSearchRequest {
-  agentName?: string(name='AgentName', description='The agent name.'),
+  agentName?: string(name='AgentName', description='The agent name.', example='codex'),
   maxResults?: int32(name='MaxResults', description='The maximum number of results to return. Default value: 10. Valid values: 1 to 50.', example='10'),
-  query?: string(name='Query', description='The search query statement.
+  query?: string(name='Query', description='The search query string.
 
 This parameter is required.', example='Spring Boot'),
   regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-beijing'),
-  urlScopeDomains?: string(name='UrlScopeDomains', description='The list of domain names.'),
-  urlScopeMode?: string(name='UrlScopeMode', description='The URL scope mode.'),
+  urlScopeDomains?: string(name='UrlScopeDomains', description='A comma-separated list of domain names. The total length cannot exceed 20,480 characters, and the list can contain up to 100 entries. Subdomains are included by default.', example='spring.io,docs.spring.io'),
+  urlScopeMode?: string(name='UrlScopeMode', description='The domain scope mode. Valid values: allowOnly and deny. This parameter must be specified together with UrlScopeDomains, or both must be omitted.', example='allowOnly'),
 }
 
 model WebSearchResponseBody = {
   errorCode?: string(name='ErrorCode', description='The error code.', example='ErrorMessage Code'),
   errorMessage?: string(name='ErrorMessage', description='The error message.', example='ErrorMessage Example'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
-  query?: string(name='Query', description='The search query statement.', example='Spring Boot'),
+  query?: string(name='Query', description='The search query string.', example='Spring Boot'),
   requestId?: string(name='RequestId', description='The request ID.', example='A30D0930-xxxx-xxxx-xxxx-C2C661CC8B58'),
   searchResult?: [ 
     {
@@ -784,8 +802,15 @@ model WebSearchResponse = {
 /**
  * @summary Performs a web search.
  *
- * @description - Region: Only China (Beijing) and Singapore regions are supported.
- * - Fees: Free during the public preview period. No fees are charged.
+ * @description - Region: Only China (Beijing) is supported.
+ * - Fees: This feature is free of charge during the public preview period.
+ * - SLA: This feature is not covered by the DTS Service Level Agreement (SLA).
+ * General notes:
+ * - WebFetch and WebSearch are AI-based automated information retrieval tools. Search keywords, target web pages, and content extraction results are automatically generated and processed by DTS based on the intent of your instructions. Understanding deviations, omissions, or errors may occur. 
+ * - The information returned by both features is sourced from third-party public networks. DTS does not verify, review, or endorse the information. The content does not represent the views or positions of DTS. The original source is responsible for the authenticity, accuracy, completeness, timeliness, and legality of the content. 
+ * - DTS makes no express or implied warranties regarding the accuracy, completeness, timeliness, legality, security, or fitness for a particular purpose of the search and retrieval results. DTS does not guarantee that the service is always available, uninterrupted, or error-free. 
+ * - You are responsible for evaluating and assuming the risks of using the results. Before using the results for decision-making, citation, public release, commercial use, or other scenarios, verify the content and comply with applicable laws, regulations, and the terms and intellectual property requirements of third-party websites. You assume all liability for any losses or disputes arising from the use of the results.
+ * - The results do not constitute opinions or advice in professional fields such as law, medicine, finance, or investment. For significant matters, consult qualified professionals.
  *
  * @param request WebSearchRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -832,8 +857,15 @@ async function webSearchWithOptions(request: WebSearchRequest, runtime: Util.Run
 /**
  * @summary Performs a web search.
  *
- * @description - Region: Only China (Beijing) and Singapore regions are supported.
- * - Fees: Free during the public preview period. No fees are charged.
+ * @description - Region: Only China (Beijing) is supported.
+ * - Fees: This feature is free of charge during the public preview period.
+ * - SLA: This feature is not covered by the DTS Service Level Agreement (SLA).
+ * General notes:
+ * - WebFetch and WebSearch are AI-based automated information retrieval tools. Search keywords, target web pages, and content extraction results are automatically generated and processed by DTS based on the intent of your instructions. Understanding deviations, omissions, or errors may occur. 
+ * - The information returned by both features is sourced from third-party public networks. DTS does not verify, review, or endorse the information. The content does not represent the views or positions of DTS. The original source is responsible for the authenticity, accuracy, completeness, timeliness, and legality of the content. 
+ * - DTS makes no express or implied warranties regarding the accuracy, completeness, timeliness, legality, security, or fitness for a particular purpose of the search and retrieval results. DTS does not guarantee that the service is always available, uninterrupted, or error-free. 
+ * - You are responsible for evaluating and assuming the risks of using the results. Before using the results for decision-making, citation, public release, commercial use, or other scenarios, verify the content and comply with applicable laws, regulations, and the terms and intellectual property requirements of third-party websites. You assume all liability for any losses or disputes arising from the use of the results.
+ * - The results do not constitute opinions or advice in professional fields such as law, medicine, finance, or investment. For significant matters, consult qualified professionals.
  *
  * @param request WebSearchRequest
  * @return WebSearchResponse
