@@ -1,6 +1,7 @@
 /**
  *
  */
+import GatewayClient;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -9,6 +10,9 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
+  @productId = 'APIG';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -929,26 +933,29 @@ model HttpApiBackendMatchConditions {
 }
 
 model HttpApiDeployConfig {
-  autoDeploy?: boolean(name='autoDeploy', description='Specifies whether to automatically deploy the API.', example='true'),
-  backendScene?: string(name='backendScene', description='The publishing scenario.', example='SingleService'),
+  autoDeploy?: boolean(name='autoDeploy', description='Specifies whether to enable automatic deployment.', example='true'),
+  backendScene?: string(name='backendScene', description='The deployment scenario.', example='SingleService'),
   builtinRouteNames?: [ string ](name='builtinRouteNames', description='The list of built-in route names.'),
-  customDomainIds?: [ string ](name='customDomainIds', description='The list of custom domain name IDs.'),
+  customDomainIds?: [ string ](name='customDomainIds', description='The list of custom domain IDs.'),
   customDomainInfos?: [ 
     {
-      domainId?: string(name='domainId', description='The domain name ID.', example='d-cshee6dlhtgk******'),
+      domainId?: string(name='domainId', description='The domain ID.', example='d-cshee6dlhtgk******'),
       name?: string(name='name', description='The domain name.', example='hello-server.com'),
       protocol?: string(name='protocol', description='The protocol.', example='HTTP'),
     }
-  ](name='customDomainInfos', description='The list of custom domain name information.'),
-  enableSystemModels?: boolean(name='enableSystemModels', description='Specifies whether to enable gateway system models. This parameter takes effect only when the publishing scenario is AiAutoRouter. Default value: false. This parameter is used for backward compatibility with earlier clients. If systemModelTiers is not submitted, true indicates that all three tiers of system models are enabled, and false indicates that all are disabled.', example='true'),
-  envDomainIds?: [ string ](name='envDomainIds', description='The list of environment domain name IDs. If not specified, all environment domain names are bound. An empty array indicates that no environment domain names are bound.'),
+  ](name='customDomainInfos', description='The list of custom domain content.'),
+  dfpConfig?: {
+    serviceId?: string(name='serviceId', description='The ID of the imported ExtProc gRPC service. Required when creating a REST operation or ModelAPI. Must match the service currently bound to the resource during updates.', example='svc-cr8k0udlhtgt80sh7png'),
+  }(name='dfpConfig', description='The combination of fixed dynamic forwarding and ExtProc. For REST APIs, submit this in the deployConfigs of the operation. For ModelAPIs, submit this in the deployConfigs of the API. When creating either, you must submit both gatewayId and dfpConfig.serviceId in the same configuration item. The server verifies that the gateway and service belong to the same entity and determines the default environment and backend. GetHttpApiOperation, ListHttpApiOperations, GetHttpApi, and ListHttpApis return the entire object only when the corresponding resource is precisely mounted with the plugin bound to the current gateway. This field is not supported for API-level configurations of standard HTTP APIs.'),
+  enableSystemModels?: boolean(name='enableSystemModels', description='Specifies whether to enable gateway system models. This takes effect only when the deployment scenario is AiAutoRouter. The default value is false. This field is used for compatibility with legacy clients. If systemModelTiers is not submitted, true indicates that all three tiers of system models are enabled, and false indicates that none are enabled.', example='true'),
+  envDomainIds?: [ string ](name='envDomainIds', description='The list of environment domain IDs. If not provided, all environment domains are bound. An empty array indicates that no environment domains are bound.'),
   envDomainInfos?: [ 
     {
-      domainId?: string(name='domainId', description='The domain name ID.', example='d-env-xxx'),
+      domainId?: string(name='domainId', description='The domain ID.', example='d-env-xxx'),
       name?: string(name='name', description='The domain name.', example='api.example.com'),
       protocol?: string(name='protocol', description='The protocol.', example='HTTPS'),
     }
-  ](name='envDomainInfos', description='The list of environment domain name information.'),
+  ](name='envDomainInfos', description='The list of environment domain names.'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-xxx'),
   gatewayId?: string(name='gatewayId', description='The gateway instance ID.', example='gw-xx'),
   gatewayInfo?: GatewayInfo(name='gatewayInfo', description='The gateway information.', nullable=true),
@@ -957,39 +964,39 @@ model HttpApiDeployConfig {
   policyConfigs?: [
     HttpApiPolicyConfigs
   ](name='policyConfigs', description='The list of policy configurations.'),
-  restApiRouteMode?: string(name='restApiRouteMode', description='The current online routing mode of the REST API. ordinary indicates per-operation routing, and compressed indicates single-prefix routing for the API. This parameter is not returned for non-REST APIs.', example='ordinary'),
+  restApiRouteMode?: string(name='restApiRouteMode', description='The current online routing mode for REST APIs. ordinary indicates operation-by-operation routing, and compressed indicates a single prefix route for the API. This field is not returned for non-REST APIs.', example='ordinary'),
   routeBackend?: Backend(name='routeBackend', description='The backend service information.', nullable=true),
   serviceConfigs?: [ 
     {
-      capabilityTier?: string(name='capabilityTier', description='The capability tier of the intelligent routing candidate. Specify this parameter only when the publishing scenario is AiAutoRouter. Valid values: economy, standard, and premium.', example='standard'),
+      capabilityTier?: string(name='capabilityTier', description='The capability tier for intelligent routing candidates. Fill in only when the deployment scenario is AiAutoRouter. Valid values: economy, standard, and premium.', example='standard'),
       gatewayServiceId?: string(name='gatewayServiceId', description='The gateway service ID.', example='gw-svc-abc123'),
       intentCode?: string(name='intentCode', description='The intent code.', example='INQUIRY'),
-      match?: HttpApiBackendMatchConditions(name='match', description='The matching condition.'),
+      match?: HttpApiBackendMatchConditions(name='match', description='The matching conditions.'),
       modelName?: string(name='modelName', description='The model name.', example='qwen-max'),
       modelNamePattern?: string(name='modelNamePattern', description='The model name matching rule.', example='qwen-*'),
       multiServiceRouteStrategy?: string(name='multiServiceRouteStrategy', description='The multi-service routing strategy type.', example='ByWeight'),
-      name?: string(name='name', description='The display name of the service.', example='Qwen-Max-Service'),
+      name?: string(name='name', description='The service display name.', example='Qwen-Max-Service'),
       observabilityRouteConfig?: {
         mode?: string(name='mode', description='The routing mode.', example='LeastBusy'),
         queueSize?: int32(name='queueSize', description='The queue size.', example='100'),
-        rateLimit?: float(name='rateLimit', description='The maximum traffic ratio for a single service.', example='0.8'),
-      }(name='observabilityRouteConfig', description='The observability metric-based routing configuration.', nullable=true),
+        rateLimit?: float(name='rateLimit', description='The maximum traffic proportion for a single service.', example='0.8'),
+      }(name='observabilityRouteConfig', description='The observability metric routing configuration.', nullable=true),
       port?: int32(name='port', description='The service port number.', example='80'),
       protocol?: string(name='protocol', description='The service protocol (HTTP/HTTPS).', example='HTTP'),
       serviceId?: string(name='serviceId', description='The service ID.', example='svc-xxx'),
-      version?: string(name='version', description='The service version label.', example='V2'),
+      version?: string(name='version', description='The service version tag.', example='V2'),
       weight?: long(name='weight', description='The service weight.', example='100'),
     }
   ](name='serviceConfigs', description='The list of service configurations.'),
   subDomains?: [ 
     {
-      domainId?: string(name='domainId', description='The domain name ID.', example='d-csmn42um******'),
+      domainId?: string(name='domainId', description='The domain ID.', example='d-csmn42um******'),
       name?: string(name='name', description='The domain name.', example='test'),
       networkType?: string(name='networkType', description='The network type.', example='Intranet'),
       protocol?: string(name='protocol', description='The protocol.', example='HTTP'),
     }
-  ](name='subDomains', description='The list of second-level domain name content.'),
-  systemModelTiers?: [ string ](name='systemModelTiers', description='The set of explicitly enabled gateway system model capability tiers. Takes effect only when the publishing scenario is AiAutoRouter. Valid values: economy, standard, and premium. An explicitly empty array indicates that no system models are enabled.', example='["economy","standard","premium"]'),
+  ](name='subDomains', description='The list of subdomains.'),
+  systemModelTiers?: [ string ](name='systemModelTiers', description='The set of explicitly enabled gateway system model capability tiers. This takes effect only when the deployment scenario is AiAutoRouter. Valid values: economy, standard, and premium. An explicit empty array indicates that no system models are enabled.', example='["economy","standard","premium"]'),
 }
 
 model HttpApiDomainInfo {
@@ -1268,15 +1275,18 @@ model HttpRoute {
   createTimestamp?: long(name='createTimestamp', description='The creation time, in milliseconds.', example='1726649310593'),
   deployStatus?: string(name='deployStatus', description='The deployment status.', example='Deployed'),
   description?: string(name='description', description='The route description.', example='商品中心预发路由'),
+  dfpConfig?: {
+    serviceId?: string(name='serviceId', description='The ExtProc gRPC service ID.', example='svc-cr8k0udlhtgt80sh7png'),
+  }(name='dfpConfig', description='The ExtProc service selected for the fixed dynamic forwarding route. This field is not returned when no matching binding exists.'),
   domainInfos?: [ 
     {
-      domainId?: string(name='domainId', description='The domain name ID.', example='d-cr3v7dllhtgi9s***'),
+      domainId?: string(name='domainId', description='The domain ID.', example='d-cr3v7dllhtgi9s***'),
       name?: string(name='name', description='The domain name.', example='itemcenter.dev'),
       protocol?: string(name='protocol', description='The domain name protocol.', example='HTTP'),
     }
-  ](name='domainInfos', description='The domain name information list.'),
+  ](name='domainInfos', description='The list of domain information.'),
   environmentInfo?: {
-    alias?: string(name='alias', description='The environment name alias.', example='商品中心预发环境'),
+    alias?: string(name='alias', description='The alias of the environment name.', example='商品中心预发环境'),
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-crhq1u5lhtgju***'),
     gatewayInfo?: {
       gatewayEdition?: string(name='gatewayEdition', description='The gateway instance edition. Valid values: Professional, Serverless, MultiTenantServerless, and Unknown.', example='MultiTenantServerless'),
@@ -1286,12 +1296,12 @@ model HttpRoute {
     name?: string(name='name', description='The environment name.', example='itemcenter-pre'),
     subDomains?: [ 
       {
-        domainId?: string(name='domainId', description='The domain name ID.', example='d-cqu19hdlhtgjuv4***'),
+        domainId?: string(name='domainId', description='The domain ID.', example='d-cqu19hdlhtgjuv4***'),
         name?: string(name='name', description='The domain name.', example='env-crmic3llht***-cn-hangzhou-vpc.alicloudapi.com'),
         networkType?: string(name='networkType', description='The domain name access type.', example='Internet'),
         protocol?: string(name='protocol', description='The domain name protocol.', example='HTTP'),
       }
-    ](name='subDomains', description='The list of default subdomains of the environment.'),
+    ](name='subDomains', description='The list of default subdomains for the environment.'),
   }(name='environmentInfo', description='The environment context of the routing.'),
   gatewayStatus?: map[string]string(name='gatewayStatus', description='The route publish status.'),
   match?: HttpRouteMatch(name='match', description='The route matching rules.'),
@@ -1530,16 +1540,16 @@ model RiskCheckResults {
 }
 
 model Service {
-  addresses?: [ string ](name='addresses', description='The address information, which is a list of IP addresses or domain names.'),
+  addresses?: [ string ](name='addresses', description='The address information, such as IP addresses or domain names.'),
   agentServiceConfig?: AgentServiceConfig(name='agentServiceConfig', description='The agent service configuration.'),
   aiServiceConfig?: AiServiceConfig(name='aiServiceConfig', description='The AI service configuration.'),
-  createTimestamp?: long(name='createTimestamp', description='The time when the service was created.', example='1725617840096'),
+  createTimestamp?: long(name='createTimestamp', description='The creation time.', example='1725617840096'),
   dnsServers?: [ string ](name='dnsServers', description='The list of DNS servers.'),
-  expressType?: string(name='expressType', description='The execution mode of CloudFlow.', example='StartExecution'),
-  gatewayId?: string(name='gatewayId', description='The instance ID of the gateway.', example='gw-xxxx'),
+  expressType?: string(name='expressType', description='The execution method of CloudFlow.', example='StartExecution'),
+  gatewayId?: string(name='gatewayId', description='The gateway instance ID.', example='gw-xxxx'),
   groupName?: string(name='groupName', description='The name of the service group.', example='publich'),
   healthCheck?: ServiceHealthCheck(name='healthCheck', description='The health check configuration.'),
-  healthStatus?: string(name='healthStatus', description='The health check status. Valid values: Healthy and Unhealthy.', example='Healthy'),
+  healthStatus?: string(name='healthStatus', description='The monitoring check status.', example='Healthy'),
   healthyPanicThreshold?: float(name='healthyPanicThreshold', description='The healthy panic threshold.', example='1'),
   labelDetails?: [
     LabelDetail
@@ -1548,29 +1558,33 @@ model Service {
   name?: string(name='name', description='The name of the service.', example='user-service'),
   namespace?: string(name='namespace', description='The namespace.', example='PUBLIC'),
   outlierDetection?: {
-    baseEjectionTime?: int32(name='baseEjectionTime', description='The base ejection duration in seconds. Valid values: 1 to 3600.', example='30'),
-    enable?: boolean(name='enable', description='Specifies whether to enable outlier detection.', example='false'),
-    failurePercentageMinimumHosts?: int32(name='failurePercentageMinimumHosts', description='The minimum number of hosts. The value must be greater than or equal to 0.', example='1'),
-    failurePercentageThreshold?: int32(name='failurePercentageThreshold', description='The failure rate threshold in percentage. Valid values: 1 to 100.', example='80'),
+    baseEjectionTime?: int32(name='baseEjectionTime', description='The base ejection time in seconds. Valid values: 1 to 3600.', example='30'),
+    enable?: boolean(name='enable', description='Specifies whether to enable the feature.', example='false'),
+    failurePercentageMinimumHosts?: int32(name='failurePercentageMinimumHosts', description='The minimum number of hosts. Valid values: 0 or greater.', example='1'),
+    failurePercentageThreshold?: int32(name='failurePercentageThreshold', description='The failure percentage threshold. Valid values: 1 to 100.', example='80'),
     interval?: int32(name='interval', description='The detection interval in seconds. Valid values: 1 to 3600.', example='30'),
-  }(name='outlierDetection', description='The outlier detection configuration for removing abnormal instances.'),
-  outlierEndpoints?: [ string ](name='outlierEndpoints', description='The circuit-broken endpoints.'),
+  }(name='outlierDetection', description='The outlier detection configuration.'),
+  outlierEndpoints?: [ string ](name='outlierEndpoints', description='The ejected endpoints.'),
   ports?: [ 
     {
       name?: string(name='name', description='The name of the port.', example='user-service'),
       port?: int32(name='port', description='The port number.', example='8080'),
-      protocol?: string(name='protocol', description='The protocol. Valid values: TCP and UDP.', example='TCP'),
+      protocol?: string(name='protocol', description='The protocol.', example='TCP'),
     }
   ](name='ports', description='The list of port information.'),
   protocol?: string(name='protocol', description='The service protocol.', example='HTTP'),
   qualifier?: string(name='qualifier', description='The qualifier of the function.', example='LATEST'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-xxx'),
-  runtimeDetailErrorCode?: string(name='runtimeDetailErrorCode', description='The masked error code of the runtime details.', example='RuntimeEndpointTimeout'),
+  runtimeDetailErrorCode?: string(name='runtimeDetailErrorCode', description='The masked error code in the runtime details.', example='RuntimeEndpointTimeout'),
   runtimeDetailStatus?: string(name='runtimeDetailStatus', description='The runtime detail status.', example='Available'),
   serviceId?: string(name='serviceId', description='The unique ID of the service.', example='svc-cr6pk4tlhtgm***'),
+  serviceMetaData?: {
+    dfpReferenced?: boolean(name='dfpReferenced', description='Specifies whether the current service is referenced by an explicit DFP ExtProc binding of the gateway.'),
+    extProc?: boolean(name='extProc', description='Specifies whether the current service is referenced by an ExtProc configuration of the same user and gateway.'),
+  }(name='serviceMetaData', description='The ExtProc reference status in the service list. This field is not returned if the relationship read fails.'),
   sourceType?: string(name='sourceType', description='The source type of the service.', example='MSE_NACOS'),
   unhealthyEndpoints?: [ string ](name='unhealthyEndpoints', description='The unhealthy endpoints.'),
-  updateTimestamp?: long(name='updateTimestamp', description='The time when the service was updated.', example='1725868548440'),
+  updateTimestamp?: long(name='updateTimestamp', description='The update time.', example='1725868548440'),
   versions?: [ 
     {
       labels?: [ 
@@ -1732,48 +1746,46 @@ model DataFieldPathsValue = {
 }
 
 model AddGatewayQuotaRuleRequest {
-  conflictHash?: string(name='conflictHash', description='The conflict snapshot hash, which is used to prevent concurrent dirty overwrites when you confirm to overwrite. You can obtain this value by first executing a dry run with dryRun=true and extracting it from the returned data.
+  conflictHash?: string(name='conflictHash', description='The conflict snapshot hash used to prevent concurrent dirty overwrites when you confirm an overwrite. You can obtain this value by first performing a dry run with dryRun=true and extracting it from the response.
 
-You do not need to specify this parameter in the following scenarios: no conflicts exist; you are only performing a dry run with dryRun=true; or overwrite=false, meaning you do not confirm overwriting.
+You do not need to specify this parameter in the following scenarios: no conflict exists; you are only performing a dry run with dryRun=true; or overwrite=false, which means you do not confirm the overwrite.
 
-If dryRun=false and overwrite=true but this parameter is not provided or has expired and does not match, the backend returns accepted=false along with a new conflict preview. In this case, you must perform a dry run again to confirm the new conflicts.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
-  consumerGroupIds?: [ string ](name='consumerGroupIds', description='The list of consumer group IDs to which the rule is bound. This parameter is used when subjectType is set to consumer_group and cannot be specified together with consumerIds.', example='group1,group2'),
+If dryRun=false and overwrite=true but this parameter is not specified or has expired and does not match, the backend returns accepted=false along with a new conflict preview. In this case, you must perform a dry run again to confirm the new conflict.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
+  consumerGroupIds?: [ string ](name='consumerGroupIds', description='The list of consumer group IDs to which the rule is bound.', example='group1,group2'),
   consumerIds?: [ string ](name='consumerIds', description='The list of consumer IDs to which the rule is bound. You can specify up to 1,000 consumers in a single request.', example='1001,1002,1003'),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run without saving the configuration to the database or delivering the actual configuration. This is used to check whether conflicting rules exist on the bound consumption subjects. A single consumption subject cannot be configured with two natural period quotas of the same period. For example, a consumption subject that already has a natural day quota cannot be added with another natural day quota rule.', example='false'),
-  overwrite?: boolean(name='overwrite', description='Specifies whether to allow overwriting when a conflict occurs. If overwriting is allowed, the conflicting subjects (consumers or consumer groups) are unbound from the old rule and bound to the new rule.', example='false'),
-  periodMultiplier?: long(name='periodMultiplier', description='The period multiplier. This parameter applies to custom period rules and specifies that the rule is reset every X periods.', example='10'),
-  periodType?: string(name='periodType', description='The period type. For a natural period, statistics can be collected by day, week, or month. Valid values: day, week, and month. For a custom period, statistics can only be collected by day. Fixed value: day.
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run without saving data to the database or delivering actual configurations. This parameter is used to check whether conflicting rules exist on the bound consumption subjects. A single consumption subject cannot be configured with two natural period quotas of the same period. For example, a consumption subject that already has a natural day quota cannot be added with another natural day quota rule.', example='false'),
+  overwrite?: boolean(name='overwrite', description='Specifies whether to allow overwriting when a conflict occurs. If you allow overwriting, the conflicting subjects (consumers or consumer groups) are unbound from the old rule and bound to the new rule.', example='false'),
+  periodMultiplier?: long(name='periodMultiplier', description='The period multiplier. This parameter applies to custom period rules.', example='10'),
+  periodType?: string(name='periodType', description='The period type. Natural periods support daily, weekly, and monthly statistics. Valid values: day, week, and month. Custom periods support only daily statistics, and the value is fixed to day.
 
 This parameter is required.', example='week'),
-  quotaDimension?: string(name='quotaDimension', description='The quota dimension or limit type. Valid values:
-- credit: Quota throttling measured by credits consumed.
-- token: Quota throttling measured by token count.
+  quotaDimension?: string(name='quotaDimension', description='The quota dimension or limit type. Valid values: token and credit.
 
 This parameter is required.', example='token'),
-  quotaLimit?: long(name='quotaLimit', description='The total available quota (limit) per period.
+  quotaLimit?: long(name='quotaLimit', description='The total available quota (limit) for the period.
 
 This parameter is required.', example='1000'),
   ruleName?: string(name='ruleName', description='The name of the rule.
 
 This parameter is required.', example='team-rule'),
-  subjectType?: string(name='subjectType', description='The subject type of the rule. A value of consumer indicates a consumer. A value of consumer_group indicates a consumer group. Default value: consumer.', example='consumer_group'),
-  timezone?: string(name='timezone', description='The time zone corresponding to the natural period, in the UTC+x format.', example='UTC+8'),
-  windowAlignment?: string(name='windowAlignment', description='The reset period type. A value of calendar indicates a natural period, which takes effect from the start of a natural day, week, or month. A value of epoch indicates a custom period, which takes effect when the rule is delivered.', example='calendar'),
+  subjectType?: string(name='subjectType', description='The subject type of the rule. consumer indicates a consumer, and consumer_group indicates a consumer group. If you do not specify this parameter, the default value is consumer.', example='consumer_group'),
+  timezone?: string(name='timezone', description='The time zone corresponding to the natural period in the UTC+x format.', example='UTC+8'),
+  windowAlignment?: string(name='windowAlignment', description='The reset period type. Natural periods (windowAlignment=calendar) and custom periods (windowAlignment=epoch) are supported.', example='calendar'),
 }
 
 model AddGatewayQuotaRuleResponseBody = {
   code?: string(name='code', description='The status code or error code.', example='200, 404, 500'),
   data?: {
-    accepted?: boolean(name='accepted', description='Indicates whether the semantics of the current write request can be accepted by the system. A value of false typically occurs in retryable scenarios, such as when a conflict is not confirmed for overwriting.', example='true'),
+    accepted?: boolean(name='accepted', description='Indicates whether the semantics of this write request can be accepted by the system. A value of false typically occurs in retryable scenarios such as unconfirmed conflict overwrites.', example='true'),
     conflictPreview?: {
-      conflictHash?: string(name='conflictHash', description='The hash of the conflict.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
+      conflictHash?: string(name='conflictHash', description='The conflict hash.', example='f8f44dc6cf369a017d56b7197eb4fb5ac4bbb6b09a92b9b41999541fxxxxxxxx'),
       items?: [ 
         {
-          conflictPeriodType?: string(name='conflictPeriodType', description='The period type of the existing conflicting rule on the consumption subject. A value of day, week, or month indicates that the period of the existing conflicting rule is day, week, or month, respectively.', example='week', deprecated=true),
-          conflictType?: string(name='conflictType', description='The type of the existing conflicting rule on the consumption subject. A value of calendar indicates that the existing conflicting rule is a natural period rule. A value of epoch indicates that the existing conflicting rule is a custom period rule.', example='calendar'),
-          consumerId?: string(name='consumerId', description='The ID of the conflicting consumer. This parameter is deprecated. Use subjectId instead.', example='cs-xxxxxx'),
-          consumerName?: string(name='consumerName', description='The name of the conflicting consumer. This parameter is deprecated. Use subjectName instead.', example='consumer-a'),
-          periodType?: string(name='periodType', example='day'),
+          conflictPeriodType?: string(name='conflictPeriodType', description='The period type of the existing conflicting rule on the consumption subject. If conflictPeriodType is day, week, or month, it indicates that the period of the existing conflicting rule on the consumption subject is day, week, or month, respectively.', example='week', deprecated=true),
+          conflictType?: string(name='conflictType', description='The type of the existing conflicting rule on the consumption subject. If conflictType is calendar, it indicates that the existing conflicting rule on the consumption subject is a natural period. If conflictType is epoch, it indicates that the existing conflicting rule is a custom period.', example='calendar'),
+          consumerId?: string(name='consumerId', description='The ID of the conflicting consumer. You can now use subjectId instead.', example='cs-xxxxxx'),
+          consumerName?: string(name='consumerName', description='The name of the conflicting consumer. You can now use subjectName instead.', example='consumer-a'),
+          periodType?: string(name='periodType', description='The period type of the existing conflicting rule. day, week, and month indicate day, week, and month, respectively.', example='day'),
           subjectId?: string(name='subjectId', description='The ID of the conflicting subject.', example='cs-xxx'),
           subjectName?: string(name='subjectName', description='The name of the conflicting subject.', example='consumer-a'),
           subjectType?: string(name='subjectType', description='The type of the conflicting subject. Valid values: consumer and consumer_group.', example='consumer'),
@@ -1784,7 +1796,7 @@ model AddGatewayQuotaRuleResponseBody = {
     dryRun?: boolean(name='dryRun', description='Indicates whether a dry run is performed.', example='false'),
     ruleId?: string(name='ruleId', description='The ID of the rule.', example='qr-xxxxx'),
   }(name='data', description='The response data.', example='{\\\\"key\\\\": \\\\"value\\\\"}'),
-  message?: string(name='message', description='The message content.', example='success'),
+  message?: string(name='message', description='The message.', example='success'),
   requestId?: string(name='requestId', description='The unique identifier of the request.', example='1234567890'),
 }
 
@@ -1797,15 +1809,15 @@ model AddGatewayQuotaRuleResponse = {
 /**
  * @summary Creates a gateway quota throttling rule.
  *
- * @description This operation adds a quota rule based on consumers or consumer groups to an AI gateway. Note that this operation takes effect only for AI gateways of a version later than 2.1.21.
+ * @description This operation adds a quota rule based on consumers or consumer groups for an AI gateway. Note that this operation takes effect only for AI gateways of a version later than 2.1.21.
  * > 
- * >  Recommended call logic:
+ * > Recommended call logic:
  * > - 1. Perform a dry run to check for rule conflicts.
  * > - - Set dryRun=true.
- * > - - The response returns a conflict preview containing a conflictHash.
+ * > - - The response returns a conflict preview containing conflictHash.
  * > - 2. Formally submit the request after confirmation.
- * > - - If no conflicts exist: Set dryRun=false and overwrite=false.
- * > - - If conflicts exist and you confirm to overwrite: Set dryRun=false, overwrite=true, and conflictHash=<the value returned in the previous step>.
+ * > - - If no conflict exists: Set dryRun=false and overwrite=false.
+ * > - - If a conflict exists and you confirm to overwrite: Set dryRun=false, overwrite=true, and conflictHash=<value returned in the previous step>.
  *
  * @param request AddGatewayQuotaRuleRequest
  * @param headers map
@@ -1877,15 +1889,15 @@ async function addGatewayQuotaRuleWithOptions(gatewayId: string, request: AddGat
 /**
  * @summary Creates a gateway quota throttling rule.
  *
- * @description This operation adds a quota rule based on consumers or consumer groups to an AI gateway. Note that this operation takes effect only for AI gateways of a version later than 2.1.21.
+ * @description This operation adds a quota rule based on consumers or consumer groups for an AI gateway. Note that this operation takes effect only for AI gateways of a version later than 2.1.21.
  * > 
- * >  Recommended call logic:
+ * > Recommended call logic:
  * > - 1. Perform a dry run to check for rule conflicts.
  * > - - Set dryRun=true.
- * > - - The response returns a conflict preview containing a conflictHash.
+ * > - - The response returns a conflict preview containing conflictHash.
  * > - 2. Formally submit the request after confirmation.
- * > - - If no conflicts exist: Set dryRun=false and overwrite=false.
- * > - - If conflicts exist and you confirm to overwrite: Set dryRun=false, overwrite=true, and conflictHash=<the value returned in the previous step>.
+ * > - - If no conflict exists: Set dryRun=false and overwrite=false.
+ * > - - If a conflict exists and you confirm to overwrite: Set dryRun=false, overwrite=true, and conflictHash=<value returned in the previous step>.
  *
  * @param request AddGatewayQuotaRuleRequest
  * @return AddGatewayQuotaRuleResponse
@@ -3815,61 +3827,45 @@ async function createGateway(request: CreateGatewayRequest): CreateGatewayRespon
 }
 
 model CreateHttpApiRequest {
-  agentProtocols?: [ string ](name='agentProtocols', description='The list of protocols supported by the agent. This parameter is required when type is set to Agent. You do not need to specify this parameter for other types.'),
-  aiProtocols?: [ string ](name='aiProtocols', description='The list of AI API protocols. This parameter is required when type is set to LLM, and only one protocol can be specified. This parameter is required when type is set to Ai, and multiple protocols can be specified. You do not need to specify this parameter for other types. Example protocol entry: OpenAI/v1.'),
-  authConfig?: AuthConfig(name='authConfig', description='The authentication configuration. This parameter is required when enableAuth is set to true.'),
-  basePath?: string(name='basePath', description='The base path of the API. The path must start with a forward slash (/), cannot exceed 256 bytes in length, and cannot contain spaces. This parameter is required when type is set to Rest. When type is set to LLM, Ai, or Agent, this parameter is optional and defaults to /.', example='/v1'),
-  belongGatewayId?: string(name='belongGatewayId', description='The ID of the gateway to which the API belongs.', example='gw-abc123xyz789'),
+  agentProtocols?: [ string ](name='agentProtocols', description='The list of protocols supported by the agent. This parameter is required when type is set to Agent. This field is not required for other types.'),
+  aiProtocols?: [ string ](name='aiProtocols', description='The list of AI API protocols. This parameter is required and only one protocol can be passed when type is set to LLM. This parameter is required and multiple protocols can be passed when type is set to Ai. This parameter is not required for other types. Example protocol item: OpenAI/v1.'),
+  authConfig?: AuthConfig(name='authConfig', description='The permission authentication configuration. This parameter is required when enableAuth is set to true.'),
+  basePath?: string(name='basePath', description='The base path of the API. It must start with a forward slash (/), be up to 256 bytes in length, and contain no spaces. This parameter is required when type is set to Rest. When type is set to LLM, Ai, or Agent, this parameter is optional and defaults to /.', example='/v1'),
+  belongGatewayId?: string(name='belongGatewayId', description='The ID of the associated gateway.', example='gw-abc123xyz789'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs', description='The list of deployment configurations for the HTTP API. This parameter is required when type is set to LLM or Ai, and only one deployment configuration can be specified. This parameter is not validated at the request level for other types.'),
+  ](name='deployConfigs', description='The list of deployment configurations for the HTTP API. This parameter is required and only one deployment configuration can be passed when type is set to LLM or Ai. Request-layer validation is not required for other types.'),
   description?: string(name='description', description='The description of the API.', example='Test API for integration'),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run without executing the operation.', example='true', deprecated=true),
-  enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication. This parameter is validated when type is set to LLM, Ai, or Agent. This parameter is not validated at the request level when type is set to Rest.', example='true'),
-  firstByteTimeout?: int32(name='firstByteTimeout', description='The timeout period for waiting for the first byte from the backend.', example='30'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to only preview the operation without executing it.', example='true', deprecated=true),
+  enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable permission authentication. This parameter is validated when type is set to LLM, Ai, or Agent. This field is not validated at the request layer when type is set to Rest.', example='true'),
+  firstByteTimeout?: int32(name='firstByteTimeout', description='The timeout period for waiting for the backend to return the first byte.', example='30'),
   ingressConfig?: {
     clusterId?: string(name='clusterId', description='The cluster ID.', example='k7v5eobfzttudni2pw***'),
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cq146allhtgk***'),
     ingressClass?: string(name='ingressClass', description='The Ingress class to listen on.', example='mse'),
     overrideIngressIp?: boolean(name='overrideIngressIp', description='Specifies whether to update the address in the Ingress status.', example='false'),
     sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtr***', deprecated=true),
-    watchNamespace?: string(name='watchNamespace', description='The namespace to listen on.', example='default'),
-  }(name='ingressConfig', description='The HTTP Ingress API configuration. This parameter is required and cannot be nil when type is set to HttpIngress. You do not need to specify this parameter for other types.'),
-  modelCategory?: string(name='modelCategory', description='The AI model category. This parameter is optional when type is set to LLM or Ai. You do not need to specify this parameter for other types. Valid values:
-
-- Text: text generation.
-- Image: image generation.
-- Audio: audio processing.
-- Video: AI video generation.
-- MultiModal: multimodal.
-- Embedding: embedding.
-- Rerank: reranking.
-- Others: other.', example='Text'),
-  name?: string(name='name', description='The name of the HTTP API, which is used to identify the API resource. Example: test-api.
+    watchNamespace?: string(name='watchNamespace', description='The namespace to watch.', example='default'),
+  }(name='ingressConfig', description='The configuration information of the HTTP Ingress API. This parameter is required and cannot be nil when type is set to HttpIngress. This field is not required for other types.'),
+  modelCategory?: string(name='modelCategory', description='The AI model category. This parameter is optional when type is set to LLM or Ai, and is not required for other types. Valid values: Text (text generation), Image (image generation), Audio (audio processing), Video (video generation), MultiModal (multimodal), Embedding (vector embedding), Rerank (reranking), and Others (others).', example='Text'),
+  name?: string(name='name', description='The name of the HTTP API, which is used to identify the current API resource, such as test-api.
 
 This parameter is required.', example='test-api'),
   protocols?: [ string ](name='protocols', description='The list of API access protocols.'),
   removeBasePathOnForward?: boolean(name='removeBasePathOnForward', description='Specifies whether to remove the base path when forwarding requests.', example='true'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-xxx'),
-  strategy?: string(name='strategy', description='The conflict merge strategy for import.', example='ExistFirst'),
-  type?: string(name='type', description='The type of the HTTP API. Valid values:
-
-- Http: standard HTTP API.
-- Rest: RESTful API.
-- WebSocket: WebSocket API.
-- HttpIngress: HTTP API connected through Ingress.
-- LLM: large language model API.
-- Agent: agent proxy API.
+  strategy?: string(name='strategy', description='The conflict merging strategy for import.', example='ExistFirst'),
+  type?: string(name='type', description='The type of the HTTP API. Valid values: Http (common HTTP API), Rest (RESTful API), WebSocket (WebSocket API), HttpIngress (HTTP API accessed through Ingress), LLM (large language model API), and Agent (agent API).
 
 This parameter is required.', example='Http'),
   versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration.'),
-  clientToken?: string(name='clientToken', description='The idempotency token, which is a globally unique value generated by the caller. We recommend that you use a UUID. The token cannot exceed 64 characters in length. Within approximately 24 hours after the first successful request, a duplicate request that carries the same ClientToken and identical request parameters directly returns the httpApiId created by the first request without creating a duplicate HTTP API. If the same ClientToken is carried but the request parameters differ, an IdempotentParameterMismatch error is returned. If the first request is still being processed, an IdempotentProcessing error is returned. If this parameter is not specified, idempotency control is not enabled, and the behavior is consistent with the existing version.', example='5f7a2c1e-9b3d-4e8f-a1c6-0d2b8e4f7a13'),
+  clientToken?: string(name='clientToken', description='The client token. It is a globally unique value generated by the caller (UUID is recommended) and can be up to 64 characters in length. Within about 24 hours after the first request succeeds, a repeated request with the same ClientToken and identical request parameters directly returns the httpApiId created by the first request without creating the HTTP API again. If the same ClientToken is used but the request parameters are different, IdempotentParameterMismatch is returned. If the first request is still being processed, IdempotentProcessing is returned. If this parameter is not specified, idempotence control is not enabled, and the behavior is consistent with the existing version.', example='5f7a2c1e-9b3d-4e8f-a1c6-0d2b8e4f7a13'),
 }
 
 model CreateHttpApiResponseBody = {
   code?: string(name='code', description='The status code.', example='Ok'),
   data?: {
-    httpApiId?: string(name='httpApiId', description='HTTP API ID。', example='api-xxx'),
+    httpApiId?: string(name='httpApiId', description='The HTTP API ID.', example='api-xxx'),
     name?: string(name='name', description='The API name.', example='test-api'),
   }(name='data', description='The API information.'),
   message?: string(name='message', description='The response message.', example='success'),
@@ -3991,7 +3987,7 @@ async function createHttpApi(request: CreateHttpApiRequest): CreateHttpApiRespon
 model CreateHttpApiOperationRequest {
   operations?: [
     HttpApiOperation
-  ](name='operations', description='The list of operation definitions.'),
+  ](name='operations', description='The list of API operation definitions.'),
 }
 
 model CreateHttpApiOperationResponseBody = {
@@ -3999,10 +3995,10 @@ model CreateHttpApiOperationResponseBody = {
   data?: {
     operations?: [ 
       {
-        operationId?: string(name='operationId', description='The operation ID.', example='op-xxx'),
+        operationId?: string(name='operationId', description='The API operation ID.', example='op-xxx'),
       }
-    ](name='operations', description='The operation information.'),
-  }(name='data', description='The operation information.'),
+    ](name='operations', description='The API operation information.'),
+  }(name='data', description='The API operation information.'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='393E2630-DBE7-5221-AB35-9E740675491A'),
 }
@@ -4014,7 +4010,7 @@ model CreateHttpApiOperationResponse = {
 }
 
 /**
- * @summary Creates operations for an HTTP API.
+ * @summary Creates an API operation for an HTTP API.
  *
  * @param request CreateHttpApiOperationRequest
  * @param headers map
@@ -4048,7 +4044,7 @@ async function createHttpApiOperationWithOptions(httpApiId: string, request: Cre
 }
 
 /**
- * @summary Creates operations for an HTTP API.
+ * @summary Creates an API operation for an HTTP API.
  *
  * @param request CreateHttpApiOperationRequest
  * @return CreateHttpApiOperationResponse
@@ -4063,30 +4059,33 @@ model CreateHttpApiRouteRequest {
   backendConfig?: {
     scene?: string(name='scene', description='The backend service scenario. Valid values:
 - SingleService: Single service.
-- MultiServiceByRatio: Multi-service canary release by ratio.
+- MultiServiceByRatio: Canary release of multiple services by ratio.
 - Mock: Mock service.
 - Redirect: Redirect service.', example='SingleService'),
     services?: [ 
       {
-        groupName?: string(name='groupName', description='The service group. Used in HTTP-to-Dubbo transcoding scenarios.', example='DEFAULT_GROUP'),
-        httpDubboTranscoder?: HttpDubboTranscoder(name='httpDubboTranscoder', description='The HTTP-to-Dubbo protocol transcoding configuration. Only supported for SingleService MSE_NACOS DUBBO backends of HTTP APIs.', example='{"dubboServiceName":"com.alibaba.nacos.example.dubbo.service.DemoService","dubboServiceVersion":"1.0.0","dubboServiceGroup":"DEV","methodMapList":[{"dubboMethodName":"sayName","httpMethod":"ALL_GET","methodPath":"/dubbo/sayName","passThroughAllHeaders":"PASS_ALL"}]}'),
-        modelName?: string(name='modelName', description='The target model name. This field is shared by multiple existing model backend scenarios. The specific routing or model rewrite semantics are determined by backendConfig.scene. This field is required for the SemanticRouter scenario. If not specified in the AiAutoRouter scenario, the default model of the AI service is used.', example='qwen-plus'),
-        namespace?: string(name='namespace', description='The service namespace. Used in HTTP-to-Dubbo transcoding scenarios.', example='public'),
+        groupName?: string(name='groupName', description='The service group. Used in HTTP-to-Dubbo conversion scenarios.', example='DEFAULT_GROUP'),
+        httpDubboTranscoder?: HttpDubboTranscoder(name='httpDubboTranscoder', description='The HTTP-to-Dubbo protocol conversion configuration. This configuration is supported only for SingleService MSE_NACOS DUBBO backends of HTTP APIs.', example='{"dubboServiceName":"com.alibaba.nacos.example.dubbo.service.DemoService","dubboServiceVersion":"1.0.0","dubboServiceGroup":"DEV","methodMapList":[{"dubboMethodName":"sayName","httpMethod":"ALL_GET","methodPath":"/dubbo/sayName","passThroughAllHeaders":"PASS_ALL"}]}'),
+        modelName?: string(name='modelName', description='The target model name. This field is shared by multiple existing model backend scenarios. The specific routing or model rewriting semantics are determined by backendConfig.scene. This field is required for the SemanticRouter scenario. If it is not configured for the AiAutoRouter scenario, the default model of the AI service is used.', example='qwen-plus'),
+        namespace?: string(name='namespace', description='The service namespace. Used in HTTP-to-Dubbo conversion scenarios.', example='public'),
         port?: int32(name='port', description='The service port. Do not specify this parameter for dynamic ports.', example='8080'),
         protocol?: string(name='protocol', description='The service protocol. Valid values:
 - HTTP
 - HTTPS', example='HTTP'),
         serviceId?: string(name='serviceId', description='The service ID.', example='svc-crbgq0dlhtgr***'),
-        sourceType?: string(name='sourceType', description='The service source type. Used in HTTP-to-Dubbo transcoding scenarios.', example='MSE_NACOS'),
-        version?: string(name='version', description='The service version. This parameter takes effect only in the by-tag scenario.', example='v1'),
+        sourceType?: string(name='sourceType', description='The service source type. Used in HTTP-to-Dubbo conversion scenarios.', example='MSE_NACOS'),
+        version?: string(name='version', description='The service version. This parameter is valid only in the tag-based scenario.', example='v1'),
         weight?: int32(name='weight', description='The percentage value of the traffic ratio.', example='49'),
       }
     ](name='services', description='The list of backend services.'),
-  }(name='backendConfig', description='The backend service configuration of the route.'),
+  }(name='backendConfig', description='The backend service configuration for the route.'),
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The API deployment configuration.', deprecated=true),
   description?: string(name='description', description='The route description.', example='User login route'),
+  dfpConfig?: {
+    serviceId?: string(name='serviceId', description='The ID of the imported ExtProc gRPC service.', example='svc-cr8k0udlhtgt80sh7png'),
+  }(name='dfpConfig', description='The fixed dynamic forwarding and ExtProc combination configuration. When you use this configuration, specify only serviceId, and do not specify environmentId or backendConfig.'),
   domainIds?: [ string ](name='domainIds', description='The domain name IDs.'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubcv***'),
   match?: HttpRouteMatch(name='match', description='The route match rules.'),
@@ -4139,6 +4138,9 @@ async function createHttpApiRouteWithOptions(httpApiId: string, request: CreateH
   }
   if (!$isNull(request.description)) {
     body['description'] = request.description;
+  }
+  if (!$isNull(request.dfpConfig)) {
+    body['dfpConfig'] = request.dfpConfig;
   }
   if (!$isNull(request.domainIds)) {
     body['domainIds'] = request.domainIds;
@@ -8189,10 +8191,10 @@ async function getConsumer(consumerId: string): GetConsumerResponse {
 
 model GetConsumerAuthorizationRuleResponseBody = {
   apiInfo?: HttpApiApiInfo(name='apiInfo', description='The API information.'),
-  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filters the list of APIs by a specific consumer authorization rule ID. The list of APIs in the response contains only authorized APIs.', example='car-ctgdn8em1hko5krqq03g'),
+  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filters the list of APIs by a specific consumer authorization rule ID. The list of APIs in the response includes only authorized APIs.', example='car-ctgdn8em1hko5krqq03g'),
   consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-ctgdn2um1hkossul8gvg'),
   createTimestamp?: long(name='createTimestamp', description='The creation timestamp. Unit: milliseconds.', example='1750852089975'),
-  deployStatus?: string(name='deployStatus', description='The deployment status of the API in the current environment.', example='""'),
+  deployStatus?: string(name='deployStatus', description='The publish status of the API in the current environment.', example='""'),
   environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
   expireMode?: string(name='expireMode', description='The expiration mode. Valid values: LongTerm, ShortTerm.', example='LongTerm'),
   expireStatus?: string(name='expireStatus', description='The expiration status.', example='true'),
@@ -8899,6 +8901,70 @@ async function getGateway(gatewayId: string): GetGatewayResponse {
   return getGatewayWithOptions(gatewayId, headers, runtime);
 }
 
+model GetGatewayDfpExtProcServiceRequest {
+}
+
+model GetGatewayDfpExtProcServiceResponseBody = {
+  code?: string(name='code', description='The request result code. The value is Ok if the request succeeds.', example='Ok'),
+  data?: {
+    bound?: boolean(name='bound', description='Indicates whether the gateway is bound to a dynamic forwarding ExtProc service.', example='true'),
+    serviceId?: string(name='serviceId', description='The ID of the bound ExtProc gRPC service. This field is not returned if no service is bound.', example='svc-cr8k0udlhtgt80sh7png'),
+    servicePort?: int32(name='servicePort', description='The gRPC port of the bound service. This field is not returned if no service is bound.', example='9002'),
+  }(name='data', description='The binding information of the dynamic forwarding ExtProc service for the gateway.', example='{"bound":true,"serviceId":"svc-cr8k0udlhtgt80sh7png","servicePort":9002}'),
+  message?: string(name='message', description='The result description. This field contains the fault information if the request fails.', example='success'),
+  requestId?: string(name='requestId', description='The request ID for troubleshooting.', example='F7B8A1C2-1234-5678-90AB-CDEF12345678'),
+}
+
+model GetGatewayDfpExtProcServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetGatewayDfpExtProcServiceResponseBody(name='body'),
+}
+
+/**
+ * @summary Retrieves the dynamic forwarding ExtProc service bound to the gateway.
+ *
+ * @description Queries the dynamic forwarding ExtProc gRPC service and port currently bound to the specified gateway. If no service is bound, the operation returns bound=false.
+ *
+ * @param request GetGatewayDfpExtProcServiceRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetGatewayDfpExtProcServiceResponse
+ */
+@context("getGatewayDfpExtProcServiceWithContext")
+async function getGatewayDfpExtProcServiceWithOptions(gatewayId: string, request: GetGatewayDfpExtProcServiceRequest, headers: map[string]string, runtime: $RuntimeOptions): GetGatewayDfpExtProcServiceResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetGatewayDfpExtProcService',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${$URL.percentEncode(gatewayId)}/dfp-ext-proc-service`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Retrieves the dynamic forwarding ExtProc service bound to the gateway.
+ *
+ * @description Queries the dynamic forwarding ExtProc gRPC service and port currently bound to the specified gateway. If no service is bound, the operation returns bound=false.
+ *
+ * @param request GetGatewayDfpExtProcServiceRequest
+ * @return GetGatewayDfpExtProcServiceResponse
+ */
+async function getGatewayDfpExtProcService(gatewayId: string, request: GetGatewayDfpExtProcServiceRequest): GetGatewayDfpExtProcServiceResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getGatewayDfpExtProcServiceWithOptions(gatewayId, request, headers, runtime);
+}
+
 model GetGatewayElasticPolicyRequest {
 }
 
@@ -9404,7 +9470,7 @@ async function getHiMarketConsumerCredential(consumerId: string, request: GetHiM
 }
 
 model GetHttpApiRequest {
-  expandPolicyConfigs?: boolean(name='expandPolicyConfigs', description='Specifies whether to expand independent policy configurations. If this parameter is omitted or set to true, a full compatibility view is returned. If this parameter is set to false, policy-managed ModelAPI token throttling returns policy references and optional read-only plug-in status, and the rule body can be retrieved by calling GetPolicy.'),
+  expandPolicyConfigs?: boolean(name='expandPolicyConfigs', description='Specifies whether to expand independent policy configurations. If this parameter is omitted or set to true, the full compatible view is returned. If set to false, policy-managed Model API token throttling returns policy references and optional read-only plug-in statuses. The rule body can be retrieved by calling GetPolicy.'),
 }
 
 model GetHttpApiResponseBody = {
@@ -9468,7 +9534,7 @@ async function getHttpApi(httpApiId: string, request: GetHttpApiRequest): GetHtt
 
 model GetHttpApiOperationResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
-  data?: HttpApiOperationInfo(name='data', description='The API operation details.'),
+  data?: HttpApiOperationInfo(name='data', description='The API operation information.'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='B725275B-50C6-5A49-A9FD-F0332FCB3351'),
 }
@@ -9480,7 +9546,7 @@ model GetHttpApiOperationResponse = {
 }
 
 /**
- * @summary Retrieves the details of an API operation.
+ * @summary Retrieves API operation information.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -9506,7 +9572,7 @@ async function getHttpApiOperationWithOptions(httpApiId: string, operationId: st
 }
 
 /**
- * @summary Retrieves the details of an API operation.
+ * @summary Retrieves API operation information.
  *
  * @return GetHttpApiOperationResponse
  */
@@ -9842,11 +9908,11 @@ async function getMigrationTask(taskId: string, request: GetMigrationTaskRequest
 model GetPluginAttachmentResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
-    enable?: boolean(name='enable', description='Indicates whether the plugin attachment is enabled.', example='true'),
+    enable?: boolean(name='enable', description='Indicates whether the plugin is enabled.', example='true'),
     environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
     gatewayInfo?: GatewayInfo(name='gatewayInfo', description='The gateway information.'),
     parentResourceInfo?: ParentResourceInfo(name='parentResourceInfo', description='The parent mounted resource information.'),
-    pluginAttachmentId?: string(name='pluginAttachmentId', description='The plugin attachment ID.', example='pa-d05f1tmm1hku195dd8j0'),
+    pluginAttachmentId?: string(name='pluginAttachmentId', description='The ID of the plugin attachment.', example='pa-d05f1tmm1hku195dd8j0'),
     pluginClassInfo?: PluginClassInfo(name='pluginClassInfo', description='The plugin class information.'),
     pluginConfig?: string(name='pluginConfig', description='The Base64-encoded content of the original plugin configuration.', example='cHJlcGVuZDoKLSByb2xlOiBzeXN0ZW0KICBjb250ZW50OiDor7fkvb/nlKjoi7Hor63lm57nrZTpl67popgKYXBwZW5kOgotIHJvbGU6IHVzZXIKICBjb250ZW50OiDmr4/mrKHlm57nrZTlrozpl67popjvvIzlsJ3or5Xov5vooYzlj43pl64K'),
     pluginId?: string(name='pluginId', description='The plugin ID.', example='pl-cvo8ub6m1hkvgv03r3k0'),
@@ -10946,44 +11012,44 @@ model ImportHttpApiRequest {
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The API deployment configurations.'),
-  description?: string(name='description', description='The description of the imported API. If this parameter is not specified, the description is extracted from the API definition. The maximum length is 255 bytes.', example='Test API'),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If this parameter is set to true, only the Swagger definition is checked and no import operation is performed.', example='false'),
+  description?: string(name='description', description='The description of the API to be imported. If you do not specify this parameter, the description is extracted from the API definition file. The maximum length is 255 bytes.', example='Test API'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If you set this parameter to true, the system only checks the definition and does not perform the import operation.', example='false'),
   gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-xxx'),
   mcpRouteId?: string(name='mcpRouteId', description='The MCP route ID.', example='xxx'),
-  name?: string(name='name', description='The name of the imported API. If this parameter is not specified, the name is extracted from the API definition file. If an API with the same name and versioning configuration already exists, the import operation updates the existing API definition based on the strategy parameter.', example='import-test'),
+  name?: string(name='name', description='The name of the API to be imported. If you do not specify this parameter, the name is extracted from the API definition file. If an API with the same name and versioning configuration already exists, the import operation updates the existing API definition based on the strategy parameter.', example='import-test'),
   resourceGroupId?: string(name='resourceGroupId', description='The [resource group ID](https://help.aliyun.com/document_detail/151181.html).', example='rg-aek23nsa353vmra'),
-  specContentBase64?: string(name='specContentBase64', description='The Base64-encoded API definition. OpenAPI Specification (OAS) 2.0 and OAS 3.0 are supported. Both YAML and JSON formats are supported. This parameter has a higher priority than the specFileUrl parameter. If the file size exceeds 10 MB, use the specFileUrl parameter instead.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
-  specFileUrl?: string(name='specFileUrl', description='The download URL of the API definition file. The file must be downloadable over the Internet or through the internal network of Object Storage Service (OSS) in the same region. The URL must have download permissions. For OSS file links that are not publicly readable, see References [Download objects by using presigned URLs](https://help.aliyun.com/document_detail/39607.html) and provide a URL with download permissions. Currently, only API definition files stored in OSS are supported.'),
+  specContentBase64?: string(name='specContentBase64', description='The Base64-encoded API definition. Supports OAS 2.0 and OAS 3.0 specifications in YAML and JSON formats. This parameter has a higher priority than the specFileUrl parameter. If the file size exceeds 10 MB, use the specFileUrl parameter instead.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
+  specFileUrl?: string(name='specFileUrl', description='The download URL of the API definition file. The file must be downloadable over the Internet or through the internal network of OSS in the same region. The URL must have download permissions. For OSS file links that are not publicly readable, refer to References [Download files by using presigned URLs](https://help.aliyun.com/document_detail/39607.html) and provide a URL with download permissions. Currently, only API definition files stored in OSS are supported.'),
   specOssConfig?: {
     bucketName?: string(name='bucketName', description='The bucket name.', example='gms-service-prod'),
     objectKey?: string(name='objectKey', description='The full path of the file.', example='/test/swagger.json'),
     regionId?: string(name='regionId', description='The region ID.', example='cn-shanghai'),
-  }(name='specOssConfig', description='The OSS information.'),
-  strategy?: string(name='strategy', description='The update policy to use when the name and version management of the imported API are the same as those of an existing API. Valid values:
-- SpecOnly: The imported file completely overwrites the existing API definition.
+  }(name='specOssConfig', description='The OSS configuration.'),
+  strategy?: string(name='strategy', description='The update policy to specify when the imported API name and version management are the same as those of an existing API. Valid values:
+- SpecOnly: The imported file completely overwrites the existing API.
 - SpecFirst: The imported file takes precedence. New operations are added and existing operations are updated. Operations not mentioned in the file remain unchanged.
 - ExistFirst: The existing API takes precedence. Only new operations are added, and existing operations are not updated.
-Default value: ExistFirst policy.', example='ExistFirst'),
-  targetHttpApiId?: string(name='targetHttpApiId', description='The ID of the HTTP API to be overwritten by the import. If this parameter is specified, the import operation updates the specified API instead of importing a new API or searching for an existing API based on the API name and version management configuration. The target API must be of the REST type.', example='api-xxxx'),
-  versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration. If versioning is enabled and the API name and version number are the same as those of an existing API, the import operation is considered an update. If versioning is disabled and the API name is the same as that of an existing API, the import operation is also considered an update.'),
-  withGatewayExtension?: boolean(name='withGatewayExtension', description='Specifies whether to import gateway extension information. Set this parameter to true when you import gateway extension configurations for an HTTP API.', example='false'),
+Default value: ExistFirst.', example='ExistFirst'),
+  targetHttpApiId?: string(name='targetHttpApiId', description='If you specify this parameter, the import operation updates the specified API instead of importing a new API or searching for an existing API based on the API name and version management configuration. The target API must be of the REST type.', example='api-xxxx'),
+  versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration. If versioning is enabled and an API with the same name and version number already exists, the import operation is treated as an update. If versioning is disabled and an API with the same name already exists, the import operation is also treated as an update.'),
+  withGatewayExtension?: boolean(name='withGatewayExtension', description='Specifies whether to import gateway extension information. Set this parameter to true when you import HTTP API gateway extension configurations.', example='false'),
 }
 
 model ImportHttpApiResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
     dryRunInfo?: {
-      errorMessages?: [ string ](name='errorMessages', description='The error messages. If the error messages are not empty, the API cannot be imported successfully.'),
-      existHttpApiInfo?: HttpApiApiInfo(name='existHttpApiInfo', description='The existing API information. If this field is not empty, the import operation updates the API.'),
+      errorMessages?: [ string ](name='errorMessages', description='The error messages. If this field is not empty, the API cannot be imported successfully.'),
+      existHttpApiInfo?: HttpApiApiInfo(name='existHttpApiInfo', description='The existing API information. If this field is not empty, the import operation will update the API.'),
       failureComponents?: [ 
         {
-          errorMessage?: string(name='errorMessage', description='The error message.', example='The data structure definition is incorrect'),
-          name?: string(name='name', description='The name of the data structure.', example='orderDTO'),
+          errorMessage?: string(name='errorMessage', description='The error message.', example='Invalid data structure definition'),
+          name?: string(name='name', description='The data structure name.', example='orderDTO'),
         }
       ](name='failureComponents', description='The list of data structures that failed the dry run.'),
       failureOperations?: [ 
         {
-          errorMessage?: string(name='errorMessage', description='The error message.', example='The response definition is missing'),
+          errorMessage?: string(name='errorMessage', description='The error message.', example='Missing response definition'),
           method?: string(name='method', description='The operation method.', example='GET'),
           path?: string(name='path', description='The operation path.', example='/v1/orders'),
         }
@@ -10998,18 +11064,18 @@ model ImportHttpApiResponseBody = {
       successComponents?: [ 
         {
           action?: string(name='action', description='The action to be performed after the dry run. Valid values:
-- Create: Create.
-- Update: Update.', example='Create'),
-          name?: string(name='name', description='The name of the data structure.', example='userDTO'),
+- Create: create
+- Update: update', example='Create'),
+          name?: string(name='name', description='The data structure name.', example='userDTO'),
         }
       ](name='successComponents', description='The list of data structures that passed the dry run.'),
       successOperations?: [ 
         {
           action?: string(name='action', description='The action to be performed after the dry run. Valid values:
-- Create: Create.
-- Update: Update.', example='Create'),
+- Create: create
+- Update: update', example='Create'),
           method?: string(name='method', description='The operation method.', example='POST'),
-          name?: string(name='name', description='The name of the operation.', example='CreateUser'),
+          name?: string(name='name', description='The operation name.', example='CreateUser'),
           path?: string(name='path', description='The operation path.', example='/v1/users'),
         }
       ](name='successOperations', description='The list of operations that passed the dry run.'),
@@ -11019,7 +11085,7 @@ model ImportHttpApiResponseBody = {
           name?: string(name='name', description='The name.', example='user-route'),
         }
       ](name='successRoutes', description='The list of successfully imported routes.'),
-      warningMessages?: [ string ](name='warningMessages', description='The warning messages. If the warning messages are not empty, some operations or data APIs may fail to be imported.'),
+      warningMessages?: [ string ](name='warningMessages', description='The warning messages. If this field is not empty, some operations or data structures may fail to be imported.'),
     }(name='dryRunInfo', description='The dry run result.'),
     httpApiId?: string(name='httpApiId', description='The unique ID of the HTTP API.', example='api-xxx'),
     name?: string(name='name', description='The API name.', example='import-test'),
@@ -11035,7 +11101,7 @@ model ImportHttpApiResponse = {
 }
 
 /**
- * @summary Imports an HTTP API by importing OpenAPI 2.0 and OpenAPI 3.0.x definition files as REST APIs.
+ * @summary Imports an HTTP API and supports importing OpenAPI 2.0 and OpenAPI 3.0.x definition files as REST APIs.
  *
  * @param request ImportHttpApiRequest
  * @param headers map
@@ -11108,7 +11174,7 @@ async function importHttpApiWithOptions(request: ImportHttpApiRequest, headers: 
 }
 
 /**
- * @summary Imports an HTTP API by importing OpenAPI 2.0 and OpenAPI 3.0.x definition files as REST APIs.
+ * @summary Imports an HTTP API and supports importing OpenAPI 2.0 and OpenAPI 3.0.x definition files as REST APIs.
  *
  * @param request ImportHttpApiRequest
  * @return ImportHttpApiResponse
@@ -11927,7 +11993,7 @@ async function listChatSessions(request: ListChatSessionsRequest): ListChatSessi
 model ListConsumerAuthorizationRulesRequest {
   apiNameLike?: string(name='apiNameLike', description='The fuzzy search parameter for the API name.', example='qwen3'),
   pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 10.', example='10'),
+  pageSize?: int32(name='pageSize', description='The page size. Default value: 10.', example='10'),
 }
 
 model ListConsumerAuthorizationRulesResponseBody = {
@@ -11937,22 +12003,22 @@ model ListConsumerAuthorizationRulesResponseBody = {
       {
         apiInfo?: HttpApiApiInfo(name='apiInfo', description='The API information.'),
         consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The ID of the consumer authorization rule.', example='car-csgeka5lhtggrjcprok0'),
-        consumerId?: string(name='consumerId', description='The ID of the consumer.', example='cs-csheiftlhtgmp0j0hp4g'),
+        consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-csheiftlhtgmp0j0hp4g'),
         createTimestamp?: long(name='createTimestamp', description='The creation timestamp.', example='1719386834548'),
         deployStatus?: string(name='deployStatus', description='The publish status of the API in the current environment.', example='{}'),
         environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
-        expireMode?: string(name='expireMode', description='The expiration mode. Valid values: LongTerm, ShortTerm.', example='ShortTerm'),
+        expireMode?: string(name='expireMode', description='The expiration mode. Valid values: LongTerm and ShortTerm.', example='ShortTerm'),
         expireStatus?: string(name='expireStatus', description='The expiration status.', example='InEffect'),
-        expireTimestamp?: long(name='expireTimestamp', description='The expiration timestamp.', example='172086834548'),
+        expireTimestamp?: long(name='expireTimestamp', description='The expiration time.', example='172086834548'),
         gatewayInfo?: GatewayInfo(name='gatewayInfo', description='The gateway information.'),
-        resourceId?: string(name='resourceId', description='The ID of the resource.', example='2351944'),
+        resourceId?: string(name='resourceId', description='The resource ID.', example='2351944'),
         resourceType?: string(name='resourceType', description='The resource type.', example='HttpApiRoute'),
         updateTimestamp?: long(name='updateTimestamp', description='The update timestamp. Unit: milliseconds.', example='1721116090326'),
       }
     ](name='items', description='The list of consumer authorization information.'),
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
-    totalSize?: string(name='totalSize', description='The total number of entries.', example='9'),
+    pageSize?: int32(name='pageSize', description='The page size.', example='10'),
+    totalSize?: string(name='totalSize', description='The total count.', example='9'),
   }(name='data', description='The response data.'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='294382D9-EE60-5735-A4CD-F2AC2840423D'),
@@ -14004,23 +14070,23 @@ async function listHiMarketConsumers(request: ListHiMarketConsumersRequest): Lis
 }
 
 model ListHttpApiOperationsRequest {
-  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filters the list of API operations by a specific consumer authorization rule ID. The response only includes authorized API operations.', example='cas-xxx'),
+  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filters API operations by a specific consumer authorization rule ID. The response includes only authorized API operations.', example='cas-xxx'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable the authentication filter.', example='true'),
   forDeploy?: boolean(name='forDeploy', description='Specifies whether the request is for a deployment scenario.', example='true'),
-  gatewayId?: string(name='gatewayId', description='The ID of the gateway used for filtering.', example='gw-001'),
+  gatewayId?: string(name='gatewayId', description='The ID of the gateway used to filter API operations.', example='gw-001'),
   method?: string(name='method', description='Filters API operations by HTTP method.', example='GET'),
-  name?: string(name='name', description='Filters API operations by exact API name.', example='getUserInfo'),
-  nameLike?: string(name='nameLike', description='Filters API operations by API name prefix.', example='GetUser'),
+  name?: string(name='name', description='Searches for API operations by exact name.', example='getUserInfo'),
+  nameLike?: string(name='nameLike', description='Searches for API operations by name prefix.', example='GetUser'),
   pageNumber?: int32(name='pageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10'),
-  pathLike?: string(name='pathLike', description='Filters API operations by path prefix.', example='/v1'),
-  withConsumerInEnvironmentId?: string(name='withConsumerInEnvironmentId', description='Specifies whether to include the list of authorization rules for a specific consumer in a specified environment in the response for each API operation. You must also specify the withConsumerInfoById parameter.', example='env-xxx'),
-  withConsumerInfoById?: string(name='withConsumerInfoById', description='Specifies whether to include the list of authorization rules for a specific consumer in a specified environment in the response for each API operation. You must also specify the withConsumerInEnvironmentId parameter.', example='cs-xxx'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The ID of the plugin used to retrieve plugin release information.', example='pl-xxx'),
+  pathLike?: string(name='pathLike', description='Searches for API operations by path prefix.', example='/v1'),
+  withConsumerInEnvironmentId?: string(name='withConsumerInEnvironmentId', description='The ID of the environment. The response includes the list of authorization rules for the specified consumer in this environment for each API operation. You must also specify the withConsumerInfoById parameter.', example='env-xxx'),
+  withConsumerInfoById?: string(name='withConsumerInfoById', description='The ID of the consumer. The response includes the list of authorization rules for this consumer in the specified environment for each API operation. You must also specify the withConsumerInEnvironmentId parameter.', example='cs-xxx'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The ID of the plugin. Retrieves the plugin release information based on this plugin ID.', example='pl-xxx'),
 }
 
 model ListHttpApiOperationsResponseBody = {
-  code?: string(name='code', description='The HTTP status code.', example='Ok'),
+  code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
     items?: [
       HttpApiOperationInfo
@@ -14030,7 +14096,7 @@ model ListHttpApiOperationsResponseBody = {
     totalSize?: int32(name='totalSize', description='The total number of entries.', example='10'),
   }(name='data', description='The list of API operations.'),
   message?: string(name='message', description='The response message.', example='success'),
-  requestId?: string(name='requestId', description='The request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
 }
 
 model ListHttpApiOperationsResponse = {
@@ -14040,7 +14106,7 @@ model ListHttpApiOperationsResponse = {
 }
 
 /**
- * @summary Retrieves a list of API operations.
+ * @summary Retrieves the list of API operations.
  *
  * @param request ListHttpApiOperationsRequest
  * @param headers map
@@ -14110,7 +14176,7 @@ async function listHttpApiOperationsWithOptions(httpApiId: string, request: List
 }
 
 /**
- * @summary Retrieves a list of API operations.
+ * @summary Retrieves the list of API operations.
  *
  * @param request ListHttpApiOperationsRequest
  * @return ListHttpApiOperationsResponse
@@ -14122,21 +14188,21 @@ async function listHttpApiOperations(httpApiId: string, request: ListHttpApiOper
 }
 
 model ListHttpApiRoutesRequest {
-  backendServiceName?: string(name='backendServiceName', description='The backend service name. You can use this parameter to filter routes.', example='test-svc'),
-  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filters the API list by a specific consumer authorization rule ID. The API list in the response contains only authorized APIs.', example='cas-xxx'),
-  deployStatuses?: string(name='deployStatuses', description='The deployment status of the route.', example='NotDeployed'),
-  domainId?: string(name='domainId', description='Filters route information by domain name ID.', example='d-xxx'),
+  backendServiceName?: string(name='backendServiceName', description='The backend service name used to filter routes.', example='test-svc'),
+  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The consumer authorization rule ID used to filter the API list. The API list in the response includes only authorized APIs.', example='cas-xxx'),
+  deployStatuses?: string(name='deployStatuses', description='The deployment statuses of the routes.', example='NotDeployed'),
+  domainId?: string(name='domainId', description='The domain name ID used to filter route information.', example='d-xxx'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubc***'),
   forDeploy?: boolean(name='forDeploy', description='Specifies whether the request is for a deployment scenario.', example='true'),
-  gatewayId?: string(name='gatewayId', description='The cloud-native API gateway ID.', example='gw-cpv4sqdl****'),
+  gatewayId?: string(name='gatewayId', description='The ID of the cloud-native API gateway.', example='gw-cpv4sqdl****'),
   name?: string(name='name', description='The route name.', example='itemcenter-gateway'),
-  nameLike?: string(name='nameLike', description='Performs a fuzzy match by route name.', example='item'),
-  pageNumber?: int32(name='pageNumber', description='The page number. Pages start from page 1. Default value: 1.', example='1'),
+  nameLike?: string(name='nameLike', description='The keyword for fuzzy match by route name.', example='item'),
+  pageNumber?: int32(name='pageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10'),
-  pathLike?: string(name='pathLike', description='Performs a fuzzy match by route path.', example='/v1'),
-  withAuthPolicyInfo?: boolean(name='withAuthPolicyInfo', description='Includes consumer authorization information in the response.', example='true'),
-  withConsumerInfoById?: string(name='withConsumerInfoById', description='Includes the authorization rule list of the specified consumer ID in each route in the response.', example='cs-xxx'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='Includes the mount information of the specified plug-in ID in each route in the response.', example='pl-xxx'),
+  pathLike?: string(name='pathLike', description='The keyword for fuzzy match by route path.', example='/v1'),
+  withAuthPolicyInfo?: boolean(name='withAuthPolicyInfo', description='Specifies whether to include consumer authorization information in the response.', example='true'),
+  withConsumerInfoById?: string(name='withConsumerInfoById', description='Specifies whether to include the list of authorization rules for a specified consumer ID in each route entry in the response.', example='cs-xxx'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='Specifies whether to include the mount information for a specified plugin ID in each route entry in the response.', example='pl-xxx'),
 }
 
 model ListHttpApiRoutesResponseBody = {
@@ -14146,7 +14212,7 @@ model ListHttpApiRoutesResponseBody = {
       HttpRoute
     ](name='items', description='The route list.'),
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='20'),
+    pageSize?: int32(name='pageSize', description='The page size.', example='20'),
     totalSize?: int32(name='totalSize', description='The total number of entries.', example='9'),
   }(name='data', description='The response data.'),
   message?: string(name='message', description='The response message.', example='success'),
@@ -14160,7 +14226,7 @@ model ListHttpApiRoutesResponse = {
 }
 
 /**
- * @summary Queries the route list of an HTTP API.
+ * @summary Queries the routes of an HTTP API.
  *
  * @param request ListHttpApiRoutesRequest
  * @param headers map
@@ -14236,7 +14302,7 @@ async function listHttpApiRoutesWithOptions(httpApiId: string, request: ListHttp
 }
 
 /**
- * @summary Queries the route list of an HTTP API.
+ * @summary Queries the routes of an HTTP API.
  *
  * @param request ListHttpApiRoutesRequest
  * @return ListHttpApiRoutesResponse
@@ -14253,21 +14319,21 @@ model ListHttpApisRequest {
   keyword?: string(name='keyword', description='The search keyword. Supports fuzzy search by API name or exact search by API ID.', example='test-'),
   name?: string(name='name', description='The name for exact search.', example='login'),
   pageNumber?: int32(name='pageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1'),
-  pageSize?: int32(name='pageSize', description='The page size. Valid values: 1 to 500. Default value: 10.', example='10'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 500. Default value: 10.', example='10'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-ahr5uil8raz0rq3b'),
   types?: string(name='types', description='The types of the HTTP API. You can specify multiple types separated by commas (,). Valid values:
 - Http
 - Rest
 - Websocket
 - HttpIngress', example='Http,Rest'),
-  withAPIsPublishedToEnvironment?: boolean(name='withAPIsPublishedToEnvironment', description='Specifies whether to return the information about APIs published to the specified environment.', example='true'),
-  withAuthPolicyInEnvironmentId?: string(name='withAuthPolicyInEnvironmentId', description='The environment ID. If specified, the response includes consumer authentication policy information for the specified environment in the details of each API.', example='env-xxx'),
-  withAuthPolicyList?: boolean(name='withAuthPolicyList', description='Specifies whether the permission authentication policy is enabled.', example='true'),
-  withConsumerInfoById?: string(name='withConsumerInfoById', description='The consumer ID. If specified, the response includes the list of authorization rules for the specified consumer in the details of each API.', example='cs-xxx'),
+  withAPIsPublishedToEnvironment?: boolean(name='withAPIsPublishedToEnvironment', description='Specifies whether to return information about APIs published to the specified environment.', example='true'),
+  withAuthPolicyInEnvironmentId?: string(name='withAuthPolicyInEnvironmentId', description='The environment ID. The response includes consumer authentication policy information for the specified environment in each API entry.', example='env-xxx'),
+  withAuthPolicyList?: boolean(name='withAuthPolicyList', description='Specifies whether to include the list of authentication policies.', example='true'),
+  withConsumerInfoById?: string(name='withConsumerInfoById', description='The consumer ID. The response includes the list of authorization rules for the specified consumer in each API entry.', example='cs-xxx'),
   withEnvironmentInfo?: boolean(name='withEnvironmentInfo', description='The environment context.', example='true'),
   withEnvironmentInfoById?: string(name='withEnvironmentInfoById', description='The environment ID.', example='env-ctovu5mm1hksb4q8ln40'),
   withIngressInfo?: boolean(name='withIngressInfo', description='Specifies whether to include Ingress information.', example='false'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The plugin ID. If specified, the plugin release information is retrieved based on this plugin ID.', example='pl-ct9qn3um1hktue8dqol0'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The plugin ID. The response includes plugin release information based on the specified plugin ID.', example='pl-ct9qn3um1hktue8dqol0'),
   withPolicyConfigs?: boolean(name='withPolicyConfigs', description='Specifies whether to include policy information.', example='false'),
 }
 
@@ -14278,11 +14344,11 @@ model ListHttpApisResponseBody = {
       HttpApiInfoByName
     ](name='items', description='The API information.'),
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-    pageSize?: int32(name='pageSize', description='The page size.', example='10'),
-    totalSize?: int32(name='totalSize', description='The total count.', example='10'),
+    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
+    totalSize?: int32(name='totalSize', description='The total number of entries.', example='10'),
   }(name='data', description='The list of APIs.'),
   message?: string(name='message', description='The response message.', example='success'),
-  requestId?: string(name='requestId', description='The request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
 }
 
 model ListHttpApisResponse = {
@@ -15004,14 +15070,14 @@ async function listMseNacosSources(gatewayId: string, request: ListMseNacosSourc
 
 model ListPluginAttachmentsRequest {
   attachResourceId?: string(name='attachResourceId', description='The ID of the mount resource.', example='hr-cv2h58em1hkg7c6vt43g'),
-  attachResourceType?: string(name='attachResourceType', description='The type of the plugin mount point. This parameter is not yet enabled.', example='GatewayRoute'),
-  attachResourceTypes?: string(name='attachResourceTypes', description='The types of mount points. Separate multiple values with commas.', example='GatewayRoute'),
+  attachResourceType?: string(name='attachResourceType', description='The plugin mount point type. This parameter is not enabled.', example='GatewayRoute'),
+  attachResourceTypes?: string(name='attachResourceTypes', description='The mount point types. Separate multiple values with commas.', example='GatewayRoute'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-crlnqhtlhtgqflkqislg'),
   gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cr79f75lhtgme744084g'),
   pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
   pluginId?: string(name='pluginId', description='The plugin ID.', example='pl-ct8181um1hkiqns9f6e0'),
-  withParentResource?: boolean(name='withParentResource', description='Specifies whether to return parent resource mounts.>Notice: When this parameter is set to true, it must be used together with a single value of attachResourceTypes. The valid values are GatewayRoute and Operation.</notice>', example='false'),
+  withParentResource?: boolean(name='withParentResource', description='Specifies whether to return parent resource mounts.>Notice: If this parameter is set to true, it must be used together with a single value of attachResourceTypes, which must be GatewayRoute or Operation.</notice>', example='false'),
 }
 
 model ListPluginAttachmentsResponseBody = {
@@ -15019,7 +15085,7 @@ model ListPluginAttachmentsResponseBody = {
   data?: {
     items?: [ 
       {
-        attachResourceType?: string(name='attachResourceType', description='The type of the plugin mount resource. Valid values: GatewayRoute, Gateway, GatewayDomain, HttpApi, and Operation.', example='GatewayRoute'),
+        attachResourceType?: string(name='attachResourceType', description='The plugin mount resource type. Valid values: GatewayRoute, Gateway, GatewayDomain, HttpApi, and Operation.', example='GatewayRoute'),
         enable?: boolean(name='enable', description='Indicates whether the plugin is enabled.', example='true'),
         environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
         parentResourceInfo?: ParentResourceInfo(name='parentResourceInfo', description='The parent resource information.'),
@@ -15047,7 +15113,7 @@ model ListPluginAttachmentsResponse = {
 }
 
 /**
- * @summary Retrieves the list of plugin mounts.
+ * @summary Retrieves the plugin mount list.
  *
  * @param request ListPluginAttachmentsRequest
  * @param headers map
@@ -15105,7 +15171,7 @@ async function listPluginAttachmentsWithOptions(request: ListPluginAttachmentsRe
 }
 
 /**
- * @summary Retrieves the list of plugin mounts.
+ * @summary Retrieves the plugin mount list.
  *
  * @param request ListPluginAttachmentsRequest
  * @return ListPluginAttachmentsResponse
@@ -16731,7 +16797,7 @@ async function listSecrets(request: ListSecretsRequest): ListSecretsResponse {
 
 model ListServicesRequest {
   gatewayId?: string(name='gatewayId', description='The ID of the cloud-native API gateway.', example='gw-cpv4sqdl*****'),
-  name?: string(name='name', description='The service name for exact match.', example='user-service'),
+  name?: string(name='name', description='The service name for exact match queries.', example='user-service'),
   pageNumber?: int32(name='pageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-acfmxxe5rc6cvla'),
@@ -16765,7 +16831,7 @@ model ListServicesResponse = {
 }
 
 /**
- * @summary Retrieves the list of services.
+ * @summary Retrieves a list of services.
  *
  * @param request ListServicesRequest
  * @param headers map
@@ -16817,7 +16883,7 @@ async function listServicesWithOptions(request: ListServicesRequest, headers: ma
 }
 
 /**
- * @summary Retrieves the list of services.
+ * @summary Retrieves a list of services.
  *
  * @param request ListServicesRequest
  * @return ListServicesResponse
@@ -17453,19 +17519,19 @@ async function publishProduct(productId: string, request: PublishProductRequest)
 
 model QueryConsumerAuthorizationRulesRequest {
   apiNameLike?: string(name='apiNameLike', description='The API name.', example='api-xx'),
-  consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID. If specified, the authorization rules of the consumer group are queried. At least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters must be specified as a query condition.', example='csg-8c13d2b4f8a1'),
+  consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID. If you specify this parameter, the authorization rules of the consumer group are queried. You must specify at least one of the following parameters as a query condition: resourceId, parentResourceId, consumerId, and consumerGroupId.', example='csg-8c13d2b4f8a1'),
   consumerGroupNameLike?: string(name='consumerGroupNameLike', description='The consumer group name for fuzzy match.', example='team'),
-  consumerId?: string(name='consumerId', description='The consumer ID. At least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters must be specified as a query condition.', example='cs-ct21c16m1hkp64hk6qmg'),
+  consumerId?: string(name='consumerId', description='The consumer ID. You must specify at least one of the following parameters as a query condition: resourceId, parentResourceId, consumerId, and consumerGroupId.', example='cs-ct21c16m1hkp64hk6qmg'),
   consumerNameLike?: string(name='consumerNameLike', description='The consumer name.', example='consumer-xxx'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubc***'),
   groupByApi?: boolean(name='groupByApi', description='Specifies whether to group the results by API.', example='true'),
   pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='pageSize', description='The page size.', example='10'),
-  parentResourceId?: string(name='parentResourceId', description='The parent resource ID. At least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters must be specified as a query condition.', example='ha-cn-li942gy8p01'),
+  parentResourceId?: string(name='parentResourceId', description='The parent resource ID. You must specify at least one of the following parameters as a query condition: resourceId, parentResourceId, consumerId, and consumerGroupId.', example='ha-cn-li942gy8p01'),
   principalType?: string(name='principalType', description='The principal type. Valid values: Consumer and ConsumerGroup.', example='ConsumerGroup'),
-  resourceId?: string(name='resourceId', description='The resource ID. At least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters must be specified as a query condition.', example='ha-cn-li942gy8p03'),
+  resourceId?: string(name='resourceId', description='The resource ID. You must specify at least one of the following parameters as a query condition: resourceId, parentResourceId, consumerId, and consumerGroupId.', example='ha-cn-li942gy8p03'),
   resourceType?: string(name='resourceType', description='The resource type.', example='HttpApiRoute'),
-  resourceTypes?: string(name='resourceTypes', description='The service source type.', example='K8S'),
+  resourceTypes?: string(name='resourceTypes', description='The service source types.', example='K8S'),
 }
 
 model QueryConsumerAuthorizationRulesResponseBody = {
@@ -17473,12 +17539,12 @@ model QueryConsumerAuthorizationRulesResponseBody = {
   data?: {
     items?: [ 
       {
-        apiInfo?: HttpApiApiInfo(name='apiInfo', description='The API information details.'),
-        consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The consumer authorization rule ID.', example='car-csgeka5lhtggrjcprok0'),
+        apiInfo?: HttpApiApiInfo(name='apiInfo', description='The API information.'),
+        consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The ID of the consumer authorization rule.', example='car-csgeka5lhtggrjcprok0'),
         consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID. This field is returned for consumer group authorization rules.', example='csg-8c13d2b4f8a1'),
         consumerGroupInfo?: ConsumerGroupInfo(name='consumerGroupInfo', description='The consumer group information. This field is returned for consumer group authorization rules.'),
         consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-csheiftlhtgmp0j0hp4g'),
-        consumerInfo?: ConsumerInfo(name='consumerInfo', description='The consumer information details.'),
+        consumerInfo?: ConsumerInfo(name='consumerInfo', description='The consumer information.'),
         createTimestamp?: long(name='createTimestamp', description='The creation timestamp. Unit: milliseconds.', example='1719386834548'),
         deployStatus?: string(name='deployStatus', description='The publish status of the API in the current environment.', example='{}'),
         environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
@@ -17490,8 +17556,8 @@ model QueryConsumerAuthorizationRulesResponseBody = {
         resourceId?: string(name='resourceId', description='The resource ID.', example='2351944'),
         resourceInfo?: {
           operationInfo?: HttpApiOperationInfo(name='operationInfo', description='The API operation information.'),
-          route?: HttpRoute(name='route', description='The routing rule.'),
-        }(name='resourceInfo', description='The resource information details.'),
+          route?: HttpRoute(name='route', description='The routing rules.'),
+        }(name='resourceInfo', description='The resource information.'),
         resourceType?: string(name='resourceType', description='The resource type.', example='HttpApiRoute'),
         updateTimestamp?: long(name='updateTimestamp', description='The update timestamp. Unit: milliseconds.', example='1719386834548'),
       }
@@ -17511,7 +17577,7 @@ model QueryConsumerAuthorizationRulesResponse = {
 }
 
 /**
- * @summary Queries the list of consumer authorization rules.
+ * @summary Queries consumer authorization rules.
  *
  * @param request QueryConsumerAuthorizationRulesRequest
  * @param headers map
@@ -17584,7 +17650,7 @@ async function queryConsumerAuthorizationRulesWithOptions(request: QueryConsumer
 }
 
 /**
- * @summary Queries the list of consumer authorization rules.
+ * @summary Queries consumer authorization rules.
  *
  * @param request QueryConsumerAuthorizationRulesRequest
  * @return QueryConsumerAuthorizationRulesResponse
@@ -17902,13 +17968,13 @@ model RevealServiceCredentialRequest {
 }
 
 model RevealServiceCredentialResponseBody = {
-  code?: string(name='code', description='The response code. The value is Ok if the request is successful.', example='Ok'),
+  code?: string(name='code', description='The response code. The value is Ok for a successful request.', example='Ok'),
   data?: {
     configRevision?: string(name='configRevision', description='The current configuration revision. The value is legacy for historical objects.', example='1'),
     credential?: {
-      apiKeyGenerateMode?: string(name='apiKeyGenerateMode', description='The API key generation mode. Valid values: Custom and Reference. Historical null values are processed as Custom.', example='Custom'),
-      apiKeyReferences?: [ string ](name='apiKeyReferences', description='The list of Key Management Service (KMS) reference names. This parameter is returned only in Reference mode. The reference values are not returned.', example='["my-kms-ref"]'),
-      apiKeys?: [ string ](name='apiKeys', description='The list of custom API keys. This parameter is returned only when apiKeyGenerateMode is set to Custom. The keys are returned in their original order without deduplication.', example='["sk-xxxxxxxx","sk-yyyyyyyy"]'),
+      apiKeyGenerateMode?: string(name='apiKeyGenerateMode', description='The API key generation mode. Valid values: Custom and Reference. Historical null values are treated as Custom.', example='Custom'),
+      apiKeyReferences?: [ string ](name='apiKeyReferences', description='The list of Key Management Service (KMS) reference names. This list is returned only in Reference mode, and the reference values are not returned.', example='["my-kms-ref"]'),
+      apiKeys?: [ string ](name='apiKeys', description='The list of custom API keys. This list is returned only when apiKeyGenerateMode is set to Custom. The keys are returned in the original order without deduplication.', example='["sk-xxxxxxxx","sk-yyyyyyyy"]'),
       awsAccessKey?: string(name='awsAccessKey', description='Bedrock AWS Access Key', example='AKIAxxxxxxxx'),
       awsRegion?: string(name='awsRegion', description='Bedrock AWS Region', example='us-east-1'),
       awsSecretKey?: string(name='awsSecretKey', description='Bedrock AWS Secret Key', example='********'),
@@ -17919,8 +17985,8 @@ model RevealServiceCredentialResponseBody = {
       vertexAuthKey?: string(name='vertexAuthKey', description='The original JSON text of the Vertex service account. The text is neither parsed nor reordered.', example='{"type":"service_account","private_key":"********"}'),
       vertexProjectId?: string(name='vertexProjectId', description='Vertex Project ID', example='my-gcp-project'),
       vertexRegion?: string(name='vertexRegion', description='Vertex Region', example='us-central1'),
-    }(name='credential', description='The credential object for the currently active type. Only the fields corresponding to the credentialType are populated.', example='{"apiKeyGenerateMode":"Custom","apiKeys":["sk-xxxxxxxx"]}'),
-    credentialType?: string(name='credentialType', description='The type of the currently active credential. Valid values: apiKey, bedrock, vertex, and kling.', example='apiKey'),
+    }(name='credential', description='The credential object of the currently active type. Only the fields corresponding to the credentialType are populated.', example='{"apiKeyGenerateMode":"Custom","apiKeys":["sk-xxxxxxxx"]}'),
+    credentialType?: string(name='credentialType', description='The currently active credential type. Valid values: apiKey, bedrock, vertex, and kling.', example='apiKey'),
     provider?: string(name='provider', description='The name of the provider, such as qwen, openai, bedrock, vertex, kling, or pai-eas.', example='qwen'),
     serviceId?: string(name='serviceId', description='The unique ID of the service.', example='svc-xxxxxxxx'),
   }(name='data', description='The currently active credential data.', example='{"serviceId":"svc-xxxxxxxx","provider":"qwen","credentialType":"apiKey","configRevision":"1","credential":{"apiKeyGenerateMode":"Custom","apiKeys":["sk-xxxxxxxx"]}}'),
@@ -17935,9 +18001,9 @@ model RevealServiceCredentialResponse = {
 }
 
 /**
- * @summary Queries the currently active credentials for the AI service.
+ * @summary Queries the currently active credentials for an AI service.
  *
- * @description Queries the currently active credentials for the AI service.
+ * @description Queries the currently active credentials for an AI service.
  *
  * @param request RevealServiceCredentialRequest
  * @param headers map
@@ -17965,9 +18031,9 @@ async function revealServiceCredentialWithOptions(serviceId: string, request: Re
 }
 
 /**
- * @summary Queries the currently active credentials for the AI service.
+ * @summary Queries the currently active credentials for an AI service.
  *
- * @description Queries the currently active credentials for the AI service.
+ * @description Queries the currently active credentials for an AI service.
  *
  * @param request RevealServiceCredentialRequest
  * @return RevealServiceCredentialResponse
@@ -20152,28 +20218,28 @@ model UpdateHttpApiRequest {
   agentProtocols?: [ string ](name='agentProtocols', description='The list of agent protocols.'),
   aiProtocols?: [ string ](name='aiProtocols', description='The list of AI protocols.'),
   authConfig?: AuthConfig(name='authConfig', description='The authentication configuration.'),
-  basePath?: string(name='basePath', description='The base path of the API. The value must start with a forward slash (/).
+  basePath?: string(name='basePath', description='The base path of the API, which must start with a forward slash (/).
 
 This parameter is required.', example='/v1'),
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The list of API deployment configurations.'),
-  description?: string(name='description', description='The API description.', example='Update API description'),
+  description?: string(name='description', description='The description of the API.', example='Update API description'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable authentication.', example='true'),
-  firstByteTimeout?: int32(name='firstByteTimeout', description='The first byte timeout period. Unit: seconds.', example='30'),
+  firstByteTimeout?: int32(name='firstByteTimeout', description='The time to first byte timeout, in seconds.', example='30'),
   ingressConfig?: {
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cr6ql0tlhtgmc****'),
     ingressClass?: string(name='ingressClass', description='The Ingress class to listen on.', example='mse'),
     overrideIngressIp?: boolean(name='overrideIngressIp', description='Specifies whether to update the address in the Ingress status.', example='false'),
     sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtr****'),
-    watchNamespace?: string(name='watchNamespace', description='The namespace to listen on.', example='default'),
-  }(name='ingressConfig', description='The configuration of the HTTP Ingress API.'),
-  onlyChangeConfig?: boolean(name='onlyChangeConfig', description='Specifies whether to only modify the configuration. If this parameter is set to true, only the configuration is modified without triggering redeployment.', example='true'),
+    watchNamespace?: string(name='watchNamespace', description='The namespace to watch.', example='default'),
+  }(name='ingressConfig', description='The configuration information of the HTTP Ingress API.'),
+  onlyChangeConfig?: boolean(name='onlyChangeConfig', description='Specifies whether to only modify the configuration. A value of true indicates that only the configuration is modified without triggering a redeployment.', example='true'),
   protocols?: [ string ](name='protocols', description='The list of API access protocols.'),
-  removeBasePathOnForward?: boolean(name='removeBasePathOnForward', description='Specifies whether to remove the base path when forwarding requests.', example='true'),
+  removeBasePathOnForward?: boolean(name='removeBasePathOnForward', description='Specifies whether to remove the base path during forwarding.', example='true'),
   versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration.'),
-  clientToken?: string(name='clientToken', description='The idempotency token. If you call this operation for the same HTTP API by using the same clientToken value and request parameters, the result of the first successful call is returned.', example='update-http-api-client-token-001'),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run. If this parameter is set to true, all synchronous validations identical to an actual update are performed, but no configurations are updated and no side effects are produced. If this parameter is not specified or is set to false, the behavior is the same as the existing version.'),
+  clientToken?: string(name='clientToken', description='The idempotency token. If the same HTTP API is repeatedly called with the same client token and request parameters, the first successful result is returned.', example='update-http-api-client-token-001'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If set to true, all synchronization checks consistent with a real update are executed, but no configurations are updated and no side effects are generated. If left empty or set to false, the behavior is consistent with the existing version.'),
 }
 
 model UpdateHttpApiResponseBody = {
@@ -20280,7 +20346,7 @@ async function updateHttpApi(httpApiId: string, request: UpdateHttpApiRequest): 
 }
 
 model UpdateHttpApiOperationRequest {
-  operation?: HttpApiOperation(name='operation', description='The API operation definition.'),
+  operation?: HttpApiOperation(name='operation', description='The operation definition.'),
 }
 
 model UpdateHttpApiOperationResponseBody = {
@@ -20346,22 +20412,25 @@ model UpdateHttpApiRouteRequest {
     scene?: string(name='scene', description='The backend service scenario.', example='SingleService'),
     services?: [ 
       {
-        groupName?: string(name='groupName', description='The service group. Used in HTTP-to-Dubbo conversion scenarios.', example='DEFAULT_GROUP'),
+        groupName?: string(name='groupName', description='The service group. Used for HTTP-to-Dubbo conversion scenarios.', example='DEFAULT_GROUP'),
         httpDubboTranscoder?: HttpDubboTranscoder(name='httpDubboTranscoder', description='The HTTP-to-Dubbo protocol conversion configuration. This is only supported for SingleService MSE_NACOS DUBBO backends of HTTP APIs.', example='{"dubboServiceName":"com.alibaba.nacos.example.dubbo.service.DemoService","dubboServiceVersion":"1.0.0","dubboServiceGroup":"DEV","methodMapList":[{"dubboMethodName":"sayName","httpMethod":"ALL_GET","methodPath":"/dubbo/sayName","passThroughAllHeaders":"PASS_ALL"}]}'),
-        modelName?: string(name='modelName', description='The target model name. This field is shared by multiple existing model backend scenarios. The specific routing or model rewriting semantics are determined by backendConfig.scene. This field is required for the SemanticRouter scenario. If this field is not configured for the AiAutoRouter scenario, the default model of the AI service is used.', example='qwen-plus'),
-        namespace?: string(name='namespace', description='The service namespace. Used in HTTP-to-Dubbo conversion scenarios.', example='public'),
+        modelName?: string(name='modelName', description='The target model name. This field is shared by multiple existing model backend scenarios. The specific routing or model rewriting semantics are determined by backendConfig.scene. It must be configured for the SemanticRouter scenario. If it is not configured for the AiAutoRouter scenario, the default model of the AI service is used.', example='qwen-plus'),
+        namespace?: string(name='namespace', description='The service namespace. Used for HTTP-to-Dubbo conversion scenarios.', example='public'),
         port?: int32(name='port', description='The service port. Do not specify this parameter for dynamic ports.', example='8080'),
         protocol?: string(name='protocol', description='The service protocol. Valid values:
-- HTTP
-- HTTPS', example='HTTP'),
+- HTTP.
+- HTTPS.', example='HTTP'),
         serviceId?: string(name='serviceId', description='The service ID.', example='svc-cr6pk4tlhtgm58e***'),
-        sourceType?: string(name='sourceType', description='The service source type. MSE_NACOS is used in HTTP-to-Dubbo conversion scenarios.', example='MSE_NACOS'),
+        sourceType?: string(name='sourceType', description='The service source type. Use MSE_NACOS for HTTP-to-Dubbo conversion scenarios.', example='MSE_NACOS'),
         version?: string(name='version', description='The service version.', example='v1'),
         weight?: int32(name='weight', description='The percentage value of the traffic ratio.', example='49'),
       }
     ](name='services', description='The list of backend services.'),
-  }(name='backendConfig', description='The backend service configuration of the route.'),
+  }(name='backendConfig', description='The backend service configuration for the route.'),
   description?: string(name='description', description='The route description.', example='Product center service route'),
+  dfpConfig?: {
+    serviceId?: string(name='serviceId', description='The ID of the ExtProc service mounted to the current route. When updating a fixed DFP route, this value must match the existing service. Service switching is not supported.', example='svc-cr8k0udlhtgt80sh7png'),
+  }(name='dfpConfig', description='The current ExtProc service selection for fixed DFP routes. You can only edit mounted routes. This parameter cannot be submitted together with backendConfig, mcpRouteConfig, or policyConfigs.'),
   domainIds?: [ string ](name='domainIds', description='The list of domain name IDs.'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cquqsollhtgid***'),
   match?: HttpRouteMatch(name='match', description='The route match rule.'),
@@ -20404,6 +20473,9 @@ async function updateHttpApiRouteWithOptions(httpApiId: string, routeId: string,
   }
   if (!$isNull(request.description)) {
     body['description'] = request.description;
+  }
+  if (!$isNull(request.dfpConfig)) {
+    body['dfpConfig'] = request.dfpConfig;
   }
   if (!$isNull(request.domainIds)) {
     body['domainIds'] = request.domainIds;
