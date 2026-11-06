@@ -70,8 +70,8 @@ async function addUserGroupMembers(request: AddUserGroupMembersRequest): AddUser
 }
 
 model BatchCancelTodosRequest {
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
-  todoIds: [ string ](name='todoIds', description='The list of to-do IDs. You can specify 1 to 100 IDs.
+  tenantId?: string(name='tenantId', description='The list of to-do item IDs. You can specify 1 to 100 IDs.', example='10000', position='Query'),
+  todoIds: [ string ](name='todoIds', description='The list of to-do item IDs. You can specify 1 to 100 IDs.
 
 This parameter is required.', example='todo_abc123', shrink='json', position='Body'),
 }
@@ -79,7 +79,7 @@ This parameter is required.', example='todo_abc123', shrink='json', position='Bo
 model BatchCancelTodosResponseBody = {
   cancelledCount?: long(name='cancelledCount', description='The actual number of canceled items. The value is 0 for idempotent repeated calls.', example='2'),
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
+  message?: string(name='message', description='The error message.', example='The requested resource does not exist'),
   requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
 }
 
@@ -90,7 +90,7 @@ model BatchCancelTodosResponse = {
 }
 
 /**
-  * @description Cancels to-do items in batches based on a set of to-do IDs. No error is reported for completed or non-existent items, ensuring idempotence.
+  * @description Cancels multiple to-do items based on a list of IDs. This operation is idempotent and does not return errors for completed or non-existent items.
   * @param request  the request parameters of BatchCancelTodos  BatchCancelTodosRequest
   * @return BatchCancelTodosResponse
  */
@@ -276,34 +276,34 @@ model CheckAppResourcePermissionsBatchRequest {
       permission: string(name='permission', description='The target permission.
 
 This parameter is required.', example='APP/VIEW'),
-      resourceKey: string(name='resourceKey', description='The dot-separated resource key whose first segment is the APP application key.
+      resourceKey: string(name='resourceKey', description='The dot-separated resource key whose first segment is the application key.
 
 This parameter is required.', example='app.demo.resource_1'),
       resourceType: string(name='resourceType', description='The resource type. Set the value to APP_RESOURCE.
 
 This parameter is required.', example='APP_RESOURCE'),
     }
-  ](name='checks', description='The check items.
+  ](name='checks', description='The check item.
 
 This parameter is required.', shrink='json', position='Body'),
-  resourceTenantId?: string(name='resourceTenantId', description='The ID of the tenant to which the resource belongs. If not specified, the current tenant of the caller is used.', example='10000', position='Body'),
-  targetUserId?: long(name='targetUserId', description='The ID of the target platform user.', example='10086', position='Body'),
-  targetUserTenantId?: string(name='targetUserTenantId', description='The tenant to which the target user belongs. This parameter is required for cross-tenant targets.', example='10000', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
+  resourceTenantId?: string(name='resourceTenantId', description='The ID of the target platform user.', example='10000', position='Body'),
+  targetUserId?: long(name='targetUserId', description='The tenant to which the target user belongs. This parameter is required for cross-tenant targets.', example='10086', position='Body'),
+  targetUserTenantId?: string(name='targetUserTenantId', description='The check item.', example='10000', position='Body'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant to which the resource belongs. If this parameter is not specified, the current tenant of the caller is used.', example='10000', position='Query'),
 }
 
 model CheckAppResourcePermissionsBatchResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The error message. This field is empty if the request is successful.', example='The requested resource does not exist'),
+  message?: string(name='message', description='The error description. This field is empty if the request is successful.', example='The requested resource does not exist'),
   requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   results?: [ 
     {
-      allowed?: boolean(name='allowed', description='Indicates whether the user has the permission.', example='true'),
+      allowed?: boolean(name='allowed', description='Indicates whether the user has the required permissions.', example='true'),
       permission?: string(name='permission', description='The target permission.', example='APP/VIEW'),
-      resourceKey?: string(name='resourceKey', description='The dot-separated resource key whose first segment is the APP application key.', example='app.demo.resource_1'),
+      resourceKey?: string(name='resourceKey', description='The dot-separated resource key whose first segment is the application key.', example='app.demo.resource_1'),
       resourceType?: string(name='resourceType', description='The resource type. Set the value to APP_RESOURCE.', example='APP_RESOURCE'),
     }
-  ](name='results', description='The results, returned in the same order as the requested items.'),
+  ](name='results', description='The results in the same order as the request.'),
 }
 
 model CheckAppResourcePermissionsBatchResponse = {
@@ -313,7 +313,7 @@ model CheckAppResourcePermissionsBatchResponse = {
 }
 
 /**
-  * @description After authenticating each application in the batch, reuses the constant-time query of the service.
+  * @description Authenticates applications in batches and reuses constant-time service queries.
   * @param request  the request parameters of CheckAppResourcePermissionsBatch  CheckAppResourcePermissionsBatchRequest
   * @return CheckAppResourcePermissionsBatchResponse
  */
@@ -619,6 +619,51 @@ model CreateCustomOrgResponse = {
 async function createCustomOrg(request: CreateCustomOrgRequest): CreateCustomOrgResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'CreateCustomOrg', 'POST', '/openapi/createCustomOrg', 'json', true, 'form', request);
+}
+
+model CreateFreeExplorationWorkItemRequest {
+  agentNames: [ string ](name='agentNames', description='空间内数字员工技术名称，1–5 个，不可重复
+
+This parameter is required.', example='["sales-agent"]', shrink='json', position='Body'),
+  collaborationGroupId: string(name='collaborationGroupId', description='协作空间 ID；调用者须为有效成员
+
+This parameter is required.', example='cg_123', position='Body'),
+  memberUserIds?: [ long ](name='memberUserIds', description='协作档至少一个创建人以外的有效空间成员；最多 1000 人；私密和公开档忽略；创建人始终加入', example='[43]', shrink='json', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，公共参数；缺省时使用调用方默认租户', example='10000', position='Query'),
+  title: string(name='title', description='自由探索工作项标题，去首尾空格后 1–200 字符
+
+This parameter is required.', example='调查销售机会', position='Body'),
+  visibility?: string(name='visibility', description='可见范围：PRIVATE 私密；COLLABORATIVE 指定成员协作；PUBLIC 空间内公开', example='PRIVATE', position='Body'),
+}
+
+model CreateFreeExplorationWorkItemResponseBody = {
+  agentNames?: [ string ](name='agentNames', description='已选择的数字员工技术名称', example='["sales-agent"]'),
+  code?: string(name='code', description='业务状态码，成功为200', example='200'),
+  collaborationGroupId?: string(name='collaborationGroupId', description='所属协作空间 ID', example='cg_9401'),
+  conversationId?: string(name='conversationId', description='真实群话题 ID，可在 queryWorkItemFeed 中关联；不可作为 Workflow workItemId', example='conv_20261105_9f2c'),
+  createdByUserId?: long(name='createdByUserId', description='平台创建人用户 ID', example='10001'),
+  itemType?: string(name='itemType', description='工作项模式，固定 FREE_EXPLORATION', example='FREE_EXPLORATION'),
+  memberUserIds?: [ long ](name='memberUserIds', description='实际话题成员，含创建人；公开档不枚举全空间成员', example='[43]'),
+  message?: string(name='message', description='错误描述', example='请求的资源不存在'),
+  requestId?: string(name='requestId', description='请求追踪ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  title?: string(name='title', description='工作项标题', example='调查销售机会'),
+  visibility?: string(name='visibility', description='实际可见范围 PRIVATE/COLLABORATIVE/PUBLIC', example='PRIVATE'),
+}
+
+model CreateFreeExplorationWorkItemResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateFreeExplorationWorkItemResponseBody(name='body'),
+}
+
+/**
+  * @description 创建与页面一致的自由探索工作项及群话题，配置数字员工和可见范围；不发送消息，不自动执行；非幂等，超时先查询 queryWorkItemFeed
+  * @param request  the request parameters of CreateFreeExplorationWorkItem  CreateFreeExplorationWorkItemRequest
+  * @return CreateFreeExplorationWorkItemResponse
+ */
+async function createFreeExplorationWorkItem(request: CreateFreeExplorationWorkItemRequest): CreateFreeExplorationWorkItemResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateFreeExplorationWorkItem', 'POST', '/openapi/createFreeExplorationWorkItem', 'json', true, 'form', request);
 }
 
 model CreateGraphRequest {
@@ -2883,44 +2928,55 @@ async function createWorkflowInstance(request: CreateWorkflowInstanceRequest): C
 }
 
 model CreateWorkflowTemplateRequest {
-  action?: string(name='action', description='The write action. Valid values: SAVE: Saves the template as a draft without taking effect. SUBMIT: Saves and submits the template and sets it as the only effective version. Default value: SUBMIT.', example='SUBMIT', position='Body'),
+  action?: string(name='action', description='The write action. Valid values:
+- SAVE: Saves the template as a draft. The draft does not take effect. Node names and assignees can be left empty.
+- SUBMIT: Requires complete nodes. The template is saved and submitted as the only effective version.
+Default value: SUBMIT.', example='SUBMIT', position='Body'),
   collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration workspace.
 
-This parameter is required.', example='group_example', minLength=1, maxLength=64, position='Body'),
+This parameter is required.', example='cg_9401', minLength=1, maxLength=64, position='Body'),
   definition: map[string]any(name='definition', description='The complete JSON definition of the template, including name, description, and steps.
 
-This parameter is required.', example='example', shrink='json', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
+This parameter is required.', example='{"name":"Customer Complaint Handling Process","schemaVersion":2,"steps":[{"stepId":"collect","sortOrder":1,"name":"Collect Customer Information"}]}', shrink='json', position='Body'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If this parameter is not specified, the default tenant of the caller is used.', example='10000', position='Query'),
 }
 
 model CreateWorkflowTemplateResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
   createdByUserId?: long(name='createdByUserId', description='The user ID of the creator.', example='1'),
-  description?: string(name='description', description='The template description.', example='example'),
-  effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and it cannot be used for work items.', example='v1'),
-  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='example'),
-  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='example'),
+  description?: string(name='description', description='The template description.', example='Standard process for handling customer complaints'),
+  edges?: [  map[string]any ](name='edges', description='节点依赖边；每项包含from/to，引用稳定stepId；显式空数组表示没有依赖', example='[{"from":"collect","to":"deliver"}]'),
+  effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and the template cannot be used for work items.', example='v1'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  layout?: map[string]any(name='layout', description='可选画布布局，按stepId索引；只影响展示，不决定依赖', example='{"collect":{"x":0,"y":0},"review":{"x":240,"y":0}}'),
   message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
-  name?: string(name='name', description='The template name.', example='example'),
+  name?: string(name='name', description='The template name.', example='Customer Complaint Handling Process'),
   requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  schemaVersion?: long(name='schemaVersion', description='模板结构版本，当前为2，与业务版本vN独立', example='2'),
   steps?: [ 
     {
       modelMode?: string(name='modelMode', description='The model tier.', example='standard'),
-      name?: string(name='name', description='The step name.', example='example'),
-      ownerAgentName?: string(name='ownerAgentName', description='The name of the responsible agent.', example='example'),
-      ownerType?: string(name='ownerType', description='The owner type. Valid values: MEMBER: Human. AGENT: Agent.', example='MEMBER'),
-      ownerUserId?: long(name='ownerUserId', description='The user ID of the human owner.', example='1'),
-      reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of reviewer user IDs.', example='example'),
+      name?: string(name='name', description='The step name.', example='Customer Complaint Handling Process'),
+      ownerAgentName?: string(name='ownerAgentName', description='The name of the agent in charge.', example='example'),
+      ownerType?: string(name='ownerType', description='The type of the person in charge. Valid values:
+- MEMBER: Human.
+- AGENT: Agent.', example='MEMBER'),
+      ownerUserId?: long(name='ownerUserId', description='The user ID of the human person in charge.', example='1'),
+      reviewOutput?: boolean(name='reviewOutput', description='是否人工审核产出物，默认关闭；仅数字员工可开启，审核待办自动发负责人', example='false'),
+      reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs of the reviewers.', example='[10001]'),
       sortOrder?: long(name='sortOrder', description='The step order.', example='1'),
-      specification?: string(name='specification', description='The step processing instructions.', example='example'),
-      specificationJson?: [  map[string]any ](name='specificationJson', description='The array of structured segments for step instructions. Supports text, mention, skill, app, files, and web_search. Segment fields and nested attachments are preserved as returned by the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
+      specification?: string(name='specification', description='The step processing instructions.', example='Collect customer information and submit it to the person in charge for review'),
+      specificationJson?: [  map[string]any ](name='specificationJson', description='The ordered array of fragments. Supported types include text, mention, skill, app, files, and web_search. The referenced identities and order are preserved.', example='[{\\\\"type\\\\":\\\\"text\\\\",\\\\"text\\\\":\\\\"收集客户信息\\\\"}]'),
       stepId?: string(name='stepId', description='The step ID.', example='collect'),
     }
-  ](name='steps', description='The ordered steps.', example='example'),
-  templateId?: string(name='templateId', description='The template ID.', example='tpl_example'),
+  ](name='steps', description='The ordered steps.', example='[{"stepId":"collect","sortOrder":1,"name":"收集客户信息"}]'),
+  templateId?: string(name='templateId', description='The template ID.', example='tpl_9401'),
   version?: string(name='version', description='The version number of the returned content.', example='v1'),
-  versionDescription?: string(name='versionDescription', description='The change description for this version. If this field is empty for v1, the template description is displayed.', example='Initial template creation'),
-  versionStatus?: string(name='versionStatus', description='The version status. Valid values: DRAFT: Draft. SUBMITTED: Submitted.', example='SUBMITTED'),
+  versionDescription?: string(name='versionDescription', description='The change description of the version. If this field is empty for v1, the template description can be displayed.', example='Initial template creation'),
+  versionStatus?: string(name='versionStatus', description='The version status. Valid values:
+- DRAFT: Draft.
+- SUBMITTED: Submitted.', example='SUBMITTED'),
 }
 
 model CreateWorkflowTemplateResponse = {
@@ -2942,12 +2998,12 @@ async function createWorkflowTemplate(request: CreateWorkflowTemplateRequest): C
 model CreateWorkflowTemplateDraftVersionRequest {
   collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration workspace.
 
-This parameter is required.', example='group_example', minLength=1, maxLength=64, position='Body'),
+This parameter is required.', example='cg_9401', minLength=1, maxLength=64, position='Body'),
   templateId: string(name='templateId', description='The ID of the template.
 
-This parameter is required.', example='tpl_example', minLength=1, maxLength=64, position='Body'),
+This parameter is required.', example='tpl_9401', minLength=1, maxLength=64, position='Body'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If this parameter is not specified, the default tenant of the caller is used.', example='10000', position='Query'),
-  version: string(name='version', description='The version number of the template on which the edit is based. The format is a lowercase v followed by a positive integer, such as v1. A draft version is returned as-is.
+  version: string(name='version', description='The version number to which the returned content belongs.
 
 This parameter is required.', example='v1', position='Body'),
 }
@@ -2955,30 +3011,34 @@ This parameter is required.', example='v1', position='Body'),
 model CreateWorkflowTemplateDraftVersionResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
   createdByUserId?: long(name='createdByUserId', description='The user ID of the creator.', example='1'),
-  description?: string(name='description', description='The description of the template.', example='example'),
+  description?: string(name='description', description='The description of the template.', example='Standard process for handling customer complaints'),
+  edges?: [  map[string]any ](name='edges', description='节点依赖边；每项包含from/to，引用稳定stepId', example='[]'),
   effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and the template cannot be used for work items.', example='v1'),
-  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='example'),
-  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='example'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  layout?: map[string]any(name='layout', description='可选画布布局，按stepId索引；只影响展示，不决定依赖', example='{"collect":{"x":0,"y":0},"review":{"x":240,"y":0}}'),
   message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
-  name?: string(name='name', description='The name of the template.', example='example'),
+  name?: string(name='name', description='The name of the step. This parameter can be left empty for a draft, but is required when the template is submitted.', example='Customer complaint handling process'),
   requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  schemaVersion?: long(name='schemaVersion', description='模板结构版本，当前为2，与业务版本vN独立', example='2'),
   steps?: [ 
     {
       modelMode?: string(name='modelMode', description='The model tier.', example='standard'),
-      name?: string(name='name', description='The name of the step.', example='example'),
-      ownerAgentName?: string(name='ownerAgentName', description='The name of the digital employee executor. This parameter is required when ownerType is set to AGENT.', example='example'),
-      ownerType?: string(name='ownerType', description='The type of the executor. Valid values: MEMBER (workspace member) and AGENT (digital employee).', example='MEMBER'),
-      ownerUserId?: long(name='ownerUserId', description='The user ID of the member executor. This parameter is required when ownerType is set to MEMBER.', example='1'),
-      reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs for the owners (formerly reviewers). This parameter is valid only for steps with a digital employee executor and is always empty for steps with a member executor.', example='example'),
-      sortOrder?: long(name='sortOrder', description='The sort order of the step.', example='1'),
-      specification?: string(name='specification', description='The array of ordered step description segments. Supported types include text, mention, skill, app, files, and web_search. When plain text is entered, a single text segment is returned. The fields and nested attachments of each segment are retained as-is from the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
-      specificationJson?: [  map[string]any ](name='specificationJson', description='The array of structured step description segments. Supported types include text, mention, skill, app, files, and web_search. The fields and nested attachments of each segment are retained as-is from the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
+      name?: string(name='name', description='The name of the step. This parameter can be left empty for a draft, but is required when the template is submitted.', example='Customer complaint handling process'),
+      ownerAgentName?: string(name='ownerAgentName', description='The name of the agent owner.', example='example'),
+      ownerType?: string(name='ownerType', description='The type of the owner. Valid values: MEMBER (manual) and AGENT (agent).', example='MEMBER'),
+      ownerUserId?: long(name='ownerUserId', description='The user ID of the manual owner.', example='1'),
+      reviewOutput?: boolean(name='reviewOutput', description='是否人工审核产出物，默认关闭；仅数字员工可开启，审核待办自动发负责人', example='false'),
+      reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs of the reviewers.', example='example'),
+      sortOrder?: long(name='sortOrder', description='The order of the step.', example='1'),
+      specification?: string(name='specification', description='The display text derived from ordered segments. Fixed titles are not added, and the text is not stored independently.', example='Collect customer information and forward it to the owner for review'),
+      specificationJson?: [  map[string]any ](name='specificationJson', description='The array of ordered segments. This parameter supports text, mention, skill, app, files, and web_search, and retains reference identities and order.', example='[{\\\\"type\\\\":\\\\"text\\\\",\\\\"text\\\\":\\\\"收集客户信息\\\\"}]'),
       stepId?: string(name='stepId', description='The ID of the step.', example='collect'),
     }
-  ](name='steps', description='The ordered steps.', example='example'),
-  templateId?: string(name='templateId', description='The ID of the template.', example='tpl_example'),
+  ](name='steps', description='The ordered steps.', example='[{\\\\"stepId\\\\":\\\\"collect\\\\",\\\\"sortOrder\\\\":1,\\\\"name\\\\":\\\\"收集客户信息\\\\"}]'),
+  templateId?: string(name='templateId', description='The ID of the template.', example='tpl_9401'),
   version?: string(name='version', description='The version number to which the returned content belongs.', example='v2'),
-  versionDescription?: string(name='versionDescription', description='The change description for this version. An empty value indicates that no description is provided.', example='Added a review step'),
+  versionDescription?: string(name='versionDescription', description='The change description of the version. An empty value indicates that no description is provided.', example='Added a review step'),
   versionStatus?: string(name='versionStatus', description='The version status. Valid values: DRAFT (draft) and SUBMITTED (submitted).', example='DRAFT'),
 }
 
@@ -2989,7 +3049,7 @@ model CreateWorkflowTemplateDraftVersionResponse = {
 }
 
 /**
-  * @description Generates a draft version of a workflow template for editing by a storage management administrator. If the selected version is a draft, it is returned as-is (idempotent, no new version is created). If the selected version is committed, replication of its content is performed for content generation of a v(maximum version number + 1) draft. The effective version remains unchanged. You can subsequently use UpdateWorkflowTemplate and pass the returned version to save or commit the draft.
+  * @description Generates a draft version for editing a workflow template as a storage management administrator. If the selected version is a draft, it is returned as-is (idempotent, no new version is created). If the selected version is committed, replication of its content generation is performed to produce a v(maximum version number + 1) draft. The effective version remains unchanged. You can subsequently call UpdateWorkflowTemplate and pass the returned version to save or commit the draft.
   * @param request  the request parameters of CreateWorkflowTemplateDraftVersion  CreateWorkflowTemplateDraftVersionRequest
   * @return CreateWorkflowTemplateDraftVersionResponse
  */
@@ -3002,30 +3062,30 @@ model DeleteAppResourcePermissionsRequest {
   items: [ 
     {
       granteeIds?: [ string ](name='granteeIds', description='The list of grantee principal IDs.'),
-      granteeTenantId?: string(name='granteeTenantId', description='The ID of the tenant to which the grantee user belongs. This parameter is optional if the user and the resource belong to the same tenant, and is required for cross-tenant users.', example='10000'),
-      granteeType?: string(name='granteeType', description='The grantee principal type.', example='USER'),
-      includeDescendants?: boolean(name='includeDescendants', description='Specifies whether to include dot-separated descendant resources for the RESOURCE. Default value: false.', example='false'),
-      resourceKey: string(name='resourceKey', description='The dot-separated resource key whose first segment is the application key of the APP.
+      granteeTenantId?: string(name='granteeTenantId', description='The tenant to which the grantee user belongs. This parameter can be omitted if the user belongs to the same tenant as the resource, and is required for cross-tenant users.', example='10000'),
+      granteeType?: string(name='granteeType', description='The type of the grantee principal.', example='USER'),
+      includeDescendants?: boolean(name='includeDescendants', description='Specifies whether the resource includes dot-separated descendant resources. Default value: false.', example='false'),
+      resourceKey: string(name='resourceKey', description='The dot-separated resource key whose first segment is the APP application key.
 
 This parameter is required.', example='app.demo.resource_1'),
-      resourceType: string(name='resourceType', description='The resource type. Set the value to APP_RESOURCE.
+      resourceType: string(name='resourceType', description='The resource type. Fixed to APP_RESOURCE.
 
 This parameter is required.', example='APP_RESOURCE'),
       scope: string(name='scope', description='The deletion scope: by resource or by principal.
 
 This parameter is required.', example='RESOURCE'),
     }
-  ](name='items', description='The scope of the permissions to be revoked.
+  ](name='items', description='The scope of permission revocation.
 
 This parameter is required.', shrink='json', position='Body'),
-  resourceTenantId?: string(name='resourceTenantId', description='The ID of the tenant to which the resource belongs. If not specified, the current tenant of the caller is used.', example='10000', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
+  resourceTenantId?: string(name='resourceTenantId', description='The scope of permission revocation.', example='10000', position='Body'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant to which the resource belongs. If omitted, the current tenant of the caller is used.', example='10000', position='Query'),
 }
 
 model DeleteAppResourcePermissionsResponseBody = {
-  code?: string(name='code', description='The business status code. The value 200 indicates success.', example='200'),
+  code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
   deletedCount?: long(name='deletedCount', description='The number of deleted permission records.', example='2'),
-  message?: string(name='message', description='The error message. This field is empty if the request is successful.', example='The requested resource does not exist'),
+  message?: string(name='message', description='The error message. Empty if the request is successful.', example='The requested resource does not exist'),
   requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
 }
 
@@ -3036,7 +3096,7 @@ model DeleteAppResourcePermissionsResponse = {
 }
 
 /**
-  * @description Verifies MANAGE permissions for each application and then calls the original atomic deletion capability.
+  * @description Invokes the original atomic deletion capability after passing MANAGE verification for each application.
   * @param request  the request parameters of DeleteAppResourcePermissions  DeleteAppResourcePermissionsRequest
   * @return DeleteAppResourcePermissionsResponse
  */
@@ -3346,38 +3406,42 @@ async function enableToken(request: EnableTokenRequest): EnableTokenResponse {
 model ExportWorkflowTemplateRequest {
   collaborationGroupId: string(name='collaborationGroupId', description='The collaboration workspace ID.
 
-This parameter is required.', example='group_example', minLength=1, maxLength=64, position='Body'),
+This parameter is required.', example='cg_9401', minLength=1, maxLength=64, position='Body'),
   templateId: string(name='templateId', description='The template ID.
 
-This parameter is required.', example='tpl_example', minLength=1, maxLength=64, position='Body'),
+This parameter is required.', example='tpl_9401', minLength=1, maxLength=64, position='Body'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
   version?: string(name='version', description='The version number of the template to export. The format is a lowercase v followed by a positive integer, such as v1. If not specified, the effective version is used. If no effective version exists, the latest version is used.', example='v1', position='Body'),
 }
 
 model ExportWorkflowTemplateResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
-  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  message?: string(name='message', description='The error message.', example='The requested resource does not exist'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   template?: {
-    description?: string(name='description', description='The template description.', example='example'),
-    name?: string(name='name', description='The template name.', example='example'),
+    description?: string(name='description', description='The template description.', example='Standard process for handling customer complaints'),
+    edges?: [  map[string]any ](name='edges', description='节点依赖边；每项包含from/to，引用稳定stepId', example='[]'),
+    layout?: map[string]any(name='layout', description='可选画布布局，按stepId索引；只影响展示，不决定依赖', example='{"collect":{"x":0,"y":0},"review":{"x":240,"y":0}}'),
+    name?: string(name='name', description='The template name.', example='Customer complaint handling process'),
+    schemaVersion?: long(name='schemaVersion', description='模板结构版本，当前为2，与业务版本vN独立', example='2'),
     steps?: [ 
       {
         modelMode?: string(name='modelMode', description='The model tier.', example='standard'),
-        name?: string(name='name', description='The step name.', example='example'),
-        ownerAgentName?: string(name='ownerAgentName', description='The name of the responsible agent.', example='example'),
+        name?: string(name='name', description='The step name.', example='Customer complaint handling process'),
+        ownerAgentName?: string(name='ownerAgentName', description='The name of the agent owner.', example='example'),
         ownerType?: string(name='ownerType', description='The owner type. Valid values:
 - MEMBER: Human.
 - AGENT: Agent.', example='MEMBER'),
         ownerUserId?: long(name='ownerUserId', description='The user ID of the human owner.', example='1'),
-        reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs of the reviewers.', example='example'),
+        reviewOutput?: boolean(name='reviewOutput', description='是否人工审核产出物，默认关闭；仅数字员工可开启，审核待办自动发负责人', example='false'),
+        reviewerUserIds?: [ long ](name='reviewerUserIds', description='The user IDs of the reviewers.', example='example'),
         sortOrder?: long(name='sortOrder', description='The step order.', example='1'),
-        specification?: string(name='specification', description='The step processing instructions.', example='example'),
-        specificationJson?: [  map[string]any ](name='specificationJson', description='The array of structured segments for the step instructions. Supported types include text, mention, skill, app, files, and web_search. All segment fields and nested attachments are preserved exactly as returned by the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
+        specification?: string(name='specification', description='The step handling instructions.', example='Collect customer information and submit it to the owner for review'),
+        specificationJson?: [  map[string]any ](name='specificationJson', description='The ordered array of fragments. Supports text, mention, skill, app, files, and web_search. Preserves referenced identities and order.', example='[{"type":"text","content":"整理输入资料"}]'),
         stepId?: string(name='stepId', description='The step ID.', example='collect'),
       }
-    ](name='steps', description='The normalization steps.', example='example'),
-  }(name='template', description='The simplified template definition that can be re-imported.', example='example'),
+    ](name='steps', description='The standardized steps.', example='[{\\\\"stepId\\\\":\\\\"collect\\\\",\\\\"sortOrder\\\\":1,\\\\"name\\\\":\\\\"收集客户信息\\\\"}]'),
+  }(name='template', description='The simplified template definition that can be re-imported.', example='{\\\\"name\\\\":\\\\"客户投诉处理流程\\\\",\\\\"schemaVersion\\\\":2}'),
 }
 
 model ExportWorkflowTemplateResponse = {
@@ -3387,7 +3451,7 @@ model ExportWorkflowTemplateResponse = {
 }
 
 /**
-  * @description Exports a simplified template definition that can be re-imported by valid members.
+  * @description Exports a simplified template definition that can be re-imported.
   * @param request  the request parameters of ExportWorkflowTemplate  ExportWorkflowTemplateRequest
   * @return ExportWorkflowTemplateResponse
  */
@@ -3397,38 +3461,44 @@ async function exportWorkflowTemplate(request: ExportWorkflowTemplateRequest): E
 }
 
 model GenerateWorkflowTemplateDraftRequest {
-  collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration space.
+  collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration workspace.
 
-This parameter is required.', example='group_example', minLength=1, maxLength=64, position='Body'),
-  previousDraft?: map[string]any(name='previousDraft', description='The draft from the previous round. If this parameter is provided, the new draft is generated by iteratively modifying the previous draft.', example='example', shrink='json', position='Body'),
+This parameter is required.', example='cg_9401', minLength=1, maxLength=64, position='Body'),
+  previousDraft?: map[string]any(name='previousDraft', description='The draft from the previous round. If this parameter is provided, the new draft is iteratively modified based on it.', example='{\\\\"schemaVersion\\\\":2,\\\\"steps\\\\":[]}', shrink='json', position='Body'),
   requirement: string(name='requirement', description='The description of the template requirement.
 
-This parameter is required.', example='example', minLength=1, maxLength=10000, position='Body'),
+This parameter is required.', example='Generate a three-step process for handling customer complaints', minLength=1, maxLength=10000, position='Body'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If this parameter is not specified, the default tenant of the caller is used.', example='10000', position='Query'),
 }
 
 model GenerateWorkflowTemplateDraftResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
   draft?: {
-    description?: string(name='description', description='The description of the template.', example='example'),
-    name?: string(name='name', description='The name of the template.', example='example'),
+    description?: string(name='description', description='The description of the template.', example='Standard process for handling customer complaints'),
+    edges?: [  map[string]any ](name='edges', description='节点依赖边；每项包含from/to，引用稳定stepId', example='[]'),
+    layout?: map[string]any(name='layout', description='可选画布布局，按stepId索引；只影响展示，不决定依赖', example='{"collect":{"x":0,"y":0},"review":{"x":240,"y":0}}'),
+    name?: string(name='name', description='The name of the template.', example='Customer complaint handling process'),
+    schemaVersion?: long(name='schemaVersion', description='模板结构版本，当前为2，与业务版本vN独立', example='2'),
     steps?: [ 
       {
         modelMode?: string(name='modelMode', description='The model tier.', example='standard'),
-        name?: string(name='name', description='The name of the step.', example='example'),
-        ownerAgentName?: string(name='ownerAgentName', description='The name of the responsible agent.', example='example'),
-        ownerType?: string(name='ownerType', description='The type of the owner. Valid values: MEMBER: Human. AGENT: Agent.', example='MEMBER'),
+        name?: string(name='name', description='The name of the step.', example='Customer complaint handling process'),
+        ownerAgentName?: string(name='ownerAgentName', description='The name of the agent owner.', example='example'),
+        ownerType?: string(name='ownerType', description='The type of the owner. Valid values:
+- MEMBER: human
+- AGENT: agent', example='MEMBER'),
         ownerUserId?: long(name='ownerUserId', description='The user ID of the human owner.', example='1'),
+        reviewOutput?: boolean(name='reviewOutput', description='是否人工审核产出物，默认关闭；仅数字员工可开启，审核待办自动发负责人', example='false'),
         reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs of the reviewers.', example='example'),
-        sortOrder?: long(name='sortOrder', description='The order of the step.', example='1'),
-        specification?: string(name='specification', description='The processing instructions for the step.', example='example'),
-        specificationJson?: [  map[string]any ](name='specificationJson', description='The array of structured segments for the step instructions. Supported types include text, mention, skill, app, files, and web_search. The fields and nested attachments of each segment are retained as returned by the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
+        sortOrder?: long(name='sortOrder', description='The sort order of the step.', example='1'),
+        specification?: string(name='specification', description='The processing instructions of the step.', example='Collect customer information and submit it to the owner for review'),
+        specificationJson?: [  map[string]any ](name='specificationJson', description='The ordered array of fragments. Supported types include text, mention, skill, app, files, and web_search. The referenced identities and order are preserved.', example='[{\\\\"type\\\\":\\\\"text\\\\",\\\\"text\\\\":\\\\"收集客户信息\\\\"}]'),
         stepId?: string(name='stepId', description='The ID of the step.', example='collect'),
       }
-    ](name='steps', description='The ordered steps.', example='example'),
-  }(name='draft', description='The generated non-persistent template draft.', example='example'),
-  message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
-  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+    ](name='steps', description='The ordered steps.', example='[{\\\\"stepId\\\\":\\\\"collect\\\\",\\\\"sortOrder\\\\":1,\\\\"name\\\\":\\\\"收集客户信息\\\\"}]'),
+  }(name='draft', description='The generated non-persistent template draft.', example='{\\\\"schemaVersion\\\\":2,\\\\"steps\\\\":[]}'),
+  message?: string(name='message', description='The error message.', example='The requested resource does not exist'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
 }
 
 model GenerateWorkflowTemplateDraftResponse = {
@@ -3449,7 +3519,7 @@ async function generateWorkflowTemplateDraft(request: GenerateWorkflowTemplateDr
 
 model GetAgentWorkLogRequest {
   nodeId?: string(name='nodeId', description='The optional node key.', example='step_1', position='Body'),
-  page?: long(name='page', description='The page number. Pages start from 1.', example='1', position='Body'),
+  page?: long(name='page', description='The page number, starting from 1.', example='1', position='Body'),
   pageSize?: long(name='pageSize', description='The number of entries per page. Maximum value: 100.', example='20', position='Body'),
   tenantId?: string(name='tenantId', description='The tenant ID. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
   workItemId: string(name='workItemId', description='The work item ID.
@@ -3462,17 +3532,17 @@ model GetAgentWorkLogResponseBody = {
   logs?: [ 
     {
       action?: string(name='action', description='The record type. Valid values: THINK, REPLY, TOOL_CALL, SKILL_CALL, and ARTIFACT.', example='REPLY'),
-      detail?: string(name='detail', description='The saved raw record content. Tool invocations and artifact metadata are represented as JSON strings.', example='The data query for the current round is completed'),
-      duration?: long(name='duration', description='The duration of this operation record, in milliseconds. The value is 0 for artifact records.', example='1200'),
-      nodeId?: string(name='nodeId', description='The key of the node to which the record belongs. This is not the session ID.', example='query.amount'),
-      timestamp?: string(name='timestamp', description='The time when the event was recorded, in ISO 8601 format. If the source record has no time, an empty string is returned.', example='2026-10-14T08:00:00Z'),
+      detail?: string(name='detail', description='The saved original record content. Tool invocations and artifact metadata are JSON strings.', example='The data query for the current round is completed'),
+      duration?: long(name='duration', description='The time consumed by the operation record, in milliseconds. The value is 0 for artifact records.', example='1200'),
+      nodeId?: string(name='nodeId', description='The optional node key.', example='query.amount'),
+      timestamp?: string(name='timestamp', description='The event time of the record in ISO 8601 format. If the source record has no time, an empty string is returned.', example='2026-10-14T08:00:00Z'),
     }
   ](name='logs', description='The agent operation records in reverse chronological order. If no records are saved, an empty list is returned.', example='[]'),
   message?: string(name='message', description='The error message.', example='The requested resource does not exist'),
-  page?: long(name='page', description='The current page number, starting from 1.', example='1'),
-  pageSize?: long(name='pageSize', description='The number of entries per page. Valid values: 1 to 100.', example='20'),
+  page?: long(name='page', description='The page number, starting from 1.', example='1'),
+  pageSize?: long(name='pageSize', description='The number of entries per page. Maximum value: 100.', example='20'),
   requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
-  total?: long(name='total', description='The total number of filtered operation log entries.', example='1'),
+  total?: long(name='total', description='The total number of filtered operation logs.', example='1'),
 }
 
 model GetAgentWorkLogResponse = {
@@ -3598,6 +3668,46 @@ model GetChatSessionResponse = {
 async function getChatSession(request: GetChatSessionRequest): GetChatSessionResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetChatSession', 'GET', '/openapi/getChatSession', 'json', false, 'json', request);
+}
+
+model GetCollaborationGroupOutputItemPreviewRequest {
+  collaborationGroupId: string(name='collaborationGroupId', description='协作空间ID，必填，长度1至64。调用者必须是该租户下该空间的有效成员。可从ListCollaborationGroups返回的items中获取。
+
+This parameter is required.', example='cg_9401', position='Body'),
+  itemId: string(name='itemId', description='对话生成文件的产出明细ID。取GetNodeDetail返回的artifacts中ref.kind为USER_OUTPUT_ITEM的ref.id；不是artifactId。
+
+This parameter is required.', example='51469466', position='Body'),
+  tenantId?: string(name='tenantId', description='业务租户ID，可选。必须属于当前调用身份的可访问租户；无权访问时拒绝请求。未传时按现有鉴权规则解析租户，多租户用户无法唯一确定时需显式指定。', example='10001', position='Query'),
+}
+
+model GetCollaborationGroupOutputItemPreviewResponseBody = {
+  code?: string(name='code', description='公共业务状态码，由后端Code字段映射；错误时用于识别失败原因。', example='ERR.Robject.Auth.TenantAccessDenied'),
+  content?: string(name='content', description='可直接展示的文本正文或预览提示；不提供正文的文件类型可为空。', example='# 技术方案'),
+  degraded?: boolean(name='degraded', description='是否降级为下载。true时应展示下载入口，不要按在线文档预览器处理。', example='false'),
+  downloadUrl?: string(name='downloadUrl', description='短期签名下载地址；普通文件有效期3600秒，邮件正文可为空。过期后重新调用本接口。示例仅展示URL格式，不包含真实签名。', example='https://example.com/download/document.md'),
+  fileExt?: string(name='fileExt', description='文件扩展名，不含点；无扩展名时可为空。', example='md'),
+  fileName?: string(name='fileName', description='文件名，包含扩展名；无文件名时可为空。', example='codex-r2-a-baseline.md'),
+  itemId?: string(name='itemId', description='对话生成文件的产出明细ID。取GetNodeDetail返回的artifacts中ref.kind为USER_OUTPUT_ITEM的ref.id；不是artifactId。', example='51469466'),
+  message?: string(name='message', description='公共错误说明，由后端Message字段映射；错误时描述失败原因。', example='无权访问租户 2147483647，用户不属于该租户'),
+  previewType?: string(name='previewType', description='预览方式，例如CONTENT为文本正文，HTML为网页，IMAGE为图片，AUDIO为音频，VIDEO为视频，OSS_IMM为文档预览。', example='CONTENT'),
+  previewUrl?: string(name='previewUrl', description='短期预览地址；正文可直接展示时可为空。地址过期后重新调用本接口。示例仅展示URL格式，不是可访问凭证。', example='https://example.com/preview/document'),
+  requestId?: string(name='requestId', description='请求追踪ID，由后端RequestId字段映射，用于排查调用失败。', example='c9cf6cb3-3f5c-4994-a8a1-c93379a6f5cf'),
+}
+
+model GetCollaborationGroupOutputItemPreviewResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetCollaborationGroupOutputItemPreviewResponseBody(name='body'),
+}
+
+/**
+  * @description 获取数字员工对话生成文件的正文、预览地址或短期下载地址，支持工作流节点中的USER_OUTPUT_ITEM文件引用。调用者需通过租户、空间成员和文件来源权限校验。无需将文件登记为工作项产物；本接口不接受artifactId。
+  * @param request  the request parameters of GetCollaborationGroupOutputItemPreview  GetCollaborationGroupOutputItemPreviewRequest
+  * @return GetCollaborationGroupOutputItemPreviewResponse
+ */
+async function getCollaborationGroupOutputItemPreview(request: GetCollaborationGroupOutputItemPreviewRequest): GetCollaborationGroupOutputItemPreviewResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetCollaborationGroupOutputItemPreview', 'POST', '/openapi/getCollaborationGroupOutputItemPreview', 'json', true, 'form', request);
 }
 
 model GetGraphDraftAssembledRequest {
@@ -4132,50 +4242,39 @@ async function getScheduledTaskExecutionDetail(request: GetScheduledTaskExecutio
 }
 
 model GetScheduledTaskExecutionRecordsRequest {
-  collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the collaboration group to which the task belongs, such as cg_101. If this parameter is specified, a group workspace task is created and the caller must be a valid group member. If this parameter is left empty, a personal task is created.', example='1112', position='Query'),
-  initiatorUserId?: string(name='initiatorUserId', description='The platform user ID of the initiator for filtering. The scope is the executor of the record. For manual execution, this is the user who triggered the execution. For automatic execution, this is the task creator. To view only tasks initiated by yourself, pass the current user ID.', example='5', position='Query'),
-  page?: int32(name='page', description='The page number. Default value: 1. Minimum value: 1. Maximum value: 200.', example='exampleCollaborationGroupId', position='Query'),
+  collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the collaboration group to which the task belongs, such as cg_101. If you specify this parameter, a group space task is created, and the caller must be a valid group member. If you leave this parameter empty, a personal task is created.', example='1112', position='Query'),
+  initiatorUserId?: string(name='initiatorUserId', description='The business status code. A value of 200 indicates success. A failure is indicated by a backend error code, such as ERR.* or InvalidParameter.*.', example='5', position='Query'),
+  page?: int32(name='page', description='The page number. Default value: 1. Minimum value: 1. Maximum value: 200.', example='1', position='Query'),
   pageSize?: int32(name='pageSize', description='The number of records per page.', example='10', position='Query'),
-  status?: string(name='status', description='The execution status filter (lowercase). Valid values:
-- pending: Queued.
-- running: Running.
-- success: Succeeded.
-- failed: Failed.
-- timeout: Timed out.
-- cancelled: Cancelled.
-
-If this parameter is not specified, no status filtering is applied. If this parameter is specified, future planned items are no longer generated.', example='failed', position='Query'),
-  taskId?: string(name='taskId', description='The ID of a single task for pre-filtering. If this parameter is not specified, execution records of all visible tasks are returned.', example='exampleTaskId', position='Query'),
-  tenantId?: string(name='tenantId', description='The ID of the effective tenant.', example='10000', position='Query'),
+  status?: string(name='status', description='The initiator filter based on the platform user ID. The scope is the executor of the record. For manual execution, it is the user who triggers the task. For automatic execution, it is the task creator. To view only the tasks that you initiated, specify the current user ID.', example='failed', position='Query'),
+  taskId?: string(name='taskId', description='The execution status filter in lowercase. Valid values: pending (queued), running (running), success (successful), failed (failed), timeout (timed out), and cancelled (cancelled). If you do not specify this parameter, no filtering is applied. If you specify this parameter, no future plan items are generated.', example='exampleTaskId', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the active tenant.', example='10000', position='Query'),
 }
 
 model GetScheduledTaskExecutionRecordsResponseBody = {
   code?: string(name='code', description='The status code.', example='200'),
-  hasMore?: boolean(name='hasMore', description='Indicates whether more data is available.', example='true'),
+  hasMore?: boolean(name='hasMore', description='Indicates whether more data exists.', example='true'),
   message?: string(name='message', description='The description of the status code.', example='The current zone list is illegal.'),
-  page?: int32(name='page', description='The current page number.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of tasks per page.', example='20'),
+  page?: int32(name='page', description='The page number, starting from 1.', example='1'),
+  pageSize?: int32(name='pageSize', description='The ID of the collaboration group, such as cg_101. If you specify this parameter, the data is returned by group dimension, and the caller must be a valid group member. If you do not specify this parameter, the data is returned by personal dimension, excluding group tasks.', example='20'),
   requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   tasks?: [ 
     {
-      collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the collaboration group to which the task belongs. An empty value indicates a personal task.', example='exampleCollaborationGroupId'),
+      collaborationGroupId?: string(name='collaborationGroupId', description='The pre-filter for a single task. If you do not specify this parameter, the execution records of all visible tasks are returned.', example='exampleCollaborationGroupId'),
       cronExpression?: string(name='cronExpression', description='The cron expression.', example='string_value'),
       description?: string(name='description', description='The description of the to-do card type.', example='Sample description'),
       isOpen?: boolean(name='isOpen', description='Indicates whether public access is enabled.', example='true'),
-      model?: string(name='model', description='The execution model tier. Valid values:
-- flagship: Flagship.
-- standard: Standard.
-- quick: Lightweight.', example='standard'),
-      name?: string(name='name', description='The name.', example='SampleName.pdf'),
+      model?: string(name='model', description='The execution model tier. Valid values: flagship (flagship), standard (standard), and quick (lightweight).', example='standard'),
+      name?: string(name='name', description='The name.', example='Sample name.pdf'),
       taskId?: string(name='taskId', description='The task ID.', example='exampleTaskId'),
       timeline?: [ 
         {
-          actualTime?: string(name='actualTime', description='The actual hours spent, in hours.', example='2023-10-01T12:00:00Z'),
+          actualTime?: string(name='actualTime', description='The actual working hours in hours.', example='2023-10-01T12:00:00Z'),
           displayName?: string(name='displayName', description='The name of the schedule location.', example='string_value'),
           errorMessage?: string(name='errorMessage', description='The error message.', example='string_value'),
           executionId?: string(name='executionId', description='The execution record ID.', example='exampleExecutionId'),
-          isExpired?: boolean(name='isExpired', description='Indicates whether the execution record has been archived due to expiration.', example='false'),
-          outputContent?: string(name='outputContent', description='The execution output content (historical records only).', example='string_value'),
+          isExpired?: boolean(name='isExpired', description='The time zone.', example='false'),
+          outputContent?: string(name='outputContent', description='The execution output content (history records only).', example='string_value'),
           scheduledTime?: string(name='scheduledTime', description='The timed scheduling time.', example='2023-10-01T12:00:00Z'),
           status?: string(name='status', description='The final status of the message.', example='READY'),
         }
@@ -4184,8 +4283,8 @@ model GetScheduledTaskExecutionRecordsResponseBody = {
 
 > Default value: UTC+8.', example='Asia/Shanghai'),
       triggerType?: string(name='triggerType', description='The trigger type. Valid values:
-- Manual: Manual execution.
-- Cron: Timed scheduling.', example='string_value'),
+- Manual: manual execution.
+- Cron: scheduled trigger.', example='string_value'),
     }
   ](name='tasks', description='The task list.'),
   total?: long(name='total', description='The total number of tasks.', example='1'),
@@ -4198,14 +4297,14 @@ model GetScheduledTaskExecutionRecordsResponse = {
 }
 
 /**
-  * @description ## Operation description
-  * - This operation uploads files to an enterprise knowledge base.
-  * - You must have the `DEVELOPMENT_KB_MANAGE` feature permission to call this operation.
-  * - You must provide the OSS persistent address (`filePath`) of the file when uploading.
-  * - Optional parameters include the public access URL and original file name to enhance the completeness of file information.
-  * - If `directoryId` is specified, the file is placed in the corresponding enterprise knowledge base folder. Otherwise, the file is bound to the default root folder of the current digital employee.
-  * - You can add tags to resources by using `sourceTags` for subsequent management and retrieval.
-  * - This operation initiates a billing item (UNSTRUCTURED_PARSE). Make sure that your account balance is sufficient.
+  * @description ## Request description
+  * - This API operation uploads files to the enterprise knowledge base.
+  * - You must have the `DEVELOPMENT_KB_MANAGE` feature permission to call this API operation.
+  * - When uploading a file, you must provide the OSS persistence address (`filePath`) of the file.
+  * - Optional parameters include the public access URL and original file name of the file to enhance the completeness of the file information.
+  * - If `directoryId` is specified, the file is placed in the corresponding enterprise knowledge base directory. Otherwise, the file is bound to the default root directory of the current digital employee.
+  * - You can use `sourceTags` to add tags to resources for subsequent management and retrieval.
+  * - This operation generates a bill (UNSTRUCTURED_PARSE). Make sure that your account balance is sufficient.
   * @param request  the request parameters of GetScheduledTaskExecutionRecords  GetScheduledTaskExecutionRecordsRequest
   * @return GetScheduledTaskExecutionRecordsResponse
  */
@@ -5160,6 +5259,113 @@ async function getWorkItemAttachmentAccess(request: GetWorkItemAttachmentAccessR
   return @handler.do('RESTFUL', 'GetWorkItemAttachmentAccess', 'GET', '/openapi/getWorkItemAttachmentAccess', 'json', false, 'json', request);
 }
 
+model GetWorkItemAuditRequest {
+  collaborationGroupId: string(name='collaborationGroupId', description='协作空间ID
+
+This parameter is required.', example='cg_9401', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID；缺省使用调用方默认租户', example='10000', position='Query'),
+  workItemId: string(name='workItemId', description='工作项ID
+
+This parameter is required.', example='wi_0123456789ab4cde', position='Body'),
+}
+
+model GetWorkItemAuditResponseBody = {
+  code?: string(name='code', description='公共业务状态码', example='200'),
+  items?: [ 
+    {
+      changes?: any(name='changes', description='字段变更明细列表，每项包含变更字段与前后值', example='[{"field":"title","before":"旧标题","after":"新标题"}]'),
+      description?: string(name='description', description='事件描述', example='工作项标题调整为季度销售机会复盘'),
+      eventId?: string(name='eventId', description='审计事件唯一标识', example='evt_20261105_0001'),
+      eventType?: string(name='eventType', description='审计事件类型，如 WORK_ITEM_UPDATED、TODO_COMPLETED', example='WORK_ITEM_UPDATED'),
+      occurredAt?: string(name='occurredAt', description='事件发生时间，ISO8601 格式', example='2026-11-05T08:00:00Z'),
+      operatorName?: string(name='operatorName', description='操作人显示名', example='张三'),
+      operatorUserId?: string(name='operatorUserId', description='操作人用户 ID', example='10001'),
+      questions?: [ any ](name='questions', description='事件涉及的待确认问题列表', example='[{"question":"是否继续执行"}]'),
+      resultPayload?: any(name='resultPayload', description='事件结果负载，JSON 对象；无结果时为空', example='{"result":"ok"}'),
+      status?: string(name='status', description='事件状态', example='ACTIVE'),
+      title?: string(name='title', description='事件标题', example='调查销售机会'),
+      todoId?: string(name='todoId', description='关联待办 ID；无关联时为空字符串', example='todo_20261105_0007'),
+    }
+  ](name='items', description='按事件时间倒序排列的完整工作项审计记录', example='[{"eventId":"evt_example","eventType":"WORK_ITEM_UPDATED","occurredAt":"2026-11-05T08:00:00Z","status":"SUCCESS"}]'),
+  message?: string(name='message', description='公共错误描述', example='请求的资源不存在'),
+  requestId?: string(name='requestId', description='请求追踪ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+}
+
+model GetWorkItemAuditResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetWorkItemAuditResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetWorkItemAudit  GetWorkItemAuditRequest
+  * @return GetWorkItemAuditResponse
+ */
+async function getWorkItemAudit(request: GetWorkItemAuditRequest): GetWorkItemAuditResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetWorkItemAudit', 'POST', '/openapi/getWorkItemAudit', 'json', true, 'form', request);
+}
+
+model GetWorkItemRunSummariesRequest {
+  collaborationGroupId: string(name='collaborationGroupId', description='协作空间ID
+
+This parameter is required.', example='cg_9401', position='Body'),
+  nodeKey?: string(name='nodeKey', description='可选节点key；传入后只返回该节点当前轮次的总结', example='query.amount', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID；缺省使用调用方默认租户', example='10000', position='Query'),
+  workItemId: string(name='workItemId', description='工作项ID
+
+This parameter is required.', example='wi_0123456789ab4cde', position='Body'),
+}
+
+model GetWorkItemRunSummariesResponseBody = {
+  code?: string(name='code', description='公共业务状态码', example='200'),
+  items?: [ 
+    {
+      attemptId?: string(name='attemptId', description='节点尝试 ID', example='attempt_1'),
+      attemptSeq?: long(name='attemptSeq', description='节点尝试序号，从 1 开始', example='1'),
+      executorId?: string(name='executorId', description='执行器 ID', example='agent_1001'),
+      executorName?: string(name='executorName', description='执行器名称', example='销售分析助手'),
+      executorType?: string(name='executorType', description='执行器类型，如 AGENT、HUMAN', example='AGENT'),
+      finishedAt?: string(name='finishedAt', description='节点结束时间，ISO8601 格式', example='2026-11-05T08:05:00Z'),
+      nodeKey?: string(name='nodeKey', description='节点 key', example='query.amount'),
+      nodeName?: string(name='nodeName', description='节点名称', example='查询销售金额'),
+      nodeStatus?: string(name='nodeStatus', description='节点状态，如 COMPLETED、FAILED', example='COMPLETED'),
+      planId?: string(name='planId', description='所属物理计划 ID', example='plan_v3'),
+      result?: any(name='result', description='节点执行结果，JSON 对象', example='{"rows":3}'),
+      runSummary?: any(name='runSummary', description='运行总结正文；未生成时为空', example='已完成销售金额查询，共返回 3 行数据'),
+      runSummaryError?: string(name='runSummaryError', description='运行总结失败原因；成功时为空', example='模型调用超时'),
+      runSummaryGeneratedAt?: string(name='runSummaryGeneratedAt', description='运行总结生成时间，ISO8601 格式', example='2026-11-05T08:06:00Z'),
+      runSummarySources?: [ any ](name='runSummarySources', description='运行总结引用的数据来源列表', example='[{"name":"report.md"}]'),
+      runSummaryStatus?: string(name='runSummaryStatus', description='运行总结生成状态，如 COMPLETED、FAILED、PROCESSING', example='COMPLETED'),
+      runSummaryTools?: [ 
+        {
+          name?: string(name='name', description='工具名称', example='销售分析助手'),
+          type?: string(name='type', description='工具类型，如 SKILL、MCP', example='AGENT'),
+        }
+      ](name='runSummaryTools', description='运行总结使用的工具列表', example='[{"type":"SKILL","name":"sql_query"}]'),
+      startedAt?: string(name='startedAt', description='节点开始时间，ISO8601 格式', example='2026-11-05T08:00:00Z'),
+      turnSeq?: long(name='turnSeq', description='节点轮次序号，从 1 开始', example='1'),
+    }
+  ](name='items', description='当前计划、当前轮次已经生成的运行总结；重跑受影响节点的新总结生成前不会返回旧总结', example='[{"attemptId":"attempt_example","planId":"plan_example","nodeKey":"query.amount","nodeStatus":"COMPLETED"}]'),
+  message?: string(name='message', description='公共错误描述', example='请求的资源不存在'),
+  requestId?: string(name='requestId', description='请求追踪ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+}
+
+model GetWorkItemRunSummariesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetWorkItemRunSummariesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetWorkItemRunSummaries  GetWorkItemRunSummariesRequest
+  * @return GetWorkItemRunSummariesResponse
+ */
+async function getWorkItemRunSummaries(request: GetWorkItemRunSummariesRequest): GetWorkItemRunSummariesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetWorkItemRunSummaries', 'POST', '/openapi/getWorkItemRunSummaries', 'json', true, 'form', request);
+}
+
 model GetWorkflowInstanceRequest {
   instanceId: string(name='instanceId', description='The stable logical instance ID.
 
@@ -5229,13 +5435,74 @@ async function getWorkflowInstance(request: GetWorkflowInstanceRequest): GetWork
   return @handler.do('RESTFUL', 'GetWorkflowInstance', 'POST', '/openapi/getWorkflowInstance', 'json', true, 'form', request);
 }
 
+model GetWorkflowNodeConfigurationRequest {
+  collaborationGroupId: string(name='collaborationGroupId', description='协作空间ID
+
+This parameter is required.', example='cg_9401', position='Body'),
+  instanceId: string(name='instanceId', description='当前物理计划ID（planId）
+
+This parameter is required.', example='inst_2081', position='Body'),
+  nodeId: string(name='nodeId', description='业务节点key（nodeKey）
+
+This parameter is required.', example='node_7f3a2c', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID；缺省使用调用方默认租户', example='10000', position='Query'),
+}
+
+model GetWorkflowNodeConfigurationResponseBody = {
+  canEdit?: boolean(name='canEdit', description='当前用户是否可编辑此节点', example='true'),
+  code?: string(name='code', description='公共业务状态码', example='200'),
+  configVersion?: long(name='configVersion', description='配置版本；更新或恢复时作为expectedVersion', example='3'),
+  defaultExecutor?: {
+    id?: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称', example='agent_1001'),
+    type?: string(name='type', description='USER 真人、AGENT 数字员工或历史 SYSTEM 系统执行人；SYSTEM仅用于响应', example='AGENT'),
+  }(name='defaultExecutor', description='模板默认执行主体', example='{"type":"AGENT","id":"agent_1001"}'),
+  defaultModel?: string(name='defaultModel', description='模板默认模型运行档', example='qwen-max'),
+  defaultResponsibleUserIds?: [ string ](name='defaultResponsibleUserIds', description='模板默认负责人用户ID列表', example='[10001]'),
+  effectiveExecutor?: {
+    id?: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称', example='agent_1001'),
+    type?: string(name='type', description='USER 真人、AGENT 数字员工或历史 SYSTEM 系统执行人；SYSTEM仅用于响应', example='AGENT'),
+  }(name='effectiveExecutor', description='当前生效的执行主体', example='{"type":"AGENT","id":"agent_1001"}'),
+  effectiveModel?: string(name='effectiveModel', description='当前生效的模型运行档', example='qwen-max-plus'),
+  effectiveResponsibleUserIds?: [ string ](name='effectiveResponsibleUserIds', description='当前生效的负责人用户ID列表', example='[10001]'),
+  instanceId?: string(name='instanceId', description='当前物理计划ID', example='inst_2081'),
+  message?: string(name='message', description='公共错误描述', example='请求的资源不存在'),
+  nodeId?: string(name='nodeId', description='业务节点key', example='node_7f3a2c'),
+  overrides?: {
+    executor?: {
+      id?: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称', example='agent_1001'),
+      type?: string(name='type', description='USER 真人、AGENT 数字员工或历史 SYSTEM 系统执行人；SYSTEM仅用于响应', example='AGENT'),
+    }(name='executor', description='覆盖执行主体；null为默认', example='{"type":"AGENT","id":"agent_1001"}'),
+    model?: string(name='model', description='覆盖模型运行档；null为默认', example='qwen-max'),
+    responsibleUserIds?: [ long ](name='responsibleUserIds', description='覆盖负责人ID列表；null为默认', example='[10001]'),
+  }(name='overrides', description='实例覆盖值；字段为null时使用模板默认值', example='{"model":"qwen-max-plus"}'),
+  requestId?: string(name='requestId', description='请求追踪ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  stateVersion?: long(name='stateVersion', description='状态刷新游标，不能作为配置版本', example='8'),
+  updatedAt?: string(name='updatedAt', description='最后配置更新时间ISO8601；从未更新时为空', example='2026-11-05T08:00:00Z'),
+  updatedBy?: long(name='updatedBy', description='最后更新配置的平台用户ID；从未更新时为空', example='10001'),
+}
+
+model GetWorkflowNodeConfigurationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetWorkflowNodeConfigurationResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of GetWorkflowNodeConfiguration  GetWorkflowNodeConfigurationRequest
+  * @return GetWorkflowNodeConfigurationResponse
+ */
+async function getWorkflowNodeConfiguration(request: GetWorkflowNodeConfigurationRequest): GetWorkflowNodeConfigurationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetWorkflowNodeConfiguration', 'POST', '/openapi/getWorkflowNodeConfiguration', 'json', true, 'form', request);
+}
+
 model GetWorkflowTemplateRequest {
   collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration workspace.
 
-This parameter is required.', example='group_example', minLength=1, maxLength=64, position='Body'),
+This parameter is required.', example='cg_9401', minLength=1, maxLength=64, position='Body'),
   templateId: string(name='templateId', description='The ID of the template.
 
-This parameter is required.', example='tpl_example', minLength=1, maxLength=64, position='Body'),
+This parameter is required.', example='tpl_9401', minLength=1, maxLength=64, position='Body'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
   version?: string(name='version', description='The version number of the template to read. The format is a lowercase v followed by a positive integer, such as v1. If not specified, the effective version is used. If no effective version exists, the latest version is used.', example='v1', position='Body'),
 }
@@ -5243,32 +5510,36 @@ This parameter is required.', example='tpl_example', minLength=1, maxLength=64, 
 model GetWorkflowTemplateResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
   createdByUserId?: long(name='createdByUserId', description='The user ID of the creator.', example='1'),
-  description?: string(name='description', description='The description of the template.', example='example'),
+  description?: string(name='description', description='The description of the template.', example='Standard process for handling customer complaints'),
+  edges?: [  map[string]any ](name='edges', description='节点依赖边；每项包含from/to，引用稳定stepId；显式空数组表示没有依赖', example='[{"from":"collect","to":"deliver"}]'),
   effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and it cannot be used for work items.', example='v1'),
-  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='example'),
-  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='example'),
-  message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
-  name?: string(name='name', description='The name of the template.', example='example'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  layout?: map[string]any(name='layout', description='可选画布布局，按stepId索引；只影响展示，不决定依赖', example='{"collect":{"x":0,"y":0},"review":{"x":240,"y":0}}'),
+  message?: string(name='message', description='The error message.', example='The requested resource does not exist'),
+  name?: string(name='name', description='The name of the template.', example='Customer complaint handling process'),
   requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  schemaVersion?: long(name='schemaVersion', description='模板结构版本，当前为2，与业务版本vN独立', example='2'),
   steps?: [ 
     {
       modelMode?: string(name='modelMode', description='The model tier.', example='standard'),
-      name?: string(name='name', description='The name of the step.', example='example'),
+      name?: string(name='name', description='The name of the step.', example='Customer complaint handling process'),
       ownerAgentName?: string(name='ownerAgentName', description='The name of the agent owner.', example='example'),
       ownerType?: string(name='ownerType', description='The owner type. Valid values:
 - MEMBER: Human.
 - AGENT: Agent.', example='MEMBER'),
       ownerUserId?: long(name='ownerUserId', description='The user ID of the human owner.', example='1'),
+      reviewOutput?: boolean(name='reviewOutput', description='是否人工审核产出物，默认关闭；仅数字员工可开启，审核待办自动发负责人', example='false'),
       reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs of the reviewers.', example='example'),
-      sortOrder?: long(name='sortOrder', description='The order of the step.', example='1'),
-      specification?: string(name='specification', description='The processing instructions for the step.', example='example'),
-      specificationJson?: [  map[string]any ](name='specificationJson', description='The array of structured segments for the step instructions. Supported segment types include text, mention, skill, app, files, and web_search. The fields and nested attachments of each segment are preserved exactly as returned by the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
+      sortOrder?: long(name='sortOrder', description='The sort order of the step.', example='1'),
+      specification?: string(name='specification', description='The processing instructions for the step.', example='Collect customer information and submit it to the owner for review'),
+      specificationJson?: [  map[string]any ](name='specificationJson', description='The array of structured segments for the step instructions. Supported types include text, mention, skill, app, files, and web_search. The fields and nested attachments of each segment are preserved exactly as returned by the backend.', example='[{"type":"text","content":"整理输入资料"}]'),
       stepId?: string(name='stepId', description='The ID of the step.', example='collect'),
     }
-  ](name='steps', description='The ordered steps.', example='example'),
-  templateId?: string(name='templateId', description='The ID of the template.', example='tpl_example'),
-  version?: string(name='version', description='The version number to which the returned content belongs.', example='v1'),
-  versionDescription?: string(name='versionDescription', description='The change description for this version. If this field is empty for v1, the template description can be displayed.', example='Added a review step'),
+  ](name='steps', description='The ordered steps.', example='[{\\\\"stepId\\\\":\\\\"collect\\\\",\\\\"sortOrder\\\\":1,\\\\"name\\\\":\\\\"收集客户信息\\\\"}]'),
+  templateId?: string(name='templateId', description='The ID of the template.', example='tpl_9401'),
+  version?: string(name='version', description='The optimistic version number.', example='v1'),
+  versionDescription?: string(name='versionDescription', description='The version description.', example='Added a review step'),
   versionStatus?: string(name='versionStatus', description='The version status. Valid values:
 - DRAFT: Draft.
 - SUBMITTED: Submitted.', example='SUBMITTED'),
@@ -5331,47 +5602,51 @@ async function grantAgentUsers(request: GrantAgentUsersRequest): GrantAgentUsers
 }
 
 model ImportWorkflowTemplateRequest {
-  collaborationGroupId: string(name='collaborationGroupId', description='The collaboration workspace ID.
+  collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration workspace.
 
-This parameter is required.', example='group_example', position='Body'),
-  template: map[string]any(name='template', description='The portable template JSON. The stepId and sortOrder fields can be omitted.
+This parameter is required.', example='cg_9401', position='Body'),
+  template: map[string]any(name='template', description='The portable template in JSON format. The stepId and sortOrder fields can be omitted.
 
-This parameter is required.', example='example', shrink='json', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If omitted, the default tenant of the caller is used.', example='10000', position='Query'),
+This parameter is required.', example='{"name":"Customer Complaint Handling Process","schemaVersion":2}', shrink='json', position='Body'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
 }
 
 model ImportWorkflowTemplateResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
   createdByUserId?: long(name='createdByUserId', description='The user ID of the creator.', example='1'),
-  description?: string(name='description', description='The template description.', example='example'),
-  effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and the template cannot be used for work items. Importing a template always creates a v1 draft, so this field is empty.', example='v1'),
-  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='example'),
-  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='example'),
+  description?: string(name='description', description='The template description.', example='Standard process for handling customer complaints'),
+  edges?: [  map[string]any ](name='edges', description='节点依赖边；每项包含from/to，引用稳定stepId；显式空数组表示没有依赖', example='[{"from":"collect","to":"deliver"}]'),
+  effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and it cannot be used for work items. For imported templates, a v1 draft is created and this field is empty.', example='v1'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  layout?: map[string]any(name='layout', description='可选画布布局，按stepId索引；只影响展示，不决定依赖', example='{"collect":{"x":0,"y":0},"review":{"x":240,"y":0}}'),
   message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
-  name?: string(name='name', description='The template name.', example='example'),
-  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  name?: string(name='name', description='The template name.', example='Customer Complaint Handling Process'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  schemaVersion?: long(name='schemaVersion', description='模板结构版本，当前为2，与业务版本vN独立', example='2'),
   steps?: [ 
     {
       modelMode?: string(name='modelMode', description='The model tier.', example='standard'),
-      name?: string(name='name', description='The step name.', example='example'),
-      ownerAgentName?: string(name='ownerAgentName', description='The name of the responsible agent.', example='example'),
-      ownerType?: string(name='ownerType', description='The type of the responsible party. Valid values:
-- MEMBER: human.
-- AGENT: agent.', example='MEMBER'),
-      ownerUserId?: long(name='ownerUserId', description='The user ID of the human responsible party.', example='1'),
-      reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs for the reviewers.', example='example'),
+      name?: string(name='name', description='The step name.', example='Customer Complaint Handling Process'),
+      ownerAgentName?: string(name='ownerAgentName', description='The name of the digital employee executor.', example='example'),
+      ownerType?: string(name='ownerType', description='The executor type. Valid values:
+- MEMBER: workspace member.
+- AGENT: digital employee.', example='MEMBER'),
+      ownerUserId?: long(name='ownerUserId', description='The user ID of the employee executor.', example='1'),
+      reviewOutput?: boolean(name='reviewOutput', description='是否人工审核产出物，默认关闭；仅数字员工可开启，审核待办自动发负责人', example='false'),
+      reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs of the persons in charge. This field is valid only for steps with a digital employee executor and is always empty for steps with a member executor.', example='example'),
       sortOrder?: long(name='sortOrder', description='The step order.', example='1'),
-      specification?: string(name='specification', description='The processing instructions for the step.', example='example'),
-      specificationJson?: [  map[string]any ](name='specificationJson', description='The structured array of processing instructions for the step. This array supports text, mention, skill, app, files, and web_search types. All fragment fields and nested attachments are preserved exactly as returned by the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
+      specification?: string(name='specification', description='The step processing instructions.', example='Collect customer information and submit it to the person in charge for review'),
+      specificationJson?: [  map[string]any ](name='specificationJson', description='The ordered array of fragments, which supports text, mention, skill, app, files, and web_search. The referenced identities and order are retained.', example='[{\\\\"type\\\\":\\\\"text\\\\",\\\\"text\\\\":\\\\"收集客户信息\\\\"}]'),
       stepId?: string(name='stepId', description='The step ID.', example='collect'),
     }
-  ](name='steps', description='The ordered steps.', example='example'),
-  templateId?: string(name='templateId', description='The template ID.', example='tpl_example'),
-  version?: string(name='version', description='The version number generated by this import.', example='v1'),
+  ](name='steps', description='The ordered steps.', example='[{\\\\"stepId\\\\":\\\\"collect\\\\",\\\\"sortOrder\\\\":1,\\\\"name\\\\":\\\\"收集客户信息\\\\"}]'),
+  templateId?: string(name='templateId', description='The template ID.', example='tpl_9401'),
+  version?: string(name='version', description='The version number generated for this import.', example='v1'),
   versionStatus?: string(name='versionStatus', description='The version status. Valid values:
 - DRAFT: draft.
 - SUBMITTED: submitted.
-The status is always set to DRAFT for imported templates.', example='DRAFT'),
+The value is fixed to DRAFT for imported templates.', example='DRAFT'),
 }
 
 model ImportWorkflowTemplateResponse = {
@@ -5381,7 +5656,7 @@ model ImportWorkflowTemplateResponse = {
 }
 
 /**
-  * @description Imports a portable template JSON and creates a new template. A new template is created regardless of whether the name is identical.
+  * @description Imports a portable template in JSON format and creates a new template regardless of the template name.
   * @param request  the request parameters of ImportWorkflowTemplate  ImportWorkflowTemplateRequest
   * @return ImportWorkflowTemplateResponse
  */
@@ -5687,20 +5962,20 @@ async function listAliDingMinutes(request: ListAliDingMinutesRequest): ListAliDi
 }
 
 model ListAppResourcePermissionRecordsRequest {
-  granteeId?: string(name='granteeId', description='The grantee ID filter.', example='10086', position='Body'),
-  granteeTenantId?: string(name='granteeTenantId', description='The tenant ID filter for cross-tenant users.', example='10000', position='Body'),
-  granteeType?: string(name='granteeType', description='The grantee type filter.', example='USER', position='Body'),
-  page?: long(name='page', description='The page number.', example='1', position='Body'),
-  pageSize?: long(name='pageSize', description='The number of entries per page.', example='20', position='Body'),
+  granteeId?: string(name='granteeId', description='The tenant filter for cross-tenant users.', example='10086', position='Body'),
+  granteeTenantId?: string(name='granteeTenantId', description='The permission filter.', example='10000', position='Body'),
+  granteeType?: string(name='granteeType', description='The principal ID filter.', example='USER', position='Body'),
+  page?: long(name='page', description='The number of items per page.', example='1', position='Body'),
+  pageSize?: long(name='pageSize', description='The principal type filter.', example='20', position='Body'),
   permissions?: [ string ](name='permissions', description='The permission filter.', shrink='json', position='Body'),
-  resourceKeyPrefix: string(name='resourceKeyPrefix', description='The application key or its subpath.
+  resourceKeyPrefix: string(name='resourceKeyPrefix', description='The page number.
 
 This parameter is required.', example='app.demo', position='Body'),
-  resourceTenantId?: string(name='resourceTenantId', description='The ID of the tenant to which the resource belongs. If not specified, the current tenant of the caller is used.', example='10000', position='Body'),
-  resourceType: string(name='resourceType', description='The resource type. Set this parameter to APP_RESOURCE.
+  resourceTenantId?: string(name='resourceTenantId', description='The resource tenant ID. This parameter is fixed to APP_RESOURCE.', example='10000', position='Body'),
+  resourceType: string(name='resourceType', description='The application key or its subpath.
 
 This parameter is required.', example='APP_RESOURCE', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant to which the resource belongs. If omitted, the current tenant of the caller is used.', example='10000', position='Query'),
 }
 
 model ListAppResourcePermissionRecordsResponseBody = {
@@ -5710,21 +5985,21 @@ model ListAppResourcePermissionRecordsResponseBody = {
       createdAt?: string(name='createdAt', description='The creation time.', example='2026-10-16T10:30:00+08:00'),
       expireAt?: string(name='expireAt', description='The expiration time.', example='2026-12-31T23:59:59+08:00'),
       grantedBy?: string(name='grantedBy', description='The platform user ID of the grantor.', example='10086'),
-      granteeId?: string(name='granteeId', description='The grantee ID.', example='10086'),
-      granteeName?: string(name='granteeName', description='The grantee name.', example='Zhang San'),
-      granteeTenantId?: string(name='granteeTenantId', description='The ID of the tenant to which the cross-tenant user belongs.', example='10000'),
-      granteeType?: string(name='granteeType', description='The grantee type.', example='USER'),
+      granteeId?: string(name='granteeId', description='The tenant filter for cross-tenant users.', example='10086'),
+      granteeName?: string(name='granteeName', description='The principal name.', example='Zhang San'),
+      granteeTenantId?: string(name='granteeTenantId', description='The permission filter.', example='10000'),
+      granteeType?: string(name='granteeType', description='The principal ID filter.', example='USER'),
       permission?: string(name='permission', description='The permission.', example='APP/VIEW'),
-      permissionId?: long(name='permissionId', description='The ID of the permission record.', example='1001'),
+      permissionId?: long(name='permissionId', description='The permission record ID.', example='1001'),
       resourceKey?: string(name='resourceKey', description='The resource key.', example='app.demo.resource_1'),
-      resourceType?: string(name='resourceType', description='The resource type.', example='APP_RESOURCE'),
+      resourceType?: string(name='resourceType', description='The application key or its subpath.', example='APP_RESOURCE'),
       updatedAt?: string(name='updatedAt', description='The update time.', example='2026-10-16T10:30:00+08:00'),
     }
   ](name='items', description='The authorization records on the current page.'),
   message?: string(name='message', description='The error message. This parameter is empty if the request is successful.', example='The requested resource does not exist'),
-  page?: long(name='page', description='The page number.', example='1'),
-  pageSize?: long(name='pageSize', description='The number of entries per page.', example='20'),
-  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  page?: long(name='page', description='The number of items per page.', example='1'),
+  pageSize?: long(name='pageSize', description='The principal type filter.', example='20'),
+  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   total?: long(name='total', description='The total number of records.', example='100'),
 }
 
@@ -5735,7 +6010,7 @@ model ListAppResourcePermissionRecordsResponse = {
 }
 
 /**
-  * @description Pages results by secure application prefix after APP/MANAGE authorization.
+  * @description Pages the resource authorization records by secure application prefix after APP/MANAGE authorization.
   * @param request  the request parameters of ListAppResourcePermissionRecords  ListAppResourcePermissionRecordsRequest
   * @return ListAppResourcePermissionRecordsResponse
  */
@@ -5745,34 +6020,34 @@ async function listAppResourcePermissionRecords(request: ListAppResourcePermissi
 }
 
 model ListAppResourceUserPermissionsRequest {
-  page?: long(name='page', description='The page number.', example='1', position='Body'),
-  pageSize?: long(name='pageSize', description='The number of entries per page.', example='20', position='Body'),
-  permissions?: [ string ](name='permissions', description='The permission points to filter.', shrink='json', position='Body'),
-  resourceKeyPrefix: string(name='resourceKeyPrefix', description='The application key or its subpath.
+  page?: long(name='page', description='The number of entries per page.', example='1', position='Body'),
+  pageSize?: long(name='pageSize', description='The permission filter.', example='20', position='Body'),
+  permissions?: [ string ](name='permissions', description='The permission filter.', shrink='json', position='Body'),
+  resourceKeyPrefix: string(name='resourceKeyPrefix', description='The page number.
 
 This parameter is required.', example='app.demo', position='Body'),
-  resourceTenantId?: string(name='resourceTenantId', description='The ID of the tenant to which the resource belongs. If you do not specify this parameter, the current tenant of the caller is used.', example='10000', position='Body'),
-  resourceType: string(name='resourceType', description='The resource type. Set the value to APP_RESOURCE.
+  resourceTenantId?: string(name='resourceTenantId', description='The ID of the target platform user.', example='10000', position='Body'),
+  resourceType: string(name='resourceType', description='The application key or its subpath.
 
 This parameter is required.', example='APP_RESOURCE', position='Body'),
-  targetUserId?: long(name='targetUserId', description='The ID of the target platform user.', example='10086', position='Body'),
-  targetUserTenantId?: string(name='targetUserTenantId', description='The tenant to which the target user belongs. This parameter is required for cross-tenant targets.', example='10000', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If you do not specify this parameter, the default tenant of the caller is used.', example='10000', position='Query'),
+  targetUserId?: long(name='targetUserId', description='The tenant to which the target user belongs. This parameter is required for cross-tenant targets.', example='10086', position='Body'),
+  targetUserTenantId?: string(name='targetUserTenantId', description='The fixed value APP_RESOURCE.', example='10000', position='Body'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant to which the resource belongs. If omitted, the current tenant of the caller is used.', example='10000', position='Query'),
 }
 
 model ListAppResourceUserPermissionsResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
   items?: [ 
     {
-      permissions?: [ string ](name='permissions', description='The stored and valid permission points.'),
+      permissions?: [ string ](name='permissions', description='The permission filter.'),
       resourceKey?: string(name='resourceKey', description='The resource key.', example='app.demo.resource_1'),
-      resourceType?: string(name='resourceType', description='The resource type.', example='APP_RESOURCE'),
+      resourceType?: string(name='resourceType', description='The application key or its subpath.', example='APP_RESOURCE'),
     }
   ](name='items', description='The resources and permissions on the current page.'),
-  message?: string(name='message', description='The error description. This parameter is empty if the request is successful.', example='The requested resource does not exist'),
-  page?: long(name='page', description='The page number.', example='1'),
-  pageSize?: long(name='pageSize', description='The number of entries per page.', example='20'),
-  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  message?: string(name='message', description='The error description. This field is empty when the request is successful.', example='The requested resource does not exist'),
+  page?: long(name='page', description='The number of entries per page.', example='1'),
+  pageSize?: long(name='pageSize', description='The permission filter.', example='20'),
+  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   total?: long(name='total', description='The total number of resources.', example='100'),
 }
 
@@ -5783,7 +6058,7 @@ model ListAppResourceUserPermissionsResponse = {
 }
 
 /**
-  * @description An application prefix is required. The VIEW permission is required to query your own permissions, and the MANAGE permission is required to query permissions on behalf of others.
+  * @description Enforces the application prefix. The VIEW permission is required for querying your own resources, and the MANAGE permission is required for querying resources on behalf of others.
   * @param request  the request parameters of ListAppResourceUserPermissions  ListAppResourceUserPermissionsRequest
   * @return ListAppResourceUserPermissionsResponse
  */
@@ -6047,6 +6322,89 @@ model ListChatSessionsResponse = {
 async function listChatSessions(request: ListChatSessionsRequest): ListChatSessionsResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListChatSessions', 'GET', '/openapi/listChatSessions', 'json', false, 'json', request);
+}
+
+model ListCollaborationGroupMembersRequest {
+  collaborationGroupId: string(name='collaborationGroupId', description='协作空间ID，必填，长度1至64。调用者必须是该租户下该空间的有效成员。可从ListCollaborationGroups返回的items中获取。
+
+This parameter is required.', example='cg_9401', position='Body'),
+  keyword?: string(name='keyword', description='成员显示名称搜索关键词，可选，最长256字符；忽略大小写，先筛选后分页。不传时查询全部有效成员。', example='销售', position='Body'),
+  page?: long(name='page', description='页码，从1开始；请求省略时默认为1。', example='1', position='Body'),
+  pageSize?: long(name='pageSize', description='每页记录数，取值1至100；请求省略时默认为20。', example='20', position='Body'),
+  tenantId?: string(name='tenantId', description='业务租户ID，可选。必须属于当前调用身份的可访问租户；无权访问时拒绝请求。未传时按现有鉴权规则解析租户，多租户用户无法唯一确定时需显式指定。', example='10001', position='Query'),
+}
+
+model ListCollaborationGroupMembersResponseBody = {
+  code?: string(name='code', description='公共业务状态码，由后端Code字段映射；错误时用于识别失败原因。', example='ERR.Robject.Auth.TenantAccessDenied'),
+  items?: [ 
+    {
+      displayName?: string(name='displayName', description='成员显示名称；未设置时为空。', example='TEST001'),
+      isActive?: boolean(name='isActive', description='租户账号是否启用。本接口只返回有效且账号启用的成员，值为true；不代表HR在职状态。', example='true'),
+      role?: string(name='role', description='成员在空间内的角色：ADMIN为管理员，MEMBER为普通成员。', example='ADMIN'),
+      userId?: string(name='userId', description='平台用户ID，字符串形式，可用作转交待办的目标用户ID。', example='5'),
+    }
+  ](name='items', description='当前页记录列表；没有匹配记录时返回空数组。', example='[{"userId":"5","displayName":"张三","role":"OWNER","isActive":true}]'),
+  message?: string(name='message', description='公共错误说明，由后端Message字段映射；错误时描述失败原因。', example='无权访问租户 2147483647，用户不属于该租户'),
+  page?: long(name='page', description='当前返回页的页码，从1开始。', example='1'),
+  pageSize?: long(name='pageSize', description='当前分页设置的每页记录数。', example='20'),
+  requestId?: string(name='requestId', description='请求追踪ID，由后端RequestId字段映射，用于排查调用失败。', example='c9cf6cb3-3f5c-4994-a8a1-c93379a6f5cf'),
+  total?: long(name='total', description='满足查询条件的记录总数，不是当前页记录数。', example='10'),
+}
+
+model ListCollaborationGroupMembersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCollaborationGroupMembersResponseBody(name='body'),
+}
+
+/**
+  * @description 分页查询指定空间的有效成员，支持按成员显示名称搜索。调用者必须是当前租户内该空间的有效成员。isActive表示租户账号启用状态，不表示人事在职状态。
+  * @param request  the request parameters of ListCollaborationGroupMembers  ListCollaborationGroupMembersRequest
+  * @return ListCollaborationGroupMembersResponse
+ */
+async function listCollaborationGroupMembers(request: ListCollaborationGroupMembersRequest): ListCollaborationGroupMembersResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListCollaborationGroupMembers', 'POST', '/openapi/listCollaborationGroupMembers', 'json', true, 'form', request);
+}
+
+model ListCollaborationGroupsRequest {
+  keyword?: string(name='keyword', description='空间名称搜索关键词，可选，最长256字符；不传或去除首尾空白后为空时不按名称过滤。', example='工作流', position='Body'),
+  page?: long(name='page', description='页码，从1开始；请求省略时默认为1。', example='1', position='Body'),
+  pageSize?: long(name='pageSize', description='每页记录数，取值1至100；请求省略时默认为20。', example='20', position='Body'),
+  tenantId?: string(name='tenantId', description='业务租户ID，可选。必须属于当前调用身份的可访问租户；无权访问时拒绝请求。未传时按现有鉴权规则解析租户，多租户用户无法唯一确定时需显式指定。', example='10001', position='Query'),
+}
+
+model ListCollaborationGroupsResponseBody = {
+  code?: string(name='code', description='公共业务状态码，由后端Code字段映射；错误时用于识别失败原因。', example='ERR.Robject.Auth.TenantAccessDenied'),
+  items?: [ 
+    {
+      collaborationGroupId?: string(name='collaborationGroupId', description='协作空间ID，可用于查询空间成员、查询节点详情及预览对话文件。', example='cg_9401'),
+      currentUserRole?: string(name='currentUserRole', description='当前调用用户在空间内的角色：ADMIN为管理员，MEMBER为普通成员。', example='ADMIN'),
+      name?: string(name='name', description='协作空间显示名称。', example='工作流待办测试'),
+      status?: string(name='status', description='协作空间状态，当前接口只返回ACTIVE。', example='ACTIVE'),
+    }
+  ](name='items', description='当前页记录列表；没有匹配记录时返回空数组。', example='[{"collaborationGroupId":"cg_9401","name":"产品协作空间","status":"ACTIVE","currentUserRole":"OWNER"}]'),
+  message?: string(name='message', description='公共错误说明，由后端Message字段映射；错误时描述失败原因。', example='无权访问租户 2147483647，用户不属于该租户'),
+  page?: long(name='page', description='当前返回页的页码，从1开始。', example='1'),
+  pageSize?: long(name='pageSize', description='当前分页设置的每页记录数。', example='20'),
+  requestId?: string(name='requestId', description='请求追踪ID，由后端RequestId字段映射，用于排查调用失败。', example='c9cf6cb3-3f5c-4994-a8a1-c93379a6f5cf'),
+  total?: long(name='total', description='满足查询条件的有效空间总数，不是当前页记录数。', example='39'),
+}
+
+model ListCollaborationGroupsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCollaborationGroupsResponseBody(name='body'),
+}
+
+/**
+  * @description 分页查询当前调用用户在当前租户中有效加入的协作空间，支持按空间名称搜索。仅返回ACTIVE空间；需要关联平台用户的调用身份，不支持无用户身份的部署凭证。
+  * @param request  the request parameters of ListCollaborationGroups  ListCollaborationGroupsRequest
+  * @return ListCollaborationGroupsResponse
+ */
+async function listCollaborationGroups(request: ListCollaborationGroupsRequest): ListCollaborationGroupsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListCollaborationGroups', 'POST', '/openapi/listCollaborationGroups', 'json', true, 'form', request);
 }
 
 model ListGraphDraftResourcesRequest {
@@ -6333,7 +6691,7 @@ async function listGroupDirectory(request: ListGroupDirectoryRequest): ListGroup
 }
 
 model ListInstanceNodesRequest {
-  collaborationGroupId: string(name='collaborationGroupId', description='The collaboration workspace ID.
+  collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration workspace.
 
 This parameter is required.', example='group_example', position='Body'),
   instanceId: string(name='instanceId', description='The physical workflow instance ID (planId).
@@ -6343,27 +6701,27 @@ This parameter is required.', example='plan_example', position='Body'),
 }
 
 model ListInstanceNodesResponseBody = {
-  code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
-  instanceId?: string(name='instanceId', description='The physical instance ID.', example='plan_example'),
-  message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
+  code?: string(name='code', description='The business status code. The value 200 indicates success.', example='200'),
+  instanceId?: string(name='instanceId', description='The physical workflow instance ID (planId).', example='plan_example'),
+  message?: string(name='message', description='The error message.', example='The requested resource does not exist'),
   nodes?: [ 
     {
       conclusion?: string(name='conclusion', description='The conclusion of the node result. This field is empty if there is no conclusion.', example='Analysis completed'),
       duration?: long(name='duration', description='The total number of seconds from the first run to the desired state. This field is empty if the time is missing.', example='123'),
-      enteredAt?: string(name='enteredAt', description='The time when the node was first run. This field is empty for historical or unrun nodes.', example='2026-10-14T08:00:00Z'),
+      enteredAt?: string(name='enteredAt', description='The time when the node was first run. This field is empty for historical nodes or nodes that have not run.', example='2026-10-14T08:00:00Z'),
       finishedAt?: string(name='finishedAt', description='The time when the node actually entered the desired state. This field is empty if the node has not finished.', example='2026-10-14T08:02:03Z'),
-      handler?: string(name='handler', description='The display name of the node assignee. This field is empty if the assignee is unknown.', example='Assistant Customer Success Manager (CSM)'),
-      lane?: long(name='lane', description='The lane position of the node in the workflow graph.', example='0'),
-      nodeId?: string(name='nodeId', description='The key of the node (nodeKey). This is not the session ID.', example='query.amount'),
+      handler?: string(name='handler', description='The display name of the node assignee. This field is empty if the assignee is unknown.', example='Customer Success Manager (CSM) Assistant'),
+      lane?: long(name='lane', description='The lane of the node in the workflow graph.', example='0'),
+      nodeId?: string(name='nodeId', description='The visible nodes arranged in topological order. The number of nodes is determined by the actual dynamic graph.', example='query.amount'),
       nodeName?: string(name='nodeName', description='The display name of the node.', example='Query signed contract amount'),
       nodeOrder?: long(name='nodeOrder', description='The display sequence number of the node in the returned topology list, starting from 1.', example='3'),
       nodeType?: string(name='nodeType', description='The actual node type, such as AGENT or HUMAN.', example='AGENT'),
       rank?: long(name='rank', description='The level of the node in the workflow graph, starting from 0.', example='2'),
-      status?: string(name='status', description='The original running status of the node, such as READY, RUNNING, WAITING, SUCCEEDED, or FAILED.', example='RUNNING'),
-      waitType?: string(name='waitType', description='The reason for waiting, such as HUMAN_INPUT, HUMAN_STEP, REVIEW, MANUAL_PAUSE, or UNBLOCK. This field is empty if the node is not waiting.', example='REVIEW'),
+      status?: string(name='status', description='The original node running status, such as READY, RUNNING, WAITING, SUCCEEDED, or FAILED.', example='RUNNING'),
+      waitType?: string(name='waitType', description='The wait reason: HUMAN_INPUT, HUMAN_STEP, REVIEW, MANUAL_PAUSE, or UNBLOCK. This field is empty when the node is not waiting.', example='REVIEW'),
     }
   ](name='nodes', description='The visible nodes arranged in topological order. The number of nodes is determined by the actual dynamic graph.', example='[]'),
-  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  requestId?: string(name='requestId', description='The request trace ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   stateVersion?: long(name='stateVersion', description='The state version.', example='2'),
 }
 
@@ -6477,16 +6835,16 @@ async function listOperatingObjectFavorites(request: ListOperatingObjectFavorite
 }
 
 model ListOutputFilesRequest {
-  bizId?: string(name='bizId', description='The business ID used for exact filtering. The length is 1 to 128 characters. This value is derived from the businessId of the file registration or associated workflow instance.', example='REQ-20261012-001', position='Body'),
+  bizId?: string(name='bizId', description='The business ID used for exact filtering. The length is 1 to 128 characters. This ID is derived from file registrations or the businessId of associated workflow instances.', example='REQ-20261012-001', position='Body'),
   collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the collaboration workspace. The length is 1 to 64 characters. This parameter is optional. If not specified, the personal outputs of the current user are queried. If specified, the real-time permissions of the workspace members and source resources are verified.', example='cg_123e4567-e89b-42d3-a456-426614174001', position='Body'),
   itemType?: string(name='itemType', description='The output item type. Valid values: ppt, html, document, picture, slides, video, audio, email, and others.', example='document', position='Body'),
   keyword?: string(name='keyword', description='The keyword used to match the output title or detail name.', example='Quarterly operations', position='Body'),
-  operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee (operating object). Filters outputs by name.', example='Business Analysis Assistant', position='Body'),
+  operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee (operating object). Filters results by name.', example='Business Analysis Assistant', position='Body'),
   page?: long(name='page', description='The page number. Pages start from 1. Default value: 1.', example='1', position='Body'),
   pageSize?: long(name='pageSize', description='The number of items per page. Valid values: 1 to 100. Default value: 20.', example='20', position='Body'),
   sessionId?: string(name='sessionId', description='The session ID used for exact filtering. The length is 1 to 128 characters. This parameter applies to regular sessions, skill sessions, and the executionId of task executions.', example='session_123e4567-e89b-42d3-a456-426614174008', position='Body'),
-  sharedOnly?: boolean(name='sharedOnly', description='Specifies whether to display only shared outputs and output details.', example='False', position='Body'),
-  tags?: [ string ](name='tags', description='The tags used for exact filtering. All specified tags must be matched simultaneously. You can specify up to 20 tags. Each tag must be a non-empty string of 1 to 128 characters. Tags are derived from file registrations or the variables.tags of associated instances.', shrink='json', position='Body'),
+  sharedOnly?: boolean(name='sharedOnly', description='Specifies whether to display only the outputs and output details that have sharing enabled.', example='False', position='Body'),
+  tags?: [ string ](name='tags', description='The tags used for exact filtering. All specified tags must match simultaneously. You can specify up to 20 tags. Each tag must be a non-empty string of 1 to 128 characters. Tags are derived from file registrations or the variables.tags of associated instances.', shrink='json', position='Body'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used. The identity and tenant permissions are determined by the gateway and backend authentication.', example='10000', position='Query'),
 }
 
@@ -6495,56 +6853,56 @@ model ListOutputFilesResponseBody = {
   items?: [ 
     {
       conversationId?: string(name='conversationId', description='The conversation ID.', example='session_123e4567-e89b-42d3-a456-426614174008'),
-      gmtCreate?: string(name='gmtCreate', description='The creation time of the output or detail, serialized from a backend datetime value into an ISO 8601 string, with time zone information returned along with the original value.', example='2026-10-12T03:10:00+00:00'),
-      gmtModified?: string(name='gmtModified', description='The update time of the output or detail, serialized from a backend datetime value into an ISO 8601 string, with time zone information returned along with the original value.', example='2026-10-12T03:12:00+00:00'),
-      name?: string(name='name', description='The output name.', example='Quarterly business analysis report.pdf'),
-      operatingObjectName?: string(name='operatingObjectName', description='The name of the digital worker (operating object).', example='Business Analysis Assistant'),
+      gmtCreate?: string(name='gmtCreate', description='The creation time of the output or detail, serialized from a backend datetime value into an ISO 8601 string. The time zone information is returned with the original value.', example='2026-10-12T03:10:00+00:00'),
+      gmtModified?: string(name='gmtModified', description='The update time of the output or detail, serialized from a backend datetime value into an ISO 8601 string. The time zone information is returned with the original value.', example='2026-10-12T03:12:00+00:00'),
+      name?: string(name='name', description='The output name.', example='Quarterly Business Analysis Report.pdf'),
+      operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee (operating object).', example='Business Analysis Assistant'),
       outputId?: string(name='outputId', description='The output ID.', example='output_123e4567-e89b-42d3-a456-426614174009'),
       outputItems?: [ 
         {
-          createTime?: string(name='createTime', description='The creation time of the output detail, serialized from a backend datetime value into an ISO 8601 string, with time zone information returned along with the original value.', example='2026-10-12T03:10:00+00:00'),
+          createTime?: string(name='createTime', description='The creation time of the output detail, serialized from a backend datetime value into an ISO 8601 string. The time zone information is returned with the original value.', example='2026-10-12T03:10:00+00:00'),
           emailInfo?: {
-            body?: string(name='body', description='The email content.', example='The quarterly business report has been generated. Please review'),
+            body?: string(name='body', description='The email content.', example='The quarterly business report has been generated. Please check your inbox'),
             contentType?: string(name='contentType', description='The content type, such as MARKDOWN, JSONML, or HTML.', example='MARKDOWN'),
-            recipients?: [ string ](name='recipients', description='The recipient list.', example='["reader@example.com"]'),
-            subject?: string(name='subject', description='The email subject.', example='Quarterly business analysis report'),
-          }(name='emailInfo', description='The email information, present when the type is email.'),
+            recipients?: [ string ](name='recipients', description='The list of recipients.', example='["reader@example.com"]'),
+            subject?: string(name='subject', description='The email subject.', example='Quarterly Business Analysis Report'),
+          }(name='emailInfo', description='The email information. This field is present when the type is email.'),
           fileInfo?: {
             description?: string(name='description', description='The file description.', example='Quarterly revenue, cost, and trend analysis report'),
-            name?: string(name='name', description='The file name.', example='Quarterly business analysis report.pdf'),
-            path?: string(name='path', description='The file location. It is compatible with file URLs and legacy OSS object keys. The specific value is derived from the output registration information.', example='reports/2026/quarterly-report.pdf'),
+            name?: string(name='name', description='The file name.', example='Quarterly Business Analysis Report.pdf'),
+            path?: string(name='path', description='The file download link. For versioned files, it is bound to the published version and content revision at the time of query. The link has a time-to-live. If it expires, query the list again to obtain a new link.', example='https://winnexo.agentone.console.aliyun.com/api/v1/output-preview/demo_download_ticket/download'),
             type?: string(name='type', description='The file type, such as .pdf or .md.', example='.pdf'),
-          }(name='fileInfo', description='The file information, present when the type is file.'),
-          gmtCreate?: string(name='gmtCreate', description='The creation time of the output or detail, serialized from a backend datetime value into an ISO 8601 string, with time zone information returned along with the original value.', example='2026-10-12T03:10:00+00:00'),
-          gmtModified?: string(name='gmtModified', description='The update time of the output or detail, serialized from a backend datetime value into an ISO 8601 string, with time zone information returned along with the original value.', example='2026-10-12T03:12:00+00:00'),
-          itemName?: string(name='itemName', description='The output name.', example='Quarterly business analysis report.pdf'),
+          }(name='fileInfo', description='The file information. This field is present when the type is file.'),
+          gmtCreate?: string(name='gmtCreate', description='The creation time of the output or detail, serialized from a backend datetime value into an ISO 8601 string. The time zone information is returned with the original value.', example='2026-10-12T03:10:00+00:00'),
+          gmtModified?: string(name='gmtModified', description='The update time of the output or detail, serialized from a backend datetime value into an ISO 8601 string. The time zone information is returned with the original value.', example='2026-10-12T03:12:00+00:00'),
+          itemName?: string(name='itemName', description='The output name.', example='Quarterly Business Analysis Report.pdf'),
           itemType?: string(name='itemType', description='The output item type. Valid values: ppt, html, document, picture, slides, video, audio, email, and others.', example='document'),
           itemTypeDisplayName?: string(name='itemTypeDisplayName', description='The internationalized display name of the output detail type.', example='Document'),
           messageId?: string(name='messageId', description='The message ID.', example='msg_123e4567-e89b-42d3-a456-426614174012'),
           outputItemId?: string(name='outputItemId', description='The output detail ID.', example='item_123e4567-e89b-42d3-a456-426614174010'),
-          shareEnabled?: boolean(name='shareEnabled', description='Indicates whether sharing is enabled.', example='true'),
-          shareToken?: string(name='shareToken', description='The share token, present when sharing is enabled. You can use this token to access the public share preview API.', example='demo_public_preview_token'),
+          shareEnabled?: boolean(name='shareEnabled', description='Specifies whether sharing is enabled.', example='true'),
+          shareToken?: string(name='shareToken', description='The share token. This field is present when sharing is enabled. You can use this token to access the public share preview API.', example='demo_public_preview_token'),
           skillOutputId?: string(name='skillOutputId', description='The skill output ID.', example='skillout_123e4567-e89b-42d3-a456-426614174011'),
           slidesInfo?: {
             completedSlides?: long(name='completedSlides', description='The number of completed slides.', example='8'),
             pptId?: string(name='pptId', description='The PPT file ID.', example='ppt_123e4567-e89b-42d3-a456-426614174015'),
-            pptName?: string(name='pptName', description='The PPT name.', example='Quarterly Business Analysis Report'),
+            pptName?: string(name='pptName', description='The PPT name.', example='Quarterly Business Analysis Presentation'),
             totalSlides?: long(name='totalSlides', description='The total number of slides.', example='10'),
-          }(name='slidesInfo', description='The slide deck information, present when the type is slide deck.'),
+          }(name='slidesInfo', description='The slide deck information. This field is present when the type is slide deck.'),
           taskExecutionId?: string(name='taskExecutionId', description='The task execution ID.', example='execution_123e4567-e89b-42d3-a456-426614174013'),
         }
-      ](name='outputItems', description='The output detail list.'),
+      ](name='outputItems', description='The list of details under the current output main record. For versioned files, only the latest published version is returned, and historical versions are not expanded.'),
       outputType?: string(name='outputType', description='The output type: `conversation/skill/task`.', example='conversation'),
       outputTypeDisplayName?: string(name='outputTypeDisplayName', description='The localized display name of the output type.', example='Conversation output'),
       skillOutputId?: string(name='skillOutputId', description='The skill output ID.', example='skillout_123e4567-e89b-42d3-a456-426614174011'),
       taskId?: string(name='taskId', description='The task ID.', example='task_123e4567-e89b-42d3-a456-426614174014'),
     }
-  ](name='items', description='The output list.'),
+  ](name='items', description='The list of output main records on the current page. By default, the latest published version is returned for file details.'),
   message?: string(name='message', description='The message.', example='ok'),
-  page?: long(name='page', description='The current page number.', example='1'),
-  pageSize?: long(name='pageSize', description='The number of items per page.', example='20'),
+  page?: long(name='page', description='The current page number, starting from 1. Pagination is based on primary output records.', example='1'),
+  pageSize?: long(name='pageSize', description='The number of primary output records per page. Default value: 20. Valid values: 1 to 100.', example='20'),
   requestId?: string(name='requestId', description='The request ID.', example='123e4567-e89b-42d3-a456-426614174007'),
-  total?: long(name='total', description='The total number of matching outputs.', example='1'),
+  total?: long(name='total', description='The total number of primary output records that meet the filter conditions. The count is deduplicated by outputId and does not include the number of files or historical versions.', example='1'),
 }
 
 model ListOutputFilesResponse = {
@@ -6554,9 +6912,11 @@ model ListOutputFilesResponse = {
 }
 
 /**
-  * @description If collaborationGroupId is not provided, queries the personal outputs of the current invoker. If provided, queries the outputs of the specified collaboration workspace and verifies the real-time access permissions of the current workspace members and source resources. The invoker identity and tenant permissions are determined by the authentication context.
-  * sessionId requires an exact match for a regular session, skill session, or node execution session. tags requires all labels to match simultaneously. bizId requires an exact match for the business ID of the file registration or associated workflow instance. The new conditions are combined with the existing operatingObjectName, itemType, keyword, and sharedOnly conditions using AND, and are executed before counting and paging.
-  * Labels and business IDs are derived from file registrations or workflow instance associations. Unregistered labels or business IDs are not inferred from titles. Paging defaults to page 1 with 20 items per page, up to a maximum of 100 items, sorted in descending order by update time. The response structure remains compatible with the original API.
+  * @description If collaborationGroupId is not provided, queries the personal outputs of the current caller. If provided, queries the outputs of the specified collaboration workspace and verifies the real-time access permissions of the current workspace members and source resources. The caller identity and tenant permissions are determined by the authentication context.
+  * The sessionId parameter performs an exact match on a regular session, skill session, or node execution session. The tags parameter requires all specified labels to match simultaneously. The bizId parameter performs an exact match on the business ID of the file registration or associated workflow instance. The new conditions are combined with the existing operatingObjectName, itemType, keyword, and sharedOnly conditions using the AND operator, and are executed before counting and paging.
+  * Tags and business IDs are derived from file registrations or workflow instance associations. Unregistered tags or business IDs are not inferred from titles. Pagination defaults to page 1 with 20 items per page, up to a maximum of 100 items, sorted in descending order by update time. The response structure remains compatible with the original API.
+  * For versioned files, the latest published version is returned by default without expanding historical versions. This API does not currently support querying specific versions. Pagination and the total count are still based on the primary output records, deduplicated by outputId, and are not counted by the number of files or historical versions.
+  * For versioned files, fileInfo.path is a time-sensitive download link attached to the published version and content revisions selected during the query. Downloads do not perform an automatic switchover to other versions published later. Invoke this API again to obtain a new link after the current one expires. Historical files that have not yet formed a published version may not return download information.
   * @param request  the request parameters of ListOutputFiles  ListOutputFilesRequest
   * @return ListOutputFilesResponse
  */
@@ -7601,10 +7961,10 @@ async function listWorkflowTemplateVersions(request: ListWorkflowTemplateVersion
 model ListWorkflowTemplatesRequest {
   collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration space.
 
-This parameter is required.', example='group_example', minLength=1, maxLength=64, position='Body'),
-  keyword?: string(name='keyword', description='The keyword for fuzzy search in the template name or description.', example='example', maxLength=128, position='Body'),
+This parameter is required.', example='cg_9401', minLength=1, maxLength=64, position='Body'),
+  keyword?: string(name='keyword', description='The keyword for fuzzy search in the template name or description.', example='Weekly report', maxLength=128, position='Body'),
   maxResults?: long(name='maxResults', description='The maximum number of entries to return per page. Valid values: 1 to 100. This parameter takes precedence over pageSize if both are specified.', example='1', position='Body'),
-  nextToken?: string(name='nextToken', description='The pagination token. Obtain the token from the nextToken parameter in the previous response. This parameter takes precedence over page if both are specified.', example='example', maxLength=256, position='Body'),
+  nextToken?: string(name='nextToken', description='The pagination token. Obtain the token from the nextToken parameter in the previous response. This parameter takes precedence over page if both are specified.', example='tok_9401', maxLength=256, position='Body'),
   page?: long(name='page', description='The page number. This parameter is ignored if nextToken is specified.', example='1', position='Body'),
   pageSize?: long(name='pageSize', description='The number of entries per page. Valid values: 1 to 100.', example='10', position='Body'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
@@ -7612,30 +7972,30 @@ This parameter is required.', example='group_example', minLength=1, maxLength=64
 
 model ListWorkflowTemplatesResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
-  hasMore?: boolean(name='hasMore', description='Indicates whether more data is available.', example='false'),
+  hasMore?: boolean(name='hasMore', description='Indicates whether more data exists.', example='false'),
   items?: [ 
     {
-      description?: string(name='description', description='The description of the template.', example='example'),
+      description?: string(name='description', description='The description of the template.', example='Standard process for handling customer complaints'),
       effectiveVersion?: string(name='effectiveVersion', description='The current effective version number. An empty value indicates that only a draft exists and the template cannot be used for work items.', example='v1'),
-      gmtModified?: string(name='gmtModified', description='The time when the template was last modified. The time is in the ISO 8601 standard.', example='example'),
+      gmtModified?: string(name='gmtModified', description='The time of the last modification. The time follows the ISO 8601 standard.', example='2026-11-05T08:00:00Z'),
       latestVersion?: string(name='latestVersion', description='The latest version number.', example='v2'),
       latestVersionStatus?: string(name='latestVersionStatus', description='The status of the latest version. Valid values:
-- DRAFT: Draft. The version contains uncommitted edits.
+- DRAFT: Draft. Unsubmitted edits exist.
 - SUBMITTED: Submitted.', example='DRAFT'),
-      name?: string(name='name', description='The name of the template.', example='example'),
-      ownerCount?: long(name='ownerCount', description='The number of unique owners.', example='1'),
+      name?: string(name='name', description='The name of the template.', example='Customer complaint handling process'),
+      ownerCount?: long(name='ownerCount', description='The number of owners.', example='1'),
       reviewStepCount?: long(name='reviewStepCount', description='The number of steps configured with reviewers.', example='1'),
       stepCount?: long(name='stepCount', description='The number of steps.', example='1'),
-      templateId?: string(name='templateId', description='The ID of the template.', example='example'),
+      templateId?: string(name='templateId', description='The ID of the template.', example='tpl_9401'),
     }
-  ](name='items', description='The list of template summaries on the current page.', example='example'),
-  maxResults?: long(name='maxResults', description='The maximum number of entries returned per page in the current request.', example='1'),
+  ](name='items', description='The list of template summaries on the current page.', example='[{\\\\"id\\\\":\\\\"item_9401\\\\"}]'),
+  maxResults?: long(name='maxResults', description='The effective maximum number of entries to return per page for the current request.', example='1'),
   message?: string(name='message', description='The error message.', example='The requested resource does not exist'),
-  nextToken?: string(name='nextToken', description='The pagination token for the next page. An empty string indicates that no more data is available.', example='example'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page. An empty string indicates that no more data exists.', example='tok_9401'),
   page?: long(name='page', description='The current page number.', example='1'),
-  pageSize?: long(name='pageSize', description='The number of entries per page in the current request.', example='1'),
-  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
-  total?: long(name='total', description='The total number of visible entries that match the filter conditions.', example='1'),
+  pageSize?: long(name='pageSize', description='The effective number of entries per page.', example='1'),
+  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  total?: long(name='total', description='The total number of visible items under the filter conditions.', example='1'),
 }
 
 model ListWorkflowTemplatesResponse = {
@@ -7645,7 +8005,7 @@ model ListWorkflowTemplatesResponse = {
 }
 
 /**
-  * @description Searches for valid templates in the current collaboration space with pagination. Supports both page/pageSize and nextToken/maxResults parameters, with token-based pagination taking precedence.
+  * @description Queries valid templates in the current collaboration space with pagination. If both page/pageSize and nextToken/maxResults are specified, the token takes precedence.
   * @param request  the request parameters of ListWorkflowTemplates  ListWorkflowTemplatesRequest
   * @return ListWorkflowTemplatesResponse
  */
@@ -7655,15 +8015,15 @@ async function listWorkflowTemplates(request: ListWorkflowTemplatesRequest): Lis
 }
 
 model MarkTodosReadRequest {
-  markAllRead?: boolean(name='markAllRead', description='Specifies whether to mark all to-do items as read. This parameter takes precedence over the todoIds parameter.', example='false', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If this parameter is not specified, the default tenant of the caller is used.', example='10000', position='Query'),
-  todoIds?: [ string ](name='todoIds', description='The list of to-do item IDs. You can specify up to 100 IDs. This parameter is ignored if markAllRead is set to true.', example='todo_abc123', shrink='json', position='Body'),
+  markAllRead?: boolean(name='markAllRead', description='Specifies whether to mark all to-do items as read. This parameter takes precedence over todoIds.', example='false', position='Body'),
+  tenantId?: string(name='tenantId', description='The list of to-do item IDs. A maximum of 100 IDs can be specified. This parameter is ignored when markAllRead is set to true.', example='10000', position='Query'),
+  todoIds?: [ string ](name='todoIds', description='The list of to-do item IDs. A maximum of 100 IDs can be specified. This parameter is ignored when markAllRead is set to true.', example='todo_abc123', shrink='json', position='Body'),
 }
 
 model MarkTodosReadResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The error message.', example='The requested resource does not exist'),
-  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
+  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   unreadCount?: long(name='unreadCount', description='The number of unread to-do items remaining after the operation.', example='0'),
   updatedCount?: long(name='updatedCount', description='The number of to-do items marked as read in this request.', example='2'),
 }
@@ -7675,7 +8035,7 @@ model MarkTodosReadResponse = {
 }
 
 /**
-  * @description Marks the to-do items of the current user as read. The markAllRead parameter takes precedence over the todoIds parameter. If both parameters are empty, no error is returned.
+  * @description Marks the to-do items of the current user as read. The markAllRead parameter takes precedence over todoIds. No error is reported if both are empty.
   * @param request  the request parameters of MarkTodosRead  MarkTodosReadRequest
   * @return MarkTodosReadResponse
  */
@@ -8434,7 +8794,7 @@ async function recommendNextActions(request: RecommendNextActionsRequest): Recom
 model RegisterAppResourcePermissionsRequest {
   items: [ 
     {
-      expireAt?: string(name='expireAt', description='The expiration time with the time zone. If not specified, the permissions never expire.', example='2026-12-31T23:59:59+08:00'),
+      expireAt?: string(name='expireAt', description='The expiration time with a time zone. If omitted, the permissions never expire.', example='2026-12-31T23:59:59+08:00'),
       grantees: [ 
         {
           granteeId?: string(name='granteeId', description='The principal ID. Omit this parameter for ALL_USERS.', example='10086'),
@@ -8449,40 +8809,40 @@ This parameter is required.'),
       permissions: [ string ](name='permissions', description='The granted permissions.
 
 This parameter is required.'),
-      resourceKey: string(name='resourceKey', description='The dot-separated resource key, where the first segment is the APP application key.
+      resourceKey: string(name='resourceKey', description='The dot-separated resource key with the first segment as the APP application key.
 
 This parameter is required.', example='app.demo.resource_1'),
-      resourceType: string(name='resourceType', description='The resource type. Set the value to APP_RESOURCE.
+      resourceType: string(name='resourceType', description='The resource type. Fixed to APP_RESOURCE.
 
 This parameter is required.', example='APP_RESOURCE'),
     }
-  ](name='items', description='The batch authorization items.
+  ](name='items', description='The batch authorization item.
 
 This parameter is required.', shrink='json', position='Body'),
-  resourceTenantId?: string(name='resourceTenantId', description='The ID of the tenant to which the resource belongs. If not specified, the current tenant of the caller is used.', example='10000', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
+  resourceTenantId?: string(name='resourceTenantId', description='The batch authorization item.', example='10000', position='Body'),
+  tenantId?: string(name='tenantId', description='The ID of the tenant to which the resource belongs. If omitted, the current tenant of the caller is used.', example='10000', position='Query'),
 }
 
 model RegisterAppResourcePermissionsResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The error message. This parameter is empty if the request is successful.', example='The requested resource does not exist'),
+  message?: string(name='message', description='The error description. Empty if the request is successful.', example='The requested resource does not exist'),
   records?: [ 
     {
       createdAt?: string(name='createdAt', description='The creation time.', example='2026-10-16T10:30:00+08:00'),
-      expireAt?: string(name='expireAt', description='The expiration time.', example='2026-12-31T23:59:59+08:00'),
+      expireAt?: string(name='expireAt', description='The expiration time with a time zone. If omitted, the permissions never expire.', example='2026-12-31T23:59:59+08:00'),
       grantedBy?: string(name='grantedBy', description='The platform user ID of the grantor.', example='10086'),
-      granteeId?: string(name='granteeId', description='The principal ID.', example='10086'),
+      granteeId?: string(name='granteeId', description='The principal ID. Omit this parameter for ALL_USERS.', example='10086'),
       granteeName?: string(name='granteeName', description='The principal name.', example='Zhang San'),
       granteeTenantId?: string(name='granteeTenantId', description='The tenant to which the cross-tenant USER belongs.', example='10000'),
       granteeType?: string(name='granteeType', description='The principal type.', example='USER'),
       permission?: string(name='permission', description='The permission.', example='APP/VIEW'),
       permissionId?: long(name='permissionId', description='The permission record ID.', example='1001'),
-      resourceKey?: string(name='resourceKey', description='The resource key.', example='app.demo.resource_1'),
-      resourceType?: string(name='resourceType', description='The resource type.', example='APP_RESOURCE'),
+      resourceKey?: string(name='resourceKey', description='The dot-separated resource key with the first segment as the APP application key.', example='app.demo.resource_1'),
+      resourceType?: string(name='resourceType', description='The resource type. Fixed to APP_RESOURCE.', example='APP_RESOURCE'),
       updatedAt?: string(name='updatedAt', description='The update time.', example='2026-10-16T10:30:00+08:00'),
     }
-  ](name='records', description='The newly created or idempotently matched permission records.'),
-  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  ](name='records', description='The created or idempotently matched permission records.'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
 }
 
 model RegisterAppResourcePermissionsResponse = {
@@ -8492,7 +8852,7 @@ model RegisterAppResourcePermissionsResponse = {
 }
 
 /**
-  * @description Checks the MANAGE permission for all applications first, and then performs an atomic batch registration.
+  * @description Checks the MANAGE permissions for all applications and then performs an atomic batch registration.
   * @param request  the request parameters of RegisterAppResourcePermissions  RegisterAppResourcePermissionsRequest
   * @return RegisterAppResourcePermissionsResponse
  */
@@ -9019,6 +9379,46 @@ async function rerunNodeAI(request: RerunNodeAIRequest): RerunNodeAIResponse {
   return @handler.do('RESTFUL', 'RerunNodeAI', 'POST', '/openapi/rerunNodeAI', 'json', true, 'form', request);
 }
 
+model RerunWorkflowNodeRequest {
+  collaborationGroupId: string(name='collaborationGroupId', description='协作空间ID
+
+This parameter is required.', example='cg_9401', minLength=1, position='Body'),
+  nodeKey: string(name='nodeKey', description='重跑起始节点 key，包含固定规划节点和业务执行节点
+
+This parameter is required.', example='query.amount', minLength=1, position='Body'),
+  planId: string(name='planId', description='工作项当前物理计划ID
+
+This parameter is required.', example='plan_v3', minLength=1, position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID，缺省使用调用方默认租户', example='10000', position='Query'),
+}
+
+model RerunWorkflowNodeResponseBody = {
+  affectedNodeKeys?: [ string ](name='affectedNodeKeys', description='本次重跑影响的节点 key 列表，供调用方刷新；成功响应恒包含，错误响应可缺省', example='["query.amount"]'),
+  code?: string(name='code', description='业务状态码；成功为200', example='200'),
+  message?: string(name='message', description='错误描述', example='请求的资源不存在'),
+  planId?: string(name='planId', description='重跑后的当前物理计划ID；固定规划节点重跑可能生成新计划，后续查询应使用此值', example='plan_new'),
+  requestId?: string(name='requestId', description='请求追踪ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  revision?: long(name='revision', description='重跑后的当前计划修订号', example='2'),
+  runId?: string(name='runId', description='当前工作流运行ID，固定节点生成新 revision 时保持不变', example='run_20261105_01'),
+  stateVersion?: long(name='stateVersion', description='重跑被接受后的工作流状态版本', example='8'),
+}
+
+model RerunWorkflowNodeResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RerunWorkflowNodeResponseBody(name='body'),
+}
+
+/**
+  * @description 从工作项指定节点重跑；沿用业务权限和状态校验，命令接受不代表异步执行完成
+  * @param request  the request parameters of RerunWorkflowNode  RerunWorkflowNodeRequest
+  * @return RerunWorkflowNodeResponse
+ */
+async function rerunWorkflowNode(request: RerunWorkflowNodeRequest): RerunWorkflowNodeResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'RerunWorkflowNode', 'POST', '/openapi/rerunWorkflowNode', 'json', true, 'form', request);
+}
+
 model ResetPasswordRequest {
   passwordEncrypted: string(name='passwordEncrypted', description='The base64-encoded password ciphertext encrypted with RSA-OAEP-SHA256. This parameter is required and cannot be empty.
 
@@ -9095,6 +9495,70 @@ model ResetTokenResponse = {
 async function resetToken(request: ResetTokenRequest): ResetTokenResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ResetToken', 'POST', '/openapi/resetToken', 'json', true, 'form', request);
+}
+
+model ResetWorkflowNodeConfigurationRequest {
+  collaborationGroupId: string(name='collaborationGroupId', description='协作空间ID
+
+This parameter is required.', example='cg_9401', position='Body'),
+  expectedVersion: long(name='expectedVersion', description='读取接口返回的configVersion；非负整数；版本冲突须刷新
+
+This parameter is required.', example='3', position='Body'),
+  instanceId: string(name='instanceId', description='当前物理计划ID（planId）
+
+This parameter is required.', example='inst_2081', position='Body'),
+  nodeId: string(name='nodeId', description='业务节点key（nodeKey）
+
+This parameter is required.', example='node_7f3a2c', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID；缺省使用调用方默认租户', example='10000', position='Query'),
+}
+
+model ResetWorkflowNodeConfigurationResponseBody = {
+  canEdit?: boolean(name='canEdit', description='当前用户是否可编辑此节点', example='true'),
+  code?: string(name='code', description='公共业务状态码', example='200'),
+  configVersion?: long(name='configVersion', description='配置版本；更新或恢复时作为expectedVersion', example='3'),
+  defaultExecutor?: {
+    id?: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称', example='agent_1001'),
+    type?: string(name='type', description='USER 真人、AGENT 数字员工或历史 SYSTEM 系统执行人；SYSTEM仅用于响应', example='AGENT'),
+  }(name='defaultExecutor', description='模板默认执行主体', example='{"type":"AGENT","id":"agent_1001"}'),
+  defaultModel?: string(name='defaultModel', description='模板默认模型运行档', example='qwen-max'),
+  defaultResponsibleUserIds?: [ string ](name='defaultResponsibleUserIds', description='模板默认负责人用户ID列表', example='[10001]'),
+  effectiveExecutor?: {
+    id?: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称', example='agent_1001'),
+    type?: string(name='type', description='USER 真人、AGENT 数字员工或历史 SYSTEM 系统执行人；SYSTEM仅用于响应', example='AGENT'),
+  }(name='effectiveExecutor', description='当前生效的执行主体', example='{"type":"AGENT","id":"agent_1001"}'),
+  effectiveModel?: string(name='effectiveModel', description='当前生效的模型运行档', example='qwen-max-plus'),
+  effectiveResponsibleUserIds?: [ string ](name='effectiveResponsibleUserIds', description='当前生效的负责人用户ID列表', example='[10001]'),
+  instanceId?: string(name='instanceId', description='当前物理计划ID', example='inst_2081'),
+  message?: string(name='message', description='公共错误描述', example='请求的资源不存在'),
+  nodeId?: string(name='nodeId', description='业务节点key', example='node_7f3a2c'),
+  overrides?: {
+    executor?: {
+      id?: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称', example='agent_1001'),
+      type?: string(name='type', description='USER 真人、AGENT 数字员工或历史 SYSTEM 系统执行人；SYSTEM仅用于响应', example='AGENT'),
+    }(name='executor', description='覆盖执行主体；null为默认', example='{"type":"AGENT","id":"agent_1001"}'),
+    model?: string(name='model', description='覆盖模型运行档；null为默认', example='qwen-max'),
+    responsibleUserIds?: [ long ](name='responsibleUserIds', description='覆盖负责人ID列表；null为默认', example='[10001]'),
+  }(name='overrides', description='实例覆盖值；字段为null时使用模板默认值', example='{"model":"qwen-max-plus"}'),
+  requestId?: string(name='requestId', description='请求追踪ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  stateVersion?: long(name='stateVersion', description='状态刷新游标，不能作为配置版本', example='8'),
+  updatedAt?: string(name='updatedAt', description='最后配置更新时间ISO8601；从未更新时为空', example='2026-11-05T08:00:00Z'),
+  updatedBy?: long(name='updatedBy', description='最后更新配置的平台用户ID；从未更新时为空', example='10001'),
+}
+
+model ResetWorkflowNodeConfigurationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ResetWorkflowNodeConfigurationResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ResetWorkflowNodeConfiguration  ResetWorkflowNodeConfigurationRequest
+  * @return ResetWorkflowNodeConfigurationResponse
+ */
+async function resetWorkflowNodeConfiguration(request: ResetWorkflowNodeConfigurationRequest): ResetWorkflowNodeConfigurationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ResetWorkflowNodeConfiguration', 'POST', '/openapi/resetWorkflowNodeConfiguration', 'json', true, 'form', request);
 }
 
 model ResolveWorkItemArtifactAccessRequest {
@@ -9922,13 +10386,13 @@ async function sendAsyncChatMessage(request: SendAsyncChatMessageRequest): SendA
 }
 
 model SendChatMessageRequest {
-  content: string(name='content', description='The message body from the user.
+  content: string(name='content', description='The body of the user message.
 
 This parameter is required.', example='Sample content', minLength=1, position='Body'),
   contentType?: string(name='contentType', description='The message type. Valid values: Text and Markdown.', example='Text', position='Body'),
-  digitalEmployeeName?: [ string ](name='digitalEmployeeName', description='The list of digital employee names. A single string can be passed for backward compatibility with the legacy format.', example='string_value', shrink='json', position='Body'),
-  directChat?: boolean(name='directChat', description='Specifies whether to enable direct connection mode. If set to true, the standard scenario routing is skipped and the direct conversation scenario is entered directly.', example='false', position='Body'),
-  enableWebSearch?: boolean(name='enableWebSearch', description='Specifies whether to enable web search. Default value: False. In task execution scenarios (when taskExecution is provided), the task configuration takes precedence.', example='false', position='Body'),
+  digitalEmployeeName?: [ string ](name='digitalEmployeeName', description='The list of digital employee names. For compatibility with the legacy format, a single string can be passed.', example='string_value', shrink='json', position='Body'),
+  directChat?: boolean(name='directChat', description='Specifies whether to enable the direct connection mode. If this parameter is set to true, the regular scenario routing is skipped and the direct connection conversation scenario is directly entered.', example='false', position='Body'),
+  enableWebSearch?: boolean(name='enableWebSearch', description='Specifies whether to enable web search. Default value: false. In the task execution scenario where taskExecution is passed, the task configuration prevails.', example='false', position='Body'),
   files?: [ 
     {
       fileId: string(name='fileId', description='The file ID.
@@ -9936,9 +10400,9 @@ This parameter is required.', example='Sample content', minLength=1, position='B
 This parameter is required.', example='exampleFileId'),
       type?: string(name='type', description='The element type. Valid values: text, web_search, mention, and skill.', example='text'),
     }
-  ](name='files', description='The list of file references. Each item is an object, and fileId is required (returned by uploadChatFile).', shrink='json', position='Body'),
-  model?: string(name='model', description='The abstract model tier. Valid values: quick, standard, and flagship. If not specified, new sessions use standard, and existing sessions retain the current session tier.', example='quick', position='Body'),
-  reuseLastSession?: boolean(name='reuseLastSession', description='Specifies whether to reuse the most recent session of the digital employee when sessionId is not provided (CLI scenario). Default value: false, which creates a new session.', example='false', position='Body'),
+  ](name='files', description='The list of file references. Each item is an object, and the fileId parameter is required, which is returned by uploadChatFile.', shrink='json', position='Body'),
+  model?: string(name='model', description='The abstract model tier. Valid values: quick, standard, and flagship. If this parameter is not specified, standard is used for new sessions, and the current tier is used for existing sessions.', example='quick', position='Body'),
+  reuseLastSession?: boolean(name='reuseLastSession', description='Specifies whether to reuse the most recent session under the digital employee when sessionId is not passed, which applies to CLI scenarios. Default value: false, which indicates that a new session is created.', example='false', position='Body'),
   sessionId?: string(name='sessionId', description='The session ID.', example='exampleSessionId', position='Body'),
   stream?: boolean(name='stream', description='Specifies whether to enable streaming output.', example='true', position='Body'),
   taskExecution?: {
@@ -9947,38 +10411,28 @@ This parameter is required.', example='exampleFileId'),
     executionId: string(name='executionId', description='The execution record ID.
 
 This parameter is required.', example='exampleExecutionId'),
-    operatingObjectName?: string(name='operatingObjectName', description='The digital employee name.', example='string_value'),
+    operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee.', example='string_value'),
     skillCodes?: [ string ](name='skillCodes', description='The list of associated skill codes.', example='string_value'),
     taskId: string(name='taskId', description='The task ID.
 
 This parameter is required.', example='exampleTaskId'),
     taskName?: string(name='taskName', description='The task name.', example='string_value'),
     taskUnderstand?: string(name='taskUnderstand', description='The task understanding content.', example='string_value'),
-    tenantId?: string(name='tenantId', description='The tenant ID to which the task belongs.', example='10000'),
-    userId?: string(name='userId', description='The user ID to which the task belongs.', example='exampleUserId'),
-  }(name='taskExecution', description='The task execution metadata returned by executeScheduledTask. When provided, the request is processed through the task execution pipeline.', shrink='json', position='Body'),
+    tenantId?: string(name='tenantId', description='The ID of the tenant to which the task belongs.', example='10000'),
+    userId?: string(name='userId', description='The ID of the user to which the task belongs.', example='exampleUserId'),
+  }(name='taskExecution', description='The task execution metadata returned by executeScheduledTask. If this parameter is passed, the request is processed according to the task execution link.', shrink='json', position='Body'),
   tenantId?: string(name='tenantId', description='The effective tenant ID.', example='10000', position='Query'),
-  workMode?: string(name='workMode', description='The session work mode. Valid values:
-- ask: Quick Q&A. Tools, skills, and connectors are trimmed, and single-turn direct answers are provided.
-- work: Deep work. This is the default value.
-- direct: Direct connection mode (request-level). The sandbox is not started and no context pollution occurs. This is equivalent to directChat=true.
-
-The ask and work modes are session-level: the mode is selected and fixed when a session is created. By default, follow-up messages inherit the session mode. If an explicitly provided value is inconsistent with the session mode, a parameter error is returned. To switch modes, create a new session or fork the existing one. In multi-digital-employee or task execution scenarios, if ask is provided, work takes effect instead. When directChat=true, this parameter is ignored.', example='work', position='Body'),
+  workMode?: string(name='workMode', description='The session work mode. Valid values: ask (quick Q&A, which trims tools, skills, and connectors for single-turn direct answers), work (deep work, which is the default value), and direct (direct connection mode at the request level, which does not start the sandbox and prevents context pollution, equivalent to directChat=true). The ask and work modes are at the session level. The mode is fixed when a new session is created. Subsequent chats inherit the session mode by default. If the explicitly passed value is inconsistent with the session mode, a parameter error is returned. To switch the mode, create a new session or fork the session. If ask is passed in the multi-digital employee or task execution scenario, it takes effect as work. If directChat is set to true, this parameter is ignored.', example='work', position='Body'),
 }
 
 model SendChatMessageResponseBody = {
   code?: string(name='code', description='The error code.', example='200', deprecated='true'),
   content?: string(name='content', description='The streaming response content.', example='yes，i\\\\"m ready'),
-  data?: any(name='data', description='The SSE event stream payload. On success, the response is a text/event-stream raw frame that must be consumed frame by frame in streaming mode.', example='{}'),
+  data?: any(name='data', description='The Server-Sent Events (SSE) event stream payload. If the request is successful, the response is the raw frame of text/event-stream, which must be consumed frame by frame in a streaming manner.', example='{}'),
   message?: string(name='message', description='The status code description.', example='successful', deprecated='true'),
   requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D', deprecated='true'),
   type?: string(name='type', description='The event type.', example='think'),
-  workMode?: string(name='workMode', description='The session work mode that takes effect for the current turn. Valid values:
-- ask: Quick Q&A.
-- work: Deep work.
-- direct: Direct connection (request-level).
-
-In multi-digital-employee or task execution scenarios, if ask is provided, work takes effect instead.', example='work'),
+  workMode?: string(name='workMode', description='The session work mode. Valid values: ask (quick Q&A, which trims tools, skills, and connectors for single-turn direct answers), work (deep work, which is the default value), and direct (direct connection mode at the request level, which does not start the sandbox and prevents context pollution, equivalent to directChat=true). The ask and work modes are at the session level. The mode is fixed when a new session is created. Subsequent chats inherit the session mode by default. If the explicitly passed value is inconsistent with the session mode, a parameter error is returned. To switch the mode, create a new session or fork the session. If ask is passed in the multi-digital employee or task execution scenario, it takes effect as work. If directChat is set to true, this parameter is ignored.', example='work'),
 }
 
 model SendChatMessageResponse = {
@@ -9988,12 +10442,12 @@ model SendChatMessageResponse = {
 }
 
 /**
-  * @description ## Operation description
-  * - This API is used to upload a file to the "My Resources" section of a specified digital employee.
-  * - `source_type` is fixed to `FILE`, `scope` is fixed to `PERSONAL`, and `platform` is fixed to `LOCAL`.
-  * - You must provide an OSS persistent address (`filePath`) for the file. Other information such as the public access URL and original file name is optional.
-  * - If you do not specify a target folder ID (`directoryId`), the file is automatically attached to the default root folder of the current digital employee. If you specify a folder ID, make sure the folder belongs to the invoker\\"s personal folder.
-  * - Multiple authentication methods (AK, BearerToken, and APP) are supported for security authentication.
+  * @description ## Request description
+  * - This API is used to upload a file to My Resources of a specified digital employee.
+  * - The source_type is fixed to FILE, the scope is fixed to PERSONAL, and the platform is fixed to LOCAL.
+  * - The file must be provided with an OSS persistence address (filePath). Other information, such as the public access URL and original file name, is optional.
+  * - If the destination folder ID (directoryId) is not specified, the file is automatically attached to the default root folder of the current digital employee. If it is specified, ensure that the folder belongs to the personal folder of the invoker.
+  * - Multiple methods to authenticate (such as AK, BearerToken, and APP) are supported for security authentication.
   * - The operation type is write, and operation logs are recorded for subsequent auditing.
   * @param request  the request parameters of SendChatMessage  SendChatMessageRequest
   * @return SendChatMessageResponse
@@ -10011,6 +10465,44 @@ async function sendChatMessageWithAsyncResponseHandler(request: SendChatMessageR
 function sendChatMessageWithResponseIterable(request: SendChatMessageRequest): iterator[SendChatMessageResponseBody] {
   @handler.validateRequestModel(request);
   yield @handler.doSSERequest('SSE', 'SendChatMessage', 'POST', '/openapi/sendChatMessage', 'json', true, 'form', request);
+}
+
+model SendWorkItemMessageRequest {
+  collaborationGroupId: string(name='collaborationGroupId', description='目标会话所属的协作空间ID，必填，长度1至64，不能为空白。调用者须具有目标话题的查看和发送权限。
+
+This parameter is required.', example='cg_9401', position='Body'),
+  content: string(name='content', description='用户发送的文本正文，必填，长度1至32768，不能全为空白；保留原有文本格式。
+
+This parameter is required.', example='请根据刚才的讨论整理下一步行动清单。', position='Body'),
+  conversationId?: string(name='conversationId', description='已有自由探索话题的会话ID，长度1至128，可使用创建自由探索接口返回的conversation_id。与workItemId至少传一个，同时传入时须指向同一会话。', example='01234567-89ab-4def-8123-456789abcdef', position='Body'),
+  tenantId?: string(name='tenantId', description='业务租户ID，可选。必须属于当前调用身份的可访问租户；无权访问时拒绝请求。未传时按现有鉴权规则解析租户，多租户用户无法唯一确定时需显式指定。', example='10001', position='Query'),
+  workItemId?: string(name='workItemId', description='自由探索工作项ID，长度1至256；兼容legacy-topic:<conversationId>形式。与conversationId至少传一个，同时传入时须指向同一会话。普通工作项必须为FREE_EXPLORATION类型。', example='wi_0123456789abcdef0123456789abcdef', position='Body'),
+}
+
+model SendWorkItemMessageResponseBody = {
+  code?: string(name='code', description='公共业务状态码；成功为200，失败为后端错误码。', example='200'),
+  message?: string(name='message', description='公共状态说明；成功时为success，失败时描述具体原因。', example='success'),
+  messageId?: string(name='messageId', description='本轮助手消息ID；回复在后台异步生成，取得该ID不表示AI已开始或已完成回复。', example='23456789-abcd-4ef0-8123-456789abcdef'),
+  requestId?: string(name='requestId', description='请求追踪ID，可用于定位本次调用及排查失败原因。', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  sessionId?: string(name='sessionId', description='本次消息发送到的已有话题会话ID，不是新建会话ID。', example='01234567-89ab-4def-8123-456789abcdef'),
+  userMessageId?: string(name='userMessageId', description='本次提交的用户消息ID。', example='12345678-9abc-4def-8123-456789abcdef'),
+  workItemId?: string(name='workItemId', description='请求传入的工作项ID；仅传conversationId时返回legacy-topic:<conversationId>形式的兼容ID。', example='wi_0123456789abcdef0123456789abcdef'),
+}
+
+model SendWorkItemMessageResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SendWorkItemMessageResponseBody(name='body'),
+}
+
+/**
+  * @description 向当前租户、指定协作空间内的已有自由探索会话发送文本消息，立即返回消息提交回执，AI回复在后台异步生成。调用者需关联平台用户并具有话题发送权限。workItemId与conversationId至少传一个，同时传入时必须指向同一会话。不创建新会话，不支持工作流节点话题或Master话题。
+  * @param request  the request parameters of SendWorkItemMessage  SendWorkItemMessageRequest
+  * @return SendWorkItemMessageResponse
+ */
+async function sendWorkItemMessage(request: SendWorkItemMessageRequest): SendWorkItemMessageResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'SendWorkItemMessage', 'POST', '/openapi/sendWorkItemMessage', 'json', true, 'form', request);
 }
 
 model SetWorkItemPinnedRequest {
@@ -10104,47 +10596,51 @@ async function setWorkItemPinned(request: SetWorkItemPinnedRequest): SetWorkItem
 }
 
 model SetWorkflowTemplateEffectiveVersionRequest {
-  collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration workspace.
+  collaborationGroupId: string(name='collaborationGroupId', description='The collaboration workspace ID.
 
-This parameter is required.', example='group_example', minLength=1, maxLength=64, position='Body'),
-  templateId: string(name='templateId', description='The ID of the template.
+This parameter is required.', example='cg_9401', minLength=1, maxLength=64, position='Body'),
+  templateId: string(name='templateId', description='The template ID.
 
-This parameter is required.', example='tpl_example', minLength=1, maxLength=64, position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If this parameter is not specified, the default tenant of the caller is used.', example='10000', position='Query'),
-  version: string(name='version', description='The submitted template version number to be set as effective. The format is a lowercase v followed by a positive integer, such as v1.
+This parameter is required.', example='tpl_9401', minLength=1, maxLength=64, position='Body'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
+  version: string(name='version', description='The version number of the returned content.
 
 This parameter is required.', example='v1', position='Body'),
 }
 
 model SetWorkflowTemplateEffectiveVersionResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
-  createdByUserId?: long(name='createdByUserId', description='The user ID of the creator.', example='1'),
-  description?: string(name='description', description='The description of the template.', example='example'),
-  effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and the template cannot be used for work items.', example='v1'),
-  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='example'),
-  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='example'),
+  createdByUserId?: long(name='createdByUserId', description='The user ID of the creator.', example='10001'),
+  description?: string(name='description', description='The template description.', example='Standard process for handling customer complaints'),
+  edges?: [  map[string]any ](name='edges', description='节点依赖边；每项包含from/to，引用稳定stepId', example='[]'),
+  effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and it cannot be used for work items.', example='v1'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  layout?: map[string]any(name='layout', description='可选画布布局，按stepId索引；只影响展示，不决定依赖', example='{"collect":{"x":0,"y":0},"review":{"x":240,"y":0}}'),
   message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
-  name?: string(name='name', description='The name of the template.', example='example'),
+  name?: string(name='name', description='The step name. This field can be empty for drafts but is required upon submission.', example='Customer complaint handling process'),
   requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  schemaVersion?: long(name='schemaVersion', description='模板结构版本，当前为2，与业务版本vN独立', example='2'),
   steps?: [ 
     {
       modelMode?: string(name='modelMode', description='The model tier.', example='standard'),
-      name?: string(name='name', description='The name of the step.', example='example'),
-      ownerAgentName?: string(name='ownerAgentName', description='The name of the digital worker executor. This parameter is required when ownerType is set to AGENT.', example='example'),
-      ownerType?: string(name='ownerType', description='The type of the executor. Valid values:
-- MEMBER: Workspace member.
-- AGENT: Digital worker.', example='MEMBER'),
-      ownerUserId?: long(name='ownerUserId', description='The user ID of the member executor. This parameter is required when ownerType is set to MEMBER.', example='1'),
-      reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs of the owners (formerly reviewers). This parameter is valid only for steps with a digital worker executor and is always empty for steps with a member executor.', example='example'),
-      sortOrder?: long(name='sortOrder', description='The order of the step.', example='1'),
-      specification?: string(name='specification', description='The array of ordered step description segments. Supported types include text, mention, skill, app, files, and web_search. When plain text is entered, a single text segment is returned. The fields and nested attachments of each segment are retained as-is by the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
-      specificationJson?: [  map[string]any ](name='specificationJson', description='The array of structured step description segments. Supported types include text, mention, skill, app, files, and web_search. The fields and nested attachments of each segment are retained as-is by the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
-      stepId?: string(name='stepId', description='The ID of the step.', example='collect'),
+      name?: string(name='name', description='The step name. This field can be empty for drafts but is required upon submission.', example='Collect customer information'),
+      ownerAgentName?: string(name='ownerAgentName', description='The name of the agent owner.', example='example'),
+      ownerType?: string(name='ownerType', description='The owner type. Valid values:
+- MEMBER: Human.
+- AGENT: Agent.', example='MEMBER'),
+      ownerUserId?: long(name='ownerUserId', description='The user ID of the human owner.', example='1'),
+      reviewOutput?: boolean(name='reviewOutput', description='是否人工审核产出物，默认关闭；仅数字员工可开启，审核待办自动发负责人', example='false'),
+      reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs of the reviewers.', example='example'),
+      sortOrder?: long(name='sortOrder', description='The step order.', example='1'),
+      specification?: string(name='specification', description='The display text derived from ordered segments. Fixed titles are not added, and the text is not stored independently.', example='Collect customer information and submit it to the person in charge for review'),
+      specificationJson?: [  map[string]any ](name='specificationJson', description='The array of ordered segments. Supports text, mention, skill, app, files, and web_search. Retains reference identities and order.', example='[{"type":"text","text":"收集客户信息"}]'),
+      stepId?: string(name='stepId', description='The step ID.', example='collect'),
     }
-  ](name='steps', description='The ordered steps.', example='example'),
-  templateId?: string(name='templateId', description='The ID of the template.', example='tpl_example'),
-  version?: string(name='version', description='The version number to which the returned content belongs.', example='v1'),
-  versionDescription?: string(name='versionDescription', description='The change description of the version. An empty value indicates that no description is provided.', example='Added a review step'),
+  ](name='steps', description='The ordered steps.', example='[{"stepId":"collect","sortOrder":1,"name":"收集客户信息"}]'),
+  templateId?: string(name='templateId', description='The template ID.', example='tpl_9401'),
+  version?: string(name='version', description='The version number of the returned content.', example='v1'),
+  versionDescription?: string(name='versionDescription', description='The change description for this version. An empty value indicates that no description is provided.', example='Added a review step'),
   versionStatus?: string(name='versionStatus', description='The version status. Valid values:
 - DRAFT: Draft.
 - SUBMITTED: Submitted.', example='SUBMITTED'),
@@ -10157,7 +10653,7 @@ model SetWorkflowTemplateEffectiveVersionResponse = {
 }
 
 /**
-  * @description The workspace administrator configures the Settings for the effective version of a workflow template. Only versions with a commit are allowed, and each template can have only one effective version. Before taking effect, the version is re-verified based on the current workspace members, digital workers, capabilities, and storage management. Existing work items use their own execute snapshots and are not affected.
+  * @description The storage management administrator configures the Settings for the effective version of a workflow template. Only versions with a commit are allowed, and each template can have only one effective version. Before the version takes effect, it is revalidated against the current workspace members, digital employees, and capabilities. Existing work items use their own execute snapshots and remain unaffected.
   * @param request  the request parameters of SetWorkflowTemplateEffectiveVersion  SetWorkflowTemplateEffectiveVersionRequest
   * @return SetWorkflowTemplateEffectiveVersionResponse
  */
@@ -10248,27 +10744,27 @@ model SubmitTodoRequest {
       answer: [ string ](name='answer', description='The array of answer values.
 
 This parameter is required.', example='example'),
-      question: string(name='question', description='The original text that corresponds to questions[].question.
+      question: string(name='question', description='The original text corresponding to questions[].question.
 
 This parameter is required.', example='Whether to approve'),
     }
-  ](name='answers', description='The array of answers. The original text of the question must match the to-do question.
+  ](name='answers', description='The answer array. The original text of the question must align with the to-do question.
 
 This parameter is required.', example='example', shrink='json', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If this parameter is not specified, the default tenant of the caller is used.', example='10000', position='Query'),
-  todoId: string(name='todoId', description='The ID of the to-do item.
+  tenantId?: string(name='tenantId', description='The to-do task ID.', example='10000', position='Query'),
+  todoId: string(name='todoId', description='The answer array. The original text of the question must align with the to-do question.
 
 This parameter is required.', example='todo_abc123', position='Body'),
 }
 
 model SubmitTodoResponseBody = {
-  code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
-  completedAt?: string(name='completedAt', description='The completion time in ISO 8601 UTC format. Note that this format differs from other time fields formatted in UTC+8.', example='2026-10-12T02:00:00+00:00'),
-  completedByUserId?: string(name='completedByUserId', description='The user ID of the user who completed the item.', example='42'),
+  code?: string(name='code', description='The array of answer values.', example='200'),
+  completedAt?: string(name='completedAt', description='The completion time in ISO 8601 UTC format. This format differs from other fields formatted in UTC+8.', example='2026-10-12T02:00:00Z'),
+  completedByUserId?: string(name='completedByUserId', description='The user ID of the user who completed the task.', example='42'),
   message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
   requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
-  status?: string(name='status', description='The status after submission. This value is always COMPLETED.', example='COMPLETED'),
-  todoId?: string(name='todoId', description='The ID of the to-do item.', example='todo_abc123'),
+  status?: string(name='status', description='The status after submission. The value is always COMPLETED.', example='COMPLETED'),
+  todoId?: string(name='todoId', description='The answer array. The original text of the question must align with the to-do question.', example='todo_abc123'),
 }
 
 model SubmitTodoResponse = {
@@ -10278,7 +10774,7 @@ model SubmitTodoResponse = {
 }
 
 /**
-  * @description Submits the answers for a to-do item. Repeated submissions by the same user are idempotent and return the initial result. If another user completes the item first, a 409 AlreadyCompleted error is returned.
+  * @description Submits the answers for a to-do task. If the same user submits the answers repeatedly, the operation is idempotent and returns the first result. If another user completes the task first, a 409 AlreadyCompleted error is returned.
   * @param request  the request parameters of SubmitTodo  SubmitTodoRequest
   * @return SubmitTodoResponse
  */
@@ -10447,12 +10943,12 @@ async function togglePrimaryObjectFavorite(request: TogglePrimaryObjectFavoriteR
 }
 
 model TransferTodoRequest {
-  comment?: string(name='comment', description='The handover description.', example='Please continue processing', position='Body'),
-  targetUserIds: [ string ](name='targetUserIds', description='The list of target user IDs to whom the task is reassigned. You can specify 1 to 100 user IDs.
+  comment?: string(name='comment', description='The handover note.', example='Please continue processing', position='Body'),
+  targetUserIds: [ string ](name='targetUserIds', description='The list of target user IDs for the transfer (1 to 100).
 
 This parameter is required.', example='43', shrink='json', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
-  todoId: string(name='todoId', description='The ID of the to-do task.
+  tenantId?: string(name='tenantId', description='The to-do item ID.', example='10000', position='Query'),
+  todoId: string(name='todoId', description='The list of target user IDs for the transfer (1 to 100).
 
 This parameter is required.', example='todo_abc123', position='Body'),
 }
@@ -10464,10 +10960,10 @@ model TransferTodoResponseBody = {
   targets?: [ 
     {
       result?: string(name='result', description='The processing result. Valid values: CREATED, REVIVED, and ALREADY_PENDING.', example='CREATED'),
-      userId?: string(name='userId', description='The ID of the target user.', example='43'),
+      userId?: string(name='userId', description='The target user ID.', example='43'),
     }
   ](name='targets', description='The processing results for each target.'),
-  todoId?: string(name='todoId', description='The ID of the to-do task.', example='todo_abc123'),
+  todoId?: string(name='todoId', description='The list of target user IDs for the transfer (1 to 100).', example='todo_abc123'),
 }
 
 model TransferTodoResponse = {
@@ -10477,7 +10973,7 @@ model TransferTodoResponse = {
 }
 
 /**
-  * @description Reassigns a to-do task to specified users. The operator is excluded from the target list, and atomic validation is performed for the entire task.
+  * @description Transfers a to-do item to specified users, excludes the operator from the targets, and performs atomic validation for the entire task.
   * @param request  the request parameters of TransferTodo  TransferTodoRequest
   * @return TransferTodoResponse
  */
@@ -11341,55 +11837,133 @@ async function updateWorkItem(request: UpdateWorkItemRequest): UpdateWorkItemRes
   return @handler.do('RESTFUL', 'UpdateWorkItem', 'POST', '/openapi/updateWorkItem', 'json', true, 'form', request);
 }
 
+model UpdateWorkflowNodeConfigurationRequest {
+  collaborationGroupId: string(name='collaborationGroupId', description='协作空间ID
+
+This parameter is required.', example='cg_9401', position='Body'),
+  executor?: {
+    id: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称
+
+This parameter is required.', example='agent_1001'),
+    type: string(name='type', description='USER 真人或 AGENT 数字员工
+
+This parameter is required.', example='AGENT'),
+  }(name='executor', description='节点执行人；省略保持，null恢复默认；与负责人、模型至少修改一项', example='{"type":"AGENT","id":"agent_1001"}', shrink='json', position='Body'),
+  expectedVersion: long(name='expectedVersion', description='读取接口返回的configVersion；非负整数；版本冲突须刷新
+
+This parameter is required.', example='3', position='Body'),
+  instanceId: string(name='instanceId', description='当前物理计划ID（planId）
+
+This parameter is required.', example='inst_2081', position='Body'),
+  model?: string(name='model', description='模型模式；quick归一化standard；省略保持，null恢复默认', example='standard', position='Body'),
+  nodeId: string(name='nodeId', description='业务节点key（nodeKey）
+
+This parameter is required.', example='node_7f3a2c', position='Body'),
+  responsibleUserIds?: [ long ](name='responsibleUserIds', description='节点负责人用户ID列表，非空正整数数组；省略保持，null恢复默认', example='[10001]', shrink='json', position='Body'),
+  tenantId?: string(name='tenantId', description='租户ID；缺省使用调用方默认租户', example='10000', position='Query'),
+}
+
+model UpdateWorkflowNodeConfigurationResponseBody = {
+  canEdit?: boolean(name='canEdit', description='当前用户是否可编辑此节点', example='true'),
+  code?: string(name='code', description='公共业务状态码', example='200'),
+  configVersion?: long(name='configVersion', description='配置版本；更新或恢复时作为expectedVersion', example='3'),
+  defaultExecutor?: {
+    id?: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称', example='agent_1001'),
+    type?: string(name='type', description='USER 真人、AGENT 数字员工或历史 SYSTEM 系统执行人；SYSTEM仅用于响应', example='AGENT'),
+  }(name='defaultExecutor', description='模板默认执行主体', example='{"type":"AGENT","id":"agent_1001"}'),
+  defaultModel?: string(name='defaultModel', description='模板默认模型运行档', example='qwen-max'),
+  defaultResponsibleUserIds?: [ string ](name='defaultResponsibleUserIds', description='模板默认负责人用户ID列表', example='[10001]'),
+  effectiveExecutor?: {
+    id?: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称', example='agent_1001'),
+    type?: string(name='type', description='USER 真人、AGENT 数字员工或历史 SYSTEM 系统执行人；SYSTEM仅用于响应', example='AGENT'),
+  }(name='effectiveExecutor', description='当前生效的执行主体', example='{"type":"AGENT","id":"agent_1001"}'),
+  effectiveModel?: string(name='effectiveModel', description='当前生效的模型运行档', example='qwen-max-plus'),
+  effectiveResponsibleUserIds?: [ string ](name='effectiveResponsibleUserIds', description='当前生效的负责人用户ID列表', example='[10001]'),
+  instanceId?: string(name='instanceId', description='当前物理计划ID', example='inst_2081'),
+  message?: string(name='message', description='公共错误描述', example='请求的资源不存在'),
+  nodeId?: string(name='nodeId', description='业务节点key', example='node_7f3a2c'),
+  overrides?: {
+    executor?: {
+      id?: string(name='id', description='USER 为正整数平台用户ID字符串；AGENT 为空间数字员工技术名称', example='agent_1001'),
+      type?: string(name='type', description='USER 真人、AGENT 数字员工或历史 SYSTEM 系统执行人；SYSTEM仅用于响应', example='AGENT'),
+    }(name='executor', description='覆盖执行主体；null为默认', example='{"type":"AGENT","id":"agent_1001"}'),
+    model?: string(name='model', description='覆盖模型运行档；null为默认', example='qwen-max'),
+    responsibleUserIds?: [ long ](name='responsibleUserIds', description='覆盖负责人ID列表；null为默认', example='[10001]'),
+  }(name='overrides', description='实例覆盖值；字段为null时使用模板默认值', example='{"model":"qwen-max-plus"}'),
+  requestId?: string(name='requestId', description='请求追踪ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  stateVersion?: long(name='stateVersion', description='状态刷新游标，不能作为配置版本', example='8'),
+  updatedAt?: string(name='updatedAt', description='最后配置更新时间ISO8601；从未更新时为空', example='2026-11-05T08:00:00Z'),
+  updatedBy?: long(name='updatedBy', description='最后更新配置的平台用户ID；从未更新时为空', example='10001'),
+}
+
+model UpdateWorkflowNodeConfigurationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateWorkflowNodeConfigurationResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UpdateWorkflowNodeConfiguration  UpdateWorkflowNodeConfigurationRequest
+  * @return UpdateWorkflowNodeConfigurationResponse
+ */
+async function updateWorkflowNodeConfiguration(request: UpdateWorkflowNodeConfigurationRequest): UpdateWorkflowNodeConfigurationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateWorkflowNodeConfiguration', 'POST', '/openapi/updateWorkflowNodeConfiguration', 'json', true, 'form', request);
+}
+
 model UpdateWorkflowTemplateRequest {
   action?: string(name='action', description='The write action. Valid values:
-- SAVE: Saves the template as a draft without taking effect.
-- SUBMIT: Saves and submits the template, setting it as the only effective version.
+- SAVE: Saves the template as a draft. The changes do not take effect. Node names and assignees can be left empty.
+- SUBMIT: Requires complete nodes. Saves and submits the template as the only effective version.
 Default value: SUBMIT.', example='SUBMIT', position='Body'),
   collaborationGroupId: string(name='collaborationGroupId', description='The ID of the collaboration workspace.
 
-This parameter is required.', example='group_example', minLength=1, maxLength=64, position='Body'),
-  definition: map[string]any(name='definition', description='The complete JSON definition of the template to overwrite the existing one.
+This parameter is required.', example='cg_9401', minLength=1, maxLength=64, position='Body'),
+  definition: map[string]any(name='definition', description='The complete JSON definition of the template. This overwrites the existing definition.
 
-This parameter is required.', example='example', shrink='json', position='Body'),
-  sourceVersion?: string(name='sourceVersion', description='The submitted version number on which the new version is based. This parameter is mutually exclusive with the version parameter. If not specified, the current effective version is used as the fallback.', example='v1', position='Body'),
+This parameter is required.', example='{"name":"Customer Complaint Handling Process","schemaVersion":2,"steps":[{"stepId":"collect","sortOrder":1,"name":"Collect Customer Information"}]}', shrink='json', position='Body'),
+  sourceVersion?: string(name='sourceVersion', description='The submitted version number on which the new version is based. This parameter is mutually exclusive with version. If you do not specify this parameter, the current effective version is used.', example='v1', position='Body'),
   templateId: string(name='templateId', description='The ID of the template.
 
-This parameter is required.', example='tpl_example', minLength=1, maxLength=64, position='Body'),
+This parameter is required.', example='tpl_9401', minLength=1, maxLength=64, position='Body'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
-  version?: string(name='version', description='The draft template version number to write. The format is a lowercase v followed by a positive integer, such as v1. Submitted versions cannot be written. If not specified, a new version is generated.', example='v2', position='Body'),
-  versionDescription?: string(name='versionDescription', description='The version description. The maximum length is 500 characters. When writing a draft, if this parameter is not specified or is null, the original value is retained. An empty string clears the value.', example='Add a review step', maxLength=500, position='Body'),
+  version?: string(name='version', description='The version number to which the content belongs.', example='v2', position='Body'),
+  versionDescription?: string(name='versionDescription', description='The change description for this version. An empty value indicates that no description is provided.', example='Added a review step', maxLength=500, position='Body'),
 }
 
 model UpdateWorkflowTemplateResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success.', example='200'),
   createdByUserId?: long(name='createdByUserId', description='The user ID of the creator.', example='1'),
-  description?: string(name='description', description='The template description.', example='example'),
-  effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and it cannot be used for work items.', example='v2'),
-  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='example'),
-  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='example'),
-  message?: string(name='message', description='The error description.', example='The requested resource does not exist'),
-  name?: string(name='name', description='The template name.', example='example'),
+  description?: string(name='description', description='The description of the template.', example='Standard process for handling customer complaints'),
+  edges?: [  map[string]any ](name='edges', description='节点依赖边；每项包含from/to，引用稳定stepId；显式空数组表示没有依赖', example='[{"from":"collect","to":"deliver"}]'),
+  effectiveVersion?: string(name='effectiveVersion', description='The current effective version number of the template. An empty value indicates that only a draft exists and the template cannot be used for work items.', example='v2'),
+  gmtCreate?: string(name='gmtCreate', description='The creation time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  gmtModified?: string(name='gmtModified', description='The modification time in ISO 8601 format.', example='2026-11-05T08:00:00Z'),
+  layout?: map[string]any(name='layout', description='可选画布布局，按stepId索引；只影响展示，不决定依赖', example='{"collect":{"x":0,"y":0},"review":{"x":240,"y":0}}'),
+  message?: string(name='message', description='The error message.', example='The requested resource does not exist'),
+  name?: string(name='name', description='The name of the template.', example='Customer Complaint Handling Process'),
   requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  schemaVersion?: long(name='schemaVersion', description='模板结构版本，当前为2，与业务版本vN独立', example='2'),
   steps?: [ 
     {
       modelMode?: string(name='modelMode', description='The model tier.', example='standard'),
-      name?: string(name='name', description='The step name.', example='example'),
-      ownerAgentName?: string(name='ownerAgentName', description='The name of the responsible agent.', example='example'),
-      ownerType?: string(name='ownerType', description='The owner type. Valid values:
-- MEMBER: Human.
+      name?: string(name='name', description='The name of the step.', example='Customer Complaint Handling Process'),
+      ownerAgentName?: string(name='ownerAgentName', description='The name of the agent assignee.', example='example'),
+      ownerType?: string(name='ownerType', description='The type of the assignee. Valid values:
+- MEMBER: Human user.
 - AGENT: Agent.', example='MEMBER'),
-      ownerUserId?: long(name='ownerUserId', description='The user ID of the human owner.', example='1'),
+      ownerUserId?: long(name='ownerUserId', description='The user ID of the human assignee.', example='1'),
+      reviewOutput?: boolean(name='reviewOutput', description='是否人工审核产出物，默认关闭；仅数字员工可开启，审核待办自动发负责人', example='false'),
       reviewerUserIds?: [ long ](name='reviewerUserIds', description='The list of user IDs of the reviewers.', example='example'),
-      sortOrder?: long(name='sortOrder', description='The step order.', example='1'),
-      specification?: string(name='specification', description='The step processing instructions.', example='example'),
-      specificationJson?: [  map[string]any ](name='specificationJson', description='The array of structured segments for the step instructions. Supports text, mention, skill, app, files, and web_search. The fields and nested attachments of each segment are retained as returned by the backend.', example='[{"type":"text","content":"Organize input materials"}]'),
-      stepId?: string(name='stepId', description='The step ID.', example='collect'),
+      sortOrder?: long(name='sortOrder', description='The order of the step.', example='1'),
+      specification?: string(name='specification', description='The processing instructions for the step.', example='Collect customer information and forward it to the person in charge for review'),
+      specificationJson?: [  map[string]any ](name='specificationJson', description='The ordered array of fragments. Supported types include text, mention, skill, app, files, and web_search. Referenced identities and order are preserved.', example='[{\\\\"type\\\\":\\\\"text\\\\",\\\\"text\\\\":\\\\"收集客户信息\\\\"}]'),
+      stepId?: string(name='stepId', description='The ID of the step.', example='collect'),
     }
-  ](name='steps', description='The ordered steps.', example='example'),
-  templateId?: string(name='templateId', description='The template ID.', example='tpl_example'),
-  version?: string(name='version', description='The version number to which the returned content belongs.', example='v2'),
-  versionDescription?: string(name='versionDescription', description='The change description of the version. An empty value indicates that no description is provided.', example='Add a review step'),
+  ](name='steps', description='The ordered steps.', example='[{\\\\"stepId\\\\":\\\\"collect\\\\",\\\\"sortOrder\\\\":1,\\\\"name\\\\":\\\\"收集客户信息\\\\"}]'),
+  templateId?: string(name='templateId', description='The ID of the template.', example='tpl_9401'),
+  version?: string(name='version', description='The version number to which the content belongs.', example='v2'),
+  versionDescription?: string(name='versionDescription', description='The change description for this version. An empty value indicates that no description is provided.', example='Added a review step'),
   versionStatus?: string(name='versionStatus', description='The version status. Valid values:
 - DRAFT: Draft.
 - SUBMITTED: Submitted.', example='SUBMITTED'),
@@ -11402,7 +11976,7 @@ model UpdateWorkflowTemplateResponse = {
 }
 
 /**
-  * @description Overwrites and updates a workflow template. The last save takes effect.
+  * @description Updates a workflow template by overwriting it with valid members. The last save takes effect.
   * @param request  the request parameters of UpdateWorkflowTemplate  UpdateWorkflowTemplateRequest
   * @return UpdateWorkflowTemplateResponse
  */
