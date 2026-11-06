@@ -820,6 +820,107 @@ async function createAgentSpecVersion(workspaceId: string, agentSpecName: string
   return createAgentSpecVersionWithOptions(workspaceId, agentSpecName, request, headers, runtime);
 }
 
+model CreateAgentVersionRequest {
+  body?: {
+    description?: string(name='description', description='版本描述，最多 1024 个字符，保存后不可修改。', example='生产环境稳定版本'),
+    versionName?: string(name='versionName', description='用户自定义的展示名称，去除首尾空白后为 1 至 128 个字符，可包含中文、大小写字母、空格和标点，不能包含控制字符。同一 Agent 下未删除的版本名称唯一，区分大小写，保存后不可修改。版本号 agentVersion 由系统生成，不由此字段决定。
+
+This parameter is required.', example='生产稳定版 V1.0'),
+  }(name='body', description='保存版本的请求体。'),
+  clientToken?: string(name='clientToken', description='客户端生成的幂等令牌，当前为预留参数，后端暂不提供持久化幂等保证。', example='c2d8a6f0-3b1e-4a7d-9f25-6e4b0c1a8d37'),
+}
+
+model CreateAgentVersionShrinkRequest {
+  bodyShrink?: string(name='body', description='保存版本的请求体。'),
+  clientToken?: string(name='clientToken', description='客户端生成的幂等令牌，当前为预留参数，后端暂不提供持久化幂等保证。', example='c2d8a6f0-3b1e-4a7d-9f25-6e4b0c1a8d37'),
+}
+
+model CreateAgentVersionResponseBody = {
+  code?: string(name='code', description='业务状态码，请求成功时为 SUCCESS，失败时为错误码。', example='SUCCESS'),
+  data?: {
+    agentId?: string(name='agentId', description='版本所属的托管智能体或自定义智能体 ID。', example='agent-0123456789abcdef0123456789abcdef'),
+    agentVersion?: string(name='agentVersion', description='系统按 Agent 递增生成的版本号，例如 v1、v2。查询、删除版本及服务端点引用版本时使用。', example='v1'),
+    artifactStatus?: string(name='artifactStatus', description='仅表示版本模板与制品归档是否完整，不代表部署或运行状态。READY 为完整，INVALID 为归档缺失或不一致。', example='READY'),
+    configuration?: map[string]any(name='configuration', description='托管智能体与 GetManagedAgent 的 data 结构一致，自定义智能体与 GetCustomAgent 的 data 结构一致，脱敏规则相同。', example='{"agentId":"agent-0123456789abcdef0123456789abcdef","workspaceId":"ws-0123456789abcdef01234","name":"customer-service","description":"客服智能体","status":"Running","latestSpecVersion":2,"instruction":"你是一名客服助手。"}'),
+    createdAt?: string(name='createdAt', description='版本保存的时间，采用 ISO 8601 UTC 格式。', example='2026-08-12T01:02:03Z'),
+    createdBy?: string(name='createdBy', description='保存该版本的调用者阿里云账号 UID；RAM 用户调用时为其所属阿里云主账号 UID。', example='1234567890123456'),
+    description?: string(name='description', description='保存版本时填写的版本描述，最多 1024 个字符；保存时未填写则为空。', example='生产环境稳定版本'),
+    targetSpecVersion?: long(name='targetSpecVersion', description='保存版本时 Agent 已生效的发布流水号，即当时的 effectiveSpecVersion。版本保存后该值不再变化。', example='2'),
+    versionName?: string(name='versionName', description='保存版本时用户指定的展示名称。早期保存且未记录名称的版本返回 agentVersion。', example='生产稳定版 V1.0'),
+    workspaceId?: string(name='workspaceId', description='版本所属智能体所在的 AgentCore 工作空间 ID。', example='ws-0123456789abcdef01234'),
+  }(name='data', description='已保存的智能体固定版本详情；重复提交命中已有版本时返回该已有版本。'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP 状态码。', example='200'),
+  message?: string(name='message', description='响应消息，请求成功时为 success，失败时为错误信息。', example='success'),
+  requestId?: string(name='requestId', description='请求 ID，用于定位和排查请求。', example='5E8F3C2A-1B4D-4F6E-9A7C-0D2B8E6F4A1C'),
+  success?: boolean(name='success', description='请求是否成功。'),
+}
+
+model CreateAgentVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAgentVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 保存智能体版本
+ *
+ * @description 将指定托管智能体或自定义智能体当前已生效的配置保存为一个不可变的固定版本，并归档版本模板与制品。仅保存版本，不部署实例。其他类型的智能体（如外部智能体）不支持版本，返回 AgentVersionSubtypeUnsupported。Agent 最新发布必须已生效（latestSpecVersion 等于 effectiveSpecVersion）。系统按 Agent 递增生成版本号 agentVersion（v1、v2……），版本号在 Agent 内唯一且已删除版本的序号不复用，查询、删除版本及服务端点引用版本均使用该版本号。每个 Agent 最多保留 50 个未删除的版本，达到上限时返回 AgentVersionQuotaExceeded，删除不再使用的版本后可继续保存。versionName 相同且发布流水号相同的重复提交返回已有版本（不受上限限制）；versionName 相同但发布流水号不同时返回 AgentVersionAlreadyExists。
+ *
+ * @param tmpReq CreateAgentVersionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAgentVersionResponse
+ */
+async function createAgentVersionWithOptions(workspaceId: string, agentId: string, tmpReq: CreateAgentVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateAgentVersionResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateAgentVersionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.body)) {
+    request.bodyShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.body, 'body', 'json');
+  }
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.bodyShrink)) {
+    body['body'] = request.bodyShrink;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateAgentVersion',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}/agents/${OpenApiUtil.getEncodeParam(agentId)}/versions`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 保存智能体版本
+ *
+ * @description 将指定托管智能体或自定义智能体当前已生效的配置保存为一个不可变的固定版本，并归档版本模板与制品。仅保存版本，不部署实例。其他类型的智能体（如外部智能体）不支持版本，返回 AgentVersionSubtypeUnsupported。Agent 最新发布必须已生效（latestSpecVersion 等于 effectiveSpecVersion）。系统按 Agent 递增生成版本号 agentVersion（v1、v2……），版本号在 Agent 内唯一且已删除版本的序号不复用，查询、删除版本及服务端点引用版本均使用该版本号。每个 Agent 最多保留 50 个未删除的版本，达到上限时返回 AgentVersionQuotaExceeded，删除不再使用的版本后可继续保存。versionName 相同且发布流水号相同的重复提交返回已有版本（不受上限限制）；versionName 相同但发布流水号不同时返回 AgentVersionAlreadyExists。
+ *
+ * @param request CreateAgentVersionRequest
+ * @return CreateAgentVersionResponse
+ */
+async function createAgentVersion(workspaceId: string, agentId: string, request: CreateAgentVersionRequest): CreateAgentVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createAgentVersionWithOptions(workspaceId, agentId, request, headers, runtime);
+}
+
 model CreateCredentialRequest {
   body?: {
     credentialMetadata?: string(name='credentialMetadata', description='The credential content, submitted as a JSON string. For the apiKey type, it contains only a non-empty apiKey. For the mcpHeader type, it contains a non-empty headers array, where each item includes a name and a value.
@@ -4585,6 +4686,73 @@ async function deleteAgentSpecVersion(workspaceId: string, agentSpecName: string
   return deleteAgentSpecVersionWithOptions(workspaceId, agentSpecName, request, headers, runtime);
 }
 
+model DeleteAgentVersionRequest {
+  clientToken?: string(name='clientToken', description='客户端生成的幂等令牌，当前为预留参数，后端暂不提供持久化幂等保证。', example='c2d8a6f0-3b1e-4a7d-9f25-6e4b0c1a8d37'),
+}
+
+model DeleteAgentVersionResponseBody = {
+  code?: string(name='code', description='业务状态码，请求成功时为 SUCCESS，失败时为错误码。', example='SUCCESS'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP 状态码。', example='200'),
+  message?: string(name='message', description='响应消息，请求成功时为 success，失败时为错误信息。', example='success'),
+  requestId?: string(name='requestId', description='请求 ID，用于定位和排查请求。', example='5E8F3C2A-1B4D-4F6E-9A7C-0D2B8E6F4A1C'),
+  success?: boolean(name='success', description='请求是否成功。'),
+}
+
+model DeleteAgentVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAgentVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 删除智能体版本
+ *
+ * @description 删除指定托管智能体或自定义智能体已保存的固定版本。仍被服务端点引用的版本不可删除，系统维护的 latest 版本不可删除。
+ *
+ * @param request DeleteAgentVersionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAgentVersionResponse
+ */
+async function deleteAgentVersionWithOptions(workspaceId: string, agentId: string, agentVersion: string, request: DeleteAgentVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteAgentVersionResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteAgentVersion',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}/agents/${OpenApiUtil.getEncodeParam(agentId)}/versions/${OpenApiUtil.getEncodeParam(agentVersion)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 删除智能体版本
+ *
+ * @description 删除指定托管智能体或自定义智能体已保存的固定版本。仍被服务端点引用的版本不可删除，系统维护的 latest 版本不可删除。
+ *
+ * @param request DeleteAgentVersionRequest
+ * @return DeleteAgentVersionResponse
+ */
+async function deleteAgentVersion(workspaceId: string, agentId: string, agentVersion: string, request: DeleteAgentVersionRequest): DeleteAgentVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteAgentVersionWithOptions(workspaceId, agentId, agentVersion, request, headers, runtime);
+}
+
 model DeleteCredentialRequest {
   clientToken?: string(name='clientToken', description='Not supported.', example='Not supported'),
 }
@@ -7131,6 +7299,78 @@ async function getAgentSpecVersion(workspaceId: string, agentSpecName: string, a
   return getAgentSpecVersionWithOptions(workspaceId, agentSpecName, agentSpecVersion, request, headers, runtime);
 }
 
+model GetAgentVersionRequest {
+}
+
+model GetAgentVersionResponseBody = {
+  code?: string(name='code', description='业务状态码，请求成功时为 SUCCESS，失败时为错误码。', example='SUCCESS'),
+  data?: {
+    agentId?: string(name='agentId', description='版本所属的托管智能体或自定义智能体 ID。', example='agent-0123456789abcdef0123456789abcdef'),
+    agentVersion?: string(name='agentVersion', description='系统按 Agent 递增生成的版本号，例如 v1、v2。查询、删除版本及服务端点引用版本时使用。', example='v1'),
+    artifactStatus?: string(name='artifactStatus', description='仅表示版本模板与制品归档是否完整，不代表部署或运行状态。READY 为完整，INVALID 为归档缺失或不一致。', example='READY'),
+    configuration?: map[string]any(name='configuration', description='托管智能体与 GetManagedAgent 的 data 结构一致，自定义智能体与 GetCustomAgent 的 data 结构一致，脱敏规则相同。', example='{"agentId":"agent-0123456789abcdef0123456789abcdef","workspaceId":"ws-0123456789abcdef01234","name":"customer-service","description":"客服智能体","status":"Running","latestSpecVersion":2,"instruction":"你是一名客服助手。"}'),
+    createdAt?: string(name='createdAt', description='版本保存的时间，采用 ISO 8601 UTC 格式。', example='2026-08-12T01:02:03Z'),
+    createdBy?: string(name='createdBy', description='保存该版本的调用者阿里云账号 UID；RAM 用户调用时为其所属阿里云主账号 UID。', example='1234567890123456'),
+    description?: string(name='description', description='保存版本时填写的版本描述，最多 1024 个字符；保存时未填写则为空。', example='生产环境稳定版本'),
+    targetSpecVersion?: long(name='targetSpecVersion', description='保存版本时 Agent 已生效的发布流水号，即当时的 effectiveSpecVersion。版本保存后该值不再变化。', example='2'),
+    versionName?: string(name='versionName', description='保存版本时用户指定的展示名称。早期保存且未记录名称的版本返回 agentVersion。', example='生产稳定版 V1.0'),
+    workspaceId?: string(name='workspaceId', description='版本所属智能体所在的 AgentCore 工作空间 ID。', example='ws-0123456789abcdef01234'),
+  }(name='data', description='智能体固定版本详情，configuration 为版本保存时的 Agent 配置。'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP 状态码。', example='200'),
+  message?: string(name='message', description='响应消息，请求成功时为 success，失败时为错误信息。', example='success'),
+  requestId?: string(name='requestId', description='请求 ID，用于定位和排查请求。', example='5E8F3C2A-1B4D-4F6E-9A7C-0D2B8E6F4A1C'),
+  success?: boolean(name='success', description='请求是否成功。'),
+}
+
+model GetAgentVersionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAgentVersionResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询智能体版本详情
+ *
+ * @description 查询指定托管智能体或自定义智能体已保存的固定版本详情，configuration 返回版本保存时的 Agent 配置。
+ *
+ * @param request GetAgentVersionRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAgentVersionResponse
+ */
+async function getAgentVersionWithOptions(workspaceId: string, agentId: string, agentVersion: string, request: GetAgentVersionRequest, headers: map[string]string, runtime: Util.RuntimeOptions): GetAgentVersionResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentVersion',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}/agents/${OpenApiUtil.getEncodeParam(agentId)}/versions/${OpenApiUtil.getEncodeParam(agentVersion)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询智能体版本详情
+ *
+ * @description 查询指定托管智能体或自定义智能体已保存的固定版本详情，configuration 返回版本保存时的 Agent 配置。
+ *
+ * @param request GetAgentVersionRequest
+ * @return GetAgentVersionResponse
+ */
+async function getAgentVersion(workspaceId: string, agentId: string, agentVersion: string, request: GetAgentVersionRequest): GetAgentVersionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getAgentVersionWithOptions(workspaceId, agentId, agentVersion, request, headers, runtime);
+}
+
 model GetCredentialRequest {
 }
 
@@ -9080,8 +9320,8 @@ model GetMcpCodePackageUploadUrlResponseBody = {
     artifactExpiresAt?: string(name='artifactExpiresAt', description='The expiration time of the temporary code package artifact, in ISO 8601 UTC format.', example='2026-08-24T00:00:00Z'),
     codePackageToken?: string(name='codePackageToken', description='The code package upload token.', example='upload-token'),
     expiresAt?: string(name='expiresAt', description='The expiration time of the presigned upload URL, in ISO 8601 UTC format.', example='2026-08-23T00:15:00Z'),
-    headers?: map[string]string(name='headers', description='The HTTP request headers. The key is the header name, and the value is the header content.', example='{"Content-Type":"application/zip"}'),
-    maxSize?: long(name='maxSize', description='The maximum allowed size of the code package to be uploaded, in bytes.', example='52428800'),
+    headers?: map[string]string(name='headers', description='The HTTP request headers, where the key is the header name and the value is the header content.', example='{"Content-Type":"application/zip"}'),
+    maxSize?: long(name='maxSize', description='The maximum allowed size of the code package to upload, in bytes.', example='52428800'),
     uploadMethod?: string(name='uploadMethod', description='The HTTP method used to upload the code package.', example='PUT'),
     uploadUrl?: string(name='uploadUrl', description='The presigned upload URL for the code package.', example='https://example-bucket.oss-cn-hangzhou.aliyuncs.com/server.zip?Signature=example-signature'),
   }(name='data', description='The response data.'),
@@ -9642,8 +9882,15 @@ model GetServiceEndpointResponseBody = {
       type?: string(name='type', description='The authentication method. NONE indicates that no authentication is required. API_KEY indicates that authentication is performed by passing an API key in the x-api-key request header.', example='API_KEY'),
     }(name='authentication', description='The authentication configuration of the service endpoint.'),
     createdAt?: string(name='createdAt', description='The creation time in UTC format compliant with RFC 3339.', example='2026-08-12T03:04:05Z'),
+    effectivePublicAccessEnabled?: boolean(name='effectivePublicAccessEnabled', description='publicAccessEnabled 与工作空间公网入向上限叠加后的结果：二者均允许时为 true。仅表示策略目标，不代表公网入口已发布完成，实际状态以 accessUrls 与 status 为准。'),
+    elasticityPolicy?: {
+      enabled?: boolean(name='enabled', description='是否开启弹性。', example='true'),
+      maxSandboxCount?: int32(name='maxSandboxCount', description='最大实例数，不小于 1。', example='5'),
+      minSandboxCount?: int32(name='minSandboxCount', description='最小实例数，不小于 0 且不大于 maxSandboxCount。', example='1'),
+    }(name='elasticityPolicy', description='仅在服务端点设置过弹性覆盖值时返回，可设置的为 Router 类型服务端点与 GATEWAY_API_WITH_VPC_INGRESS 类型的 DEFAULT 服务端点；未设置覆盖值时不返回该对象，表示继承智能体源配置，不得当作空对象或默认策略。返回时三个字段必全。'),
     endpointType?: string(name='endpointType', description='The service endpoint type. DEFAULT indicates a default endpoint created and maintained by the platform. NAMED indicates a named endpoint explicitly created by a user.', example='NAMED'),
     name?: string(name='name', description='The service endpoint name. It must be unique within the workspace and is 1 to 128 characters in length.', example='my-agent-endpoint'),
+    publicAccessEnabled?: boolean(name='publicAccessEnabled', description='用户在服务端点上设置的公网入向期望；未设置过的历史服务端点按 true 返回。仅表示配置期望，实际公网地址是否可用以 accessUrls 与 status 为准。'),
     regionId?: string(name='regionId', description='The region ID of the service endpoint.', example='cn-hangzhou'),
     serviceEndpointId?: string(name='serviceEndpointId', description='The service endpoint ID.', example='se-123456'),
     status?: string(name='status', description='The service endpoint status. Valid values: CREATING, READY, UPDATING, DEGRADED, DISABLED, and DELETING.', example='READY'),
@@ -11448,6 +11695,93 @@ async function listAgentTeams(workspaceId: string, request: ListAgentTeamsReques
   return listAgentTeamsWithOptions(workspaceId, request, headers, runtime);
 }
 
+model ListAgentVersionsRequest {
+  maxResults?: int32(name='maxResults', description='单页最大记录数，取值范围 1 至 100，默认 20。', example='20'),
+  nextToken?: string(name='nextToken', description='查询下一页时传入上一次 ListAgentVersions 响应返回的 nextToken；首次查询不传。', example='YWdlbnQtdmVyc2lvbnM6MjA'),
+}
+
+model ListAgentVersionsResponseBody = {
+  code?: string(name='code', description='业务状态码，请求成功时为 SUCCESS，失败时为错误码。', example='SUCCESS'),
+  httpStatusCode?: int32(name='httpStatusCode', description='HTTP 状态码。', example='200'),
+  items?: [ 
+    {
+      agentId?: string(name='agentId', description='版本所属的托管智能体或自定义智能体 ID。', example='agent-0123456789abcdef0123456789abcdef'),
+      agentVersion?: string(name='agentVersion', description='系统按 Agent 递增生成的版本号，例如 v1、v2。查询、删除版本及服务端点引用版本时使用。', example='v1'),
+      artifactStatus?: string(name='artifactStatus', description='仅表示版本模板与制品归档是否完整，不代表部署或运行状态。READY 为完整，INVALID 为归档缺失或不一致。', example='READY'),
+      createdAt?: string(name='createdAt', description='版本保存的时间，采用 ISO 8601 UTC 格式。', example='2026-08-12T01:02:03Z'),
+      createdBy?: string(name='createdBy', description='保存该版本的调用者阿里云账号 UID；RAM 用户调用时为其所属阿里云主账号 UID。', example='1234567890123456'),
+      description?: string(name='description', description='保存版本时填写的版本描述，最多 1024 个字符；保存时未填写则为空。', example='生产环境稳定版本'),
+      targetSpecVersion?: long(name='targetSpecVersion', description='保存版本时 Agent 已生效的发布流水号，即当时的 effectiveSpecVersion。版本保存后该值不再变化。', example='2'),
+      versionName?: string(name='versionName', description='保存版本时用户指定的展示名称。早期保存且未记录名称的版本返回 agentVersion。', example='生产稳定版 V1.0'),
+      workspaceId?: string(name='workspaceId', description='版本所属智能体所在的 AgentCore 工作空间 ID。', example='ws-0123456789abcdef01234'),
+    }
+  ](name='items', description='当前页的固定版本列表，按创建时间倒序排列，不包含 configuration。'),
+  maxResults?: int32(name='maxResults', description='本次查询使用的单页最大记录数。', example='20'),
+  message?: string(name='message', description='响应消息，请求成功时为 success，失败时为错误信息。', example='success'),
+  nextToken?: string(name='nextToken', description='下一页的分页令牌，查询下一页时作为请求参数 nextToken 传入；为空表示没有更多数据。', example='YWdlbnQtdmVyc2lvbnM6MjA'),
+  requestId?: string(name='requestId', description='请求 ID，用于定位和排查请求。', example='5E8F3C2A-1B4D-4F6E-9A7C-0D2B8E6F4A1C'),
+  success?: boolean(name='success', description='请求是否成功。'),
+  totalCount?: long(name='totalCount', description='该智能体未删除的固定版本总数，不包含系统维护的 latest 版本。', example='3'),
+}
+
+model ListAgentVersionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAgentVersionsResponseBody(name='body'),
+}
+
+/**
+ * @summary 查询智能体版本列表
+ *
+ * @description 分页查询指定托管智能体或自定义智能体已保存的固定版本，按创建时间倒序返回，不包含系统维护的 latest 版本。列表项不返回 configuration，需查看配置时调用 GetAgentVersion。
+ *
+ * @param request ListAgentVersionsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAgentVersionsResponse
+ */
+async function listAgentVersionsWithOptions(workspaceId: string, agentId: string, request: ListAgentVersionsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListAgentVersionsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAgentVersions',
+    version = '2026-08-04',
+    protocol = 'HTTPS',
+    pathname = `/workspaces/${OpenApiUtil.getEncodeParam(workspaceId)}/agents/${OpenApiUtil.getEncodeParam(agentId)}/versions`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 查询智能体版本列表
+ *
+ * @description 分页查询指定托管智能体或自定义智能体已保存的固定版本，按创建时间倒序返回，不包含系统维护的 latest 版本。列表项不返回 configuration，需查看配置时调用 GetAgentVersion。
+ *
+ * @param request ListAgentVersionsRequest
+ * @return ListAgentVersionsResponse
+ */
+async function listAgentVersions(workspaceId: string, agentId: string, request: ListAgentVersionsRequest): ListAgentVersionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listAgentVersionsWithOptions(workspaceId, agentId, request, headers, runtime);
+}
+
 model ListConnectorModelsRequest {
   connectorKeyId?: string(name='connectorKeyId', description='The connector key ID. This parameter is not supported in the current version.', example='ckey-xxxx'),
   maxResults?: int32(name='maxResults', description='The page size. This parameter is not supported in the current version.', example='10'),
@@ -11885,7 +12219,7 @@ async function listCustomAgents(workspaceId: string, request: ListCustomAgentsRe
 
 model ListExternalAgentsRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return per page. Valid values: 0 to 100. If this parameter is omitted or set to 0, the default value is 20.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token. You can omit this parameter in the first call. For subsequent calls, use the nextToken value returned in the previous response.', example='next-token-1'),
+  nextToken?: string(name='nextToken', description='The pagination token. You can leave this parameter empty for the first call. For subsequent calls, use the nextToken value returned in the previous response.', example='next-token-1'),
 }
 
 model ListExternalAgentsResponseBody = {
@@ -11898,7 +12232,7 @@ model ListExternalAgentsResponseBody = {
       createdAt?: string(name='createdAt', description='The creation time in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
       deployType?: string(name='deployType', description='The deployment type.', example='SELF_HOSTED'),
       description?: string(name='description', description='The description of the managed agent.', example='Code review agent running in the user environment'),
-      latestSpecVersion?: long(name='latestSpecVersion', description='The latest specification version.', example='1'),
+      latestSpecVersion?: long(name='latestSpecVersion', description='The latest specification version number.', example='1'),
       name?: string(name='name', description='The name of the managed agent.', example='my-external-agent'),
       runtime?: string(name='runtime', description='The runtime type reported by the managed agent.', example='qwenpaw'),
       status?: string(name='status', description='The status of the managed agent. Valid values: Creating, Running, Failed, Updating, Deleting, and Deleted.', example='Running'),
@@ -11911,7 +12245,7 @@ model ListExternalAgentsResponseBody = {
   nextToken?: string(name='nextToken', description='The token for the next page. An empty value indicates that the last page is reached.', example='next-token-1'),
   requestId?: string(name='requestId', description='The request ID.', example='1a2b3c4d-xxxx-xxxx-xxxx-xxxxxxxxxxxx'),
   success?: boolean(name='success', description='Indicates whether the request is successful.', example='true'),
-  totalCount?: long(name='totalCount', description='The total number of records that meet the filter conditions.', example='100'),
+  totalCount?: long(name='totalCount', description='The total number of records that meet the conditions.', example='100'),
 }
 
 model ListExternalAgentsResponse = {
@@ -11921,16 +12255,13 @@ model ListExternalAgentsResponse = {
 }
 
 /**
- * @summary Performs a paging query for the identity, configuration version, and status summary of managed agents in a workspace.
+ * @summary Performs a paging query to retrieve the identity, configuration versions, and status summary of managed agents in a workspace.
  *
- * @description ### Purpose
- * Performs a paging query for the identity, configuration version, and status summary of managed agents in a workspace.
- * ### Related concepts
- * - A managed agent runs in a user-provided runtime environment. The platform is responsible for saving the access and capability configurations. The API uses the technical name ExternalAgent.
- * ### Paging
+ * @description Performs a paging query to retrieve the identity, configuration versions, and status summary of managed agents in a workspace.
+ * ### Paging query
  * If `maxResults` is omitted or set to `0`, the default value is 20, and the maximum value is 100. Omit `nextToken` in the first request. For subsequent requests, pass the token returned in the previous response as is, and keep the same workspace and filter conditions. An empty token indicates that there are no more pages.
  * ### Response content
- * This operation returns the summary of managed agents. To query the complete models, instructions, tools, skills, and access status, call [GetExternalAgent](https://api.aliyun.com/document/AgentCore/2026-08-04/GetExternalAgent).
+ * This operation returns the summary of managed agents. To query the complete models, instructions, tools, skills, and accessed state, call [GetExternalAgent](https://api.aliyun.com/document/AgentCore/2026-08-04/GetExternalAgent).
  *
  * @param request ListExternalAgentsRequest
  * @param headers map
@@ -11966,16 +12297,13 @@ async function listExternalAgentsWithOptions(workspaceId: string, request: ListE
 }
 
 /**
- * @summary Performs a paging query for the identity, configuration version, and status summary of managed agents in a workspace.
+ * @summary Performs a paging query to retrieve the identity, configuration versions, and status summary of managed agents in a workspace.
  *
- * @description ### Purpose
- * Performs a paging query for the identity, configuration version, and status summary of managed agents in a workspace.
- * ### Related concepts
- * - A managed agent runs in a user-provided runtime environment. The platform is responsible for saving the access and capability configurations. The API uses the technical name ExternalAgent.
- * ### Paging
+ * @description Performs a paging query to retrieve the identity, configuration versions, and status summary of managed agents in a workspace.
+ * ### Paging query
  * If `maxResults` is omitted or set to `0`, the default value is 20, and the maximum value is 100. Omit `nextToken` in the first request. For subsequent requests, pass the token returned in the previous response as is, and keep the same workspace and filter conditions. An empty token indicates that there are no more pages.
  * ### Response content
- * This operation returns the summary of managed agents. To query the complete models, instructions, tools, skills, and access status, call [GetExternalAgent](https://api.aliyun.com/document/AgentCore/2026-08-04/GetExternalAgent).
+ * This operation returns the summary of managed agents. To query the complete models, instructions, tools, skills, and accessed state, call [GetExternalAgent](https://api.aliyun.com/document/AgentCore/2026-08-04/GetExternalAgent).
  *
  * @param request ListExternalAgentsRequest
  * @return ListExternalAgentsResponse
@@ -13959,6 +14287,7 @@ async function listPredefinedModels(providerType: string, request: ListPredefine
 model ListSandboxSessionsRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return per page. Default value: 20. Valid values: 1 to 100.', example='20'),
   nextToken?: string(name='nextToken', description='The token for the next page. Omit this parameter in the first request. For subsequent requests, use the returned token as is, and keep the workspace, agent, instance, and maxResults unchanged. An empty value indicates that no more pages are available.', example='next-token-1'),
+  serviceEndpointId?: string(name='serviceEndpointId', description='必须与查出该 sandboxId 时使用的 ListSandboxes 入参一致。省略或传空白时查询智能体 latest 运行单元；传入时该服务端点必须属于本智能体且目标类型为 AGENT_VERSION，否则返回 Resource.NotFound；非 DEFAULT 且未独立运行时返回 ServiceEndpointTargetNotReady。sandboxId 不属于所指运行单元时返回 Sandbox.NotFound，不返回空列表。', example='se-7f3a92c1'),
 }
 
 model ListSandboxSessionsResponseBody = {
@@ -14010,6 +14339,9 @@ async function listSandboxSessionsWithOptions(workspaceId: string, agentId: stri
   if (!Util.isUnset(request.nextToken)) {
     query['nextToken'] = request.nextToken;
   }
+  if (!Util.isUnset(request.serviceEndpointId)) {
+    query['serviceEndpointId'] = request.serviceEndpointId;
+  }
 
   var req = new OpenApi.OpenApiRequest{ 
     headers = headers,
@@ -14053,6 +14385,7 @@ model ListSandboxesRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return per page. Default value: 20. Valid values: 1 to 100.', example='20'),
   nextToken?: string(name='nextToken', description='The cursor for querying the next page. When paginating, keep `workspaceId`, `agentId`, `searchText`, `sessionId`, and `maxResults` unchanged.', example='next-token-1'),
   searchText?: string(name='searchText', description='The fragment of the Sandbox ID for a case-insensitive fuzzy search.', example='2f360'),
+  serviceEndpointId?: string(name='serviceEndpointId', description='省略或传空白时查询智能体 latest 运行单元；传入时该服务端点必须属于本智能体且目标类型为 AGENT_VERSION，否则返回 Resource.NotFound。独立运行的服务端点只返回其自身运行单元的 Sandbox；DEFAULT 服务端点尚未接管独立运行时回落到 latest 运行单元；非 DEFAULT 且未独立运行时返回 ServiceEndpointTargetNotReady。运行单元尚未创建时返回空列表且 totalCount 为 0，不报错。', example='se-7f3a92c1'),
   sessionId?: string(name='sessionId', description='The fragment of the current valid session ID for a case-insensitive fuzzy search.', example='session-a'),
 }
 
@@ -14110,6 +14443,9 @@ async function listSandboxesWithOptions(workspaceId: string, agentId: string, re
   }
   if (!Util.isUnset(request.searchText)) {
     query['searchText'] = request.searchText;
+  }
+  if (!Util.isUnset(request.serviceEndpointId)) {
+    query['serviceEndpointId'] = request.serviceEndpointId;
   }
   if (!Util.isUnset(request.sessionId)) {
     query['sessionId'] = request.sessionId;
@@ -14180,8 +14516,15 @@ model ListServiceEndpointsResponseBody = {
         type?: string(name='type', description='The authentication method. NONE indicates that no authentication is required. API_KEY indicates that authentication is performed by passing an API key in the `x-api-key` request header.', example='API_KEY'),
       }(name='authentication', description='The authentication configuration of the service endpoint.'),
       createdAt?: string(name='createdAt', description='The creation time in UTC format compliant with RFC 3339.', example='2026-08-12T03:04:05Z'),
+      effectivePublicAccessEnabled?: boolean(name='effectivePublicAccessEnabled', description='publicAccessEnabled 与工作空间公网入向上限叠加后的结果：二者均允许时为 true。仅表示策略目标，不代表公网入口已发布完成，实际状态以 accessUrls 与 status 为准。'),
+      elasticityPolicy?: {
+        enabled?: boolean(name='enabled', description='是否开启弹性。', example='true'),
+        maxSandboxCount?: int32(name='maxSandboxCount', description='最大实例数，不小于 1。', example='5'),
+        minSandboxCount?: int32(name='minSandboxCount', description='最小实例数，不小于 0 且不大于 maxSandboxCount。', example='1'),
+      }(name='elasticityPolicy', description='仅在服务端点设置过弹性覆盖值时返回，可设置的为 Router 类型服务端点与 GATEWAY_API_WITH_VPC_INGRESS 类型的 DEFAULT 服务端点；未设置覆盖值时不返回该对象，表示继承智能体源配置，不得当作空对象或默认策略。返回时三个字段必全。'),
       endpointType?: string(name='endpointType', description='The type of the service endpoint. DEFAULT indicates a default endpoint created and maintained by the platform. NAMED indicates a named endpoint explicitly created by the user.', example='NAMED'),
       name?: string(name='name', description='The name of the service endpoint. The name must be unique within the workspace and be 1 to 128 characters in length.', example='my-agent-endpoint'),
+      publicAccessEnabled?: boolean(name='publicAccessEnabled', description='用户在服务端点上设置的公网入向期望；未设置过的历史服务端点按 true 返回。仅表示配置期望，实际公网地址是否可用以 accessUrls 与 status 为准。'),
       regionId?: string(name='regionId', description='The ID of the region where the service endpoint resides.', example='cn-hangzhou'),
       serviceEndpointId?: string(name='serviceEndpointId', description='The ID of the service endpoint.', example='se-123456'),
       status?: string(name='status', description='The status of the service endpoint. Valid values: CREATING, READY, UPDATING, DEGRADED, DISABLED, and DELETING.', example='READY'),
