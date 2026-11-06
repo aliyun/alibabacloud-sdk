@@ -1,6 +1,7 @@
 /**
  *
  */
+import GatewayClient;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -9,6 +10,9 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
+  @productId = 'eds-aic';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -465,6 +469,15 @@ This parameter is required.'),
 > If you upload the backup file to an OSS bucket, call the describeBuckets operation to obtain the bucketName, and select ossObjectList to obtain the key. The key is the folder path in the OSS bucket. Concatenate them into `oss://${bucketName}/${key}`.
 
 This parameter is required.'),
+  customScripts?: [ 
+    {
+      ossBucket?: string(name='OssBucket', example='my-bucket'),
+      ossEndpoint?: string(name='OssEndpoint', example='oss-cn-hangzhou-internal.aliyuncs.com'),
+      ossObjectKey?: string(name='OssObjectKey', example='script/backup.sh'),
+      ossRegion?: string(name='OssRegion', example='cn-hangzhou'),
+      testInstanceIds?: [ string ](name='TestInstanceIds', example='["acp-0n4k52uiyon472rq0"]'),
+    }
+  ](name='CustomScripts', example='[{"OssBucket":"my-bucket","OssObjectKey":"script/backup.sh","OssEndpoint":"oss-cn-hangzhou-internal.aliyuncs.com","OssRegion":"cn-hangzhou"}]'),
   description?: string(name='Description', description='The description of the backup file.', example='This is a request to back up /data'),
   excludeAppList?: [ string ](name='ExcludeAppList', description='The list of application package names excluded from full instance backup. Matched applications only skip APK collection, and user data is backed up as usual. If this parameter is not specified, no applications are excluded.'),
   excludeSourceFilePathList?: [ string ](name='ExcludeSourceFilePathList', description='The list of file paths in the Android container to exclude from the backup.'),
@@ -520,6 +533,9 @@ async function backupFileWithOptions(request: BackupFileRequest, runtime: $Runti
   }
   if (!$isNull(request.backupFilePath)) {
     query['BackupFilePath'] = request.backupFilePath;
+  }
+  if (!$isNull(request.customScripts)) {
+    query['CustomScripts'] = request.customScripts;
   }
   if (!$isNull(request.description)) {
     query['Description'] = request.description;
@@ -6038,7 +6054,7 @@ async function describeInvocations(request: DescribeInvocationsRequest): Describ
 
 model DescribeJVSInstanceRequest {
   instanceIds?: [ string ](name='InstanceIds', description='The list of instance IDs.'),
-  maxResults?: int32(name='MaxResults', description='The page size.', example='10'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of results per page.', example='10'),
   nextToken?: string(name='NextToken', description='The pagination token.', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****'),
 }
 
@@ -6049,14 +6065,14 @@ model DescribeJVSInstanceResponseBody = {
         upgradeStatus?: string(name='UpgradeStatus', description='The AI Engine version upgrade status.', example='SUCCESS'),
         version?: string(name='Version', description='The AI Engine version number.', example='2607W1'),
       }(name='AgentVersion', description='The AI Engine version and upgrade status.'),
-      createTime?: string(name='CreateTime', description='The creation time. The time is displayed in UTC and follows the ISO 8601 standard.', example='2026-04-10T01:31:32Z'),
+      createTime?: string(name='CreateTime', description='The creation time. The time is in UTC and follows the ISO 8601 standard.', example='2026-04-10T01:31:32Z'),
       creditConfig?: [ 
         {
           creditLimit?: long(name='CreditLimit', description='The credit limit.', example='-1'),
-          limitPeriod?: string(name='LimitPeriod', description='The credit limit period.', example='day'),
+          limitPeriod?: string(name='LimitPeriod', description='The limit period.', example='day'),
         }
-      ](name='CreditConfig', description='The credit limit configuration. Subsequent quota configurations overwrite previous configurations.'),
-      expireTime?: string(name='ExpireTime', description='The expiration time. The time is displayed in UTC and follows the ISO 8601 standard.', example='2026-04-10T01:31:32Z'),
+      ](name='CreditConfig', description='The credit limit configuration. Subsequent quota configurations overwrite previous ones.'),
+      expireTime?: string(name='ExpireTime', description='The expiration time. The time is in UTC and follows the ISO 8601 standard.', example='2026-04-10T01:31:32Z'),
       installedSkills?: [ 
         {
           description?: string(name='Description', description='The skill description.', example='Current weather and forecasts with wttr.in via curl for locations, rain, temperature, travel planning.'),
@@ -6068,19 +6084,20 @@ model DescribeJVSInstanceResponseBody = {
         }
       ](name='InstalledSkills', description='The list of skills installed on the instance.'),
       instanceId?: string(name='InstanceId', description='The instance ID.', example='acp-uto81vfd8t8z****'),
+      instanceName?: string(name='InstanceName', description='The instance name.', example='InstanceName'),
       jvsPackageId?: string(name='JvsPackageId', description='This parameter is not supported.', example='null'),
-      modifyTime?: string(name='ModifyTime', description='The modification time. The time is displayed in UTC and follows the ISO 8601 standard.', example='2026-04-10T01:31:32Z'),
+      modifyTime?: string(name='ModifyTime', description='The modification time. The time is in UTC and follows the ISO 8601 standard.', example='2026-04-10T01:31:32Z'),
       status?: string(name='Status', description='The instance status.', example='RUNNNING'),
       usedCredit?: [ 
         {
           credit?: long(name='Credit', description='The credit amount.', example='5'),
-          limitPeriod?: string(name='LimitPeriod', description='The dimension of the current credit.', example='day'),
+          limitPeriod?: string(name='LimitPeriod', description='The period of the current credit.', example='day'),
         }
       ](name='UsedCredit', description='The used credit.'),
     }
-  ](name='Data', description='The returned result object.'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of results returned in the current request.', example='10'),
-  nextToken?: string(name='NextToken', description='The token that specifies the starting position for the query. An empty value indicates that the query starts from the beginning.', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****'),
+  ](name='Data', description='The response object.'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of data entries returned in the current request.', example='10'),
+  nextToken?: string(name='NextToken', description='The token that specifies the starting position for the current query. If this parameter is left empty, the query starts from the beginning.', example='AAAAAV3MpHK1AP0pfERHZN5pu6kU+SQXzm0H9mu/FiSc****'),
   pendingUpgradeCount?: int32(name='PendingUpgradeCount', description='The number of pending upgrades.', example='0'),
   requestId?: string(name='RequestId', description='The request ID.', example='425F351C-3F8E-5218-A520-B6311D0D****'),
   totalCount?: int32(name='TotalCount', description='The total number of entries.', example='30'),
@@ -6093,7 +6110,7 @@ model DescribeJVSInstanceResponse = {
 }
 
 /**
- * @summary Queries the details of JVS instances.
+ * @summary Queries JVS instance information.
  *
  * @param request DescribeJVSInstanceRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -6130,7 +6147,7 @@ async function describeJVSInstanceWithOptions(request: DescribeJVSInstanceReques
 }
 
 /**
- * @summary Queries the details of JVS instances.
+ * @summary Queries JVS instance information.
  *
  * @param request DescribeJVSInstanceRequest
  * @return DescribeJVSInstanceResponse
@@ -10852,11 +10869,20 @@ model RecoveryFileRequest {
   androidInstanceIdList?: [ string ](name='AndroidInstanceIdList', description='The list of instance IDs.
 
 This parameter is required.'),
-  backupAll?: boolean(name='BackupAll', description='Specifies whether to back up the entire device.', example='false'),
+  backupAll?: boolean(name='BackupAll', description='Specifies whether it is a full-device backup.', example='false'),
   backupFileId?: string(name='BackupFileId', description='The ID of the backup file.', example='bf-azhps4rdyi2th****'),
-  backupFilePath?: string(name='BackupFilePath', description='The OSS URL to which the backup file is uploaded.
+  backupFilePath?: string(name='BackupFilePath', description='The OSS address to which the backup file is uploaded.
 <notice>Call the describeBuckets operation to obtain the bucketName, and select ossObjectList to obtain the key. The key is the path of the backup file. Concatenate them into "oss://${bucketName}/${key}".</notice>'),
-  excludeAppList?: [ string ](name='ExcludeAppList'),
+  customScripts?: [ 
+    {
+      ossBucket?: string(name='OssBucket', example='my-bucket'),
+      ossEndpoint?: string(name='OssEndpoint', example='oss-cn-hangzhou-internal.aliyuncs.com'),
+      ossObjectKey?: string(name='OssObjectKey', example='script/recover.sh'),
+      ossRegion?: string(name='OssRegion', example='cn-hangzhou'),
+      testInstanceIds?: [ string ](name='TestInstanceIds', example='["acp-0n4k52uiyon472rq0"]'),
+    }
+  ](name='CustomScripts', example='[{"OssBucket":"my-bucket","OssObjectKey":"script/recover.sh","OssEndpoint":"oss-cn-hangzhou-internal.aliyuncs.com","OssRegion":"cn-hangzhou"}]'),
+  excludeAppList?: [ string ](name='ExcludeAppList', description='The list of excluded app package names for full-device restore. Matched apps are not uninstalled, and their APKs are not installed (compatible with legacy backups that contain APKs). Only user data is replaced. The empty shell must be installed by the customer using pm install. If this parameter is not specified, no apps are excluded.'),
   uploadEndpoint?: string(name='UploadEndpoint', description='The domain name of the backup address.
 <notice>Call the DescribeBuckets operation to obtain the bucket. If the cloud phone and the bucket are in the same region, obtain the IntranetEndpoint field. If they are in different regions, obtain the ExtranetEndpoint field.</notice>', example='oss-cn-hangzhou-internal.aliyuncs.com'),
   uploadType?: string(name='UploadType', description='The backup type.', example='OSS'),
@@ -10883,7 +10909,7 @@ model RecoveryFileResponse = {
 /**
  * @summary Restores a backup file.
  *
- * @description Currently, only backup files generated by cloud phones and saved in Object Storage Service (OSS) are supported.
+ * @description Currently, only backup files generated by cloud phones and stored in Object Storage Service (OSS) are supported.
  *
  * @param request RecoveryFileRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10904,6 +10930,9 @@ async function recoveryFileWithOptions(request: RecoveryFileRequest, runtime: $R
   }
   if (!$isNull(request.backupFilePath)) {
     query['BackupFilePath'] = request.backupFilePath;
+  }
+  if (!$isNull(request.customScripts)) {
+    query['CustomScripts'] = request.customScripts;
   }
   if (!$isNull(request.excludeAppList)) {
     query['ExcludeAppList'] = request.excludeAppList;
@@ -10934,7 +10963,7 @@ async function recoveryFileWithOptions(request: RecoveryFileRequest, runtime: $R
 /**
  * @summary Restores a backup file.
  *
- * @description Currently, only backup files generated by cloud phones and saved in Object Storage Service (OSS) are supported.
+ * @description Currently, only backup files generated by cloud phones and stored in Object Storage Service (OSS) are supported.
  *
  * @param request RecoveryFileRequest
  * @return RecoveryFileResponse
