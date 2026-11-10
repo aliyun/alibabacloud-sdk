@@ -2,6 +2,7 @@
  *
  */
 import Util;
+import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -11,6 +12,9 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
+  @productId = 'eds-user';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -575,12 +579,12 @@ async function createProperty(request: CreatePropertyRequest): CreatePropertyRes
 }
 
 model CreateResourceGroupRequest {
-  agentType?: string(name='AgentType'),
+  agentType?: string(name='AgentType', description='The agent subtype of the DesktopAgent resource group. Valid values: JVSClaw and HermesAgent.', example='JVSClaw'),
   businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE'),
-  enableAliyunResourceGroup?: boolean(name='EnableAliyunResourceGroup'),
+  enableAliyunResourceGroup?: boolean(name='EnableAliyunResourceGroup', description='Specifies whether to create an Alibaba Cloud resource group at the same time. This is supported only for resource groups in the Default category.'),
   isResourceGroupWithOfficeSite?: long(name='IsResourceGroupWithOfficeSite', description='> This parameter is not publicly available.', example='0'),
-  platform?: string(name='Platform', description='For Elastic Desktop Service (EDS) Enterprise Edition, set the value to `AliyunConsole`. Other platforms are not supported.', example='AliyunConsole'),
-  resourceClassification?: string(name='ResourceClassification', description='The resource category.', example='Default'),
+  platform?: string(name='Platform', description='For Elastic Desktop Service Enterprise Edition, set the value to `AliyunConsole`. Other platforms are not supported.', example='AliyunConsole'),
+  resourceClassification?: string(name='ResourceClassification', description='The category of the resource.', example='Default'),
   resourceGroupDescription?: string(name='ResourceGroupDescription', description='The description of the resource group. This parameter is optional. The description can be up to 500 characters in length and is saved as-is.', example='Department A resource group'),
   resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group.', example='Department A resource group'),
 }
@@ -598,6 +602,8 @@ model CreateResourceGroupResponse = {
 
 /**
  * @summary Creates a resource group.
+ *
+ * @description The number of resource groups in each categorization is subject to the enterprise resource group quota limit. By default, a maximum of 20 resource groups are allowed for each categorization, but the quota limit configured for your enterprise may vary. If the quota limit is reached, the ExceedNumberQuota error is returned. You can invoke the DescribeResourceGroups operation to query the number of existing resource groups in the corresponding categorization.
  *
  * @param request CreateResourceGroupRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -649,6 +655,8 @@ async function createResourceGroupWithOptions(request: CreateResourceGroupReques
 
 /**
  * @summary Creates a resource group.
+ *
+ * @description The number of resource groups in each categorization is subject to the enterprise resource group quota limit. By default, a maximum of 20 resource groups are allowed for each categorization, but the quota limit configured for your enterprise may vary. If the quota limit is reached, the ExceedNumberQuota error is returned. You can invoke the DescribeResourceGroups operation to query the number of existing resource groups in the corresponding categorization.
  *
  * @param request CreateResourceGroupRequest
  * @return CreateResourceGroupResponse
@@ -1645,6 +1653,81 @@ async function describeUser(request: DescribeUserRequest): DescribeUserResponse 
   return describeUserWithOptions(request, runtime);
 }
 
+model DescribeUserLoginPoliciesRequest {
+  businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE'),
+  name?: string(name='Name', description='The policy name.', example='Security audit'),
+  policyIds?: [ string ](name='PolicyIds', description='The list of policy IDs. This is a filter condition for the query.'),
+}
+
+model DescribeUserLoginPoliciesResponseBody = {
+  policies?: [ 
+    {
+      name?: string(name='Name', description='The policy name.', example='deveoper-policy'),
+      policyId?: string(name='PolicyId', description='The policy ID.', example='up-89unlabdl****'),
+      userGroups?: [ 
+        {
+          groupId?: string(name='GroupId', description='The user group ID.', example='ug-ilu90mhsduf****'),
+          groupName?: string(name='GroupName', description='The user group name.', example='Developers'),
+        }
+      ](name='UserGroups', description='The associated user group information.'),
+    }
+  ](name='Policies', description='The list of policies.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+}
+
+model DescribeUserLoginPoliciesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeUserLoginPoliciesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries logon policies.
+ *
+ * @param request DescribeUserLoginPoliciesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeUserLoginPoliciesResponse
+ */
+async function describeUserLoginPoliciesWithOptions(request: DescribeUserLoginPoliciesRequest, runtime: Util.RuntimeOptions): DescribeUserLoginPoliciesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.businessChannel)) {
+    query['BusinessChannel'] = request.businessChannel;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.policyIds)) {
+    query['PolicyIds'] = request.policyIds;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeUserLoginPolicies',
+    version = '2021-03-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries logon policies.
+ *
+ * @param request DescribeUserLoginPoliciesRequest
+ * @return DescribeUserLoginPoliciesResponse
+ */
+async function describeUserLoginPolicies(request: DescribeUserLoginPoliciesRequest): DescribeUserLoginPoliciesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeUserLoginPoliciesWithOptions(request, runtime);
+}
+
 model DescribeUsersRequest {
   bizType?: string(name='BizType'),
   businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE'),
@@ -1750,6 +1833,7 @@ model DescribeUsersResponseBody = {
       realNickName?: string(name='RealNickName', description='The display name of the user.', example='Li**'),
       remark?: string(name='Remark', description='The remarks for the convenience user.', example='Test user.'),
       status?: long(name='Status', description='The status.', example='0'),
+      userSource?: string(name='UserSource', description='用户来源的企业身份源类型，由后端根据企业身份源自定义列的显隐配置决定是否查询。取值：DINGDING（钉钉）、FEISHU（飞书）、WECHAT（企业微信）、ENTRA_ID（Microsoft Entra ID）。列隐藏、未配置或无企业身份源关联时为空。', example='FEISHU'),
       wyId?: string(name='WyId', description='The globally unique ID of the convenience user.', example='41fd1254d8f7****'),
     }
   ](name='Users', description='The collection of convenience user information.'),
@@ -1999,6 +2083,7 @@ model FilterUsersResponseBody = {
           userName?: string(name='UserName', description='The username of the user to which the property is bound.', example='alice'),
         }
       ](name='UserSetPropertiesModels', description='The collection of user properties.'),
+      userSource?: string(name='UserSource', description='用户来源的企业身份源类型，由后端根据企业身份源自定义列的显隐配置决定是否查询。取值：DINGDING（钉钉）、FEISHU（飞书）、WECHAT（企业微信）、ENTRA_ID（Microsoft Entra ID）。列隐藏、未配置或无企业身份源关联时为空。', example='FEISHU'),
     }
   ](name='Users', description='The collection of convenience user information.'),
 }
@@ -2875,6 +2960,69 @@ async function modifyUser(request: ModifyUserRequest): ModifyUserResponse {
   return modifyUserWithOptions(request, runtime);
 }
 
+model ModifyUserPolicyBasicInfoRequest {
+  businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE'),
+  name?: string(name='Name', description='The policy name.', example='deveoper-policy'),
+  policyId?: string(name='PolicyId', description='The policy ID.', example='up-89unlabdl****'),
+}
+
+model ModifyUserPolicyBasicInfoResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+}
+
+model ModifyUserPolicyBasicInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyUserPolicyBasicInfoResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies the logon policy.
+ *
+ * @param request ModifyUserPolicyBasicInfoRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ModifyUserPolicyBasicInfoResponse
+ */
+async function modifyUserPolicyBasicInfoWithOptions(request: ModifyUserPolicyBasicInfoRequest, runtime: Util.RuntimeOptions): ModifyUserPolicyBasicInfoResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.businessChannel)) {
+    query['BusinessChannel'] = request.businessChannel;
+  }
+  if (!Util.isUnset(request.name)) {
+    query['Name'] = request.name;
+  }
+  if (!Util.isUnset(request.policyId)) {
+    query['PolicyId'] = request.policyId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ModifyUserPolicyBasicInfo',
+    version = '2021-03-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies the logon policy.
+ *
+ * @param request ModifyUserPolicyBasicInfoRequest
+ * @return ModifyUserPolicyBasicInfoResponse
+ */
+async function modifyUserPolicyBasicInfo(request: ModifyUserPolicyBasicInfoRequest): ModifyUserPolicyBasicInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return modifyUserPolicyBasicInfoWithOptions(request, runtime);
+}
+
 model MoveOrgRequest {
   businessChannel?: string(name='BusinessChannel', description='The business channel.', example='ENTERPRISE'),
   newParentOrgId?: string(name='NewParentOrgId', description='The ID of the target parent organization.
@@ -3335,10 +3483,74 @@ async function removeProperty(request: RemovePropertyRequest): RemovePropertyRes
   return removePropertyWithOptions(request, runtime);
 }
 
+model RemoveUserLoginPoliciesRequest {
+  businessChannel?: string(name='BusinessChannel', description='The business channel.', example='ENTERPRISE'),
+  policyIds?: [ string ](name='PolicyIds', description='The list of policy IDs.'),
+}
+
+model RemoveUserLoginPoliciesResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='868B8926-2E7A-5BE7-9897-E811E994****'),
+}
+
+model RemoveUserLoginPoliciesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RemoveUserLoginPoliciesResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a logon policy.
+ *
+ * @param request RemoveUserLoginPoliciesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RemoveUserLoginPoliciesResponse
+ */
+async function removeUserLoginPoliciesWithOptions(request: RemoveUserLoginPoliciesRequest, runtime: Util.RuntimeOptions): RemoveUserLoginPoliciesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.businessChannel)) {
+    query['BusinessChannel'] = request.businessChannel;
+  }
+  if (!Util.isUnset(request.policyIds)) {
+    query['PolicyIds'] = request.policyIds;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'RemoveUserLoginPolicies',
+    version = '2021-03-08',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a logon policy.
+ *
+ * @param request RemoveUserLoginPoliciesRequest
+ * @return RemoveUserLoginPoliciesResponse
+ */
+async function removeUserLoginPolicies(request: RemoveUserLoginPoliciesRequest): RemoveUserLoginPoliciesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return removeUserLoginPoliciesWithOptions(request, runtime);
+}
+
 model RemoveUsersRequest {
   businessChannel?: string(name='BusinessChannel', description='The business channel.', example='ENTERPRISE'),
-  unbindDesktops?: boolean(name='UnbindDesktops'),
-  users?: [ string ](name='Users', description='The usernames of the convenience users to delete.
+  unbindDesktops?: boolean(name='UnbindDesktops', description='Specifies whether to automatically revoke cloud desktop authorization before deleting convenience users. Valid values:
+
+- true: Asynchronously revokes cloud desktop authorization and deletes convenience users. The API returns the task acceptance result.
+- false (default): Synchronously deletes convenience users without automatically revoking cloud desktop authorization. If associated resources prevent deletion, a deletion failure is returned.
+
+When this parameter is set to true, the caller must also have the ecd:ModifyUserEntitlement permission. Task acceptance does not mean that the convenience users have been deleted.'),
+  users?: [ string ](name='Users', description='The list of usernames of the convenience users to be deleted.
 
 This parameter is required.', example='test1'),
 }
@@ -3351,11 +3563,11 @@ model RemoveUsersResponseBody = {
         errorCode?: string(name='ErrorCode', description='The error code.', example='InvalidUsername'),
         errorMessage?: string(name='ErrorMessage', description='The error message.', example='test2 is an invalid username.'),
       }
-    ](name='FailedUsers', description='The information about the users that failed to be deleted.'),
-    processingUsers?: [ string ](name='ProcessingUsers'),
-    removedUsers?: [ string ](name='RemovedUsers', description='The convenience users that are successfully deleted.'),
-    submittedUsers?: [ string ](name='SubmittedUsers'),
-  }(name='RemoveUsersResult', description='The result of deleting the convenience users.'),
+    ](name='FailedUsers', description='The collection of information about users that failed to be deleted.'),
+    processingUsers?: [ string ](name='ProcessingUsers', description='The list of usernames of convenience users for which asynchronous deletion tasks already exist and have not finished. This request does not create duplicate deletion tasks for these users. The return of this field does not indicate that the users have been deleted.'),
+    removedUsers?: [ string ](name='RemovedUsers', description='The convenience users that were successfully deleted.'),
+    submittedUsers?: [ string ](name='SubmittedUsers', description='The list of usernames of convenience users for which asynchronous deletion tasks have been successfully accepted and created in this request. Asynchronous deletion is used when UnbindDesktops is set to true. Task acceptance does not mean that the convenience users have been deleted.'),
+  }(name='RemoveUsersResult', description='The result of the convenience user deletion operation.'),
   requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 

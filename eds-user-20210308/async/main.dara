@@ -298,12 +298,12 @@ async function createProperty(request: CreatePropertyRequest): CreatePropertyRes
 }
 
 model CreateResourceGroupRequest {
-  agentType?: string(name='AgentType', position='Query'),
+  agentType?: string(name='AgentType', description='The agent subtype of the DesktopAgent resource group. Valid values: JVSClaw and HermesAgent.', example='JVSClaw', position='Query'),
   businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE', position='Query'),
-  enableAliyunResourceGroup?: boolean(name='EnableAliyunResourceGroup', position='Query'),
+  enableAliyunResourceGroup?: boolean(name='EnableAliyunResourceGroup', description='Specifies whether to create an Alibaba Cloud resource group at the same time. This is supported only for resource groups in the Default category.', position='Query'),
   isResourceGroupWithOfficeSite?: long(name='IsResourceGroupWithOfficeSite', description='> This parameter is not publicly available.', example='0', position='Query'),
-  platform?: string(name='Platform', description='For Elastic Desktop Service (EDS) Enterprise Edition, set the value to `AliyunConsole`. Other platforms are not supported.', example='AliyunConsole', position='Query'),
-  resourceClassification?: string(name='ResourceClassification', description='The resource category.', example='Default', position='Query'),
+  platform?: string(name='Platform', description='For Elastic Desktop Service Enterprise Edition, set the value to `AliyunConsole`. Other platforms are not supported.', example='AliyunConsole', position='Query'),
+  resourceClassification?: string(name='ResourceClassification', description='The category of the resource.', example='Default', position='Query'),
   resourceGroupDescription?: string(name='ResourceGroupDescription', description='The description of the resource group. This parameter is optional. The description can be up to 500 characters in length and is saved as-is.', example='Department A resource group', position='Query'),
   resourceGroupName?: string(name='ResourceGroupName', description='The name of the resource group.', example='Department A resource group', position='Query'),
 }
@@ -320,6 +320,7 @@ model CreateResourceGroupResponse = {
 }
 
 /**
+  * @description The number of resource groups in each categorization is subject to the enterprise resource group quota limit. By default, a maximum of 20 resource groups are allowed for each categorization, but the quota limit configured for your enterprise may vary. If the quota limit is reached, the ExceedNumberQuota error is returned. You can invoke the DescribeResourceGroups operation to query the number of existing resource groups in the corresponding categorization.
   * @param request  the request parameters of CreateResourceGroup  CreateResourceGroupRequest
   * @return CreateResourceGroupResponse
  */
@@ -814,6 +815,43 @@ async function describeUser(request: DescribeUserRequest): DescribeUserResponse 
   return @handler.do('RPC', 'DescribeUser', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeUserLoginPoliciesRequest {
+  businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE', position='Query'),
+  name?: string(name='Name', description='The policy name.', example='Security audit', position='Query'),
+  policyIds?: [ string ](name='PolicyIds', description='The list of policy IDs. This is a filter condition for the query.', position='Query'),
+}
+
+model DescribeUserLoginPoliciesResponseBody = {
+  policies?: [ 
+    {
+      name?: string(name='Name', description='The policy name.', example='deveoper-policy'),
+      policyId?: string(name='PolicyId', description='The policy ID.', example='up-89unlabdl****'),
+      userGroups?: [ 
+        {
+          groupId?: string(name='GroupId', description='The user group ID.', example='ug-ilu90mhsduf****'),
+          groupName?: string(name='GroupName', description='The user group name.', example='Developers'),
+        }
+      ](name='UserGroups', description='The associated user group information.'),
+    }
+  ](name='Policies', description='The list of policies.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+}
+
+model DescribeUserLoginPoliciesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeUserLoginPoliciesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DescribeUserLoginPolicies  DescribeUserLoginPoliciesRequest
+  * @return DescribeUserLoginPoliciesResponse
+ */
+async function describeUserLoginPolicies(request: DescribeUserLoginPoliciesRequest): DescribeUserLoginPoliciesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeUserLoginPolicies', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeUsersRequest {
   bizType?: string(name='BizType', position='Body'),
   businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE', position='Query'),
@@ -896,6 +934,7 @@ model DescribeUsersResponseBody = {
       realNickName?: string(name='RealNickName', description='The display name of the user.', example='Li**'),
       remark?: string(name='Remark', description='The remarks for the convenience user.', example='Test user.'),
       status?: long(name='Status', description='The status.', example='0'),
+      userSource?: string(name='UserSource', description='用户来源的企业身份源类型，由后端根据企业身份源自定义列的显隐配置决定是否查询。取值：DINGDING（钉钉）、FEISHU（飞书）、WECHAT（企业微信）、ENTRA_ID（Microsoft Entra ID）。列隐藏、未配置或无企业身份源关联时为空。', example='FEISHU'),
       wyId?: string(name='WyId', description='The globally unique ID of the convenience user.', example='41fd1254d8f7****'),
     }
   ](name='Users', description='The collection of convenience user information.'),
@@ -1017,6 +1056,7 @@ model FilterUsersResponseBody = {
           userName?: string(name='UserName', description='The username of the user to which the property is bound.', example='alice'),
         }
       ](name='UserSetPropertiesModels', description='The collection of user properties.'),
+      userSource?: string(name='UserSource', description='用户来源的企业身份源类型，由后端根据企业身份源自定义列的显隐配置决定是否查询。取值：DINGDING（钉钉）、FEISHU（飞书）、WECHAT（企业微信）、ENTRA_ID（Microsoft Entra ID）。列隐藏、未配置或无企业身份源关联时为空。', example='FEISHU'),
     }
   ](name='Users', description='The collection of convenience user information.'),
 }
@@ -1375,6 +1415,31 @@ async function modifyUser(request: ModifyUserRequest): ModifyUserResponse {
   return @handler.do('RPC', 'ModifyUser', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ModifyUserPolicyBasicInfoRequest {
+  businessChannel?: string(name='BusinessChannel', description='The channel.', example='ENTERPRISE', position='Query'),
+  name?: string(name='Name', description='The policy name.', example='deveoper-policy', position='Query'),
+  policyId?: string(name='PolicyId', description='The policy ID.', example='up-89unlabdl****', position='Query'),
+}
+
+model ModifyUserPolicyBasicInfoResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+}
+
+model ModifyUserPolicyBasicInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ModifyUserPolicyBasicInfoResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ModifyUserPolicyBasicInfo  ModifyUserPolicyBasicInfoRequest
+  * @return ModifyUserPolicyBasicInfoResponse
+ */
+async function modifyUserPolicyBasicInfo(request: ModifyUserPolicyBasicInfoRequest): ModifyUserPolicyBasicInfoResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ModifyUserPolicyBasicInfo', 'POST', '/', 'json', false, 'json', request);
+}
+
 model MoveOrgRequest {
   businessChannel?: string(name='BusinessChannel', description='The business channel.', example='ENTERPRISE', position='Body'),
   newParentOrgId: string(name='NewParentOrgId', description='The ID of the target parent organization.
@@ -1576,10 +1641,39 @@ async function removeProperty(request: RemovePropertyRequest): RemovePropertyRes
   return @handler.do('RPC', 'RemoveProperty', 'POST', '/', 'json', true, 'form', request);
 }
 
+model RemoveUserLoginPoliciesRequest {
+  businessChannel?: string(name='BusinessChannel', description='The business channel.', example='ENTERPRISE', position='Query'),
+  policyIds?: [ string ](name='PolicyIds', description='The list of policy IDs.', position='Query'),
+}
+
+model RemoveUserLoginPoliciesResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='868B8926-2E7A-5BE7-9897-E811E994****'),
+}
+
+model RemoveUserLoginPoliciesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RemoveUserLoginPoliciesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of RemoveUserLoginPolicies  RemoveUserLoginPoliciesRequest
+  * @return RemoveUserLoginPoliciesResponse
+ */
+async function removeUserLoginPolicies(request: RemoveUserLoginPoliciesRequest): RemoveUserLoginPoliciesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'RemoveUserLoginPolicies', 'POST', '/', 'json', false, 'json', request);
+}
+
 model RemoveUsersRequest {
   businessChannel?: string(name='BusinessChannel', description='The business channel.', example='ENTERPRISE', position='Body'),
-  unbindDesktops?: boolean(name='UnbindDesktops', position='Query'),
-  users: [ string ](name='Users', description='The usernames of the convenience users to delete.
+  unbindDesktops?: boolean(name='UnbindDesktops', description='Specifies whether to automatically revoke cloud desktop authorization before deleting convenience users. Valid values:
+
+- true: Asynchronously revokes cloud desktop authorization and deletes convenience users. The API returns the task acceptance result.
+- false (default): Synchronously deletes convenience users without automatically revoking cloud desktop authorization. If associated resources prevent deletion, a deletion failure is returned.
+
+When this parameter is set to true, the caller must also have the ecd:ModifyUserEntitlement permission. Task acceptance does not mean that the convenience users have been deleted.', position='Query'),
+  users: [ string ](name='Users', description='The list of usernames of the convenience users to be deleted.
 
 This parameter is required.', example='test1', position='Body'),
 }
@@ -1592,11 +1686,11 @@ model RemoveUsersResponseBody = {
         errorCode?: string(name='ErrorCode', description='The error code.', example='InvalidUsername'),
         errorMessage?: string(name='ErrorMessage', description='The error message.', example='test2 is an invalid username.'),
       }
-    ](name='FailedUsers', description='The information about the users that failed to be deleted.'),
-    processingUsers?: [ string ](name='ProcessingUsers'),
-    removedUsers?: [ string ](name='RemovedUsers', description='The convenience users that are successfully deleted.'),
-    submittedUsers?: [ string ](name='SubmittedUsers'),
-  }(name='RemoveUsersResult', description='The result of deleting the convenience users.'),
+    ](name='FailedUsers', description='The collection of information about users that failed to be deleted.'),
+    processingUsers?: [ string ](name='ProcessingUsers', description='The list of usernames of convenience users for which asynchronous deletion tasks already exist and have not finished. This request does not create duplicate deletion tasks for these users. The return of this field does not indicate that the users have been deleted.'),
+    removedUsers?: [ string ](name='RemovedUsers', description='The convenience users that were successfully deleted.'),
+    submittedUsers?: [ string ](name='SubmittedUsers', description='The list of usernames of convenience users for which asynchronous deletion tasks have been successfully accepted and created in this request. Asynchronous deletion is used when UnbindDesktops is set to true. Task acceptance does not mean that the convenience users have been deleted.'),
+  }(name='RemoveUsersResult', description='The result of the convenience user deletion operation.'),
   requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
