@@ -609,30 +609,62 @@ async function createContextDatabaseSyncSource(request: CreateContextDatabaseSyn
 }
 
 model CreateContextDatabaseWorkspaceRequest {
-  memberName: string(name='MemberName', description='The name of the first member.
+  clusterId?: string(name='ClusterId', description='The ID of the cluster to which the workspace belongs. This parameter is optional.
+- If you do not specify this parameter, the cluster selection logic that prioritizes account-exclusive storage is used.
+- `default`: The shared cluster is used.
+- Cluster IDs starting with `acc-`: The associated dedicated cluster is used.', example='default', position='Query'),
+  generateInitialKey?: boolean(name='GenerateInitialKey', description='Specifies whether to generate an initial API key. This parameter is optional. Default value: `true`.
+- `true`: Generates the first API key and returns the key name and plaintext key.
+- `false`: Does not generate an initial API key. The ApiKeyName and ApiKey fields in the response are empty.', example='true', position='Query'),
+  memberName?: string(name='MemberName', description='The name of the first member when the workspace is created. This parameter is optional.', example='my-member', position='Query'),
+  permissionMode?: string(name='PermissionMode', description='The permission mode selected when the workspace is created. Valid values:
+- `compatibility`: The compatibility mode. This mode is used if you do not specify this parameter.
+- `advanced`: The advanced permission mode. Only the Alibaba Cloud account can select this mode. It takes effect immediately after the workspace is created and cannot be disabled.
 
-This parameter is required.', example='my-member', position='Query'),
-  workspaceName: string(name='WorkspaceName', description='The workspace name.
+This parameter is a string, not a Boolean switch. Valid values are case-insensitive and ignore leading and trailing whitespace. If you explicitly pass an empty string, pure whitespace, or other values, `InvalidParameter` (HTTP 400) is returned. If a RAM user selects `advanced`, `NoPermission` (HTTP 403) is returned.', example='advanced', position='Query'),
+  workspaceName: string(name='WorkspaceName', description='The name of the workspace.
 
 This parameter is required.', example='my-workspace', position='Query'),
 }
 
 model CreateContextDatabaseWorkspaceResponseBody = {
-  apiKey?: string(name='ApiKey', description='The plaintext API key. This value is returned only once at creation time. The caller must persist it.', example='ctxdb-*****'),
-  apiKeyName?: string(name='ApiKeyName', description='The name of the first API key. The value is fixed as default.', example='default'),
-  createdAt?: string(name='CreatedAt', description='The time when the workspace was created, in ISO 8601 format.', example='2026-05-28T17:59:55Z'),
+  apiKey?: string(name='ApiKey', description='The plaintext of the first API key. It is returned only once during creation. Save the key properly. If GenerateInitialKey is set to `false`, this field is empty.', example='ctxdb-*****'),
+  apiKeyName?: string(name='ApiKeyName', description='The name of the first API key. The name is `default` when the key is generated. If GenerateInitialKey is set to `false`, this field is empty.', example='default'),
+  capabilities?: {
+    executableActions?: [ string ](name='ExecutableActions', description='The list of operation names that the account compatibility adapter can perform. The list content does not represent read/write, member group, or access control authorization for specific resources.'),
+  }(name='Capabilities', description='The account-level capability information for the current call. It only indicates the operations that the account compatibility adapter can perform and does not represent resource-level authorization. This field is optional and is not returned if no account-level executable operations are provided.'),
+  clusterId?: string(name='ClusterId', description='The ID of the cluster to which the workspace belongs. `default` is returned for a shared cluster, and the corresponding cluster ID is returned for a dedicated cluster.', example='default'),
+  consolePermissionMode?: string(name='ConsolePermissionMode', description='The permission mode used by the server to parse the identity of the current call. Valid values:
+- `personal_compatibility`: The compatibility mode.
+- `advanced`: The advanced permission mode.
+
+This field describes the identity context of the current call. The actual permission mode of the workspace is subject to PermissionMode. Creating a workspace uses the account-level identity context, so this field may be empty.', example='advanced'),
+  createdAt?: string(name='CreatedAt', description='The creation time in ISO 8601 format.', example='2026-05-28T17:59:55Z'),
   memberId?: string(name='MemberId', description='The ID of the first member.', example='mb-cz51tnnp8****'),
   memberName?: string(name='MemberName', description='The name of the first member.', example='my-member'),
-  requestId?: string(name='RequestId', description='The request ID.', example='FE9C65D7-930F-57A5-A207-8C396329****'),
-  role?: string(name='Role', description='The role of the first member. The value is fixed as owner.', example='owner'),
-  status?: string(name='Status', description='The workspace status. Valid values:
-- Active: running as expected.
-- Locked: locked due to overdue payment or expiration.', example='Active'),
-  type?: string(name='Type', description='The workspace type. Valid values:
-- personal: individual account.
-- enterprise: enterprise account.', example='personal'),
+  permissionMode?: string(name='PermissionMode', description='The permission mode that actually takes effect after the workspace is created. A lowercase string is returned.
+- `personal_compatibility`: The compatibility mode, which corresponds to the request value `compatibility`.
+- `advanced`: The advanced permission mode.
+
+This field is optional. If it is not returned in the response, call GetContextDatabaseWorkspace to query the workspace details and confirm the actual mode. Do not recreate the workspace simply because this field is missing.', example='advanced'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='FE9C65D7-930F-57A5-A207-8C396329****'),
+  role?: string(name='Role', description='The role of the first member, which is fixed to owner.', example='owner'),
+  status?: string(name='Status', description='The status of the workspace (Active: running normally; Locked: stopped due to overdue payments or locked due to expiration).', example='Active'),
+  type?: string(name='Type', description='The type of the workspace (personal: individual, enterprise: enterprise).', example='personal'),
+  viewer?: {
+    boundMemberId?: string(name='BoundMemberId', description='The ID of the workspace member bound in the identity information of the current call. This field is optional and is empty if no bound member information is provided.', example='member-example'),
+    boundMemberRole?: string(name='BoundMemberRole', description='The role of the bound member in the workspace, such as `Owner`. This field is optional and is empty if no bound member role information is provided.', example='Owner'),
+    boundMemberStatus?: string(name='BoundMemberStatus', description='The status of the bound member, such as `active`. This field is optional and is empty if no bound member status information is provided.', example='active'),
+    callerType?: string(name='CallerType', description='The account type of the caller for the current call, such as `customer`. This field describes the caller account and does not represent the role of the workspace member.', example='customer'),
+    identityMode?: string(name='IdentityMode', description='The identity parsing mode for the current call. Valid values:
+- `account_compatibility`: The account compatibility identity mode.
+- `bound_member`: The bound member identity mode.
+
+The identity parsing mode and the permission mode of the workspace are different concepts. You cannot infer whether advanced permissions are enabled for the workspace based on this field.', example='account_compatibility'),
+    selectedMemberId?: string(name='SelectedMemberId', description='The ID of the workspace member selected in the account compatibility identity mode. This field is optional and is empty if no member is selected for the current call. This field and the bound member ID represent the member selection result and the binding relationship, respectively.', example='member-example'),
+  }(name='Viewer', description='The viewer identity information for the current call, including the identity parsing mode, caller account type, and member information. Member-related fields are optional.'),
   workspaceId?: string(name='WorkspaceId', description='The ID of the new workspace.', example='ws-as1llqmkol****'),
-  workspaceName?: string(name='WorkspaceName', description='The workspace name.', example='my-workspace'),
+  workspaceName?: string(name='WorkspaceName', description='The name of the workspace.', example='my-workspace'),
 }
 
 model CreateContextDatabaseWorkspaceResponse = {
@@ -642,7 +674,10 @@ model CreateContextDatabaseWorkspaceResponse = {
 }
 
 /**
-  * @description Creates a workspace along with the first member and the first API key in a one-time onboarding process. The plaintext API key is returned in the response.
+  * @description Creates a ContextDB workspace and its first member.
+  * - GenerateInitialKey defaults to `true`. An initial API key is generated during creation, and the plaintext key is returned only once. Save the returned key. If set to `false`, no initial API key is generated, and the ApiKeyName and ApiKey fields in the response are empty.
+  * - You can use ClusterId to specify the cluster to which the workspace belongs.
+  * - You can use PermissionMode to select the compatibility mode or the advanced permission mode. The advanced permission mode can only be selected by the Alibaba Cloud account. It takes effect immediately after the workspace is created and cannot be disabled.
   * @param request  the request parameters of CreateContextDatabaseWorkspace  CreateContextDatabaseWorkspaceRequest
   * @return CreateContextDatabaseWorkspaceResponse
  */
@@ -1192,10 +1227,34 @@ This parameter is required.', example='ws-as1llqmkol****', position='Query'),
 }
 
 model DeleteContextDatabaseWorkspaceResponseBody = {
-  createdAt?: string(name='CreatedAt', description='The time when the workspace was created, in ISO 8601 format.', example='2026-05-28T17:59:55Z'),
+  capabilities?: {
+    executableActions?: [ string ](name='ExecutableActions', description='The list of operation names that the account compatibility adapter can perform. The list content does not represent read/write, member group, or access control authorization for specific resources.'),
+  }(name='Capabilities', description='The account-level capability information for the current request. This information only indicates the operations that the account compatibility adapter can perform and does not represent resource-level authorization. This field is optional and is not returned when no account-level executable operations are provided.'),
+  clusterId?: string(name='ClusterId', description='The ID of the cluster to which the workspace belongs. For shared clusters, default is returned. For dedicated clusters, the corresponding cluster ID is returned.', example='default'),
+  consolePermissionMode?: string(name='ConsolePermissionMode', description='The permission mode used by the server to parse the identity of the current request. Valid values:
+- personal_compatibility: Compatibility mode.
+- advanced: Advanced permission mode.
+
+This field describes the identity context of the current request. For the actual permission mode of the workspace, refer to PermissionMode.', example='advanced'),
+  createdAt?: string(name='CreatedAt', description='The creation time in ISO-8601 format.', example='2026-05-28T17:59:55Z'),
+  permissionMode?: string(name='PermissionMode', description='The permission mode of the workspace. Valid values:
+- personal_compatibility: Compatibility mode.
+- advanced: Advanced permission mode.', example='advanced'),
   requestId?: string(name='RequestId', description='The request ID.', example='FE9C65D7-930F-57A5-A207-8C396329****'),
-  status?: string(name='Status', description='The workspace status. The value is fixed as Deleted.', example='Deleted'),
-  type?: string(name='Type', description='The workspace type.', example='personal'),
+  status?: string(name='Status', description='The status of the workspace. This value is fixed to Deleted.', example='Deleted'),
+  type?: string(name='Type', description='The type of the workspace.', example='personal'),
+  viewer?: {
+    boundMemberId?: string(name='BoundMemberId', description='The ID of the bound workspace member in the identity information for the current request. This field is optional and has no value when bound member information is not provided.', example='member-example'),
+    boundMemberRole?: string(name='BoundMemberRole', description='The role of the bound member in the workspace, such as Owner. This field is optional and has no value when bound member role information is not provided.', example='Owner'),
+    boundMemberStatus?: string(name='BoundMemberStatus', description='The status of the bound member, such as active. This field is optional and has no value when bound member status information is not provided.', example='active'),
+    callerType?: string(name='CallerType', description='The account type of the caller for the current request, such as customer. This field describes the caller account and does not represent the role of a workspace member.', example='customer'),
+    identityMode?: string(name='IdentityMode', description='The identity resolution mode for the current request. Valid values:
+- account_compatibility: Account compatibility identity mode.
+- bound_member: Bound member identity mode.
+
+The identity resolution mode and the workspace permission mode are different concepts. You cannot infer whether advanced permissions are enabled for the workspace based on this field.', example='account_compatibility'),
+    selectedMemberId?: string(name='SelectedMemberId', description='The ID of the selected workspace member in the account compatibility identity mode. This field is optional and has no value when no member is selected for the current request. This field and the bound member ID represent the member selection result and the binding relationship, respectively.', example='member-example'),
+  }(name='Viewer', description='The viewer identity information for the current request, including the identity resolution mode, caller account type, and member information. Member-related fields are optional.'),
   workspaceId?: string(name='WorkspaceId', description='The ID of the deleted workspace.', example='ws-as1llqmkol****'),
   workspaceName?: string(name='WorkspaceName', description='The name of the deleted workspace.', example='my-workspace'),
 }
@@ -1207,7 +1266,7 @@ model DeleteContextDatabaseWorkspaceResponse = {
 }
 
 /**
-  * @description Deletes a workspace. This is a hard delete and cannot be recovered. After the workspace is deleted, the local metadata is soft-deleted synchronously. Deleted workspaces no longer count toward the quota.
+  * @description Deletes a workspace. This is a hard deletion and cannot be undone. After the workspace is deleted, local metadata is synchronously soft deleted, and the deleted workspace is no longer counted towards the quota.
   * @param request  the request parameters of DeleteContextDatabaseWorkspace  DeleteContextDatabaseWorkspaceRequest
   * @return DeleteContextDatabaseWorkspaceResponse
  */
@@ -3406,41 +3465,41 @@ async function listContextDatabaseMembers(request: ListContextDatabaseMembersReq
 }
 
 model ListContextDatabaseSyncConnectionsRequest {
-  page?: int32(name='Page', description='The page number. Pages start from 1.', example='1', position='Query'),
+  page?: int32(name='Page', description='The page number, starting from 1.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20', position='Query'),
-  pluginId?: string(name='PluginId', description='The plug-in ID.', example='dingtalk', position='Query'),
+  pluginId?: string(name='PluginId', description='The plugin ID.', example='dingtalk', position='Query'),
   workspaceId: string(name='WorkspaceId', description='The workspace ID.
 
 This parameter is required.', example='ws-as1llqmkol****', position='Query'),
 }
 
 model ListContextDatabaseSyncConnectionsResponseBody = {
-  code?: string(name='Code', description='The error code.', example='示例值'),
+  code?: string(name='Code', description='The error code.', example='Example value'),
   data?: {
     connections?: [ 
       {
         authKind?: string(name='AuthKind', description='The authorization method. Valid values: app, pasted-url, static-secret, and none.', example='app'),
         authState?: string(name='AuthState', description='The authorization status.', example='ready'),
-        createdAt?: string(name='CreatedAt', description='The time when the datasource configuration was created.', example='2026-09-23T10:00:00+08:00'),
-        displayName?: string(name='DisplayName', description='The display name.', example='R&D Team DingTalk Datasource'),
+        createdAt?: string(name='CreatedAt', description='The creation time.', example='2026-09-23T10:00:00+08:00'),
+        displayName?: string(name='DisplayName', description='The display name.', example='R&D team DingTalk data source'),
         id?: string(name='Id', description='The connection ID, which is a UUID generated by the system.', example='550e8400-e29b-41d4-a716-446655440000'),
-        pluginId?: string(name='PluginId', description='The plug-in ID.', example='dingtalk'),
-        remediation?: string(name='Remediation', description='The remediation suggestion.', example='Re-authorize the datasource configuration'),
+        pluginId?: string(name='PluginId', description='The plugin ID.', example='dingtalk'),
+        remediation?: string(name='Remediation', description='The remediation suggestion.', example='Re-authorize the data source'),
         scopeReport?: map[string]any(name='ScopeReport', description='The authorization scope report.', example='{}'),
         secretFingerprint?: string(name='SecretFingerprint', description='The credential fingerprint.', example='sha256:4b3b7b2e5f6a1c9d8e0f1234567890abcdef1234567890abcdef1234567890ab'),
-        secretUpdatedAt?: string(name='SecretUpdatedAt', description='The time when the credential was last updated.', example='2026-09-23T10:00:00+08:00'),
-        updatedAt?: string(name='UpdatedAt', description='The time when the datasource configuration was last updated.', example='2026-09-23T10:00:00+08:00'),
-        verifiedAt?: string(name='VerifiedAt', description='The time when the datasource configuration was last verified.', example='2026-09-23T10:00:00+08:00'),
+        secretUpdatedAt?: string(name='SecretUpdatedAt', description='The credential update time.', example='2026-09-23T10:00:00+08:00'),
+        updatedAt?: string(name='UpdatedAt', description='The update time.', example='2026-09-23T10:00:00+08:00'),
+        verifiedAt?: string(name='VerifiedAt', description='The verification time.', example='2026-09-23T10:00:00+08:00'),
       }
-    ](name='Connections', description='The list of datasource configurations.', example='[{"Id":"conn-as1llqmkol****", "PluginId":"dingtalk", "DisplayName":"R&D Team DingTalk Datasource", "AuthKind":"app"}]'),
-    page?: int32(name='Page', description='The page number. Pages start from 1.', example='1'),
+    ](name='Connections', description='The list of data sources.', example='[{"Id":"conn-as1llqmkol****", "PluginId":"dingtalk", "DisplayName":"R&D team DingTalk data source", "AuthKind":"app"}]'),
+    page?: int32(name='Page', description='The page number, starting from 1.', example='1'),
     pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
     total?: int32(name='Total', description='The total number of entries.', example='100'),
   }(name='Data', description='The returned data.'),
   httpStatusCode?: long(name='HttpStatusCode', description='The HTTP status code.', example='1'),
-  message?: string(name='Message', description='The response message.', example='示例值'),
+  message?: string(name='Message', description='The message.', example='Example value'),
   requestId?: string(name='RequestId', description='The request ID.', example='id-001'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.'),
 }
 
 model ListContextDatabaseSyncConnectionsResponse = {
@@ -3450,8 +3509,8 @@ model ListContextDatabaseSyncConnectionsResponse = {
 }
 
 /**
-  * @description The list operation returns paginated results by default. Page and PageSize are optional parameters.
-  * The Data list field in the response is returned as an array. Total indicates the total number of records that match the specified conditions.
+  * @description By default, the list operation returns paginated results. The Page and PageSize parameters are optional.
+  * The Data field in the response is returned as an array, and Total indicates the total number of matching entries.
   * @param request  the request parameters of ListContextDatabaseSyncConnections  ListContextDatabaseSyncConnectionsRequest
   * @return ListContextDatabaseSyncConnectionsResponse
  */
@@ -3549,8 +3608,8 @@ async function listContextDatabaseSyncJobExclusions(request: ListContextDatabase
 }
 
 model ListContextDatabaseSyncJobsRequest {
-  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The ID of the target knowledge base.', example='kb-as1llqmkol****', position='Query'),
-  page?: int32(name='Page', description='The page number. The value starts from 1.', example='1', position='Query'),
+  knowledgeBaseId?: string(name='KnowledgeBaseId', description='The destination knowledge base ID.', example='kb-as1llqmkol****', position='Query'),
+  page?: int32(name='Page', description='The page number, starting from 1.', example='1', position='Query'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20', position='Query'),
   workspaceId: string(name='WorkspaceId', description='The workspace ID.
 
@@ -3562,34 +3621,34 @@ model ListContextDatabaseSyncJobsResponseBody = {
   data?: {
     jobs?: [ 
       {
-        autoPauseReason?: string(name='AutoPauseReason', description='The reason for automatic pause.', example='Failed 3 consecutive times'),
-        autoPaused?: boolean(name='AutoPaused', description='Indicates whether the task is automatically paused.', example='true'),
+        autoPauseReason?: string(name='AutoPauseReason', description='The auto-pause reason.', example='Three consecutive run failures'),
+        autoPaused?: boolean(name='AutoPaused', description='Indicates whether the job is automatically paused.', example='true'),
         configVersion?: int32(name='ConfigVersion', description='The configuration version number.', example='3'),
-        enabled?: boolean(name='Enabled', description='Indicates whether the task is enabled.', example='true'),
+        enabled?: boolean(name='Enabled', description='Indicates whether the job is enabled.', example='true'),
         filters?: {
-          exclude?: [ string ](name='Exclude', description='The list of exclusion rules.', example='["/Archived Documents"]'),
+          exclude?: [ string ](name='Exclude', description='The list of exclusion rules.', example='["/Archived documents"]'),
           excludedDocumentIds?: [ string ](name='ExcludedDocumentIds', description='The list of excluded document IDs.', example='["doc-as1llqmkol****"]'),
-          include?: [ string ](name='Include', description='The list of inclusion rules.', example='["/R&D Documents"]'),
+          include?: [ string ](name='Include', description='The list of inclusion rules.', example='["/R&D documents"]'),
           sizeLimit?: long(name='SizeLimit', description='The size limit in bytes.', example='2147483648'),
           typeAllowlist?: [ string ](name='TypeAllowlist', description='The list of allowed document types.', example='["docx", "pdf"]'),
-        }(name='Filters', description='The filter conditions.', example='{"include":["/研发文档/**"],"exclude":["/归档文档/**"],"excludedDocumentIds":[],"sizeLimit":2147483648,"typeAllowlist":["docx","pdf"]}'),
-        id?: string(name='Id', description='The task ID, which is a system-generated UUID.', example='550e8400-e29b-41d4-a716-446655440000'),
-        knowledgeBaseId?: string(name='KnowledgeBaseId', description='The ID of the target knowledge base.', example='kb-as1llqmkol****'),
-        name?: string(name='Name', description='The name.', example='R&D Team Document Import'),
-        nextRunAt?: string(name='NextRunAt', description='The time of the next run.', example='2026-09-23T10:00:00+08:00'),
-        scheduleType?: string(name='ScheduleType', description='The scheduling type. Valid values: interval, daily-times.', example='daily-times'),
+        }(name='Filters', description='The filter conditions.', example='{"include":["/R&D documents/**"],"exclude":["/Archived documents/**"],"excludedDocumentIds":[],"sizeLimit":2147483648,"typeAllowlist":["docx","pdf"]}'),
+        id?: string(name='Id', description='The job ID, which is a system-generated UUID.', example='550e8400-e29b-41d4-a716-446655440000'),
+        knowledgeBaseId?: string(name='KnowledgeBaseId', description='The destination knowledge base ID.', example='kb-as1llqmkol****'),
+        name?: string(name='Name', description='The name.', example='R&D team document import'),
+        nextRunAt?: string(name='NextRunAt', description='The next run time.', example='2026-09-23T10:00:00+08:00'),
+        scheduleType?: string(name='ScheduleType', description='The schedule type. Valid values: interval and daily-times.', example='daily-times'),
         sourceId?: string(name='SourceId', description='The data source ID, which is a system-generated UUID.', example='550e8400-e29b-41d4-a716-446655440000'),
-        targetId?: string(name='TargetId', description='The target ID, which is a system-generated UUID.', example='550e8400-e29b-41d4-a716-446655440000'),
+        targetId?: string(name='TargetId', description='The destination ID, which is a system-generated UUID.', example='550e8400-e29b-41d4-a716-446655440000'),
       }
-    ](name='Jobs', description='The list of import tasks.', example='[{"Id":"job-as1llqmkol****", "SourceId":"src-as1llqmkol****", "TargetId":"tg-as1llqmkol****", "KnowledgeBaseId":"kb-as1llqmkol****"}]'),
-    page?: int32(name='Page', description='The page number. The value starts from 1.', example='1'),
+    ](name='Jobs', description='The list of import jobs.', example='[{"Id":"job-as1llqmkol****", "SourceId":"src-as1llqmkol****", "TargetId":"tg-as1llqmkol****", "KnowledgeBaseId":"kb-as1llqmkol****"}]'),
+    page?: int32(name='Page', description='The page number, starting from 1.', example='1'),
     pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
     total?: int32(name='Total', description='The total number of entries.', example='100'),
   }(name='Data', description='The returned data.'),
   httpStatusCode?: long(name='HttpStatusCode', description='The HTTP status code.', example='1'),
-  message?: string(name='Message', description='The response message.', example='Sample value'),
+  message?: string(name='Message', description='The message.', example='Sample value'),
   requestId?: string(name='RequestId', description='The request ID.', example='id-001'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.'),
 }
 
 model ListContextDatabaseSyncJobsResponse = {
@@ -3599,8 +3658,8 @@ model ListContextDatabaseSyncJobsResponse = {
 }
 
 /**
-  * @description The list operation returns paginated results by default. Page and PageSize are optional parameters.
-  * The Data list field in the response is returned as an array. Total indicates the total number of records that match the specified conditions.
+  * @description The list API returns paginated results by default. Page and PageSize are optional parameters.
+  * The Data list field in the response is returned as an array, and Total indicates the total number of matching entries.
   * @param request  the request parameters of ListContextDatabaseSyncJobs  ListContextDatabaseSyncJobsRequest
   * @return ListContextDatabaseSyncJobsResponse
  */
@@ -5565,10 +5624,34 @@ This parameter is required.', example='my-workspace', position='Query'),
 }
 
 model UpdateContextDatabaseWorkspaceResponseBody = {
-  createdAt?: string(name='CreatedAt', description='The time when the workspace was created, in ISO 8601 format.', example='2026-05-28T17:59:55Z'),
+  capabilities?: {
+    executableActions?: [ string ](name='ExecutableActions', description='The list of operation names that the account compatibility adapter can perform. The list content does not represent read/write, member group, or access control authorization for specific resources.'),
+  }(name='Capabilities', description='The account-level capability information of the current request. It only indicates the operations that the account compatibility adapter can perform and does not represent resource-level authorization. This field is optional and is not returned if no account-level executable operations are provided.'),
+  clusterId?: string(name='ClusterId', description='The ID of the cluster to which the workspace belongs. For shared clusters, `default` is returned. For dedicated clusters, the corresponding cluster ID is returned.', example='default'),
+  consolePermissionMode?: string(name='ConsolePermissionMode', description='The permission mode used by the server to parse the identity of the current request. Valid values:
+- `personal_compatibility`: compatibility mode.
+- `advanced`: advanced permission mode.
+
+This field describes the identity context of the current request. For the actual permission mode of the workspace, refer to PermissionMode.', example='advanced'),
+  createdAt?: string(name='CreatedAt', description='The creation time in ISO 8601 format.', example='2026-05-28T17:59:55Z'),
+  permissionMode?: string(name='PermissionMode', description='The permission mode of the workspace. Valid values:
+- `personal_compatibility`: compatibility mode.
+- `advanced`: advanced permission mode.', example='advanced'),
   requestId?: string(name='RequestId', description='The request ID.', example='FE9C65D7-930F-57A5-A207-8C396329****'),
-  status?: string(name='Status', description='The status of the workspace.', example='Active'),
-  type?: string(name='Type', description='The type of the workspace.', example='personal'),
+  status?: string(name='Status', description='The workspace status.', example='Active'),
+  type?: string(name='Type', description='The workspace type.', example='personal'),
+  viewer?: {
+    boundMemberId?: string(name='BoundMemberId', description='The ID of the bound workspace member in the identity information of the current request. Optional. This field is empty if no bound member information is provided.', example='member-example'),
+    boundMemberRole?: string(name='BoundMemberRole', description='The role of the bound member in the workspace, such as `Owner`. Optional. This field is empty if no bound member role information is provided.', example='Owner'),
+    boundMemberStatus?: string(name='BoundMemberStatus', description='The status of the bound member, such as `active`. Optional. This field is empty if no bound member status information is provided.', example='active'),
+    callerType?: string(name='CallerType', description='The account type of the caller for the current request, such as `customer`. This field describes the caller account and does not indicate the role of a workspace member.', example='customer'),
+    identityMode?: string(name='IdentityMode', description='The identity resolution mode of the current request. Valid values:
+- `account_compatibility`: account compatibility identity mode.
+- `bound_member`: bound member identity mode.
+
+The identity resolution mode and the workspace permission mode are different concepts. You cannot infer whether advanced permissions are enabled for the workspace based on this field.', example='account_compatibility'),
+    selectedMemberId?: string(name='SelectedMemberId', description='The ID of the selected workspace member in the account compatibility identity mode. Optional. This field is empty if no member is selected for the current request. This field and the bound member ID represent the member selection result and the binding relationship, respectively.', example='member-example'),
+  }(name='Viewer', description='The viewer identity information of the current request, including the identity resolution mode, caller account type, and member information. Member-related fields are optional.'),
   workspaceId?: string(name='WorkspaceId', description='The workspace ID.', example='ws-as1llqmkol****'),
   workspaceName?: string(name='WorkspaceName', description='The updated name of the workspace.', example='my-workspace'),
 }
