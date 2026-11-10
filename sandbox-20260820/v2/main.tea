@@ -1,6 +1,7 @@
 /**
  *
  */
+import GatewayClient;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -9,6 +10,9 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
+  @productId = 'Sandbox';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -113,6 +117,16 @@ model CreateCustomDomainInput {
   description?: string(name='description', description='The description of the custom domain name.', example='Entry domain name for the sandbox preview environment'),
   domainName?: string(name='domainName', description='The custom domain name.', example='sandbox.example.com'),
   tlsConfig?: TLSConfig(name='tlsConfig', description='The TLS protocol configuration used by the domain name.'),
+}
+
+model CreateSnapshotInput {
+  name?: string(name='name', description='The snapshot name.', example='name'),
+  sandboxID?: string(name='sandboxID', description='The source sandbox ID.
+
+This parameter is required.', example='sbx-****'),
+  teamID?: string(name='teamID', description='The team ID.
+
+This parameter is required.', example='70d1****abcd'),
 }
 
 model CreateTeamInput {
@@ -251,23 +265,30 @@ model E2BLifecycle {
 
 model E2BListedSandbox {
   cpuCount?: int32(name='cpuCount', description='The number of vCPUs.', example='2'),
-  diskSizeMB?: int32(name='diskSizeMB', description='The temporary disk specification.', example='10240'),
+  diskSizeMB?: int32(name='diskSizeMB', description='The ephemeral disk size.', example='10240'),
   endAt?: string(name='endAt', description='The end time.', example='2026-09-03T02:06:37.932Z'),
   generation?: int32(name='generation', description='The sandbox version.', example='2'),
-  memoryMB?: int32(name='memoryMB', description='The memory specification.', example='2'),
+  memoryMB?: int32(name='memoryMB', description='The memory size.', example='2'),
   metadata?: map[string]string(name='metadata', description='The metadata.'),
   resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-****'),
+  resourceTags?: [ 
+    {
+      tagKey?: string(name='tagKey', description='The tag key.', example='project'),
+      tagValue?: string(name='tagValue', description='The tag value.', example='demo'),
+    }
+  ](name='resourceTags', description='The resource tags.'),
   sandboxID?: string(name='sandboxID', description='The sandbox ID.', example='sbx-xxxx'),
+  snapshotID?: string(name='snapshotID', description='The snapshot ID.', example='0d66****b374'),
   startedAt?: string(name='startedAt', description='The start time.', example='2026-09-03T02:05:37.932Z'),
-  state?: string(name='state', description='The sandbox status. Valid values:
+  state?: string(name='state', description='The sandbox state. Valid values:
 - running: Running.
-- pausing: Being paused.
+- pausing: Pausing.
 - paused: Paused.
-- resuming: Being resumed.
-- pause_fail: Failed to pause.
-- resume_fail: Failed to resume.
+- resuming: Resuming.
+- pause_fail: Pause failed.
+- resume_fail: Resume failed.
 - snapshotting: Creating a snapshot.
-- snapshot_failed: Failed to create a snapshot.
+- snapshot_failed: Snapshot creation failed.
 - terminated: Terminated.', example='running'),
   teamID?: string(name='teamID', description='The unique identifier of the team.', example='9f5a1fe9-****'),
   teamName?: string(name='teamName', description='The team name.', example='default'),
@@ -329,32 +350,55 @@ model E2BSandbox {
   envdAccessToken?: string(name='envdAccessToken', description='The authentication token for accessing the envd daemon process in the sandbox, in UUID format. This token is automatically generated only when secure is set to true.', example='4b1e9d07-****'),
   fcFunctionName?: string(name='fcFunctionName', description='The Function Compute function name.', example='template-d391c80b5d1527de'),
   fcInstanceID?: string(name='fcInstanceID', description='The Function Compute instance ID.', example='c-6a9d1501-133e6f48-b3f07782dd47'),
-  fcSessionID?: string(name='fcSessionID', description='The Function Compute session ID corresponding to the sandbox, in UUID format. This ID is used to locate the underlying session when pausing, resuming, or deleting the sandbox.', example='3a7ecd09-****'),
+  fcSessionID?: string(name='fcSessionID', description='The Function Compute session ID of the sandbox, in UUID format. This ID is used to locate the underlying session when pausing, resuming, or deleting the sandbox.', example='3a7ecd09-****'),
   generation?: int32(name='generation', description='The sandbox version.', example='2'),
   memoryMB?: int32(name='memoryMB', description='The memory specifications.', example='2'),
   metadata?: map[string]string(name='metadata', description='The metadata configuration.'),
   network?: E2BNetwork(name='network', description='The network configuration.'),
   resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-****'),
+  resourceTags?: [ 
+    {
+      tagKey?: string(name='tagKey', description='The tag key.', example='project'),
+      tagValue?: string(name='tagValue', description='The tag value.', example='demo'),
+    }
+  ](name='resourceTags', description='The resource tags.'),
   runtime?: InnerSandboxRuntimeConfig(name='runtime', description='The runtime configuration.'),
   sandboxID?: string(name='sandboxID', description='The unique identifier of the sandbox.', example='sbx-xxxx'),
+  snapshotID?: string(name='snapshotID', description='The snapshot ID.', example='0d66****b374'),
   startedAt?: string(name='startedAt', description='The start time.', example='2026-09-04T02:02:43.826Z'),
   state?: string(name='state', description='The sandbox state. Valid values:
-- running: The sandbox is running.
-- pausing: The sandbox is pausing.
-- paused: The sandbox is paused.
-- resuming: The sandbox is resuming.
-- pause_fail: The pause operation failed.
-- resume_fail: The resume operation failed.
-- snapshotting: A snapshot is being created.
-- snapshot_failed: Snapshot creation failed.
-- terminated: The sandbox is terminated.', example='running'),
+- running: Running.
+- pausing: Pausing.
+- paused: Paused.
+- resuming: Resuming.
+- pause_fail: Pause failed.
+- resume_fail: Resume failed.
+- snapshotting: Snapshotting.
+- snapshot_failed: Snapshot failed.
+- terminated: Terminated.', example='running'),
   teamID?: string(name='teamID', description='The unique identifier of the team.', example='eea033af-****'),
   teamName?: string(name='teamName', description='The team name.', example='default'),
-  teamPlan?: string(name='teamPlan', description='The QoS version.', example='eco'),
+  teamPlan?: string(name='teamPlan', description='The QoS edition.', example='eco'),
   templateID?: string(name='templateID', description='The unique identifier of the template.', example='v9vjyzw64bsu83vw0dgs'),
   templateName?: string(name='templateName', description='The template name.', example='base'),
   userID?: string(name='userID', description='The UID of the creator.', example='2000****'),
   volumeMounts?: InnerSandboxVolumeMount(name='volumeMounts', description='The mount configuration.'),
+}
+
+model E2BSnapshot {
+  cpuCount?: float(name='cpuCount', description='The CPU specifications of the snapshot.', example='2'),
+  createdTime?: string(name='createdTime', description='The creation time of the snapshot.', example='1793685726000'),
+  expiredTime?: string(name='expiredTime', description='The expiration time of the snapshot.', example='1796277726000'),
+  memoryMB?: int32(name='memoryMB', description='The memory specifications of the snapshot.', example='4'),
+  name?: string(name='name', description='The short name of the snapshot.', example='name'),
+  resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-****'),
+  snapshotID?: string(name='snapshotID', description='The snapshot ID.', example='0d66****b374'),
+  sourceSandboxID?: string(name='sourceSandboxID', description='The source sandbox ID.', example='sbx-****'),
+  status?: string(name='status', description='The snapshot status.', example='Available'),
+  tag?: string(name='tag', description='The snapshot tag.', example='tag'),
+  teamID?: string(name='teamID', description='The team ID.', example='9A66****b892'),
+  teamName?: string(name='teamName', description='The team name.', example='teamName'),
+  userID?: string(name='userID', description='The Alibaba Cloud account ID.', example='155****'),
 }
 
 model E2BTeam {
@@ -469,16 +513,18 @@ model ImportApiKeyInput {
 
 model InnerCreateSandboxInput {
   allowInternetAccess?: boolean(name='allowInternetAccess', description='Specifies whether the sandbox is allowed to access external networks.', example='true'),
-  autoPause?: boolean(name='autoPause', description='Specifies whether to automatically pause after timeout.', example='true'),
-  autoResume?: boolean(name='autoResume', description='Specifies whether to automatically resume.', example='true'),
+  autoPause?: boolean(name='autoPause', description='Specifies whether to automatically pause the sandbox after a timeout.', example='true'),
+  autoResume?: boolean(name='autoResume', description='Specifies whether to automatically resume the sandbox.', example='true'),
   envVars?: map[string]string(name='envVars', description='The environment variable configuration.'),
   metadata?: map[string]string(name='metadata', description='The metadata configuration.'),
   network?: E2BNetwork(name='network', description='The network configuration.'),
   runtime?: InnerSandboxRuntimeConfig(name='runtime', description='The runtime configuration.'),
   secure?: boolean(name='secure', description='Specifies whether authentication is required to access the sandbox envd.', example='true'),
+  snapshotID?: string(name='snapshotID', description='The snapshot ID.', example='0d66****b374'),
+  snapshotName?: string(name='snapshotName', description='The snapshot name.', example='name'),
   teamID?: string(name='teamID', description='The unique identifier of the team.', example='76eeecaa-****'),
   templateID?: string(name='templateID', description='The unique identifier of the template.', example='v9vjyzw64bsu83vw0dgs'),
-  timeout?: int32(name='timeout', description='The timeout period. Unit: seconds.', example='180'),
+  timeout?: int32(name='timeout', description='The timeout period, in seconds.', example='180'),
   volumeMounts?: InnerCreateSandboxVolumeMounts(name='volumeMounts', description='The volume mount configuration.'),
 }
 
@@ -589,6 +635,30 @@ model OSSVolumeConfig {
   bucketPath?: string(name='bucketPath', description='The path prefix within the bucket to use as the mount source. If this parameter is not specified, the entire bucket is mounted.', example='/workspace/'),
   endpoint?: string(name='endpoint', description='The OSS service registration address used to access the bucket. Use an internal network address in the same region as the sandboxed container.', example='oss-cn-hangzhou-internal.aliyuncs.com'),
   readOnly?: boolean(name='readOnly', description='Specifies whether the storage volume is mounted as read-only in the sandboxed container.'),
+}
+
+model PublicListedSandbox {
+  autoPause?: boolean(name='autoPause', example='true'),
+  autoResume?: boolean(name='autoResume', example='true'),
+  cpu?: float(name='cpu', example='2'),
+  diskSize?: int32(name='diskSize', example='2048'),
+  endAt?: string(name='endAt', example='2026-10-30T03:09:21.313Z'),
+  memorySize?: int32(name='memorySize', example='10240'),
+  resourceGroupID?: string(name='resourceGroupID', example='rg-acfmwxqyrgwabcd'),
+  resourceTags?: [ 
+    {
+      tagKey?: string(name='tagKey', example='project'),
+      tagValue?: string(name='tagValue', example='demo'),
+    }
+  ](name='resourceTags'),
+  sandboxID?: string(name='sandboxID', example='sbx-4a4356a4-b731-42c1-ba8e-650f725be098'),
+  startedAt?: string(name='startedAt', example='2026-10-30T02:09:21.313Z'),
+  state?: string(name='state', example='running'),
+  teamID?: string(name='teamID', example='13b721e6-8cc8-5df2-af13-80316f7508af'),
+  teamName?: string(name='teamName', example='my-team'),
+  templateID?: string(name='templateID', example='us7dxqaezw5uu7aa2cm5'),
+  templateName?: string(name='templateName', example='my-base-template'),
+  userID?: string(name='userID', example='123456789'),
 }
 
 model PublicTemplate {
@@ -706,6 +776,7 @@ model PublicUpdateTemplateEnvdInjectAction {
 
 model PublicUpdateTemplateInput {
   buildConfig?: PublicUpdateTemplateBuildConfig(name='buildConfig', description='The build configuration.'),
+  plan?: string(name='plan', description='The subscription plan for the team. Valid values: eco, std, and pro.', example='pro'),
   runtimeConfig?: PublicUpdateTemplateRuntimeConfig(name='runtimeConfig', description='The runtime configuration.'),
 }
 
@@ -776,6 +847,12 @@ model Quota {
   instanceCount?: int32(name='instanceCount', description='The quota for the number of running instances.', example='100'),
   memoryGB?: int32(name='memoryGB', description='The memory quota. Unit: GB.', example='200'),
   tagValue?: string(name='tagValue', description='The quota tag value, which is set to the team ID. Quotas are independently calculated based on this dimension.', example='7696f4cf-****'),
+}
+
+model QuotaUsage {
+  cpuCores?: double(name='cpuCores', description='已占用的 CPU 配额，单位为 vCPU，不是 CPU 使用率。', example='1'),
+  instanceCount?: long(name='instanceCount', description='尚未释放的实例授权数量。', example='1'),
+  memoryGB?: double(name='memoryGB', description='已占用的内存配额，单位为 GB，不是进程实际内存。', example='1.5'),
 }
 
 model SandboxLifecycleEvent {
@@ -991,7 +1068,7 @@ model CreateTemplateRequest {
 }
 
 model CreateTemplateResponseBody = {
-  code?: string(name='code', description='The error code. The value is 200 if the request succeeds.', example='200'),
+  code?: string(name='code', description='The error code. The value is 200 if the request is successful.', example='200'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
   templateID?: string(name='templateID', description='The unique identifier of the created template.', example='us7dxqaezw5uu7aa2cm5'),
@@ -1049,7 +1126,7 @@ model CreateTemplateCacheRequest {
 }
 
 model CreateTemplateCacheResponseBody = {
-  code?: string(name='code', description='The error code. The value is 200 if the request is successful.', example='200'),
+  code?: string(name='code', description='The error code. A value of 200 indicates success.', example='200'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
   templateCache?: PublicTemplateCache(name='templateCache', description='The template cache object.'),
@@ -1165,7 +1242,7 @@ model DeleteApiKeyRequest {
 
 model DeleteApiKeyResponseBody = {
   code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. A value of success indicates success.', example='success'),
+  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
 }
 
@@ -1221,7 +1298,7 @@ model DeleteQuotaRequest {
 
 model DeleteQuotaResponseBody = {
   code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. A value of success indicates a successful request.', example='success'),
+  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
 }
 
@@ -1281,8 +1358,8 @@ model DeleteTeamRequest {
 }
 
 model DeleteTeamResponseBody = {
-  code?: string(name='code', description='The response code. The value is 200 if the request is successful.', example='200'),
-  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
+  code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
+  message?: string(name='message', description='The response message. A value of success indicates success.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
 }
 
@@ -1399,7 +1476,7 @@ model DeleteTemplateCacheRequest {
 }
 
 model DeleteTemplateCacheResponseBody = {
-  code?: string(name='code', description='The error code. 200 indicates success.', example='200'),
+  code?: string(name='code', description='The error code. A value of 200 indicates success.', example='200'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
 }
@@ -1461,8 +1538,8 @@ model DeleteVolumeRequest {
 }
 
 model DeleteVolumeResponseBody = {
-  code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. A value of success indicates a successful request.', example='success'),
+  code?: string(name='code', description='The response code. 200 indicates success.', example='200'),
+  message?: string(name='message', description='The response message. success indicates a successful request.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
 }
 
@@ -1530,7 +1607,7 @@ model DescribeApiKeyResponseBody = {
   ipWhitelist?: [
     IPConfig
   ](name='ipWhitelist', description='The list of IP address whitelist rules.'),
-  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
+  message?: string(name='message', description='The response message. The value is success for a successful request.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='2BCFAE0A-9FA9-5F72-8E8B-724632BC19A9'),
 }
 
@@ -1586,9 +1663,10 @@ model DescribeQuotaRequest {
 
 model DescribeQuotaResponseBody = {
   code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. The value is success if the request succeeds.', example='success'),
+  message?: string(name='message', description='The response message. The value is success for a successful request.', example='success'),
   quota?: Quota(name='quota', description='The quota configuration information.'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
+  usage?: QuotaUsage(name='usage', description='Team 当前配额用量。用量不可用时省略；成功查询且无占用时返回三项零值。', example='{"cpuCores":1,"memoryGB":1.5,"instanceCount":1}'),
 }
 
 model DescribeQuotaResponse = {
@@ -1648,7 +1726,7 @@ model DescribeTemplateCacheRequest {
 }
 
 model DescribeTemplateCacheResponseBody = {
-  code?: string(name='code', description='The error code. A value of 200 indicates success.', example='200'),
+  code?: string(name='code', description='The error code. The value is 200 if the request is successful.', example='200'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
   templateCache?: PublicTemplateCache(name='templateCache', description='The template cache object.'),
@@ -1711,7 +1789,7 @@ model GetTeamRequest {
 
 model GetTeamResponseBody = {
   code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. A value of success indicates a successful request.', example='success'),
+  message?: string(name='message', description='The response message. The value is success for a successful request.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
   team?: E2BTeam(name='team', description='The team information.'),
 }
@@ -1775,14 +1853,14 @@ model GetTemplateResponseBody = {
   resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-acfmxazb4ph6aiy'),
   resourceTags?: [ 
     {
-      tagKey?: string(name='tagKey', description='The tag key.', example='project'),
-      tagValue?: string(name='tagValue', description='The tag value.', example='demo'),
+      tagKey?: string(name='tagKey', description='The key of the tag.', example='project'),
+      tagValue?: string(name='tagValue', description='The value of the tag.', example='demo'),
     }
   ](name='resourceTags', description='The resource tags.'),
   runtimeConfig?: PublicTemplateRuntimeConfig(name='runtimeConfig', description='The runtime configuration of the template.'),
   status?: PublicTemplateStatus(name='status', description='The status of the template.'),
   teamID?: string(name='teamID', description='The team ID.', example='13b721e6-8cc8-5df2-af13-80316f7508af'),
-  teamName?: string(name='teamName', description='The team name.', example='my-team'),
+  teamName?: string(name='teamName', description='The name of the team.', example='my-team'),
   templateID?: string(name='templateID', description='The unique identifier of the template.', example='us7dxqaezw5uu7aa2cm5'),
 }
 
@@ -1844,7 +1922,7 @@ model GetVolumeRequest {
 
 model GetVolumeResponseBody = {
   code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. A value of success indicates that the request is successful.', example='success'),
+  message?: string(name='message', description='The response message. The value is success for a successful request.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
   volume?: E2BVolume(name='volume', description='The storage volume information.'),
 }
@@ -1905,11 +1983,9 @@ model ListApiKeysRequest {
   apiKeyName?: string(name='apiKeyName', description='The name of the API key.', example='dev'),
   pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1. Valid values: 1 to 10000.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of API keys to return on each page. Default value: 10. Valid values: 1 to 100.', example='20'),
-  resourceGroupID?: string(name='resourceGroupID', description='The ID of the resource group.', example='rg-acfmwxqyrgwabcd'),
-  status?: string(name='status', description='Filters API keys by status. Valid values:
-- active: Enabled.
-- inactive: Disabled.', example='Success'),
-  teamID?: string(name='teamID', description='The ID of the team.', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
+  resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-acfmwxqyrgwabcd'),
+  status?: string(name='status', description='Filters API keys by status. Valid values: active (enabled), inactive (disabled).', example='Success'),
+  teamID?: string(name='teamID', description='The team ID.', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
   userID?: string(name='userID', description='The user ID of the creator.', example='123456789'),
 }
 
@@ -1918,10 +1994,10 @@ model ListApiKeysResponseBody = {
     ApiKey
   ](name='apiKeys', description='The list of API keys.'),
   code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. A value of success indicates a successful request.', example='success'),
+  message?: string(name='message', description='The response message. The value is success if the request succeeds.', example='success'),
   pageNumber?: int32(name='pageNumber', description='The page number of the current query.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page used in the current query.', example='20'),
-  requestId?: string(name='requestId', description='The ID of the request.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
+  requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
   total?: int32(name='total', description='The total number of API keys that meet the query conditions.', example='10'),
 }
 
@@ -1996,19 +2072,19 @@ async function listApiKeys(request: ListApiKeysRequest): ListApiKeysResponse {
 }
 
 model ListQuotaRequest {
-  maxResults?: int32(name='maxResults', description='The maximum number of records to return per page.', example='10'),
-  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first request. To query the next page, specify the nextToken value returned in the previous response.', example='Trigger_fasdatalake_deductionfee'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries to return per page.', example='10'),
+  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first query. To query the next page, set this parameter to the nextToken value returned in the previous response.', example='Trigger_fasdatalake_deductionfee'),
 }
 
 model ListQuotaResponseBody = {
-  code?: string(name='code', description='The response code. The value is 200 for a successful request.', example='200'),
-  maxResults?: int32(name='maxResults', description='The value of maxResults specified in the request. This field is returned only if a positive integer is specified for maxResults in the request.', example='10'),
-  message?: string(name='message', description='The response message. The value is success for a successful request.', example='success'),
-  nextToken?: string(name='nextToken', description='The pagination token for the next page, which can be used for subsequent queries.', example='qxGrXje86XMrYQ51aJMy'),
+  code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned per page. This field is returned only if a positive integer is specified for maxResults in the request.', example='10'),
+  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page, which can be used in subsequent queries.', example='qxGrXje86XMrYQ51aJMy'),
   quotas?: [
     Quota
   ](name='quotas', description='The list of quota configurations.'),
-  requestId?: string(name='requestId', description='The ID of the request.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
+  requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
 }
 
 model ListQuotaResponse = {
@@ -2018,7 +2094,7 @@ model ListQuotaResponse = {
 }
 
 /**
- * @summary Performs a paging query on the quota configurations for the current account.
+ * @summary Performs a paging query to retrieve the quota configuration list for the current account.
  *
  * @param request ListQuotaRequest
  * @param headers map
@@ -2055,7 +2131,7 @@ async function listQuotaWithOptions(request: ListQuotaRequest, headers: map[stri
 }
 
 /**
- * @summary Performs a paging query on the quota configurations for the current account.
+ * @summary Performs a paging query to retrieve the quota configuration list for the current account.
  *
  * @param request ListQuotaRequest
  * @return ListQuotaResponse
@@ -2069,7 +2145,7 @@ async function listQuota(request: ListQuotaRequest): ListQuotaResponse {
 model ListTeamsRequest {
   pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1. Valid values: 1 to 10000.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of teams to return on each page. Default value: 10. Valid values: 1 to 100.', example='20'),
-  plan?: string(name='plan', description='Filters teams by plan specifications. Valid values: eco (Economy), std (Standard), pro (Professional), and ent (Enterprise).', example='pro'),
+  plan?: string(name='plan', description='Filters teams by plan specification. Valid values: eco (Economy), std (Standard), pro (Professional), and ent (Enterprise).', example='pro'),
   resourceGroupID?: string(name='resourceGroupID', description='The resource group ID.', example='rg-acfmwxqyrgwabcd'),
   teamName?: string(name='teamName', description='The team name.', example='Development team'),
 }
@@ -2093,7 +2169,7 @@ model ListTeamsResponse = {
 }
 
 /**
- * @summary Queries the list of teams by using paging.
+ * @summary Queries the team list by using paging.
  *
  * @param request ListTeamsRequest
  * @param headers map
@@ -2139,7 +2215,7 @@ async function listTeamsWithOptions(request: ListTeamsRequest, headers: map[stri
 }
 
 /**
- * @summary Queries the list of teams by using paging.
+ * @summary Queries the team list by using paging.
  *
  * @param request ListTeamsRequest
  * @return ListTeamsResponse
@@ -2152,17 +2228,17 @@ async function listTeams(request: ListTeamsRequest): ListTeamsResponse {
 
 model ListTemplateCacheRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return per page. Default value: 20. Maximum value: 100.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token returned from the previous response.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
-  status?: string(name='status', description='Filters by cache status. Valid values: InProgress, Success, Failed, Deleting, and Evicted.', example='Success'),
+  nextToken?: string(name='nextToken', description='The pagination token returned from the previous request.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
+  status?: string(name='status', description='Filters results by cache status. Valid values: InProgress, Success, Failed, Deleting, and Evicted.', example='Success'),
   teamID?: string(name='teamID', description='The team ID.', example='13b721e6-8cc8-5df2-af13-80316f7508af'),
   templateID?: string(name='templateID', description='The unique identifier of the template.', example='us7dxqaezw5uu7aa2cm5'),
 }
 
 model ListTemplateCacheResponseBody = {
-  code?: string(name='code', description='The error code. The value is 200 if the request succeeds.', example='200'),
-  maxResults?: int32(name='maxResults', description='The maximum number of entries returned per page in this response.', example='20'),
+  code?: string(name='code', description='The error code. The value is 200 if the request is successful.', example='200'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page returned in this response.', example='20'),
   message?: string(name='message', description='The response message.', example='success'),
-  nextToken?: string(name='nextToken', description='The pagination token for the next page. It is empty if no more results are available.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page. This value is empty if no more results are available.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
   requestId?: string(name='requestId', description='Id of the request', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
   templateCaches?: [
     PublicTemplateCache
@@ -2176,7 +2252,7 @@ model ListTemplateCacheResponse = {
 }
 
 /**
- * @summary Performs a paging query of template caches.
+ * @summary Performs a paged query on template caches with paging support.
  *
  * @param request ListTemplateCacheRequest
  * @param headers map
@@ -2222,7 +2298,7 @@ async function listTemplateCacheWithOptions(request: ListTemplateCacheRequest, h
 }
 
 /**
- * @summary Performs a paging query of template caches.
+ * @summary Performs a paged query on template caches with paging support.
  *
  * @param request ListTemplateCacheRequest
  * @return ListTemplateCacheResponse
@@ -2235,13 +2311,13 @@ async function listTemplateCache(request: ListTemplateCacheRequest): ListTemplat
 
 model ListTemplatesRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return per page. Default value: 20. Maximum value: 100.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the previous response.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
+  nextToken?: string(name='nextToken', description='The pagination token. Set this parameter to the nextToken value returned in the response of the previous request.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
   teamID?: string(name='teamID', description='The team ID.', example='13b721e6-8cc8-5df2-af13-80316f7508af'),
 }
 
 model ListTemplatesResponseBody = {
   code?: string(name='code', description='The error code. The value 200 indicates success.', example='200'),
-  maxResults?: int32(name='maxResults', description='The maximum number of entries per page returned in the current response.', example='20'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries returned per page in the current response.', example='20'),
   message?: string(name='message', description='The response message.', example='success'),
   nextToken?: string(name='nextToken', description='The pagination token for the next page. This parameter is empty if no more results are available.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
   requestId?: string(name='requestId', description='Id of the request', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
@@ -2257,7 +2333,7 @@ model ListTemplatesResponse = {
 }
 
 /**
- * @summary Performs a paged query on the template list by using paging.
+ * @summary Performs a paged query to retrieve the template list with paging.
  *
  * @param request ListTemplatesRequest
  * @param headers map
@@ -2297,7 +2373,7 @@ async function listTemplatesWithOptions(request: ListTemplatesRequest, headers: 
 }
 
 /**
- * @summary Performs a paged query on the template list by using paging.
+ * @summary Performs a paged query to retrieve the template list with paging.
  *
  * @param request ListTemplatesRequest
  * @return ListTemplatesResponse
@@ -2310,19 +2386,23 @@ async function listTemplates(request: ListTemplatesRequest): ListTemplatesRespon
 
 model ListVolumesRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of entries to return per page.', example='5'),
-  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first request. To query the next page, set this parameter to the nextToken value returned in the previous response.', example='qxGrXje86XMrYQ51aJMy'),
+  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first request. To retrieve the next page, set this parameter to the nextToken value returned in the previous response.', example='qxGrXje86XMrYQ51aJMy'),
   resourceGroupID?: string(name='resourceGroupID', description='The ID of the resource group.', example='rg-acfmwxqyrgwabcd'),
-  status?: string(name='status', description='Filters by storage volume status. Valid values: CREATING (creating), AVAILABLE (available), ERROR (error), and DELETING (deleting).', example='CREATING'),
-  storageClass?: string(name='storageClass', description='Filters by storage class. Valid values: OSS, AGENTIC_BUCKET, AGENTIC_FS, and JUICE_FS.', example='OSS'),
+  status?: string(name='status', description='Filters by storage volume status. Valid values:
+- CREATING: The storage volume is being created.
+- AVAILABLE: The storage volume is available.
+- ERROR: The storage volume is in an error state.
+- DELETING: The storage volume is being deleted.', example='CREATING'),
+  storageClass?: string(name='storageClass', description='Filters storage volumes by storage class. Valid values: OSS, AGENTIC_BUCKET, AGENTIC_FS, and JUICE_FS.', example='OSS'),
   teamID?: string(name='teamID', description='The ID of the team to which the storage volume belongs.', example='70d1c834-0383-58d8-97ac-5336eb91abcd'),
   userID?: string(name='userID', description='The user ID of the creator.', example='210000000'),
-  volumeName?: string(name='volumeName', description='The name of the storage volume, which is unique within the team.', example='workspace'),
+  volumeName?: string(name='volumeName', description='The name of the storage volume. The name must be unique within the team.', example='workspace'),
 }
 
 model ListVolumesResponseBody = {
   code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  maxResults?: int32(name='maxResults', description='The maximum number of entries per page used in this query.', example='4'),
-  message?: string(name='message', description='The response message. A value of success indicates a successful request.', example='success'),
+  maxResults?: int32(name='maxResults', description='The maximum number of entries per page for the current query.', example='4'),
+  message?: string(name='message', description='The response message. A value of success indicates that the request was successful.', example='success'),
   nextToken?: string(name='nextToken', description='The pagination token for the next page, which is used for subsequent queries.', example='qxGrXje86XMrYQ51aJMy'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
   volumes?: [
@@ -2337,7 +2417,7 @@ model ListVolumesResponse = {
 }
 
 /**
- * @summary Queries a list of storage volumes by using paging.
+ * @summary Queries the list of storage volumes by using paging.
  *
  * @param request ListVolumesRequest
  * @param headers map
@@ -2392,7 +2472,7 @@ async function listVolumesWithOptions(request: ListVolumesRequest, headers: map[
 }
 
 /**
- * @summary Queries a list of storage volumes by using paging.
+ * @summary Queries the list of storage volumes by using paging.
  *
  * @param request ListVolumesRequest
  * @return ListVolumesResponse
@@ -2408,7 +2488,7 @@ model ResetApiKeyRequest {
 
 model ResetApiKeyResponseBody = {
   apiKey?: ApiKey(name='apiKey', description='The API key information.', example='asdfjoY87-9IUHH'),
-  code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
+  code?: string(name='code', description='The response code. The value is 200 if the request is successful.', example='200'),
   ipBlacklist?: [
     IPConfig
   ](name='ipBlacklist', description='The list of IP blacklist rules.'),
@@ -2478,7 +2558,7 @@ model UpdateApiKeyResponseBody = {
   ipWhitelist?: [
     IPConfig
   ](name='ipWhitelist', description='The list of IP address whitelist rules.'),
-  message?: string(name='message', description='The response message. A value of success indicates a successful request.', example='success'),
+  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='2BCFAE0A-9FA9-5F72-8E8B-724632BC19A9'),
 }
 
@@ -2592,7 +2672,7 @@ model UpdateTeamRequest {
 }
 
 model UpdateTeamResponseBody = {
-  code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
+  code?: string(name='code', description='The response code. The value is 200 if the request is successful.', example='200'),
   message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
   team?: E2BTeam(name='team', description='The team information.'),
@@ -2717,7 +2797,7 @@ model UpdateVolumeRequest {
 
 model UpdateVolumeResponseBody = {
   code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. A value of success indicates a successful request.', example='success'),
+  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
   volume?: E2BVolume(name='volume', description='The storage volume information.'),
 }
