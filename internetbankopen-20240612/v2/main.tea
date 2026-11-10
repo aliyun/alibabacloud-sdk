@@ -1,0 +1,101 @@
+/**
+ *
+ */
+import GatewayClient;
+import OpenApi;
+import OpenApi.OpenApiUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApiUtil.Config){
+  super(config);
+  @productId = 'InternetBankOpen';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
+  @endpointRule = '';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('internetbankopen', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!$isNull(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!$isNull(endpointMap) && !$isNull(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model InvokeDataProductRequest {
+  clientToken?: string(name='clientToken'),
+  productCode?: string(name='productCode'),
+  serviceParameters?: string(name='serviceParameters'),
+}
+
+model InvokeDataProductResponseBody = {
+  data?: string(name='data'),
+  requestId?: string(name='requestId'),
+}
+
+model InvokeDataProductResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: InvokeDataProductResponseBody(name='body'),
+}
+
+/**
+ * @summary 数据产品统一调用入口
+ *
+ * @param request InvokeDataProductRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InvokeDataProductResponse
+ */
+@context("invokeDataProductWithContext")
+async function invokeDataProductWithOptions(request: InvokeDataProductRequest, headers: map[string]string, runtime: $RuntimeOptions): InvokeDataProductResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.clientToken)) {
+    query['clientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.productCode)) {
+    query['productCode'] = request.productCode;
+  }
+  if (!$isNull(request.serviceParameters)) {
+    query['serviceParameters'] = request.serviceParameters;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'InvokeDataProduct',
+    version = '2024-06-12',
+    protocol = 'HTTPS',
+    pathname = `/pop/api/v1/rpc`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 数据产品统一调用入口
+ *
+ * @param request InvokeDataProductRequest
+ * @return InvokeDataProductResponse
+ */
+async function invokeDataProduct(request: InvokeDataProductRequest): InvokeDataProductResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return invokeDataProductWithOptions(request, headers, runtime);
+}
+
