@@ -116,6 +116,74 @@ async function createMultiOrder(request: CreateMultiOrderRequest): CreateMultiOr
   return @handler.do('RPC', 'CreateMultiOrder', 'POST', '/', 'json', false, 'json', request);
 }
 
+model DescribeAICallDetailsRequest {
+  bizType?: string(name='BizType', description='业务版本，沿用售卖 BizType：ENTERPRISE 或 1 为企业版；BUSINESS 或 20 为商业版。未传默认企业版。', example='ENTERPRISE', position='Query'),
+  endTime?: string(name='EndTime', description='带时区的 ISO 8601 结束时间，整秒精度，默认当前时间；应大于开始时间且不晚于当前时间，区间左闭右开。', example='2026-11-06T00:00:00+08:00', position='Query'),
+  gatewayRegion?: string(name='GatewayRegion', description='网关日志地域：cn-shanghai（国内）、cn-hongkong（香港）、ap-southeast-1（新加坡）、us-east-1（美国）；兼容 cn-hangzhou，仅查询路由等同 cn-shanghai；杭州预发实际数据地域为 cn-hangzhou。不传时使用当前站点默认地域；预发只查询预发日志，国内映射杭州预发，美国预发未配置时返回 ServiceUnavailable。', example='cn-shanghai', position='Query'),
+  modelId?: string(name='ModelId', description='可选请求模型 ID；不传或空白时不筛选，非空时精确匹配 custom_log.requestedModel 或 ai_log.request_model 任一字段，与 SearchRequestId、WyIds 等条件取交集。不按 ai_log.model 筛选，不支持模糊匹配。', example='example-model', maxLength=128, position='Query'),
+  pageNumber?: int32(name='PageNumber', description='页码，从 1 开始；分页偏移超过查询上限时返回 InvalidParameter。', example='1', minimum=1, position='Query'),
+  pageSize?: int32(name='PageSize', description='每页返回数量，最大 50。', example='10', minimum=1, maximum=50, position='Query'),
+  searchRequestId?: string(name='SearchRequestId', description='可选请求 ID；不传或空白时不筛选，非空时精确匹配 SLS request_id，与 ModelId、WyIds 等条件取交集。不得包含控制字符或管道符。', example='model-call-example-001', maxLength=128, position='Query'),
+  startTime?: string(name='StartTime', description='带时区的 ISO 8601 开始时间，整秒精度，默认 UTC+8 今日零点；不得早于当前时间按 UTC+8 回退 3 个自然月，区间不超过 30 天。', example='2026-11-05T00:00:00+08:00', position='Query'),
+  wyIds?: [ string ](name='WyIds', description='可选用户 ID 列表，最多 50 项；不传或空数组时不筛选。非空时精确匹配 custom_log.wyId，列表内取 OR，与租户、BizType、SearchRequestId 和 ModelId 条件取 AND。每项去除首尾空白后为 1 至 128 个字符，不允许控制字符或管道符。', example='["wy-example-001"]', position='Query'),
+}
+
+model DescribeAICallDetailsResponseBody = {
+  callDetails?: [ 
+    {
+      agentType?: string(name='AgentType', description='售卖 deduction 记录中的原始 agent_type；未匹配或 ADB 查询失败时不返回。', example='AIComputer'),
+      callStatus?: string(name='CallStatus', description='调用状态：SUCCESS、RATE_LIMITED、TIMEOUT 或 FAILED。', example='SUCCESS'),
+      callTime?: string(name='CallTime', description='日志时间，ISO 8601。', example='2026-11-05T12:30:00+08:00'),
+      firstTokenLatencyMs?: long(name='FirstTokenLatencyMs', description='首包时延，单位毫秒；失败或无首包数据时为空。', example='620'),
+      gatewayRegion?: string(name='GatewayRegion', description='本条调用日志的实际数据地域，取值为 cn-shanghai、cn-hangzhou、cn-hongkong、ap-southeast-1 或 us-east-1；杭州预发返回 cn-hangzhou。', example='cn-shanghai'),
+      httpStatusCode?: int32(name='HttpStatusCode', description='AI 网关返回的 HTTP 状态码。', example='200'),
+      inputToken?: long(name='InputToken', description='原始输入 token 数，前端据此转换上下文规模。', example='1200'),
+      instanceId?: string(name='InstanceId', description='产品实例 ID。', example='example-instance-001'),
+      model?: string(name='Model', description='实际调用模型。', example='example-model'),
+      points?: string(name='Points', description='按请求 ID 和输入输出 token 匹配的实际抵扣积分，十进制字符串；积分查询失败或超时时为空。', example='0.28896'),
+      pointsBreakdown?: {
+        explicitCacheCreation?: string(name='ExplicitCacheCreation', description='显式缓存创建积分，单位为积分，使用十进制字符串表示；真实零值为 0。', example='0.15'),
+        explicitCacheHit?: string(name='ExplicitCacheHit', description='显式缓存命中积分，单位为积分，使用十进制字符串表示；真实零值为 0。', example='0.01896'),
+        implicitCacheHit?: string(name='ImplicitCacheHit', description='隐式缓存命中积分，单位为积分，使用十进制字符串表示；真实零值为 0。', example='0'),
+        normalInput?: string(name='NormalInput', description='普通输入积分，单位为积分，使用十进制字符串表示；真实零值为 0。', example='0.02'),
+        output?: string(name='Output', description='输出积分，单位为积分，使用十进制字符串表示；真实零值为 0。', example='0.1'),
+      }(name='PointsBreakdown', description='本条调用已匹配抵扣记录的积分构成，与 Points 来自同一条记录。缺少有效明细时不返回此对象；对象存在时完整返回五项积分，五项之和等于 Points，真实零值返回字符串 0。', example='{"NormalInput":"0.02","Output":"0.1","ImplicitCacheHit":"0","ExplicitCacheCreation":"0.15","ExplicitCacheHit":"0.01896"}'),
+      requestId?: string(name='RequestId', description='AI 网关请求 ID，与外层 POP 请求 ID 不同。', example='model-call-example-001'),
+      wyId?: string(name='WyId', description='用户 WyId，用户名由前端组装。', example='wy-example-001'),
+    }
+  ](name='CallDetails', description='调用明细列表。', example='[]'),
+  pageNumber?: int32(name='PageNumber', description='当前页码。', example='1'),
+  pageSize?: int32(name='PageSize', description='当前页大小。', example='10'),
+  queryEndTime?: string(name='QueryEndTime', description='实际查询终点。翻页时应复用此值。', example='2026-11-06T00:00:00+08:00'),
+  queryStartTime?: string(name='QueryStartTime', description='实际查询起点。翻页时应复用此值。', example='2026-11-05T00:00:00+08:00'),
+  requestId?: string(name='RequestId', description='POP 请求 ID。', example='00000000-0000-4000-8000-000000000001'),
+  totalCount?: long(name='TotalCount', description='满足条件的总记录数。', example='1'),
+}
+
+model DescribeAICallDetailsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeAICallDetailsResponseBody(name='body'),
+}
+
+/**
+  * @description ## 请求说明
+  * - 该接口用于分页查询当前阿里云账号下指定业务版本、地域和时间范围内的AI模型调用明细。
+  * - 支持按模型调用请求ID、请求模型和用户ID进行筛选。
+  * - 查询结果按调用时间倒序返回。
+  * - 默认查询北京时间当日零点至当前时间的数据，查询区间不超过30天且不得早于当前时间向前推算3个自然月。
+  * - 调用方仅能查询当前调用身份所属主账号的数据，不能指定其他账号。
+  * - `PageNumber`与`PageSize`的乘积不得超过1000000。
+  * - `BizType`不传时默认为企业版。
+  * - `GatewayRegion`不传时国内站默认上海，国际站默认新加坡。
+  * @param request  the request parameters of DescribeAICallDetails  DescribeAICallDetailsRequest
+  * @return DescribeAICallDetailsResponse
+ */
+async function describeAICallDetails(request: DescribeAICallDetailsRequest): DescribeAICallDetailsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'DescribeAICallDetails', 'POST', '/', 'json', false, 'json', request);
+}
+
 model DescribeCreditPackageAgentsRequest {
   agentIds?: [ string ](name='AgentIds', description='A JSON string of the AgentId list. Example: `["agent-1","agent-2"]`.', position='Query'),
   agentType?: string(name='AgentType', description='The agent type. Valid values: `CREDIT_PACKAGE`, `JVS_CLAW`, `OPEN_CLAW`, and `JVS_COPILOT`.', example='JVS_COPILOT', position='Query'),
