@@ -10390,6 +10390,249 @@ async function installNodePoolComponents(clusterId: string, nodePoolId: string, 
   return installNodePoolComponentsWithOptions(clusterId, nodePoolId, request, headers, runtime);
 }
 
+model InvokeAgentRequest {
+  context?: [ 
+    {
+      description?: string(name='description', description='This parameter is required.', example='test'),
+      value?: string(name='value', description='This parameter is required.', example='value'),
+    }
+  ](name='context', example='[{"description":"cluster","value":"c-1"}]'),
+  forwardedProps?: {
+    enableThinking?: boolean(name='enableThinking', example='true'),
+    language?: string(name='language', example='zh'),
+    source?: string(name='source', example='user'),
+  }(name='forwardedProps', example='{"enableThinking":true}'),
+  messages?: [ 
+    {
+      content?: string(name='content', example='hello'),
+      encryptedValue?: string(name='encryptedValue', example='""'),
+      id?: string(name='id', example='64ea4d94937a4c5c84e2b3b814d14696'),
+      metadata?: map[string]any(name='metadata', example='{}'),
+      name?: string(name='name', example='n-1'),
+      role?: string(name='role', example='user'),
+      subagentRunId?: string(name='subagentRunId', example='64ea4d94937a4c5c84e2b3b814d14696'),
+      toolCallId?: string(name='toolCallId', example='64ea4d94937a4c5c84e2b3b814d14696'),
+      toolCalls?: [ 
+        {
+          encryptedValue?: string(name='encryptedValue', example='""'),
+          function?: {
+            arguments?: string(name='arguments', example='{}'),
+            name?: string(name='name', example='navy'),
+          }(name='function', example='{"name": "xxx", "arguments": "xxx"}'),
+          id?: string(name='id', example='64ea4d94937a4c5c84e2b3b814d14696'),
+          metadata?: map[string]any(name='metadata', example='{}'),
+          type?: string(name='type', example='function'),
+        }
+      ](name='toolCalls'),
+    }
+  ](name='messages', example='[{"id":"m-1","role":"user","content":"你好"}]'),
+  parentRunId?: string(name='parentRunId', example='r-0'),
+  resume?: [ 
+    {
+      interruptId?: string(name='interruptId', example='i-1'),
+      payload?: any(name='payload', example='{"decision":"yes"}'),
+      status?: string(name='status', example='resolved'),
+    }
+  ](name='resume', example='[{"interruptId":"i-1","status":"resolved","payload":{"decision":"yes"}}]'),
+  runId?: string(name='runId', example='run-1'),
+  state?: any(name='state', example='{}'),
+  threadId?: string(name='threadId', example='abcdef0123456789abcdef0123456789'),
+  tools?: [ 
+    {
+      description?: string(name='description', description='This parameter is required.', example='description'),
+      metadata?: map[string]any(name='metadata', example='{}'),
+      name?: string(name='name', description='This parameter is required.', example='cluster-qa-icloud-edge-ohttp'),
+      parameters?: any(name='parameters', example='{\\\\"region\\\\": \\\\"cn-shanghai\\\\", \\\\"vpcId\\\\": \\\\"vpc-uf6bnhlxne8enjurxxjv4\\\\", \\\\"functionName\\\\": \\\\"filemgr-cn-shanghai-334a349cd2\\\\", \\\\"mountPointsServerAddr\\\\": \\\\"334a349cd2-umc45.cn-shanghai.nas.aliyuncs.com\\\\"}'),
+    }
+  ](name='tools', example='[]'),
+}
+
+model InvokeAgentResponseBody = {
+  code?: string(name='code', example='InternalError'),
+  content?: string(name='content', example='done'),
+  delta?: string(name='delta', example='你好'),
+  message?: string(name='message', example='请求失败'),
+  messageId?: string(name='messageId', example='m-1'),
+  name?: string(name='name', example='analysis_result'),
+  outcome?: {
+    interrupts?: [ 
+      {
+        expiresAt?: string(name='expiresAt', example='2026-11-04T00:00:00Z'),
+        id?: string(name='id', description='This parameter is required.', example='i-1'),
+        message?: string(name='message', example='是否执行？'),
+        metadata?: map[string]any(name='metadata', example='{}'),
+        reason?: string(name='reason', description='This parameter is required.', example='tool_call_approve'),
+        responseSchema?: map[string]any(name='responseSchema', example='{"type":"object","properties":{"decision":{"type":"string","enum":["yes","no"]}},"required":["decision"]}'),
+        toolCallId?: string(name='toolCallId', example='call-1'),
+      }
+    ](name='interrupts', example='[{"id":"i-1","reason":"tool_call_approve","toolCallId":"call-1"}]'),
+    type?: string(name='type', description='This parameter is required.', example='interrupt'),
+  }(name='outcome', example='{"type":"success"}'),
+  parentMessageId?: string(name='parentMessageId', example='m-1'),
+  role?: string(name='role', example='assistant'),
+  runId?: string(name='runId', example='r-1'),
+  snapshot?: any(name='snapshot', example='{"sessionId":"abcdef0123456789abcdef0123456789","requestId":"req-1"}'),
+  threadId?: string(name='threadId', example='abcdef0123456789abcdef0123456789'),
+  toolCallId?: string(name='toolCallId', example='call-1'),
+  toolCallName?: string(name='toolCallName', example='example_tool'),
+  type?: string(name='type', description='This parameter is required.', example='RUN_STARTED'),
+  value?: any(name='value', example='{"reference":null,"actions":[],"messageId":null}'),
+}
+
+model InvokeAgentResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  id?: string(name='id'),
+  event?: string(name='event'),
+  body?: InvokeAgentResponseBody(name='body'),
+}
+
+/**
+ * @summary 发起智能助手会话运行（AG-UI 协议）
+ *
+ * @description 独立的原生 AG-UI 接口，成功建流后返回 text/event-stream。
+ *
+ * @param request InvokeAgentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InvokeAgentResponse
+ */
+@sse(true)
+@context("invokeAgentWithSSECtx")
+async function invokeAgentWithSSE(request: InvokeAgentRequest, headers: map[string]string, runtime: $RuntimeOptions): asyncIterator[InvokeAgentResponse] {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.context)) {
+    body['context'] = request.context;
+  }
+  if (!$isNull(request.forwardedProps)) {
+    body['forwardedProps'] = request.forwardedProps;
+  }
+  if (!$isNull(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!$isNull(request.parentRunId)) {
+    body['parentRunId'] = request.parentRunId;
+  }
+  if (!$isNull(request.resume)) {
+    body['resume'] = request.resume;
+  }
+  if (!$isNull(request.runId)) {
+    body['runId'] = request.runId;
+  }
+  if (!$isNull(request.state)) {
+    body['state'] = request.state;
+  }
+  if (!$isNull(request.threadId)) {
+    body['threadId'] = request.threadId;
+  }
+  if (!$isNull(request.tools)) {
+    body['tools'] = request.tools;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'InvokeAgent',
+    version = '2015-12-15',
+    protocol = 'HTTPS',
+    pathname = `/intelligence/invoke`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  var sseResp = callSSEApi(params, req, runtime);
+  for (var resp : sseResp) {
+    if (!$isNull(resp.event) && !$isNull(resp.event.data)) {
+      var data = $object($JSON.parseJSON(resp.event.data));
+      yield {
+        statusCode = resp.statusCode,
+        headers = resp.headers,
+        id = resp.event.id,
+        event = resp.event.event,
+        body = data
+      };
+    }
+  }
+}
+/**
+ * @summary 发起智能助手会话运行（AG-UI 协议）
+ *
+ * @description 独立的原生 AG-UI 接口，成功建流后返回 text/event-stream。
+ *
+ * @param request InvokeAgentRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return InvokeAgentResponse
+ */
+@context("invokeAgentWithContext")
+async function invokeAgentWithOptions(request: InvokeAgentRequest, headers: map[string]string, runtime: $RuntimeOptions): InvokeAgentResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.context)) {
+    body['context'] = request.context;
+  }
+  if (!$isNull(request.forwardedProps)) {
+    body['forwardedProps'] = request.forwardedProps;
+  }
+  if (!$isNull(request.messages)) {
+    body['messages'] = request.messages;
+  }
+  if (!$isNull(request.parentRunId)) {
+    body['parentRunId'] = request.parentRunId;
+  }
+  if (!$isNull(request.resume)) {
+    body['resume'] = request.resume;
+  }
+  if (!$isNull(request.runId)) {
+    body['runId'] = request.runId;
+  }
+  if (!$isNull(request.state)) {
+    body['state'] = request.state;
+  }
+  if (!$isNull(request.threadId)) {
+    body['threadId'] = request.threadId;
+  }
+  if (!$isNull(request.tools)) {
+    body['tools'] = request.tools;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'InvokeAgent',
+    version = '2015-12-15',
+    protocol = 'HTTPS',
+    pathname = `/intelligence/invoke`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 发起智能助手会话运行（AG-UI 协议）
+ *
+ * @description 独立的原生 AG-UI 接口，成功建流后返回 text/event-stream。
+ *
+ * @param request InvokeAgentRequest
+ * @return InvokeAgentResponse
+ */
+async function invokeAgent(request: InvokeAgentRequest): InvokeAgentResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return invokeAgentWithOptions(request, headers, runtime);
+}
+
 model ListAddonsRequest {
   clusterId?: string(name='cluster_id', description='The cluster ID. If this parameter is specified, the system queries the available components for the specified cluster and ignores other parameters.', example='c02b3e03be10643e8a644a843ffcb****'),
   clusterSpec?: string(name='cluster_spec', description='The cluster specification. If cluster_id is specified, this parameter is ignored. The region_id, cluster_type, profile, cluster_spec, and cluster_version parameters must be specified together.', example='ack.pro.small'),
