@@ -189,13 +189,29 @@ model IndexKey {
 }
 
 model ModelParameters {
-  frequencyPenalty?: float(name='frequencyPenalty', description='The frequency penalty. Positive values reduce repetition. Valid values: -2.0 to 2.0.', example='0.2'),
+  enableCacheControl?: boolean(name='enableCacheControl', description='Specifies whether to enable explicit caching for system messages.', example='true'),
+  enableThinking?: boolean(name='enableThinking', description='Specifies whether to enable thinking mode. This takes effect only for hybrid thinking models and defaults to false if not specified.', example='true'),
+  extraBody?: string(name='extraBody', description='The extended parameters, which are a serialized string of a JSON object. These are merged into the top level of the model request body to pass through other Model Studio parameters.', example='{"enable_search":false}'),
+  frequencyPenalty?: float(name='frequencyPenalty', description='The frequency penalty where positive values reduce repetition, with a range of -2.0 to 2.0.', example='0.2'),
+  maxCompletionTokens?: int32(name='maxCompletionTokens', description='The maximum number of output tokens, including the chain-of-thought and the response. This is recommended for thinking models.', example='4096'),
   maxTokens?: long(name='maxTokens', description='The maximum number of output tokens.', example='1024'),
-  presencePenalty?: float(name='presencePenalty', description='The presence penalty. Positive values encourage new topics. Valid values: -2.0 to 2.0.', example='0.1'),
-  stopSequences?: [ string ](name='stopSequences', description='The stop sequences. Generation stops immediately when any of these sequences is encountered.', example='["END"]'),
-  temperature?: float(name='temperature', description='The temperature parameter that controls the randomness of the output. Valid values: 0 to 2.', example='0.7'),
-  topK?: int32(name='topK', description='The top-k sampling parameter. Valid values: 1 to 100.', example='50'),
-  topP?: float(name='topP', description='The top-p sampling parameter. Valid values: 0 to 1.', example='0.9'),
+  presencePenalty?: float(name='presencePenalty', description='The presence penalty where positive values encourage new topics, with a range of -2.0 to 2.0.', example='0.1'),
+  reasoningEffort?: string(name='reasoningEffort', description='The reasoning effort level. This takes effect only when thinking mode is enabled. For the Qwen3.8 series, valid values are low, medium, and xhigh. This cannot be set simultaneously with thinkingBudget.', example='low'),
+  repetitionPenalty?: double(name='repetitionPenalty', description='The repetition penalty that controls the repetition of consecutive sequences. The value must be greater than 0. A value of 1.0 indicates no penalty, and a larger value results in less repetition.', example='1.05'),
+  responseFormat?: {
+    jsonSchema?: {
+      name?: string(name='name', description='The schema name.', example='answer'),
+      schema?: string(name='schema', description='The JSON Schema definition, which is a serialized string of a JSON object.', example='{"type":"object","properties":{"answer":{"type":"string"}},"required":["answer"]}'),
+      strict?: boolean(name='strict', description='Specifies whether to strictly adhere to the schema structure. Set this to true.', example='true'),
+    }(name='jsonSchema', description='The JSON Schema constraint, which is required when the type is json_schema.', example='{"name":"answer","strict":true,"schema":"{\\\\"type\\\\":\\\\"object\\\\",\\\\"properties\\\\":{\\\\"answer\\\\":{\\\\"type\\\\":\\\\"string\\\\"}},\\\\"required\\\\":[\\\\"answer\\\\"]}"}'),
+    type?: string(name='type', description='The format type. Valid values: text, json_object, and json_schema. When using json_object, the prompt must explicitly request JSON output.', example='json_object'),
+  }(name='responseFormat', description='The response content format, which defaults to text if not specified.', example='{"type":"json_schema","jsonSchema":{"name":"answer","strict":true,"schema":"{\\\\"type\\\\":\\\\"object\\\\",\\\\"properties\\\\":{\\\\"answer\\\\":{\\\\"type\\\\":\\\\"string\\\\"}},\\\\"required\\\\":[\\\\"answer\\\\"]}"}}'),
+  seed?: int32(name='seed', description='The random seed, with a range of 0 to 2147483647, which attempts to return the same result for the same input and parameters.', example='1234'),
+  stopSequences?: [ string ](name='stopSequences', description='The stop sequences that immediately halt generation when encountered.', example='["END"]'),
+  temperature?: float(name='temperature', description='The temperature parameter that controls the randomness of the output, with a range of 0 to 2.', example='0.7'),
+  thinkingBudget?: int32(name='thinkingBudget', description='The maximum number of tokens for the thinking process. This takes effect only when thinking mode is enabled and cannot be set simultaneously with reasoningEffort.', example='2048'),
+  topK?: int32(name='topK', description='The Top K sampling parameter, with a range of 1 to 100.', example='50'),
+  topP?: float(name='topP', description='The Top P sampling parameter, with a range of 0 to 1.', example='0.9'),
 }
 
 model OfflineExperimentConfig {
@@ -273,14 +289,15 @@ async function cancelPipelineRun(request: CancelPipelineRunRequest): CancelPipel
 
 model CreateAgentSpaceRequest {
   regionId?: string(name='RegionId', position='Host'),
-  agentSpace: string(name='agentSpace', description='The AgentSpace name.
+  agentSpace: string(name='agentSpace', description='The name of the AgentSpace.
 
 This parameter is required.', example='test-agent-space', minLength=2, maxLength=64, position='Body'),
   cmsWorkspace?: string(name='cmsWorkspace', description='The CMS workspace.', example='test-cms-workspace', position='Body'),
   description?: string(name='description', description='The description.', example='test', position='Body'),
   mseNamespaceId?: string(name='mseNamespaceId', description='The MSE namespace ID.', example='test-mse-namespace-Id', position='Body'),
-  trajectoryStoreEnabled?: boolean(name='trajectoryStoreEnabled', description='Specifies whether to enable trajectory cleaning.', position='Body'),
-  clientToken?: string(name='clientToken', description='The idempotency token. A unique string generated by the client to ensure the idempotence of the create operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+  trajectoryEmbeddingEnabled?: boolean(name='trajectoryEmbeddingEnabled', description='Specifies whether vector indexing is enabled.', example='true', position='Body'),
+  trajectoryStoreEnabled?: boolean(name='trajectoryStoreEnabled', description='Specifies whether trajectory cleaning is enabled.', position='Body'),
+  clientToken?: string(name='clientToken', description='The client token that is used to ensure the idempotence of the create operation. It is a unique string generated by the client.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
 }
 
 model CreateAgentSpaceResponseBody = {
@@ -308,51 +325,51 @@ model CreateContextStoreRequest {
 This parameter is required.', example='my-agent-space', minLength=2, maxLength=64, position='Path'),
   config?: {
     audit?: {
-      droppedCandidates?: boolean(name='droppedCandidates', description='Specifies whether to write item events for dropped recall candidates. Default value: false.', example='false'),
-      queryMode?: string(name='queryMode', description='The recording mode for recall queries. Valid values: raw (plaintext) and hash (HMAC only). Default value: raw.', example='raw'),
+      droppedCandidates?: boolean(name='droppedCandidates', description='Specifies whether to write item events for dropped retrieval candidates. Default value: false.', example='false'),
+      queryMode?: string(name='queryMode', description='The recording mode for retrieval queries. Valid values: raw (plaintext) and hash (HMAC only). Default value: raw.', example='raw'),
       retentionDays?: int32(name='retentionDays', description='The number of days to retain audit logs. Valid values: 1 to 180. Default value: 30.', example='30'),
     }(name='audit', description='The audit configuration.'),
     extractionPolicies?: [ 
       {
         categories?: [ string ](name='categories', description='The list of memory categories.', example='["preference","profile"]'),
-        customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. Length: 1 to 8,000 characters.', example='Extract only user product preferences'),
-        enabled?: boolean(name='enabled', description='Specifies whether to apply this policy to new inputs. Default value: true. Disabling the policy does not delete historical memories.', example='true'),
-        excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches these rules is not extracted.', example='["Password","ID number"]'),
+        customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. The length must be 1 to 8,000 characters.', example='Extract only user product preferences'),
+        enabled?: boolean(name='enabled', description='Specifies whether to execute this policy for new input. Default value: true. Disabling the policy does not delete historical memories.', example='true'),
+        excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches the rules is not extracted.', example='["Password","ID number"]'),
         model?: {
-          name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported. Platform internal credentials are used.', example='qwen3.8-flash'),
-        }(name='model', description='The extraction model configuration.'),
+          name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported, which uses internal platform credentials.', example='qwen3.8-flash'),
+        }(name='model', description='The configuration of the extraction model.'),
         name?: string(name='name', description='The display name of the extraction policy.', example='User preferences'),
         preset?: string(name='preset', description='The preset policy. Valid values: fact, toc-profile, tob-digital-twin, and custom. Default value: fact.', example='fact'),
         storagePolicy?: {
-          allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. Default value: all actions (ADD, UPDATE, MERGE, and DELETE).', example='["ADD","UPDATE","MERGE","DELETE"]'),
+          allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. Default value: all. Valid values: ADD, UPDATE, MERGE, and DELETE.', example='["ADD","UPDATE","MERGE","DELETE"]'),
           dedupe?: boolean(name='dedupe', description='Specifies whether to enable deduplication in event mode. Default value: true.', example='true'),
-          humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
-          mergeKey?: string(name='mergeKey', description='The merge key for upsert operations. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
-          mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge update). Default value: upsert.', example='upsert'),
-          similarityThreshold?: double(name='similarityThreshold', description='The similarity threshold for semantic merging. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
-          ttlDays?: int32(name='ttlDays', description='The number of days before memories expire. A value of 0 indicates that memories do not expire.', example='0'),
-        }(name='storagePolicy', description='The independent storage rules for this policy. If omitted, the original values are retained. New policies use default values. Repeatedly confirmed memories refresh the validity period by default.'),
-        strategyId?: string(name='strategyId', description='The ID of the extraction policy. This parameter is optional. If omitted, the default value is used. The ID must start with a letter and can contain only letters, digits, underscores, and hyphens. Maximum length: 64 characters. After default processing, the ID must be unique within the same library. Modifying the name or instructions does not change this ID.', example='preferences', minLength=1, maxLength=64),
+          humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. If enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
+          mergeKey?: string(name='mergeKey', description='The upsert merge key. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
+          mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge and update). Default value: upsert.', example='upsert'),
+          similarityThreshold?: double(name='similarityThreshold', description='The semantic merge similarity threshold. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
+          ttlDays?: int32(name='ttlDays', description='The number of days before a memory expires. A value of 0 indicates that the memory does not expire.', example='0'),
+        }(name='storagePolicy', description='The independent storage rule for this policy. If omitted, the original value is retained. New policies use the default value. Repeatedly confirmed memories refresh the validity period by default.'),
+        strategyId?: string(name='strategyId', description='The ID of the extraction policy. This parameter is optional. If omitted, the default value is default. The ID must start with a letter and can contain only letters, digits, underscores, and hyphens. It can be up to 64 characters in length. After default value processing, the ID must be unique within the same database. Modifying the name or instructions does not change this ID.', example='preferences', minLength=1, maxLength=64),
       }
-    ](name='extractionPolicies', description='The extraction policies. You can configure 1 to 10 policies. Compatible fields passed back as-is during updates are ignored. strategyVersion indicates the snapshot version of the entire library configuration.'),
+    ](name='extractionPolicies', description='The list of extraction policies. You can specify 1 to 10 policies. Compatible fields returned as-is during updates are ignored. strategyVersion indicates the snapshot version of the entire database configuration.'),
     extractionPolicy?: {
       categories?: [ string ](name='categories', description='The list of memory categories.', example='["preference","profile"]'),
-      customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. Length: 1 to 8,000 characters.', example='Extract only user product preferences'),
-      excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches these rules is not extracted.', example='["Password","ID number"]'),
+      customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. The length must be 1 to 8,000 characters.', example='Extract only user product preferences'),
+      excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches the rules is not extracted.', example='["Password","ID number"]'),
       model?: {
-        name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported. Platform internal credentials are used.', example='qwen3.8-flash'),
-      }(name='model', description='The extraction model configuration.'),
+        name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported, which uses internal platform credentials.', example='qwen3.8-flash'),
+      }(name='model', description='The configuration of the extraction model.'),
       preset?: string(name='preset', description='The preset policy. Valid values: fact, toc-profile, tob-digital-twin, and custom. Default value: fact.', example='fact'),
     }(name='extractionPolicy', description='The extraction policy for the memory type.'),
-    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping, where the key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
+    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
     miningInterval?: string(name='miningInterval', description='The experience mining interval, which controls how often experience mining is executed. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d. This parameter cannot be modified after creation.', example='1d'),
     scopePolicy?: {
-      requiredAnyOf?: [ string ](name='requiredAnyOf', description='Specifies that at least one of the specified scope fields must be non-empty. Valid values for elements: userId, agentId, appId, and runId.', example='["userId"]'),
+      requiredAnyOf?: [ string ](name='requiredAnyOf', description='The list of scope fields where at least one must be non-empty. Valid values for elements: userId, agentId, appId, and runId.', example='["userId"]'),
     }(name='scopePolicy', description='The scope constraint policy.'),
-    serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter is required and cannot be empty. It works with source.agentSpace to locate the trace data source. The trajectory extraction service uses the agentSpace to find the bound CMS workspace and project or logstore, and then filters by serviceName. This parameter cannot be modified after creation.', example='["order-service","payment-service"]'),
+    serviceNames?: [ string ](name='serviceNames', description='The list of service names. This parameter is required and cannot be empty. It works with source.agentSpace to locate the trace data source. The trajectory extraction service uses agentSpace to query the bound CMS workspace and project/logstore, and then filters the data by serviceName. This parameter cannot be modified after creation (no modification entry is available in the current release).', example='["order-service","payment-service"]'),
     source?: {
-      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source is located. If not specified, the default value is the AgentSpace in the current path. Cross-AgentSpace operations are not supported in the current version. If specified, the value must be the same as the AgentSpace in the path. Otherwise, a 400 parameter error is returned. This parameter cannot be modified after creation.', example='my-agent-space'),
-      binding?: map[string]any(name='binding', description='The DatasetBinding v1 shared with optimization tasks, which includes version, selection (all/window and structured filters), and customFields. This parameter is validated by the server and does not accept SQL or column mappings.', example='{"version":1,"selection":{"mode":"all"}}'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source resides. If this parameter is not specified, the default value is the AgentSpace in the current path. Cross-AgentSpace is not supported in the current phase. If specified, the value must be the same as the path AgentSpace. Otherwise, a 400 parameter error is returned. This parameter cannot be modified after creation.', example='my-agent-space'),
+      binding?: map[string]any(name='binding', description='The DatasetBinding v1 shared with optimization tasks. It includes version, selection (all/window and structured filters), and customFields. It is validated by the server and does not accept SQL or column mappings.', example='{"version":1,"selection":{"mode":"all"}}'),
       dataset?: {
         customFields?: [ 
           {
@@ -363,73 +380,74 @@ This parameter is required.', example='my-agent-space', minLength=2, maxLength=6
             usage?: string(name='usage', description='The usage of the field. Valid values: extraction-input (participates in extraction) and ignore (ignored).', example='extraction-input'),
           }
         ](name='customFields', description='The list of custom field declarations.'),
-        datasetName?: string(name='datasetName', description='The name of the Dataset in the same AgentSpace. This parameter cannot be modified after creation.', example='trajectory-with-crm-profile'),
+        datasetName?: string(name='datasetName', description='The name of the dataset in the same AgentSpace. This parameter cannot be modified after creation.', example='trajectory-with-crm-profile'),
         filter?: {
           where?: string(name='where', description='The subset of the pipeline where clause, which is pushed down to SQL.', example='appId = \\\\"crm-service\\\\"'),
         }(name='filter', description='The row filter conditions.'),
         pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600. Default value: 300.', example='300'),
-        schemaContract?: string(name='schemaContract', description='The row schema contract of the Dataset. In the current version, this parameter is fixed to MemorySourceV1.', example='MemorySourceV1'),
+        schemaContract?: string(name='schemaContract', description='The row schema contract for the dataset. In the current phase, the value is fixed to MemorySourceV1.', example='MemorySourceV1'),
         versionPolicy?: {
-          mode?: string(name='mode', description='The consumption mode. Valid values: follow (incremental consumption based on __dataset_seq) and fixed (full consumption of the specified ACTIVE version once).', example='follow'),
-          startSeq?: long(name='startSeq', description='The starting __dataset_seq for the follow mode.', example='0'),
-          version?: string(name='version', description='The Dataset version specified for the fixed mode.', example='v3'),
-        }(name='versionPolicy', description='The version consumption policy of the Dataset.'),
-      }(name='dataset', description='The Dataset datasource config. This parameter is required when source.type is set to dataset.'),
-      datasetName?: string(name='datasetName', description='The name of the experience Dataset source, which must be located in the current AgentSpace. This parameter is provided only when the type is experience and source.type is set to dataset.', example='reviewed_trajectories'),
-      format?: string(name='format', description='The input format of the Dataset. For experience library Dataset sources, only atif is supported, and the fixed columns are the same as those for optimization tasks.', example='atif'),
-      maxRecords?: int32(name='maxRecords', description='The maximum number of records to read per batch. Valid values: 1 to 1000. Default value: 1000. In manual mode, exceeding the limit causes a failure. In follow mode, bounded pagination is used to continue consumption.', example='1000'),
-      startTime?: string(name='startTime', description='The start time for data backfill in ISO 8601 UTC format. If not specified, the backfill starts from the current time.
+          mode?: string(name='mode', description='The version consumption mode. Valid values: follow, which consumes data incrementally by __dataset_seq, and fixed, which consumes the specified ACTIVE version in full at once.', example='follow'),
+          startSeq?: long(name='startSeq', description='The start __dataset_seq for the follow mode.', example='0'),
+          version?: string(name='version', description='The dataset version specified for the fixed mode.', example='v3'),
+        }(name='versionPolicy', description='The version consumption policy for the dataset.'),
+      }(name='dataset', description='The dataset datasource config. This parameter is required when the source type is dataset.'),
+      datasetName?: string(name='datasetName', description='The name of the dataset source for the experience. The dataset must reside in the current AgentSpace. This parameter is provided only when the source type is dataset for an experience.', example='reviewed_trajectories'),
+      format?: string(name='format', description='The input format of the dataset. For dataset sources in the experience library, only atif is supported, and the fixed columns are the same as those in optimization tasks.', example='atif'),
+      maxRecords?: int32(name='maxRecords', description='The maximum number of records to read per batch from the dataset. Valid values: 1 to 1000. Default value: 1000. In manual mode, exceeding the limit causes a failure. In follow mode, bounded pagination is used to continue consumption.', example='1000'),
+      startTime?: string(name='startTime', description='The start time for data backfill in ISO 8601 UTC format. If this parameter is not specified, the backfill starts from the current time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
       trajectory?: {
         filter?: {
           agentNames?: [ string ](name='agentNames', description='The list of agent names. An explicitly empty list returns a 400 error.', example='["sales-copilot"]'),
-          excludeDegraded?: boolean(name='excludeDegraded', description='Specifies whether to exclude degraded trajectories. Default value: false (degraded trajectories are included).', example='false'),
-          minStepCount?: int32(name='minStepCount', description='The minimum number of steps, which must be greater than or equal to 0.', example='2'),
-          query?: string(name='query', description='The native Simple Log Service (SLS) query statement, which is combined with the preceding conditions using AND.', example='tool_names:"search_order"'),
+          excludeDegraded?: boolean(name='excludeDegraded', description='Specifies whether to exclude degraded trajectories. Default value: false, which means degraded trajectories are included.', example='false'),
+          minStepCount?: int32(name='minStepCount', description='The minimum number of steps. The value must be greater than or equal to 0.', example='2'),
+          query?: string(name='query', description='The native Simple Log Service (SLS) query statement. It is combined with the preceding conditions using AND.', example='tool_names:"search_order"'),
           serviceNames?: [ string ](name='serviceNames', description='The list of service names. A single trailing asterisk (*) is supported. An explicitly empty list returns a 400 error.', example='["crm-service","app-*"]'),
-        }(name='filter', description='The trajectory filter conditions. Conditions are combined with AND, and elements within a list are combined with OR.'),
+        }(name='filter', description='The trajectory filter conditions. Conditions are combined with AND, and items within a list are combined with OR.'),
         logstore?: string(name='logstore', description='The name of the trajectory Logstore. Default value: agent-trajectory. This parameter cannot be modified after creation.', example='agent-trajectory'),
         pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600. Default value: 300.', example='300'),
         scopeMapping?: {
-          agentId?: string(name='agentId', description='The JSONPath expression for agentId. Default value: $.agent_name.', example='$.agent_name'),
-          appId?: string(name='appId', description='The JSONPath expression for appId. Default value: $.service_names[0].', example='$.service_names[0]'),
-          runId?: string(name='runId', description='The JSONPath expression for runId. Default value: $.trajectory_id.', example='$.trajectory_id'),
-          userId?: string(name='userId', description='The JSONPath expression for userId. By default, this field is not mapped.', example='$.trajectory_extensions.user_id'),
-        }(name='scopeMapping', description='The scope field mapping. The value must be a JSONPath expression. Only the $.a.b and $.a[0] formats are supported.'),
-        startTime?: string(name='startTime', description='The start time for trajectory consumption in ISO 8601 UTC format. If you do not specify this parameter, the creation time is used by default.
+          agentId?: string(name='agentId', description='The JSONPath for agentId. Default value: $.agent_name.', example='$.agent_name'),
+          appId?: string(name='appId', description='The JSONPath for appId. Default value: $.service_names[0].', example='$.service_names[0]'),
+          runId?: string(name='runId', description='The JSONPath for runId. Default value: $.trajectory_id.', example='$.trajectory_id'),
+          userId?: string(name='userId', description='The JSONPath for userId. By default, no mapping is applied.', example='$.trajectory_extensions.user_id'),
+        }(name='scopeMapping', description='The scope field mapping. The value is a JSONPath expression, and only the $.a.b and $.a[0] formats are supported.'),
+        scopeMappingVersion?: int32(name='scopeMappingVersion', description='The default mapping version for the trajectory identity. Version 1 retains the legacy rules. Version 2 reads user.id and enduser.id from agent attributes. The version is frozen upon creation.', example='2'),
+        startTime?: string(name='startTime', description='The start time for trajectory consumption in ISO 8601 UTC format. If this parameter is not specified, the default value is the creation time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-10-01T00:00:00Z'),
-      }(name='trajectory', description='The trajectory datasource config. This parameter is required when source.type is set to trajectory.'),
-      type?: string(name='type', description='The data source type for the memory type. Valid values: trajectory and dataset. If this parameter is not specified, manual is used, which means only AddContexts can write data. This parameter cannot be modified after creation.', example='trajectory'),
+      }(name='trajectory', description='The trajectory datasource config. This parameter is required when the source type is trajectory.'),
+      type?: string(name='type', description='The data source type for the memory type. Valid values: trajectory and dataset. If this parameter is not specified, the value is manual, which means data is written only through AddContexts. This parameter cannot be modified after creation.', example='trajectory'),
       versionPolicy?: {
-        mode?: string(name='mode', description='The continuous consumption mode. Set the value to follow.', example='follow'),
-        startSeq?: string(name='startSeq', description='The initial consumed append sequence number. The value must be a decimal string of a non-negative 64-bit integer. Default value: 0. The __dataset_seq field is used, and the business timestamp is not used as the consumption checkpoint.', example='0'),
-      }(name='versionPolicy', description='The continuous consumption configuration for the Dataset of the native experience library. Default value: manual. If the value is follow, only binding.selection.mode=all is allowed, and data is consumed based on the append sequence number. This parameter cannot be modified after creation.'),
-    }(name='source', description='The datasource config, which serves only as the root identity for the data source. This block is optional.'),
+        mode?: string(name='mode', description='The continuous consumption mode. The value is fixed to follow.', example='follow'),
+        startSeq?: string(name='startSeq', description='The initial consumed append sequence number. It is a decimal string of a non-negative int64 value. Default value: 0. The __dataset_seq field is used, and the business timestamp is not used as the consumption checkpoint.', example='0'),
+      }(name='versionPolicy', description='The continuous consumption configuration for datasets in the native experience library. The default mode is manual. The follow mode only allows binding.selection.mode=all and consumes data by append sequence number. This configuration cannot be modified after creation.'),
+    }(name='source', description='The datasource config, which serves only as the root identity for the data source. This is an optional block.'),
     storagePolicy?: {
-      allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. Default value: all actions (ADD, UPDATE, MERGE, and DELETE).', example='["ADD","UPDATE","MERGE","DELETE"]'),
+      allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. Default value: all. Valid values: ADD, UPDATE, MERGE, and DELETE.', example='["ADD","UPDATE","MERGE","DELETE"]'),
       dedupe?: boolean(name='dedupe', description='Specifies whether to enable deduplication in event mode. Default value: true.', example='true'),
-      humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
-      mergeKey?: string(name='mergeKey', description='The merge key for upsert operations. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
-      mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge update). Default value: upsert.', example='upsert'),
-      similarityThreshold?: double(name='similarityThreshold', description='The similarity threshold for semantic merging. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
-      ttlDays?: int32(name='ttlDays', description='The number of days before memories expire. A value of 0 indicates that memories do not expire.', example='0'),
+      humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. If enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
+      mergeKey?: string(name='mergeKey', description='The upsert merge key. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
+      mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge and update). Default value: upsert.', example='upsert'),
+      similarityThreshold?: double(name='similarityThreshold', description='The semantic merge similarity threshold. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
+      ttlDays?: int32(name='ttlDays', description='The number of days before a memory expires. A value of 0 indicates that the memory does not expire.', example='0'),
     }(name='storagePolicy', description='The storage policy for the memory type.'),
   }(name='config', description='The context library configuration, including data sources and metadata field mappings.', position='Body'),
-  contextStoreName: string(name='contextStoreName', description='The name of the context store. The name must be globally unique within AgentSpace and 2 to 64 characters in length.
+  contextStoreName: string(name='contextStoreName', description='The name of the context store. The name must be globally unique within the AgentSpace and 2 to 64 characters in length.
 
 This parameter is required.', example='my-context-store', position='Body'),
-  contextType: string(name='contextType', description='The type of the context store. Valid values include experience and memory.
+  contextType: string(name='contextType', description='The type of the context store. Example values include experience (experience store) and memory (memory store).
 
 This parameter is required.', example='experience', position='Body'),
   description?: string(name='description', description='The description of the context store, which helps business users understand its purpose.', example='My context store', position='Body'),
-  clientToken?: string(name='clientToken', description='The client token. It is a unique string generated by the client to ensure the idempotency of the create operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+  clientToken?: string(name='clientToken', description='The idempotency token, a unique string generated by the client to ensure the idempotency of the creation operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
 }
 
 model CreateContextStoreResponseBody = {
-  requestId?: string(name='requestId', description='The request ID, which is used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
-  strategyVersion?: int32(name='strategyVersion', description='The version number of the effective strategy for the memory type.', example='1'),
+  requestId?: string(name='requestId', description='The request ID, used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  strategyVersion?: int32(name='strategyVersion', description='The version number of the currently effective policy (memory type).', example='1'),
 }
 
 model CreateContextStoreResponse = {
@@ -653,34 +671,34 @@ async function createEvaluatorSkill(request: CreateEvaluatorSkillRequest): Creat
 }
 
 model CreateExperimentPlanRequest {
-  agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='al-playground-cn-hongkong', position='Path'),
-  datasetId?: string(name='datasetId', description='The ID of the associated dataset. If not specified, the execution phase processes in simple mode.', example='rca_benckmark_eval', position='Body'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace.', example='al-playground-cn-hongkong', position='Path'),
+  datasetId?: string(name='datasetId', description='The ID of the associated dataset. If you do not specify this parameter, the execution phase is processed in simple mode.', example='rca_benckmark_eval', position='Body'),
   description?: string(name='description', description='The description of the experiment plan.', example='rca_benchmark_eval_experiment offline experiment', position='Body'),
   evaluators?: [
     Evaluator
-  ](name='evaluators', description='The list of evaluators. When configured, evaluation can be automatically triggered upon experiment completion.', example='[{"evaluatorRef": "Builtin.agent_correctness", "name": "Builtin.agent_correctness", "type": "AGENT", "resultName": "Builtin.agent_correctness", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "expected_output": "dataset.ground_truth_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}, {"evaluatorRef": "rca-toxicity-safety-accuracy", "name": "rca-toxicity-safety-accuracy", "type": "AGENT", "resultName": "rca-toxicity-safety-accuracy", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "question": "dataset.question", "expected_output": "dataset.ground_truth_json", "payload_json": "dataset.payload_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}]', position='Body'),
-  experimentType: string(name='experimentType', description='The experiment type. Set this parameter to `OFFLINE` or `ONLINE`.
+  ](name='evaluators', description='The list of evaluators. After you configure this parameter, an evaluation is automatically triggered when the experiment is completed.', example='[{"evaluatorRef": "Builtin.agent_correctness", "name": "Builtin.agent_correctness", "type": "AGENT", "resultName": "Builtin.agent_correctness", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "expected_output": "dataset.ground_truth_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}, {"evaluatorRef": "rca-toxicity-safety-accuracy", "name": "rca-toxicity-safety-accuracy", "type": "AGENT", "resultName": "rca-toxicity-safety-accuracy", "resultType": "score", "variableMapping": {"input": "experiment_input", "output": "experiment_output", "question": "dataset.question", "expected_output": "dataset.ground_truth_json", "payload_json": "dataset.payload_json"}, "filters": {"query": "", "sample": "100"}, "config": {"variables": [], "prompt": ""}}]', position='Body'),
+  experimentType: string(name='experimentType', description='The type of the experiment. Valid values: OFFLINE and ONLINE.
 
 This parameter is required.', example='OFFLINE', position='Body'),
   experiments: [
     ExperimentConfig
-  ](name='experiments', description='The list of experiment configurations. A maximum of 5 entries are supported. For offline experiments, this parameter can be omitted or set to an empty array. For online experiments, at least one entry is required.
+  ](name='experiments', description='The list of experiment configurations. You can specify up to 5 configurations. This parameter is optional or can be left empty for offline experiments. For online experiments, you must specify at least one configuration.
 
-This parameter is required.', example='[{"label": "A", "name": "experimentA", "modelName": "qwen3.7-plus", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are an Alibaba Cloud ARMS product Q&A bot"}, {"role": "user", "content": "{{input}}"}]}, {"label": "B", "name": "experimentB", "modelName": "qwen3.7-max", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are an Alibaba Cloud ARMS product Q&A bot"}, {"role": "user", "content": "{{input}}"}]}]', position='Body'),
+This parameter is required.', example='[{"label": "A", "name": "experimentA", "modelName": "qwen3.7-plus", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are the Alibaba Cloud ARMS product Q&A bot."}, {"role": "user", "content": "{{input}}"}]}, {"label": "B", "name": "experimentB", "modelName": "qwen3.7-max", "modelProvider": "dashscope", "modelParameters": {"temperature": 0.7, "topP": 0.8, "presencePenalty": 0.0, "frequencyPenalty": 0.0}, "promptTemplate": [{"role": "system", "content": "You are the Alibaba Cloud ARMS product Q&A bot."}, {"role": "user", "content": "{{input}}"}]}]', position='Body'),
   input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I request a refund?"}', position='Body'),
-  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline (optional). After association, when experiment runs under this plan finish writing results to the experiment result Logstore, the system filters by the traceId of the experiment trace, calls PreviewPipeline, and writes the pipeline-processed results together.', position='Body'),
-  planName: string(name='planName', description='The name of the experiment plan. The name must be unique within the same AgentSpace and account.
+  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This parameter is optional. After you associate a pipeline, when the experiment execution under this plan is completed and the experiment results are written to the Logstore, the system filters the data by the traceId of the current experiment trace and calls PreviewPipeline to write the results processed by the pipeline.', position='Body'),
+  planName: string(name='planName', description='The name of the experiment plan. The name must be unique within the same account in an AgentSpace.
 
 This parameter is required.', example='rca_benchmark_eval_experiment', position='Body'),
-  querySql?: string(name='querySql', description='The custom query SQL clause for partial dataset mode. This parameter can be used when `selectedItemIds` is empty.', example='status=\\\\"OK\\\\"', position='Body'),
-  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs for partial dataset mode. This parameter must be used together with `datasetId`.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c", "019f1729-be9b-7769-a006-8e98023ad7ad"]', position='Body'),
+  querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode. You can use this parameter when selectedItemIds is empty.', example='status=\\\\"OK\\\\"', position='Body'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. This parameter must be used together with the datasetId parameter.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c", "019f1729-be9b-7769-a006-8e98023ad7ad"]', position='Body'),
 }
 
 model CreateExperimentPlanResponseBody = {
-  message?: string(name='message', description='The message.', example='Experiment plan created successfully'),
-  planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
+  message?: string(name='message', description='The message.', example='The experiment plan is created'),
+  planId?: string(name='planId', description='The ID of the experiment plan.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
-  status?: string(name='status', description='The creation result. The value `created` indicates success.', example='created'),
+  status?: string(name='status', description='The creation result. A value of created indicates success.', example='created'),
 }
 
 model CreateExperimentPlanResponse = {
@@ -690,7 +708,7 @@ model CreateExperimentPlanResponse = {
 }
 
 /**
-  * @description Calls CreateExperimentPlan to create an experiment plan under a specified AgentSpace. This operation defines the configuration for an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to start the execution.
+  * @description Creates an experiment plan in a specified AgentSpace. You can use this operation to define the configuration for an offline or online experiment, including the data source, optional evaluators, and experiment groups required for online experiments. After the plan is created, call CreateExperimentRun to initiate the execution.
   * @param request  the request parameters of CreateExperimentPlan  CreateExperimentPlanRequest
   * @return CreateExperimentPlanResponse
  */
@@ -801,91 +819,91 @@ async function createOptimizeTask(request: CreateOptimizeTaskRequest): CreateOpt
 }
 
 model CreatePipelineRequest {
-  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace. The pipeline will be created under this AgentSpace.', example='my-agent-space', position='Path'),
-  description?: string(name='description', description='The description of the pipeline. Maximum length: 256 characters.', example='Collect trace data from SLS and perform data cleaning into a dataset', position='Body'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace under which the pipeline is created.', example='my-agent-space', position='Path'),
+  description?: string(name='description', description='The description of the pipeline, which can be up to 256 characters in length.', example='Collect trace data from Simple Log Service and perform data cleaning to ingest into a dataset', position='Body'),
   executePolicy?: {
     continuous?: {
-      fromTime?: long(name='fromTime', description='The bootstrap start time in UNIX seconds. It has the same precision as runOnce or scheduled fromTime. Millisecond values greater than or equal to 1e12 are automatically converted. The cursor starts from this time aligned to the grid and catches up window by window. After catching up, it switches to minute intervals. By default, it starts from the current time and processes only incremental data.', example='1735660800'),
-    }(name='continuous', description='The continuous execution configuration. This is used when the type is trace. The processing frequency is a fixed value managed by the server.', example='{"fromTime":1735660800}'),
+      fromTime?: long(name='fromTime', description='The bootstrap historical start time as a UNIX timestamp in seconds. It shares the same precision as runOnce or scheduled.fromTime, and millisecond values greater than or equal to 1e12 are automatically converted. The cursor starts from the grid-aligned time and catches up window by window. After catching up, it switches to a minute interval. By default, it starts from the current time and processes only incremental data.', example='1735660800'),
+    }(name='continuous', description='The continuous execution configuration, which is used when the type is trace. The processing frequency is a fixed value managed by the server.', example='{"fromTime":1735660800}'),
     mode?: string(name='mode', description='The scheduling mode. Valid values: RunOnce (single execution) and Scheduled (periodic scheduling).', example='RunOnce'),
     runOnce?: {
-      fromTime?: long(name='fromTime', description='The start time of the data processing window in UNIX seconds. The value must be less than the toTime value.', example='1735660800'),
-      toTime?: long(name='toTime', description='The end time of the data processing window in UNIX seconds. The value must be greater than the fromTime value.', example='1735747200'),
-    }(name='runOnce', description='The single execution configuration. This parameter is required only when the mode is RunOnce.', example='{"fromTime":1735660800,"toTime":1735664400}'),
+      fromTime?: long(name='fromTime', description='The start time of the data processing window as a UNIX timestamp in seconds. The value must be earlier than toTime.', example='1735660800'),
+      toTime?: long(name='toTime', description='The end time of the data processing window as a UNIX timestamp in seconds. The value must be later than fromTime.', example='1735747200'),
+    }(name='runOnce', description='The single execution configuration. This parameter is required only when the mode is set to RunOnce.', example='{"fromTime":1735660800,"toTime":1735664400}'),
     scheduled?: {
-      fromTime?: long(name='fromTime', description='The start time of the scheduling in UNIX milliseconds.', example='1735660800000'),
+      fromTime?: long(name='fromTime', description='The start time of the scheduling as a UNIX timestamp in milliseconds.', example='1735660800000'),
       interval?: string(name='interval', description='The scheduling interval. Valid values: 1h, 6h, 12h, and 1d.', example='1h'),
-    }(name='scheduled', description='The periodic scheduling configuration. This parameter is required only when the mode is Scheduled.', example='{"interval":"1h","fromTime":1735660800}'),
-  }(name='executePolicy', description='The scheduling method.', example='{"mode":"RunOnce","runOnce":{"fromTime":1735660800,"toTime":1735664400}}', position='Body'),
+    }(name='scheduled', description='The periodic scheduling configuration. This parameter is required only when the mode is set to Scheduled.', example='{"interval":"1h","fromTime":1735660800}'),
+  }(name='executePolicy', description='The execution policy.', example='{"mode":"RunOnce","runOnce":{"fromTime":1735660800,"toTime":1735664400}}', position='Body'),
   pipeline?: {
     nodes?: [ 
       {
         id?: string(name='id', description='The ID of the node.', example='node-1'),
-        parameters?: map[string]any(name='parameters', description='The parameters of the node. This is a key-value structure and varies based on the node type.'),
+        parameters?: map[string]any(name='parameters', description='The parameters of the node in a key-value structure, which vary based on the node type.'),
         type?: string(name='type', description='The type of the node.', example='transform'),
       }
     ](name='nodes', description='The list of nodes.', example='[{"id":"select-fields","type":"project","parameters":{}}]'),
-  }(name='pipeline', description='The pipeline configuration, including node orchestration.', example='{"nodes":[{"id":"select-fields","type":"project","parameters":{"question":"user_query"}}]}', position='Body'),
+  }(name='pipeline', description='The pipeline configuration for node orchestration.', example='{"nodes":[{"id":"select-fields","type":"project","parameters":{"question":"user_query"}}]}', position='Body'),
   pipelineName?: string(name='pipelineName', description='The name of the pipeline. The name must be 3 to 63 characters in length and can contain only lowercase letters, digits, and hyphens (-).', example='my-pipeline', position='Body'),
   sink?: {
     condition?: {
       defaultSink?: {
         dataset?: {
-          agentSpace?: string(name='agentSpace', description='The name of the agent space to which the default destination dataset belongs.', example='my-agent-space'),
+          agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the default destination dataset belongs.', example='my-agent-space'),
           dataset?: string(name='dataset', description='The name of the default destination dataset.', example='other-result'),
         }(name='dataset', description='The default destination dataset.'),
-        type?: string(name='type', description='The default destination type. Currently, only dataset is supported.', example='dataset'),
+        type?: string(name='type', description='The default destination type. Only dataset is supported.', example='dataset'),
       }(name='defaultSink', description='The default write destination used when no conditional route is matched.'),
-      matchMode?: string(name='matchMode', description='The route matching mode. Currently, only all is supported.', example='all'),
+      matchMode?: string(name='matchMode', description='The route matching mode. Only all is supported.', example='all'),
       routes?: [ 
         {
           expression?: string(name='expression', description='The route expression in Search Processing Language (SPL). Only where, project, and extend are supported.', example='* | where intent = \\\\"refund\\\\"'),
           id?: string(name='id', description='The route ID.', example='refund'),
           sink?: {
             dataset?: {
-              agentSpace?: string(name='agentSpace', description='The name of the agent space to which the destination dataset belongs.', example='my-agent-space'),
+              agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the destination dataset belongs.', example='my-agent-space'),
               dataset?: string(name='dataset', description='The name of the destination dataset.', example='refund-result'),
-            }(name='dataset', description='The destination dataset for the route.'),
-            type?: string(name='type', description='The destination type for the route. Currently, only dataset is supported.', example='dataset'),
-          }(name='sink', description='The write destination for the route.'),
+            }(name='dataset', description='The destination dataset of the route.'),
+            type?: string(name='type', description='The route destination type. Only dataset is supported.', example='dataset'),
+          }(name='sink', description='The write destination of the route.'),
         }
       ](name='routes', description='The list of conditional routes.'),
-    }(name='condition', description='The conditional routing configuration. This is used only when sink.type is set to condition.'),
+    }(name='condition', description='The conditional routing configuration. This parameter is used only when sink.type is set to condition.'),
     dataset?: {
-      agentSpace?: string(name='agentSpace', description='The name of the agent space to which the destination dataset belongs.', example='my-agent-space'),
+      agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the destination dataset belongs.', example='my-agent-space'),
       dataset?: string(name='dataset', description='The name of the destination dataset.', example='my-dataset'),
-    }(name='dataset', description='The destination dataset configuration for the dataset sink. This is used only when sink.type is set to dataset.'),
-    type?: string(name='type', description='The destination type. Currently, dataset is supported.', example='Dataset'),
-  }(name='sink', description='The pipeline sink, which is the data write destination.', position='Body'),
+    }(name='dataset', description='The destination dataset configuration.'),
+    type?: string(name='type', description='The destination type. Currently, only dataset is supported.', example='Dataset'),
+  }(name='sink', description='The pipeline sink, which specifies the data write destination.', position='Body'),
   source?: {
     dataset?: {
       dataset?: string(name='dataset', description='The name of the source dataset.', example='my-dataset'),
       filter?: string(name='filter', description='The data filter condition for the dataset.', example='status = \\\\"pending\\\\"'),
-    }(name='dataset', description='The dataset datasource config under the current agent space.', example='{"dataset":"my-dataset","filter":"status = \\\\"pending\\\\""}'),
+    }(name='dataset', description='The dataset datasource config in the current AgentSpace.', example='{"dataset":"my-dataset","filter":"status = \\\\"pending\\\\""}'),
     inputFields?: [ 
       {
         name?: string(name='name', description='The name of the field.', example='question'),
         type?: string(name='type', description='The data type of the field. Valid values: text, long, double, and json.', example='text'),
       }
-    ](name='inputFields', description='The input fields and their data types. This applies to all data source types.', example='[{"name":"question","type":"text"}]'),
+    ](name='inputFields', description='The input fields and their data types. This parameter applies to all data source types.', example='[{"name":"question","type":"text"}]'),
     logstore?: {
-      logstore?: string(name='logstore', description='The name of the Simple Log Service Logstore.', example='my-sls-logstore'),
-      project?: string(name='project', description='The name of the Simple Log Service project.', example='my-sls-project'),
-      query?: string(name='query', description='The data filtered query statement, which uses the Simple Log Service query and analysis syntax.', example='* | SELECT *'),
-    }(name='logstore', description='The Simple Log Service Logstore datasource config.', example='{"project":"my-sls-project","logstore":"agent-logs"}'),
+      logstore?: string(name='logstore', description='The name of the SLS Logstore.', example='my-sls-logstore'),
+      project?: string(name='project', description='The name of the SLS project.', example='my-sls-project'),
+      query?: string(name='query', description='The filtered query statement for data in SLS query and analysis syntax.', example='* | SELECT *'),
+    }(name='logstore', description='The Simple Log Service (SLS) Logstore datasource config.', example='{"project":"my-sls-project","logstore":"agent-logs"}'),
     trajectory?: {
       enrich?: {
-        columns?: [ string ](name='columns', description='The list of enrichment columns. This parameter is retained for backward compatibility. The current implementation outputs only the fixed agent_trajectory column, and this parameter no longer affects the output.', example='["input","output","session_id"]'),
+        columns?: [ string ](name='columns', description='The list of enrichment columns. This parameter is retained for backward compatibility. The current implementation outputs only the fixed column agent_trajectory, and this parameter no longer affects the output.', example='["input","output","session_id"]'),
         enabled?: boolean(name='enabled', description='Specifies whether to enable trajectory enrichment.', example='false'),
-      }(name='enrich', description='The trajectory enrichment configuration. It mounts trajectory data into the scrubbing results based on the trace_id. When writing to a dataset, the data is stored in the fixed agent_trajectory column, where the column value is the trajectory JSON content.', example='{"enabled":true,"columns":["input","output"]}'),
-    }(name='trajectory', description='The trajectory data configuration. This is optional and takes effect only when the type is set to trace. It retrieves ATIF standard trajectory data from the trajectory scrubbing service and extends it based on features.', example='{"enrich":{"enabled":true,"columns":["input","output"]}}'),
-    type?: string(name='type', description='The data source type. Currently, Simple Log Service is supported.', example='SLS'),
-  }(name='source', description='The data source for the pipeline.', example='{"type":"logstore","logstore":{"project":"my-sls-project","logstore":"agent-logs"},"inputFields":[{"name":"question","type":"text"}]}', position='Body'),
-  clientToken?: string(name='clientToken', description='The idempotency token. This is a unique string generated by the client to ensure the idempotency of the create operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+      }(name='enrich', description='The trajectory enrichment configuration. It mounts trajectory data into the scrubbing result based on trace_id. When writing to a dataset, the data is stored in the fixed column agent_trajectory, and the column value is the trajectory JSON content.', example='{"enabled":true,"columns":["input","output"]}'),
+    }(name='trajectory', description='The trajectory data configuration. This parameter is optional and takes effect only when type is set to trace. It obtains ATIF standard trajectory data from the trajectory scrubbing service and extends the data by feature.', example='{"enrich":{"enabled":true,"columns":["input","output"]}}'),
+    type?: string(name='type', description='The data source type. Currently, only SLS is supported.', example='SLS'),
+  }(name='source', description='The pipeline data source.', example='{"type":"logstore","logstore":{"project":"my-sls-project","logstore":"agent-logs"},"inputFields":[{"name":"question","type":"text"}]}', position='Body'),
+  clientToken?: string(name='clientToken', description='The idempotency token, which is a unique string generated by the client to ensure the idempotence of the creation operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
 }
 
 model CreatePipelineResponseBody = {
-  requestId?: string(name='requestId', description='The request ID used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  requestId?: string(name='requestId', description='The request ID, used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
 }
 
 model CreatePipelineResponse = {
@@ -1378,58 +1396,58 @@ This parameter is required.', example='my-context-store', minLength=2, maxLength
 }
 
 model GetContextStoreResponseBody = {
-  agentSpace?: string(name='agentSpace', description='The name of the associated AgentSpace.', example='my-agent-space'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace to which the context store belongs.', example='my-agent-space'),
   config?: {
     audit?: {
-      droppedCandidates?: boolean(name='droppedCandidates', description='Specifies whether to write item events for dropped candidates during retrieval. Default value: false.', example='false'),
-      queryMode?: string(name='queryMode', description='The recording mode for retrieval queries. Valid values: raw (plaintext) and hash (HMAC only). Default value: raw.', example='raw'),
+      droppedCandidates?: boolean(name='droppedCandidates', description='Specifies whether to write item events for dropped candidates during recall. Default value: false.', example='false'),
+      queryMode?: string(name='queryMode', description='The query recording mode for recall. Valid values: raw (plaintext) and hash (HMAC only). Default value: raw.', example='raw'),
       retentionDays?: int32(name='retentionDays', description='The number of days to retain audit logs. Valid values: 1 to 180. Default value: 30.', example='30'),
     }(name='audit', description='The audit configuration.'),
     auditLogStore?: {
-      logstore?: string(name='logstore', description='The name of the Logstore for the experience library audit logs.', example='experience_audit'),
-      project?: string(name='project', description='The name of the user SLS project where the experience library audit logs are stored.', example='agentloop-xxx'),
-    }(name='auditLogStore', description='The Simple Log Service (SLS) audit log location for the experience library user. The console reads the logs by using the existing GetLogs permission.'),
+      logstore?: string(name='logstore', description='The name of the Logstore for the audit logs of the experience store.', example='experience_audit'),
+      project?: string(name='project', description='The name of the SLS project where the audit logs of the experience store are stored.', example='agentloop-xxx'),
+    }(name='auditLogStore', description='The location of the Simple Log Service (SLS) audit logs for the experience store, which is read by the console by using the existing GetLogs permission.'),
     extractionPolicies?: [ 
       {
         categories?: [ string ](name='categories', description='The list of memory categories.', example='["preference","profile"]'),
-        customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. The length must be 1 to 8,000 characters.', example='Extract only user product preferences'),
+        customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. Length: 1 to 8000 characters.', example='Extract only user product preferences'),
         enabled?: boolean(name='enabled', description='Specifies whether to execute this policy for new input. Default value: true. Disabling the policy does not delete historical memories.', example='true'),
-        excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches the rules is not extracted.', example='["Password","ID number"]'),
+        excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches these rules is not extracted.', example='["Password", "ID number"]'),
         model?: {
-          name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported. The platform uses internal credentials.', example='qwen3.8-flash'),
-        }(name='model', description='The extraction model configuration.'),
+          name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported, and internal platform credentials are used.', example='qwen3.8-flash'),
+        }(name='model', description='The configuration of the extraction model.'),
         name?: string(name='name', description='The display name of the extraction policy.', example='User preferences'),
         preset?: string(name='preset', description='The preset policy. Valid values: fact, toc-profile, tob-digital-twin, and custom. Default value: fact.', example='fact'),
         storagePolicy?: {
-          allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. Default value: all actions (ADD, UPDATE, MERGE, and DELETE).', example='["ADD","UPDATE","MERGE","DELETE"]'),
+          allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. By default, all actions are allowed, including ADD, UPDATE, MERGE, and DELETE.', example='["ADD","UPDATE","MERGE","DELETE"]'),
           dedupe?: boolean(name='dedupe', description='Specifies whether to enable deduplication in event mode. Default value: true.', example='true'),
           humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
-          mergeKey?: string(name='mergeKey', description='The merge key for upsert operations. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
-          mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge update). Default value: upsert.', example='upsert'),
+          mergeKey?: string(name='mergeKey', description='The merge key for the upsert mode. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
+          mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge and update). Default value: upsert.', example='upsert'),
           similarityThreshold?: double(name='similarityThreshold', description='The similarity threshold for semantic merging. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
-          ttlDays?: int32(name='ttlDays', description='The number of days before memories expire. A value of 0 indicates that memories do not expire.', example='0'),
-        }(name='storagePolicy', description='The independent storage rules for this policy. If omitted, the original value is retained. New policies use the default value. Repeatedly confirmed memories refresh the validity period by default.'),
-        strategyId: string(name='strategyId', description='The stable ID of the extraction policy. The ID must start with a letter and can contain only letters, digits, underscores, and hyphens. It can be up to 64 characters in length. The ID must be unique within the same context library. Modifying the name or instructions does not change this ID.
+          ttlDays?: int32(name='ttlDays', description='The number of days before a memory expires. A value of 0 indicates that the memory does not expire.', example='0'),
+        }(name='storagePolicy', description='The independent storage rules for this policy. If this parameter is omitted, the original value is retained. A new policy uses the default value. Repeatedly confirmed memories refresh the validity period by default.'),
+        strategyId: string(name='strategyId', description='The stable ID of the extraction policy. It must start with a letter and can contain only letters, digits, underscores, and hyphens. The maximum length is 64 characters. The ID must be unique within the same context library and remains unchanged when the name or instructions are modified.
 
 This parameter is required.', example='preferences', minLength=1, maxLength=64),
       }
-    ](name='extractionPolicies', description='The extraction policies. You can configure 1 to 10 policies. The strategyVersion parameter indicates the snapshot version of the entire library configuration.'),
+    ](name='extractionPolicies', description='The extraction policies. A total of 1 to 10 policies can be configured. The strategyVersion field indicates the snapshot version of the global configuration.'),
     extractionPolicy?: {
       categories?: [ string ](name='categories', description='The list of memory categories.', example='["preference","profile"]'),
-      customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. The length must be 1 to 8,000 characters.', example='Extract only user product preferences'),
-      excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches the rules is not extracted.', example='["Password","ID number"]'),
+      customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. Length: 1 to 8000 characters.', example='Extract only user product preferences'),
+      excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches these rules is not extracted.', example='["Password", "ID number"]'),
       model?: {
-        name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported. The platform uses internal credentials.', example='qwen3.8-flash'),
-      }(name='model', description='The extraction model configuration.'),
+        name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported, and internal platform credentials are used.', example='qwen3.8-flash'),
+      }(name='model', description='The configuration of the extraction model.'),
       preset?: string(name='preset', description='The preset policy. Valid values: fact, toc-profile, tob-digital-twin, and custom. Default value: fact.', example='fact'),
-    }(name='extractionPolicy', description='The extraction policy of the memory type.'),
+    }(name='extractionPolicy', description='The extraction policy for the memory type.'),
     innerSource?: {
       logstore?: string(name='logstore', description='The name of the event Logstore.', example='memory_events_0a1b2c3d'),
-      project?: string(name='project', description='The name of the Simple Log Service (SLS) project.', example='agentloop-xxx'),
-    }(name='innerSource', description='The system-assigned event Logstore coordinates for the memory type, located in the Simple Log Service (SLS) project bound to the AgentSpace.'),
-    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping, where the key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
+      project?: string(name='project', description='The name of the SLS project.', example='agentloop-xxx'),
+    }(name='innerSource', description='The system-assigned coordinates of the event Logstore for the memory type, which is located in the SLS project bound to the AgentSpace.'),
+    metadataField?: map[string]string(name='metadataField', description='The metadata field mapping. The key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
     miningInterval?: string(name='miningInterval', description='The experience mining interval. Valid values: 1h, 6h, 12h, and 1d. Default value: 1d.', example='1d'),
-    miningTaskName?: string(name='miningTaskName', description='The name of the internal running task associated with the server. Continuous libraries are used for read-only viewing of consumption records, and manual libraries can run limited mining. This value is not inferred by the client and cannot replace the ingestion and recall criteria of the native experience library.', example='experience-review-library'),
+    miningTaskName?: string(name='miningTaskName', description='The name of the internal running task associated with the server. Continuous databases use this for read-only viewing of consumption records, while manual databases can run limited mining. This value is not inferred by the client and cannot replace the ingestion and recall criteria of the native experience database.', example='experience-review-library'),
     observability?: {
       auditLogstore?: string(name='auditLogstore', description='The name of the audit Logstore.', example='memory-audit'),
       eventsLogstore?: string(name='eventsLogstore', description='The name of the event Logstore.', example='memory_events_0a1b2c3d'),
@@ -1439,104 +1457,103 @@ This parameter is required.', example='preferences', minLength=1, maxLength=64),
       agentSpace?: string(name='agentSpace', description='The AgentSpace where the dataset is located.', example='my-agent-space'),
       datasetName?: string(name='datasetName', description='The name of the dataset.', example='memory-my-context-store'),
       schemaContract?: string(name='schemaContract', description='The row schema contract of the dataset.', example='MemoryRecordV1'),
-      schemaVersion?: int32(name='schemaVersion', description='The version of the schema.', example='1'),
+      schemaVersion?: int32(name='schemaVersion', description='The schema version.', example='1'),
     }(name='outputDataset', description='The location of the memory output dataset for the memory type.'),
-    runtimeRecallEnabled?: boolean(name='runtimeRecallEnabled', description='Specifies whether runtime recall is allowed for the experience library. This parameter is returned only for the experience type.'),
+    runtimeRecallEnabled?: boolean(name='runtimeRecallEnabled', description='Specifies whether runtime recall is allowed for the experience store. This parameter is returned only for the experience type.'),
     runtimeRecallRevision?: long(name='runtimeRecallRevision', description='The version of the runtime recall property, which is read-only. When you update the switch, a concurrency check is performed by using expectedRuntimeRecallRevision.', example='1'),
     scopePolicy?: {
-      requiredAnyOf?: [ string ](name='requiredAnyOf', description='At least one of the scope fields must be non-empty. Valid values for the elements: userId, agentId, appId, and runId.', example='["userId"]'),
+      requiredAnyOf?: [ string ](name='requiredAnyOf', description='The scope fields that require at least one non-empty value. Valid values: userId, agentId, appId, and runId.', example='["userId"]'),
     }(name='scopePolicy', description='The scope constraint policy.'),
-    serviceNames?: [ string ](name='serviceNames', description='The list of service names, which are used together with source.agentSpace to locate the trace data source. This parameter cannot be changed in the current phase.', example='["order-service","payment-service"]'),
+    serviceNames?: [ string ](name='serviceNames', description='The list of service names, which works with source.agentSpace to locate the trace data source. This parameter cannot be modified in the current phase.', example='["order-service","payment-service"]'),
     source?: {
-      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source is located, which is the same as the AgentSpace to which it belonged when it was created.', example='my-agent-space'),
-      binding?: map[string]any(name='binding', description='The DatasetBinding v1 shared with optimization tasks, which retains fixed column validation, supplementary column usage, and all/window selection.', example='{"version":1,"selection":{"mode":"all"}}'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source is located, which is the same as the AgentSpace to which it belongs upon creation.', example='my-agent-space'),
+      binding?: map[string]any(name='binding', description='The DatasetBinding v1 shared with the optimization task, which retains fixed column validation, supplementary column usage, and all or window selection.', example='{"version":1,"selection":{"mode":"all"}}'),
       dataset?: {
         customFields?: [ 
           {
-            description?: string(name='description', description='The description of the field. This parameter is required when usage is set to extraction-input, and it is appended to the extraction prompt.', example='Customer tier'),
+            description?: string(name='description', description='The description of the field. This parameter is required when usage is set to extraction-input and is appended to the extraction prompt.', example='Customer tier'),
             sensitive?: boolean(name='sensitive', description='Specifies whether the field is a sensitive field.', example='false'),
             sourceField?: string(name='sourceField', description='The name of the source field.', example='customerTier'),
-            target?: string(name='target', description='The write target path, such as metadata.customerTier.', example='metadata.customerTier'),
-            usage?: string(name='usage', description='The usage of the field. Valid values: extraction-input (participates in extraction) and ignore (ignored).', example='extraction-input'),
+            target?: string(name='target', description='The target write path, such as metadata.customerTier.', example='metadata.customerTier'),
+            usage?: string(name='usage', description='The usage of the field. Valid values: extraction-input: Participates in extraction. ignore: Ignored.', example='extraction-input'),
           }
         ](name='customFields', description='The list of custom field declarations.'),
-        datasetName?: string(name='datasetName', description='The name of the dataset in the same AgentSpace. This parameter cannot be changed after creation.', example='trajectory-with-crm-profile'),
+        datasetName?: string(name='datasetName', description='The name of the dataset in the same AgentSpace. This parameter cannot be modified after creation.', example='trajectory-with-crm-profile'),
         filter?: {
-          where?: string(name='where', description='The subset of the pipeline where clause that is pushed down to SQL.', example='appId = \\\\"crm-service\\\\"'),
+          where?: string(name='where', description='The subset of the pipeline where clause, which is pushed down to SQL.', example='appId = \\\\"crm-service\\\\"'),
         }(name='filter', description='The row filter conditions.'),
         pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600. Default value: 300.', example='300'),
         schemaContract?: string(name='schemaContract', description='The row schema contract of the dataset. The value is fixed to MemorySourceV1 in the current phase.', example='MemorySourceV1'),
         versionPolicy?: {
-          mode?: string(name='mode', description='The version consumption mode. Valid values:
-- follow: consumes data incrementally based on __dataset_seq.
-- fixed: consumes the specified ACTIVE version in full at once.', example='follow'),
+          mode?: string(name='mode', description='The version consumption mode. Valid values: follow: Consumes data incrementally based on __dataset_seq. fixed: Consumes the specified ACTIVE version in full at once.', example='follow'),
           startSeq?: long(name='startSeq', description='The starting __dataset_seq for the follow mode.', example='0'),
           version?: string(name='version', description='The dataset version specified for the fixed mode.', example='v3'),
         }(name='versionPolicy', description='The version consumption policy of the dataset.'),
-      }(name='dataset', description='The dataset data source configuration for the memory type. This parameter is required when the memory type is used and source.type is set to dataset.'),
+      }(name='dataset', description='The Dataset datasource config for the memory type. This parameter is required when the memory type is used and source.type is set to dataset.'),
       datasetName?: string(name='datasetName', description='The name of the source dataset for the experience type in the current AgentSpace.', example='reviewed_trajectories'),
-      format?: string(name='format', description='The input format of the dataset. The source of the experience base dataset is atif.', example='atif'),
-      maxRecords?: int32(name='maxRecords', description='The maximum number of records to read from the dataset at a time. Valid values: 1 to 1000.', example='1000'),
-      startTime?: string(name='startTime', description='The start time for data backfill in ISO 8601 UTC format.
+      format?: string(name='format', description='The input format of the dataset. For the experience store, the dataset source is atif.', example='atif'),
+      maxRecords?: int32(name='maxRecords', description='The maximum number of records read in a single dataset operation. Valid values: 1 to 1000.', example='1000'),
+      startTime?: string(name='startTime', description='The start time for data backfilling, in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
       trajectory?: {
         filter?: {
           agentNames?: [ string ](name='agentNames', description='The list of agent names. An explicitly empty list returns a 400 error.', example='["sales-copilot"]'),
-          excludeDegraded?: boolean(name='excludeDegraded', description='Specifies whether to exclude degraded trajectories. Default value: false, which includes degraded trajectories.', example='false'),
-          minStepCount?: int32(name='minStepCount', description='The minimum number of steps. The value must be greater than or equal to 0.', example='2'),
-          query?: string(name='query', description='The native Simple Log Service (SLS) query statement. This statement is combined with the preceding conditions using AND.', example='tool_names:"search_order"'),
+          excludeDegraded?: boolean(name='excludeDegraded', description='Specifies whether to exclude degraded trajectories. Default value: false, which means degraded trajectories are included.', example='false'),
+          minStepCount?: int32(name='minStepCount', description='The minimum number of steps, which must be greater than or equal to 0.', example='2'),
+          query?: string(name='query', description='The native SLS query statement, which is combined with the preceding conditions using AND.', example='tool_names:"search_order"'),
           serviceNames?: [ string ](name='serviceNames', description='The list of service names. A single trailing asterisk (*) is supported. An explicitly empty list returns a 400 error.', example='["crm-service","app-*"]'),
         }(name='filter', description='The trajectory filter conditions. Conditions are combined with AND, and items within a list are combined with OR.'),
-        logstore?: string(name='logstore', description='The name of the trajectory Logstore. Default value: agent-trajectory. The value cannot be changed after creation.', example='agent-trajectory'),
+        logstore?: string(name='logstore', description='The name of the trajectory Logstore. Default value: agent-trajectory. This parameter cannot be changed after creation.', example='agent-trajectory'),
         pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600. Default value: 300.', example='300'),
         scopeMapping?: {
-          agentId?: string(name='agentId', description='The JSONPath expression for agentId. Default value: $.agent_name.', example='$.agent_name'),
-          appId?: string(name='appId', description='The JSONPath expression for appId. Default value: $.service_names[0].', example='$.service_names[0]'),
-          runId?: string(name='runId', description='The JSONPath expression for runId. Default value: $.trajectory_id.', example='$.trajectory_id'),
-          userId?: string(name='userId', description='The JSONPath expression for userId. By default, this field is not mapped.', example='$.trajectory_extensions.user_id'),
-        }(name='scopeMapping', description='The scope field mapping. The value is a JSONPath expression. Only the $.a.b and $.a[0] formats are supported.'),
-        startTime?: string(name='startTime', description='The start time for trajectory consumption in ISO 8601 UTC format. If not specified, the default value is the creation time.
+          agentId?: string(name='agentId', description='The JSONPath for agentId. Default value: $.agent_name.', example='$.agent_name'),
+          appId?: string(name='appId', description='The JSONPath for appId. Default value: $.service_names[0].', example='$.service_names[0]'),
+          runId?: string(name='runId', description='The JSONPath for runId. By default, this field is not mapped to prevent memory isolation by a single trajectory.', example='$.trajectory_id'),
+          userId?: string(name='userId', description='The JSONPath for userId. By default, version 1 does not map this field, and version 2 sequentially retrieves user.id and enduser.id from agent attributes.', example='$.trajectory_extensions.user_id'),
+        }(name='scopeMapping', description='The scope field mapping. Dot paths, array indices, and quoted property keys are supported. An empty string indicates no mapping.'),
+        scopeMappingVersion?: int32(name='scopeMappingVersion', description='The default mapping version for trajectory identity. Valid values: 1: Retains legacy rules. 2: Reads user.id or enduser.id from agent attributes. The version is frozen upon creation.', example='2'),
+        startTime?: string(name='startTime', description='The start time for trajectory consumption, in ISO 8601 UTC format. If not specified, the default is the creation time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-10-01T00:00:00Z'),
       }(name='trajectory', description='The trajectory datasource config for the memory type. This parameter is required when the type is memory and source.type is trajectory.'),
-      type?: string(name='type', description='The source type. Valid values: trajectory and dataset. For the experience type, if this parameter is not specified, trajectory is used. For datasets, the datasetName, format, and binding parameters at the current level are used. The default mode is manual. If versionPolicy.mode is set to follow, data is continuously processed and automatically applied to the experience base. For the memory type, if this parameter is not specified, manual is used, meaning data is written only through AddContexts. Otherwise, the trajectory or dataset sub-configuration with the same name is used. The value cannot be changed after creation.', example='dataset'),
+      type?: string(name='type', description='The source type, which can be trajectory or dataset. For the experience type, if this parameter is not passed, trajectory is used. For Dataset, the datasetName, format, and binding at this level are used. The default is manual, and versionPolicy.mode=follow continuously processes and automatically applies to the experience store. For the memory type, if this parameter is not passed, it indicates manual (only AddContexts writes). Otherwise, the trajectory or dataset sub-configuration with the same name is used. This parameter cannot be changed after creation.', example='dataset'),
       versionPolicy?: {
-        mode?: string(name='mode', description='The continuous consumption mode. The value is fixed to follow.', example='follow'),
-        startSeq?: string(name='startSeq', description='The initial consumed append sequence number. The value is a decimal string of a non-negative int64 integer. Default value: 0. The __dataset_seq parameter is used, and the business timestamp is not used as the consumption checkpoint.', example='0'),
-      }(name='versionPolicy', description='The continuous consumption configuration for the native experience base dataset. The default mode is manual. The follow mode only allows binding.selection.mode to be set to all, and data is consumed based on the append sequence number. The value cannot be changed after creation.'),
-    }(name='source', description='The data source configuration passed by the user, which serves only as the root identity of the data source.'),
+        mode?: string(name='mode', description='The continuous consumption mode, which is fixed to follow.', example='follow'),
+        startSeq?: string(name='startSeq', description='The initial consumed append sequence number, which is a decimal string of a non-negative int64. Default value: 0. The __dataset_seq field is used, and the business timestamp is not used as the consumption checkpoint.', example='0'),
+      }(name='versionPolicy', description='The continuous consumption configuration for the native experience store dataset. The default is manual. The follow mode only allows binding.selection.mode=all and consumes by append sequence number. This parameter cannot be changed after creation.'),
+    }(name='source', description='The datasource config passed by the user, which serves only as the root identity of the data source.'),
     sourceStatus?: {
-      checkpoint?: map[string]any(name='checkpoint', description='The processing progress. For memory trajectory, the format is {processTimeNs, watermarkMs}. For dataset, the format is {seq}. For manual, the format is {}. For the experience dataset in follow mode, the seq value is an exact int64 decimal string.'),
-      currentWindow?: map[string]string(name='currentWindow', description='The current scheduled sequence window for the experience dataset in follow mode. The format is {after, until, runId}. All sequence numbers are decimal strings. If a failure occurs, the submitted checkpoint is not advanced.'),
+      checkpoint?: map[string]any(name='checkpoint', description='The processing progress. For memory trajectory, the value is {processTimeNs, watermarkMs}. For dataset, the value is {seq}. For manual, the value is {}. For experience dataset follow, the seq uses an exact int64 decimal string.'),
+      currentWindow?: map[string]string(name='currentWindow', description='The current reserved sequence window {after,until,runId} for experience dataset follow. All sequence numbers are decimal strings. A failure does not advance the submitted checkpoint.'),
       lastError?: string(name='lastError', description='The last desensitized error message. This field is empty when the status is normal.', example='Data source read timeout'),
-      lastRunId?: string(name='lastRunId', description='The run ID of the last successful automatic application to the native experience store, for audit purposes only.', example='opr-example'),
-      lastWindowAt?: string(name='lastWindowAt', description='The last window processing time in ISO 8601 UTC format.', example='2026-10-01T08:00:00Z'),
+      lastRunId?: string(name='lastRunId', description='The run ID of the last successful automatic application to the native experience library. This is for audit purposes only.', example='opr-example'),
+      lastWindowAt?: string(name='lastWindowAt', description='The time when the window was last processed, in ISO 8601 UTC format.', example='2026-10-01T08:00:00Z'),
       retryCount?: int32(name='retryCount', description='The number of consecutive retries.', example='0'),
       state?: string(name='state', description='The state of the data source. Valid values: Validating, Ready, Running, Retrying, Paused, SourceSchemaChanged, and Failed.', example='Running'),
-    }(name='sourceStatus', description='The running status of the data source. This applies to the memory type and the experience dataset in follow mode. The experience base submits a checkpoint only after it is published and automatically applied. Pausing and restarting retain the checkpoint.'),
-    storageModes?: [ string ](name='storageModes', description='The actual storage modes for each policy. A hybrid store includes event and upsert.'),
+    }(name='sourceStatus', description='The running status of the data source for the memory type and experience dataset follow. The experience library submits a checkpoint only after it is published and automatically applied. The checkpoint is retained when the process is paused or restarted.'),
+    storageModes?: [ string ](name='storageModes', description='The actual storage modes of each policy. A hybrid library includes both event and upsert modes.'),
     storagePolicy?: {
-      allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. Default value: all actions (ADD, UPDATE, MERGE, and DELETE).', example='["ADD","UPDATE","MERGE","DELETE"]'),
+      allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. By default, all actions are allowed, including ADD, UPDATE, MERGE, and DELETE.', example='["ADD","UPDATE","MERGE","DELETE"]'),
       dedupe?: boolean(name='dedupe', description='Specifies whether to enable deduplication in event mode. Default value: true.', example='true'),
       humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
-      mergeKey?: string(name='mergeKey', description='The merge key for upsert operations. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
-      mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge update). Default value: upsert.', example='upsert'),
+      mergeKey?: string(name='mergeKey', description='The merge key for the upsert mode. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
+      mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge and update). Default value: upsert.', example='upsert'),
       similarityThreshold?: double(name='similarityThreshold', description='The similarity threshold for semantic merging. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
-      ttlDays?: int32(name='ttlDays', description='The number of days before memories expire. A value of 0 indicates that memories do not expire.', example='0'),
+      ttlDays?: int32(name='ttlDays', description='The number of days before a memory expires. A value of 0 indicates that the memory does not expire.', example='0'),
     }(name='storagePolicy', description='The storage policy for the memory type.'),
-    strategyVersion?: int32(name='strategyVersion', description='The version number of the currently effective policy for the memory type.', example='1'),
-  }(name='config', description='The context library configuration.'),
+    strategyVersion?: int32(name='strategyVersion', description='The currently effective strategy version number for the memory type.', example='1'),
+  }(name='config', description='The configuration of the context store.'),
   contextStoreName?: string(name='contextStoreName', description='The name of the context store.', example='my-context-store'),
-  contextType?: string(name='contextType', description='The type of the context store, such as experience or memory.', example='experience'),
-  createTime?: string(name='createTime', description='The creation time of the context store in ISO 8601 UTC format.
+  contextType?: string(name='contextType', description='The type of the context store, such as experience (experience store) or memory (memory store).', example='experience'),
+  createTime?: string(name='createTime', description='The time when the context library was created, in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-01T00:00:00Z'),
   description?: string(name='description', description='The description of the context store.', example='My context store'),
-  regionId?: string(name='regionId', description='The ID of the region where the context store resides.', example='cn-hangzhou'),
-  requestId?: string(name='requestId', description='The request ID, which is used to locate the request for troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  regionId?: string(name='regionId', description='The region ID of the context store.', example='cn-hangzhou'),
+  requestId?: string(name='requestId', description='The request ID, which is used to locate the request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   status?: string(name='status', description='The status of the context store. Valid values: ACTIVE, INITIALIZING, and FAILED.', example='ACTIVE'),
-  updateTime?: string(name='updateTime', description='The last update time of the context store in ISO 8601 UTC format.
+  updateTime?: string(name='updateTime', description='The time when the context library was last updated, in ISO 8601 UTC format.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-01-02T00:00:00Z'),
 }
@@ -1590,16 +1607,17 @@ async function getContextStoreAPIKey(request: GetContextStoreAPIKeyRequest): Get
 }
 
 model GetDatasetRequest {
-  agentSpace: string(name='agentSpace', description='The name of the agent space.
+  agentSpace: string(name='agentSpace', description='The name of the agent workspace.
 
 This parameter is required.', example='sop-agent', minLength=2, maxLength=64, position='Path'),
   datasetName: string(name='datasetName', description='The name of the dataset.
 
 This parameter is required.', example='product_faq_dataset', minLength=2, maxLength=64, position='Path'),
+  version?: string(name='version', description='The version number.', example='1.0.0', position='Query'),
 }
 
 model GetDatasetResponseBody = {
-  agentSpace?: string(name='agentSpace', description='The name of the agent space.', example='sop-agent'),
+  agentSpace?: string(name='agentSpace', description='The name of the agent workspace.', example='sop-agent'),
   createTime?: string(name='createTime', description='The creation time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-06-15T10:30:00Z'),
@@ -1827,29 +1845,29 @@ async function getEvaluatorSkill(request: GetEvaluatorSkillRequest): GetEvaluato
 
 model GetExperimentPlanRequest {
   agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='al-playground-cn-hongkong', position='Path'),
-  planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-0242d983f5d340fd8479cf2c19eb279e', position='Path'),
+  planId?: string(name='planId', description='The ID of the experiment plan.', example='exp-plan-0242d983f5d340fd8479cf2c19eb279e', position='Path'),
 }
 
 model GetExperimentPlanResponseBody = {
-  createdAt?: long(name='createdAt', description='The creation time. The value is a millisecond-level UNIX timestamp.', example='1782816000000'),
-  datasetId?: string(name='datasetId', description='The associated dataset ID.', example='arms_customer_agent_level1'),
-  description?: string(name='description', description='The description.', example='Compare checkout Agent baseline with optimized version'),
+  createdAt?: long(name='createdAt', description='The creation time. The value is a UNIX timestamp in milliseconds.', example='1782816000000'),
+  datasetId?: string(name='datasetId', description='The ID of the associated dataset.', example='arms_customer_agent_level1'),
+  description?: string(name='description', description='The description.', example='Compare the checkout agent baseline with the optimized version'),
   evaluators?: [
     Evaluator
   ](name='evaluators', description='The list of evaluators.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]'),
-  experimentType?: string(name='experimentType', description='The experiment type.', example='online'),
+  experimentType?: string(name='experimentType', description='The type of the experiment.', example='online'),
   experiments?: [
     ExperimentConfig
   ](name='experiments', description='The list of experiment configurations.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
-  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I request a refund?"}'),
-  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This value is empty if no pipeline is associated.'),
-  planId?: string(name='planId', description='The experiment plan ID.', example='exp-plan-0242d983f5d340fd8479cf2c19eb279e'),
-  planName?: string(name='planName', description='The experiment plan name.', example='arms_agent_experiment'),
+  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I get a refund?"}'),
+  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This field is empty if no pipeline is associated.'),
+  planId?: string(name='planId', description='The ID of the experiment plan.', example='exp-plan-0242d983f5d340fd8479cf2c19eb279e'),
+  planName?: string(name='planName', description='The name of the experiment plan.', example='arms_agent_experiment'),
   querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='status=\\\\"OK\\\\"'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode.', example='["019ef4d5-a0f0-7114-832d-5542d771cd8c"]'),
-  status?: string(name='status', description='The plan status.', example='stopped'),
-  updatedAt?: long(name='updatedAt', description='The update time. The value is a millisecond-level UNIX timestamp.', example='1782816600000'),
+  status?: string(name='status', description='The status of the plan.', example='stopped'),
+  updatedAt?: long(name='updatedAt', description='The update time. The value is a UNIX timestamp in milliseconds.', example='1782816600000'),
 }
 
 model GetExperimentPlanResponse = {
@@ -1869,12 +1887,12 @@ async function getExperimentPlan(request: GetExperimentPlanRequest): GetExperime
 }
 
 model GetExperimentRunRequest {
-  agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='al-playground-cn-hongkong', position='Path'),
-  recordId?: string(name='recordId', description='The experiment run record ID.', example='exp-run-f6d419b0ed3d43a7b585948a55efc07b', position='Path'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace.', example='al-playground-cn-hongkong', position='Path'),
+  recordId?: string(name='recordId', description='The ID of the experiment run.', example='exp-run-f6d419b0ed3d43a7b585948a55efc07b', position='Path'),
 }
 
 model GetExperimentRunResponseBody = {
-  record?: ExperimentRecord(name='record', description='The experiment run record details. Fields with null values are not returned.', example='{"recordId": "exp-run-f6d419b0ed3d43a7b585948a55efc07b", "experimentPlanId": "exp-plan-0242d983f5d340fd8479cf2c19eb279e", "recordName": "arms_agent_experiment 2026/07/22 20:02:55", "planName": "arms_agent_experiment", "status": "evaluating", "totalTasks": 40, "completedTasks": 40, "failedTasks": 0, "progress": 100.0, "executedAt": 1784721775379, "completedAt": 1784721811392, "dataSourceType": "dataset-full", "datasetId": "arms_customer_agent_level1", "modelNames": ["qwen3.7-plus", "qwen3.7-max"], "evaluationTaskId": "eval-task-6bec93bfa03740dd86ce2bf1496e65fb"}'),
+  record?: ExperimentRecord(name='record', description='The details of the experiment run. Fields with null values are not returned.', example='{"recordId": "exp-run-f6d419b0ed3d43a7b585948a55efc07b", "experimentPlanId": "exp-plan-0242d983f5d340fd8479cf2c19eb279e", "recordName": "arms_agent_experiment 2026/07/22 20:02:55", "planName": "arms_agent_experiment", "status": "evaluating", "totalTasks": 40, "completedTasks": 40, "failedTasks": 0, "progress": 100.0, "executedAt": 1784721775379, "completedAt": 1784721811392, "dataSourceType": "dataset-full", "datasetId": "arms_customer_agent_level1", "modelNames": ["qwen3.7-plus", "qwen3.7-max"], "evaluationTaskId": "eval-task-6bec93bfa03740dd86ce2bf1496e65fb"}'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
 }
@@ -1886,7 +1904,7 @@ model GetExperimentRunResponse = {
 }
 
 /**
-  * @description Calls GetExperimentRun to query the details of a specific experiment run record, including the status, progress, configuration snapshot, and associated evaluation task ID.
+  * @description Calls the GetExperimentRun operation to query the details of an experiment run, including the status, progress, configuration snapshot, and associated evaluation task ID.
   * @param request  the request parameters of GetExperimentRun  GetExperimentRunRequest
   * @return GetExperimentRunResponse
  */
@@ -2202,8 +2220,8 @@ async function getPipelineStats(request: GetPipelineStatsRequest): GetPipelineSt
 }
 
 model ListAgentSpacesRequest {
-  agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='test-agent-space', position='Query'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results to return.', example='50', position='Query'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace.', example='test-agent-space', position='Query'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results.', example='50', position='Query'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='pEL20OGYeZQez8NdW7ve', position='Query'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
@@ -2211,28 +2229,28 @@ model ListAgentSpacesRequest {
 model ListAgentSpacesResponseBody = {
   agentSpaces?: [ 
     {
-      agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='test-agent-space'),
+      agentSpace?: string(name='agentSpace', description='The name of the AgentSpace.', example='test-agent-space'),
       cmsWorkspace?: string(name='cmsWorkspace', description='The CMS workspace.', example='test-cms-workspace'),
       createTime?: string(name='createTime', description='The creation time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2023-08-23T04:06:06Z'),
       description?: string(name='description', description='The description.', example='test'),
       mseNamespace?: {
-        bindType?: string(name='bindType'),
-        namespaceId?: string(name='namespaceId', description='The MSE namespace ID.', example='phoenixcloud-raw-logs'),
-        namespaceName?: string(name='namespaceName', description='The MSE namespace name.', example='terraform-alicloud-modules'),
+        bindType?: string(name='bindType', description='The attach method of the MSE namespace. AutoCreated indicates automatic creation by AgentLoop. UserSelected indicates that an existing namespace is selected and attached when the AgentSpace is created.', example='AutoCreated'),
+        namespaceId?: string(name='namespaceId', description='The ID of the MSE namespace.', example='phoenixcloud-raw-logs'),
+        namespaceName?: string(name='namespaceName', description='The name of the MSE namespace.', example='terraform-alicloud-modules'),
       }(name='mseNamespace', description='The MSE namespace.'),
       regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
-      slsProject?: string(name='slsProject', description='The Simple Log Service project name.', example='default-cms-1152309027070167-cn-beijing'),
+      slsProject?: string(name='slsProject', description='The name of the Simple Log Service project.', example='default-cms-1152309027070167-cn-beijing'),
       updateTime?: string(name='updateTime', description='The update time.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2026-02-11T08:40:23Z'),
     }
-  ](name='agentSpaces', description='The AgentSpaces information.'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results returned.', example='100'),
-  nextToken?: string(name='nextToken', description='The pagination token. This parameter is empty if no more pages are available.', example='b5754ef15c784abc8696d82790d2985c'),
+  ](name='agentSpaces', description='The information about the AgentSpaces.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of returned results.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token. This parameter is empty if no next page is available.', example='b5754ef15c784abc8696d82790d2985c'),
   requestId?: string(name='requestId', description='The request ID.', example='4E4AC775-2358-5B52-B6FB-171459D7B14B'),
-  total?: int32(name='total', description='The total number of entries.', example='13'),
+  total?: int32(name='total', description='The total count.', example='13'),
 }
 
 model ListAgentSpacesResponse = {
@@ -2620,25 +2638,25 @@ async function listExperimentPlans(request: ListExperimentPlansRequest): ListExp
 }
 
 model ListExperimentRunsRequest {
-  agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='al-playground-cn-hongkong', position='Path'),
-  datasetId?: string(name='datasetId', description='Filters results by exact dataset ID.', example='arms_customer_agent_level1', position='Query'),
-  experimentName?: string(name='experimentName', description='Filters results by fuzzy match on the experiment configuration name.', example='experimentA', position='Query'),
-  maxResults?: int32(name='maxResults', description='Optional. Use `page` and `pageSize` for pagination instead.', example='20', position='Query'),
-  nextToken?: string(name='nextToken', description='Optional. Use `page` and `pageSize` for pagination instead.', example='eyJwYWdlIjoxfQ==', position='Query'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace.', example='al-playground-cn-hongkong', position='Path'),
+  datasetId?: string(name='datasetId', description='Filters the results by exact dataset ID.', example='arms_customer_agent_level1', position='Query'),
+  experimentName?: string(name='experimentName', description='Filters the results by using a fuzzy match on the name in the experiment configuration.', example='experimentA', position='Query'),
+  maxResults?: int32(name='maxResults', description='Optional. For pagination, use page and pageSize.', example='20', position='Query'),
+  nextToken?: string(name='nextToken', description='Optional. For pagination, use page and pageSize.', example='eyJwYWdlIjoxfQ==', position='Query'),
   page?: int32(name='page', description='The page number, starting from 0. Default value: 0.', example='0', position='Query'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 20.', example='10', position='Query'),
-  planName?: string(name='planName', description='Filters results by fuzzy match on the experiment plan name.', example='arms_agent_experiment', position='Query'),
-  status?: string(name='status', description='Filters results by status.', example='evaluating', position='Query'),
+  planName?: string(name='planName', description='Filters the results by using a fuzzy match on the experiment plan name.', example='arms_agent_experiment', position='Query'),
+  status?: string(name='status', description='Filters the results by status.', example='evaluating', position='Query'),
 }
 
 model ListExperimentRunsResponseBody = {
-  maxResults?: int32(name='maxResults', description='The maximum number of entries returned.', example='20'),
+  maxResults?: int32(name='maxResults', description='The maximum number of returned entries.', example='20'),
   nextToken?: string(name='nextToken', description='Optional.', example='eyJwYWdlIjoxfQ=='),
   page?: int32(name='page', description='The current page number.', example='0'),
   pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
   records?: [
     ExperimentRecord
-  ](name='records', description='The list of experiment run records.', example='[{"recordId": "exp-run-f6d419b0ed3d43a7b585948a55efc07b", "experimentPlanId": "exp-plan-0242d983f5d340fd8479cf2c19eb279e", "recordName": "arms_agent_experiment 2026/07/22 20:02:55", "planName": "arms_agent_experiment", "status": "evaluating", "progress": 100.0, "totalTasks": 40, "completedTasks": 40, "failedTasks": 0, "dataSourceType": "dataset-full", "datasetId": "arms_customer_agent_level1", "modelNames": ["qwen3.7-plus", "qwen3.7-max"], "evaluationTaskId": "eval-task-6bec93bfa03740dd86ce2bf1496e65fb", "executedAt": 1784721775379, "completedAt": 1784721811392}, {"recordId": "a5397261-6e6d-4e45-bf52-feb8686f7524", "experimentPlanId": "exp-plan-e95bff54685a4ae29ff3a834c1008a71", "recordName": "rca_benchmark_eval_experiment 2026/07/22 19:23:59", "planName": "rca_benchmark_eval_experiment", "status": "completed", "progress": 100.0, "totalTasks": 20, "completedTasks": 20, "failedTasks": 0, "dataSourceType": "dataset-full", "datasetId": "rca_benckmark_eval", "modelNames": [], "evaluationTaskId": "eval-task-b1395b3bdf3e4dc994d7dcde7a66da45", "executedAt": 1784719439255, "completedAt": 1784719989371}]'),
+  ](name='records', description='The list of experiment runs.', example='[{"recordId": "exp-run-f6d419b0ed3d43a7b585948a55efc07b", "experimentPlanId": "exp-plan-0242d983f5d340fd8479cf2c19eb279e", "recordName": "arms_agent_experiment 2026/07/22 20:02:55", "planName": "arms_agent_experiment", "status": "evaluating", "progress": 100.0, "totalTasks": 40, "completedTasks": 40, "failedTasks": 0, "dataSourceType": "dataset-full", "datasetId": "arms_customer_agent_level1", "modelNames": ["qwen3.7-plus", "qwen3.7-max"], "evaluationTaskId": "eval-task-6bec93bfa03740dd86ce2bf1496e65fb", "executedAt": 1784721775379, "completedAt": 1784721811392}, {"recordId": "a5397261-6e6d-4e45-bf52-feb8686f7524", "experimentPlanId": "exp-plan-e95bff54685a4ae29ff3a834c1008a71", "recordName": "rca_benchmark_eval_experiment 2026/07/22 19:23:59", "planName": "rca_benchmark_eval_experiment", "status": "completed", "progress": 100.0, "totalTasks": 20, "completedTasks": 20, "failedTasks": 0, "dataSourceType": "dataset-full", "datasetId": "rca_benckmark_eval", "modelNames": [], "evaluationTaskId": "eval-task-b1395b3bdf3e4dc994d7dcde7a66da45", "executedAt": 1784719439255, "completedAt": 1784719989371}]'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   total?: int32(name='total', description='The total number of records.', example='100'),
 }
@@ -2650,7 +2668,7 @@ model ListExperimentRunsResponse = {
 }
 
 /**
-  * @description Calls ListExperimentRuns to query experiment run records under a specified AgentSpace for the current account. You can filter results by status, dataset, plan name, or experiment name, and use `page`/`pageSize` for pagination.
+  * @description Calls the ListExperimentRuns operation to query the experiment execution records of the current account in a specified AgentSpace. You can filter records by status, dataset, plan name, and experiment name, and paginate results by using page and pageSize.
   * @param request  the request parameters of ListExperimentRuns  ListExperimentRunsRequest
   * @return ListExperimentRunsResponse
  */
@@ -3234,22 +3252,19 @@ This parameter is required.', example='my-agent-space', minLength=2, maxLength=6
   contextStoreName: string(name='contextStoreName', description='The name of the context store to be updated. The name must be 2 to 64 characters in length.
 
 This parameter is required.', example='my-context-store', minLength=2, maxLength=64, position='Path'),
-  changeNote?: string(name='changeNote', description='The description of the policy change. A new policy version is generated when policy fields in the configuration change.', example='Relax the similarity threshold', position='Body'),
+  changeNote?: string(name='changeNote', description='The description of the policy change. A new policy version is written when a policy field in the config changes.', example='Relax the similarity threshold', position='Body'),
   config?: {
     audit?: {
-      droppedCandidates?: boolean(name='droppedCandidates', description='Specifies whether to write item events for dropped recall candidates. Default value: false.', example='false'),
-      queryMode?: string(name='queryMode', description='The recording method for recall queries. Valid values:
-- raw: Plaintext.
-- hash: HMAC only.
-Default value: raw.', example='raw'),
+      droppedCandidates?: boolean(name='droppedCandidates', description='Specifies whether to write item events for dropped candidates during retrieval. Default value: false.', example='false'),
+      queryMode?: string(name='queryMode', description='The method used to record retrieved queries. Valid values: raw (plaintext) and hash (HMAC only). Default value: raw.', example='raw'),
       retentionDays?: int32(name='retentionDays', description='The number of days to retain audit logs. Valid values: 1 to 180. Default value: 30.', example='30'),
     }(name='audit', description='The audit configuration.'),
     extractionPolicies?: [ 
       {
         categories?: [ string ](name='categories', description='The list of memory categories.', example='["preference","profile"]'),
-        customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. Length: 1 to 8000 characters.', example='Extract only user product preferences'),
-        enabled?: boolean(name='enabled', description='Specifies whether to execute this policy for new inputs. Default value: true. Disabling the policy does not delete historical memories.', example='true'),
-        excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches these rules is not extracted.', example='["Password","ID number"]'),
+        customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. The length must be 1 to 8,000 characters.', example='Extract only user product preferences'),
+        enabled?: boolean(name='enabled', description='Specifies whether to execute this policy for new input. Default value: true. Disabling the policy does not delete historical memory.', example='true'),
+        excludeRules?: [ string ](name='excludeRules', description='The list of exclude rules. Content that matches these rules is not extracted.', example='["Password","ID number"]'),
         model?: {
           name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported, which uses internal platform credentials.', example='qwen3.8-flash'),
         }(name='model', description='The extraction model configuration.'),
@@ -3257,96 +3272,91 @@ Default value: raw.', example='raw'),
         preset?: string(name='preset', description='The preset policy. Valid values: fact, toc-profile, tob-digital-twin, and custom. Default value: fact.', example='fact'),
         storagePolicy?: {
           allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. Default value: all actions (ADD, UPDATE, MERGE, and DELETE).', example='["ADD","UPDATE","MERGE","DELETE"]'),
-          dedupe?: boolean(name='dedupe', description='Specifies whether to enable deduplication in event mode. Default value: true.', example='true'),
-          humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
-          mergeKey?: string(name='mergeKey', description='The merge key for upsert operations. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
-          mode?: string(name='mode', description='The storage mode. Valid values:
-- event: Event append.
-- upsert: Merge and update.
-Default value: upsert.', example='upsert'),
+          dedupe?: boolean(name='dedupe', description='Specifies whether to deduplicate data in event mode. Default value: true.', example='true'),
+          humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When enabled, automatic extraction does not overwrite manually modified memory.', example='true'),
+          mergeKey?: string(name='mergeKey', description='The merge key for the upsert mode. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
+          mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge and update). Default value: upsert.', example='upsert'),
           similarityThreshold?: double(name='similarityThreshold', description='The similarity threshold for semantic merging. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
-          ttlDays?: int32(name='ttlDays', description='The number of days before memories expire. A value of 0 indicates that memories do not expire.', example='0'),
-        }(name='storagePolicy', description='The independent storage rule for this policy. If omitted, the original value is retained. New policies use the default value. Repeatedly confirmed memories refresh the validity period by default.'),
-        strategyId?: string(name='strategyId', description='The ID of the extraction policy. This parameter is optional. If omitted, the default value is used. The ID must start with a letter and can contain only letters, digits, underscores, and hyphens. Maximum length: 64 characters. After default processing, the ID must be unique within the same library. Modifying the name or instructions does not change this ID.', example='preferences', minLength=1, maxLength=64),
+          ttlDays?: int32(name='ttlDays', description='The number of days before memory expires. A value of 0 indicates that the memory does not expire.', example='0'),
+        }(name='storagePolicy', description='The independent storage rules for this policy. If omitted, the original value is retained. New policies use the default value. Repeatedly confirmed memory refreshes the validity period by default.'),
+        strategyId?: string(name='strategyId', description='The ID of the extraction policy. This parameter is optional. If omitted, the default value is used. The ID must start with a letter and can contain only letters, digits, underscores, and hyphens. It can be up to 64 characters in length. After default processing, the ID must be unique within the same database. Modifying the name or instructions does not change this ID.', example='preferences', minLength=1, maxLength=64),
       }
-    ](name='extractionPolicies', description='The extraction policies. You can specify 1 to 10 policies. Compatible fields returned as-is during updates are ignored. strategyVersion indicates the snapshot version of the entire library configuration.'),
+    ](name='extractionPolicies', description='The list of extraction policies. You can specify 1 to 10 policies. During an update, compatible fields returned as-is are ignored. The strategyVersion parameter indicates the snapshot version of the entire database configuration.'),
     extractionPolicy?: {
       categories?: [ string ](name='categories', description='The list of memory categories.', example='["preference","profile"]'),
-      customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. Length: 1 to 8000 characters.', example='Extract only user product preferences'),
-      excludeRules?: [ string ](name='excludeRules', description='The list of exclusion rules. Content that matches these rules is not extracted.', example='["Password","ID number"]'),
+      customInstructions?: string(name='customInstructions', description='The custom extraction instructions. This parameter is required when preset is set to custom. The length must be 1 to 8,000 characters.', example='Extract only user product preferences'),
+      excludeRules?: [ string ](name='excludeRules', description='The list of exclude rules. Content that matches these rules is not extracted.', example='["Password","ID number"]'),
       model?: {
         name?: string(name='name', description='The name of the extraction model. Currently, only qwen3.8-flash is supported, which uses internal platform credentials.', example='qwen3.8-flash'),
       }(name='model', description='The extraction model configuration.'),
       preset?: string(name='preset', description='The preset policy. Valid values: fact, toc-profile, tob-digital-twin, and custom. Default value: fact.', example='fact'),
     }(name='extractionPolicy', description='The extraction policy for the memory type.'),
     metadataField?: map[string]string(name='metadataField', description='The metadata field mapping, where the key is the business field and the value is the storage field.', example='{"userId":"user_id","sessionId":"session_id"}'),
-    runtimeRecallEnabled?: boolean(name='runtimeRecallEnabled', description='Specifies whether runtime recall is allowed for the experience library. When modifying this parameter, you must provide expectedRuntimeRecallRevision and submit only this property in the config.'),
+    runtimeRecallEnabled?: boolean(name='runtimeRecallEnabled', description='Specifies whether the experience library allows runtime recall. When modifying this property, you must pass expectedRuntimeRecallRevision and submit only this property in the config.'),
     scopePolicy?: {
-      requiredAnyOf?: [ string ](name='requiredAnyOf', description='Specifies that at least one of the scope fields must be non-empty. Valid values for the elements: userId, agentId, appId, and runId.', example='["userId"]'),
+      requiredAnyOf?: [ string ](name='requiredAnyOf', description='Specifies that at least one scope field must be non-empty. Valid values: userId, agentId, appId, and runId.', example='["userId"]'),
     }(name='scopePolicy', description='The scope constraint policy.'),
     source?: {
-      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source is located. Cross-AgentSpace operations are not supported in the current version. If specified, the value must be equal to the path AgentSpace. Otherwise, a 400 parameter error is returned. The AgentSpace cannot be changed after creation.', example='my-agent-space'),
+      agentSpace?: string(name='agentSpace', description='The AgentSpace where the trace data source is located. Cross-AgentSpace is not supported in the current phase. If passed, it must be equal to the path AgentSpace. Otherwise, a 400 parameter error is returned. The AgentSpace cannot be changed after creation.', example='my-agent-space'),
       dataset?: {
         customFields?: [ 
           {
-            description?: string(name='description', description='The description of the field. This parameter is required when usage is set to extraction-input.', example='Customer tier'),
-            sensitive?: boolean(name='sensitive', description='Specifies whether the field is sensitive.', example='false'),
-            sourceField?: string(name='sourceField', description='The name of the source field.', example='customerTier'),
-            target?: string(name='target', description='The target write path, such as metadata.customerTier.', example='metadata.customerTier'),
+            description?: string(name='description', description='The field description. This parameter is required when usage is set to extraction-input.', example='Customer tier'),
+            sensitive?: boolean(name='sensitive', description='Specifies whether the field is a sensitive field.', example='false'),
+            sourceField?: string(name='sourceField', description='The source field name.', example='customerTier'),
+            target?: string(name='target', description='The write target path, such as metadata.customerTier.', example='metadata.customerTier'),
             usage?: string(name='usage', description='The usage of the field. Valid values: extraction-input (participates in extraction) and ignore (ignored).', example='extraction-input'),
           }
-        ](name='customFields', description='The list of custom field declarations. If provided, the entire list is overwritten.'),
+        ](name='customFields', description='The list of custom field declarations. If passed, the list is completely overwritten.'),
         filter?: {
-          where?: string(name='where', description='The subset of the Pipeline where clause, which is pushed down to SQL.', example='appId = \\\\"crm-service\\\\"'),
-        }(name='filter', description='The row filter condition.'),
+          where?: string(name='where', description='The subset of the pipeline where clause, which is pushed down to SQL.', example='appId = \\\\"crm-service\\\\"'),
+        }(name='filter', description='The row filter conditions.'),
         pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600.', example='300'),
-      }(name='dataset', description='The updatable items of the Dataset data source. The datasetName cannot be changed after creation.'),
-      startTime?: string(name='startTime', description='The start time for data backfill, in ISO 8601 UTC format.', example='2026-01-01T00:00:00Z'),
+      }(name='dataset', description='The updatable items of the dataset data source. The datasetName cannot be changed after creation.'),
+      startTime?: string(name='startTime', description='The data backfill start time in ISO 8601 UTC format.', example='2026-01-01T00:00:00Z'),
       trajectory?: {
         filter?: {
           agentNames?: [ string ](name='agentNames', description='The list of agent names. An explicitly empty list returns a 400 error.', example='["sales-copilot"]'),
-          excludeDegraded?: boolean(name='excludeDegraded', description='Specifies whether to exclude degraded trajectories. Default value: false (degraded trajectories are included).', example='false'),
-          minStepCount?: int32(name='minStepCount', description='The minimum number of steps. The value must be greater than or equal to 0.', example='2'),
+          excludeDegraded?: boolean(name='excludeDegraded', description='Specifies whether to exclude degraded trajectories. Default value: false, which includes degraded trajectories.', example='false'),
+          minStepCount?: int32(name='minStepCount', description='The minimum step count, which must be greater than or equal to 0.', example='2'),
           query?: string(name='query', description='The native Simple Log Service (SLS) query statement, which is combined with the preceding conditions using AND.', example='tool_names:"search_order"'),
           serviceNames?: [ string ](name='serviceNames', description='The list of service names. A single trailing asterisk (*) is supported. An explicitly empty list returns a 400 error.', example='["crm-service","app-*"]'),
-        }(name='filter', description='The trajectory filter conditions. Conditions are combined with AND, while items within a list are combined with OR.'),
-        logstore?: string(name='logstore', description='The name of the trajectory Logstore. Default value: agent-trajectory. This parameter cannot be changed after creation.', example='agent-trajectory'),
+        }(name='filter', description='The trajectory filter conditions. Conditions are combined with AND, and items within a list are combined with OR.'),
+        logstore?: string(name='logstore', description='The name of the trajectory Logstore. Default value: agent-trajectory. It cannot be changed after creation.', example='agent-trajectory'),
         pollIntervalSeconds?: int32(name='pollIntervalSeconds', description='The polling interval in seconds. Valid values: 60 to 3600.', example='300'),
         scopeMapping?: {
-          agentId?: string(name='agentId', description='The JSONPath expression for agentId. Default value: $.agent_name.', example='$.agent_name'),
-          appId?: string(name='appId', description='The JSONPath expression for appId. Default value: $.service_names[0].', example='$.service_names[0]'),
-          runId?: string(name='runId', description='The JSONPath expression for runId. Default value: $.trajectory_id.', example='$.trajectory_id'),
-          userId?: string(name='userId', description='The JSONPath expression for userId. By default, this field is not mapped.', example='$.trajectory_extensions.user_id'),
-        }(name='scopeMapping', description='The scope field mapping. The value is a JSONPath expression. Only the $.a.b and $.a[0] formats are supported.'),
+          agentId?: string(name='agentId', description='The JSONPath for agentId. Default value: $.agent_name.', example='$.agent_name'),
+          appId?: string(name='appId', description='The JSONPath for appId. Default value: $.service_names[0].', example='$.service_names[0]'),
+          runId?: string(name='runId', description='The JSONPath for runId. It is not mapped by default to avoid isolating memory by a single trajectory.', example='$.trajectory_id'),
+          userId?: string(name='userId', description='The JSONPath for userId. In version 1, it is not mapped by default. In version 2, it defaults to user.id and then enduser.id from agent attributes.', example='$.trajectory_extensions.user_id'),
+        }(name='scopeMapping', description='The scope field mapping. Dot paths, array indices, and quoted property keys are supported. An empty string indicates no mapping.'),
+        scopeMappingVersion?: int32(name='scopeMappingVersion', description='The default mapping version for trajectory identity. Version 1 retains the old rules. Version 2 reads user.id or enduser.id from agent attributes. The version is frozen upon creation.', example='2'),
       }(name='trajectory', description='The updatable items of the trajectory data source. The source.type cannot be changed after creation.'),
     }(name='source', description='The datasource config, which serves only as the root identity for the data source.'),
     storagePolicy?: {
       allowedActions?: [ string ](name='allowedActions', description='The allowed storage actions. Default value: all actions (ADD, UPDATE, MERGE, and DELETE).', example='["ADD","UPDATE","MERGE","DELETE"]'),
-      dedupe?: boolean(name='dedupe', description='Specifies whether to enable deduplication in event mode. Default value: true.', example='true'),
-      humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When enabled, automatic extraction does not overwrite manually modified memories.', example='true'),
-      mergeKey?: string(name='mergeKey', description='The merge key for upsert operations. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
-      mode?: string(name='mode', description='The storage mode. Valid values:
-- event: Event append.
-- upsert: Merge and update.
-Default value: upsert.', example='upsert'),
+      dedupe?: boolean(name='dedupe', description='Specifies whether to deduplicate data in event mode. Default value: true.', example='true'),
+      humanEditProtection?: boolean(name='humanEditProtection', description='Specifies whether to enable human edit protection. Default value: true. When enabled, automatic extraction does not overwrite manually modified memory.', example='true'),
+      mergeKey?: string(name='mergeKey', description='The merge key for the upsert mode. Valid values: factKey, semantic, and both. Default value: semantic.', example='semantic'),
+      mode?: string(name='mode', description='The storage mode. Valid values: event (event append) and upsert (merge and update). Default value: upsert.', example='upsert'),
       similarityThreshold?: double(name='similarityThreshold', description='The similarity threshold for semantic merging. Valid values: 0 to 1. Default value: 0.4.', example='0.4'),
-      ttlDays?: int32(name='ttlDays', description='The number of days before memories expire. A value of 0 indicates that memories do not expire.', example='0'),
+      ttlDays?: int32(name='ttlDays', description='The number of days before memory expires. A value of 0 indicates that the memory does not expire.', example='0'),
     }(name='storagePolicy', description='The storage policy for the memory type.'),
-  }(name='config', description='The context library configuration. If passed, the entire configuration is overwritten. If not passed, the original configuration is retained.', position='Body'),
-  contextType?: string(name='contextType', description='The context library type. This field cannot be changed after creation and is provided only for exception correction.', example='experience', position='Body'),
-  description?: string(name='description', description='The description of the context library, which helps business users understand its purpose.', example='My context library', position='Body'),
-  expectedRuntimeRecallRevision?: long(name='expectedRuntimeRecallRevision', description='The expected runtime recall revision. This field is required when you modify the runtime recall switch and must be equal to the config.runtimeRecallRevision value returned by GetContextStore. A 409 error is returned if a conflict occurs.', example='1', position='Body'),
-  reason?: string(name='reason', description='The audit reason for modifying the runtime recall switch. The maximum length is 2,000 characters.', example='Pause runtime recall during experience content adjustment', position='Body'),
-  status?: string(name='status', description='The running status, which can be Active or Paused. For the memory type, pausing stops data source reading and extraction. For the experience dataset follow type, pausing retains submitted and in-flight checkpoints, and resuming continues to process new records without skipping history from the current time. You do not need to pass back the source if you only update the status.', example='Active', position='Body'),
-  clientToken?: string(name='clientToken', description='The client token. This is a unique string generated by the client to ensure the idempotence of the update operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
+  }(name='config', description='The context library configuration. If passed, the configuration is completely overwritten. If not passed, the original configuration is retained.', position='Body'),
+  contextType?: string(name='contextType', description='The context library type. This field is typically immutable after creation and is provided only for exception correction.', example='experience', position='Body'),
+  description?: string(name='description', description='The description of the context store, which helps business users understand its purpose.', example='My context store', position='Body'),
+  expectedRuntimeRecallRevision?: long(name='expectedRuntimeRecallRevision', description='Required when modifying the runtime recall switch. The value must be equal to the config.runtimeRecallRevision value returned by GetContextStore. A 409 error is returned if a conflict occurs.', example='1', position='Body'),
+  reason?: string(name='reason', description='The audit reason for modifying the runtime recall switch. The maximum length is 2,000 characters.', example='Suspend runtime recall while adjusting experience content', position='Body'),
+  status?: string(name='status', description='The running status. Valid values: Active and Paused. For the memory type, Paused suspends data source reading and extraction. For the experience Dataset follow type, Paused retains committed and in-flight checkpoints, and resuming continues to process new records without skipping history from the current time. You do not need to pass back the source parameter if you only update the status.', example='Active', position='Body'),
+  clientToken?: string(name='clientToken', description='The idempotency token. This is a unique string generated by the client to ensure the idempotence of the update operation.', example='a1b2c3d4-1234-5678-90ab-cdef12345678', position='Query'),
 }
 
 model UpdateContextStoreResponseBody = {
   config?: {
     runtimeRecallEnabled?: boolean(name='runtimeRecallEnabled', description='Indicates whether runtime recall is allowed after the experience library is updated.'),
     runtimeRecallRevision?: long(name='runtimeRecallRevision', description='The runtime recall property version that takes effect after this update.', example='1'),
-  }(name='config', description='The configuration properties after the runtime recall switch is updated. This block is not returned for other library update operations.'),
-  requestId?: string(name='requestId', description='The request ID, which is used to locate this request during troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  }(name='config', description='The configuration properties after updating the runtime recall switch. This block is not returned for other library update operations.'),
+  requestId?: string(name='requestId', description='The request ID. You can use this ID to locate the request when troubleshooting issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
   strategyVersion?: int32(name='strategyVersion', description='The strategy version number that takes effect after the update for the memory type. If the strategy remains unchanged, the version number is the same as before the update.', example='2'),
 }
 
@@ -3552,20 +3562,20 @@ model UpdateExperimentPlanRequest {
   description?: string(name='description', description='The description.', example='rca_benchmark_eval_experiment offline experiment', position='Body'),
   evaluators?: [
     Evaluator
-  ](name='evaluators', description='The list of evaluators. If this parameter is omitted, the list remains unchanged. If an empty array is passed, the list is cleared.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]', position='Body'),
-  experimentType?: string(name='experimentType', description='The experiment type. Valid values: OFFLINE (offline experiment) and ONLINE (online experiment).', example='OFFLINE', position='Body'),
+  ](name='evaluators', description='The list of evaluators. If omitted, the list is not modified. If an empty array is passed, the list is cleared. When configured, evaluation is automatically triggered upon experiment completion.', example='[{"evaluatorRef": "Builtin.agent_task_completion"}]', position='Body'),
+  experimentType?: string(name='experimentType', description='The type of the experiment. Valid values: OFFLINE (offline experiment) and ONLINE (online experiment).', example='OFFLINE', position='Body'),
   experiments?: [
     ExperimentConfig
   ](name='experiments', description='The list of experiment configurations. When passed, the entire list is replaced. The number of items must be between 1 and 5.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]', position='Body'),
-  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I get a refund?"}', position='Body'),
-  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This parameter is optional. If it is not passed, the association is not updated. If an empty character string is passed, the pipeline is dissociated. After the association is configured, when an experiment under this plan executes and completes writing the experiment results to the Logstore, the system filters the results by the traceId of the current experiment trace and invokes PreviewPipeline to write the results processed by the pipeline.', position='Body'),
+  input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I request a refund?"}', position='Body'),
+  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This parameter is optional. If you do not specify this parameter, the association is not updated. If you specify an empty string, the association is removed. After the association is established, when an experiment under this plan completes and writes experiment results to a Logstore, the system filters the data by the traceId of the current experiment trace and calls PreviewPipeline to write the pipeline-processed trace results together with the experiment results.', position='Body'),
   planName?: string(name='planName', description='The name of the experiment plan.', example='rca_benchmark_eval_experiment', position='Body'),
   querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='level > 2', position='Body'),
-  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. If an empty array is passed, the list is cleared.', example='[]', position='Body'),
+  selectedItemIds?: [ string ](name='selectedItemIds', description='The list of selected data item IDs in partial dataset mode. Passing an empty array clears the list.', example='[]', position='Body'),
 }
 
 model UpdateExperimentPlanResponseBody = {
-  message?: string(name='message', description='The message.', example='The experiment plan is updated successfully'),
+  message?: string(name='message', description='The message.', example='Experiment plan updated successfully'),
   planId?: string(name='planId', description='The ID of the experiment plan.', example='exp-plan-e95bff54685a4ae29ff3a834c1008a71'),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
   status?: string(name='status', description='The update result. A value of updated indicates success.', example='updated'),
@@ -3578,7 +3588,7 @@ model UpdateExperimentPlanResponse = {
 }
 
 /**
-  * @description Updates a specified experiment plan. Fields that are not specified remain unchanged. You can only update plans created by the current account.
+  * @description Updates a specified experiment plan. Unspecified fields remain unchanged. Only plans created by the current account can be updated.
   * @param request  the request parameters of UpdateExperimentPlan  UpdateExperimentPlanRequest
   * @return UpdateExperimentPlanResponse
  */
