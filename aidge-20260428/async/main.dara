@@ -94,16 +94,19 @@ async function addDisplayKnowledge(request: AddDisplayKnowledgeRequest): AddDisp
 }
 
 model AiTryOnRequest {
-  clothImageUrl: string(name='ClothImageUrl', description='The URL of the clothing image. Only one image is supported. The URL must be a publicly accessible `http` or `https` address. The image must be in JPG, JPEG, PNG, BMP, or WEBP format. The resolution must be between 256 × 256 and 2049 × 2049 pixels, and the file size cannot exceed 10 MB.<br>
+  clothImageUrl?: string(name='ClothImageUrl', description='The URL of the garment image. Only one image is supported. The URL must be a publicly accessible `http` or `https` address. The image must be in JPG, JPEG, PNG, BMP, or WEBP format. The resolution must be between 256×256 and 2049×2049 pixels, and the file size cannot exceed 10 MB.<br>', example='https://ae01.alicdn.com/kf/S342f0070dc9f4be09a6cbed34e90dc8fs.jpg', position='Query'),
+  clothType?: string(name='ClothType', description='The clothing type. If specified, valid values are tops, bottoms, dresses, tops_and_bottoms, shoes, and hats. If this parameter is not specified, the clothing type is automatically identified.', example='tops', position='Query'),
+  mode?: string(name='Mode', description='The model tier. Set the value to lite. This parameter is required.', example='lite', position='Query'),
+  modelImageUrl: string(name='ModelImageUrl', description='The URL of the model image. Only one image is supported. The URL must be a publicly accessible `http` or `https` address. The image must be in JPG, JPEG, PNG, BMP, or WEBP format. The resolution must be between 256×256 and 2049×2049 pixels, and the file size cannot exceed 10 MB.<br>
 
 This parameter is required.', example='https://ae01.alicdn.com/kf/S342f0070dc9f4be09a6cbed34e90dc8fs.jpg', position='Query'),
-  clothType?: string(name='ClothType', description='The type of the clothing. If you specify this parameter, set it to tops, bottoms, dresses, tops_and_bottoms, shoes, or hats. If you do not specify this parameter, the system automatically recognizes the clothing type.', example='tops', position='Query'),
-  modelImageUrl: string(name='ModelImageUrl', description='The URL of the model image. Only one image is supported. The URL must be a publicly accessible `http` or `https` address. The image must be in JPG, JPEG, PNG, BMP, or WEBP format. The resolution must be between 256 × 256 and 2049 × 2049 pixels, and the file size cannot exceed 10 MB.<br>
-
-This parameter is required.', example='https://ae01.alicdn.com/kf/S342f0070dc9f4be09a6cbed34e90dc8fs.jpg', position='Query'),
+  modelTemplateUrl?: string(name='ModelTemplateUrl', description='The URL of the identity template image. Only one image is supported. This parameter is mutually exclusive with PoseTemplateUrl.', example='https://xxxx', position='Query'),
+  poseTemplateUrl?: string(name='PoseTemplateUrl', description='The URL of the pose template image. Only one image is supported. This parameter is mutually exclusive with ModelTemplateUrl.', example='https://xxxx', position='Query'),
+  ratio?: string(name='Ratio', description='The aspect ratio of the output image. Valid values: 1:1, 2:3, 3:4, and 9:16. This parameter is optional. If this parameter is not specified, the aspect ratio of the original model image is used.', example='1:1', position='Query'),
   resolution: string(name='Resolution', description='The resolution of the output image. Synchronous API operations only support 1K resolution.
 
 This parameter is required.', example='1K', position='Query'),
+  tryonType?: string(name='TryonType', description='The try-on type. Valid values: singletryon and multitryon. This parameter is optional. If this parameter is not specified, the workflow defaults to singletryon based on whether a product image is provided.', example='singletryon', position='Query'),
 }
 
 model AiTryOnResponseBody = {
@@ -118,8 +121,10 @@ model AiTryOnResponseBody = {
     }(name='UsageMap', description='The usage details.', example='{"ProcessedImageCount":1,"Resolution":"1K"}'),
   }(name='Data', description='The returned result struct.'),
   message?: string(name='Message', description='The error message. This parameter is not returned when the call is successful.', example='OK'),
-  requestId?: string(name='RequestId', description='The ID of the request. It is used to identify a unique API call.', example='E1AD60F1-BAC7-546B-9533-E7AD02B16E3F'),
-  success?: boolean(name='Success', description='Indicates whether the call is successful. A value of true indicates success, and a value of false indicates failure.', example='True'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='E1AD60F1-BAC7-546B-9533-E7AD02B16E3F'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
+- true: The call was successful.
+- false: The call failed.', example='True'),
 }
 
 model AiTryOnResponse = {
@@ -131,33 +136,33 @@ model AiTryOnResponse = {
 /**
   * @description ## Scenarios
   * - **Virtual try-on for clothing:**
-  * Supports various clothing categories such as tops, bottoms, jumpsuits, and dresses. After you upload a model image and a product image, the service generates a natural and realistic try-on effect to intuitively display how the clothing looks on the model.
+  * Supports various clothing categories such as tops, bottoms, jumpsuits, and dresses. After users upload a model image and a product image, the system generates natural and realistic try-on effects to intuitively display how the clothing looks on the model.
   * - **Virtual try-on for shoes and hats:**
-  * Supports virtual try-on for products such as shoes and hats. The service intelligently matches the position and proportion of the product based on the model\\"s pose and body parts to present a coordinated and realistic wearing effect.
+  * Supports virtual try-on for products such as shoes and hats. It intelligently matches the position and proportion of the product based on the model\\"s pose and body parts, presenting a coordinated and realistic wearing effect.
   * - **E-commerce product display and marketing:**
-  * Helps merchants quickly generate model try-on images for different products, reducing the costs of traditional photography, outfit changes, and post-production, and improving the production efficiency of product images.
+  * Helps merchants quickly generate model try-on images for different products, reducing the costs of traditional photography, outfit changes, and post-production, and improving the production efficiency of product images.  
   * - **Online shopping experience optimization:**
-  * Allows consumers to preview the wearing effect of products through virtual try-on, providing a more intuitive understanding of the style, matching, and overall effect of the products, which assists in purchase decisions and enhances the shopping experience.
+  * Consumers can preview the wearing effect of products through virtual try-on, more intuitively understand the style, matching, and overall effect of the products, assist in purchase decisions, and enhance the shopping experience.
   * ## Features
-  * - **First, you need to provide a model image and a product image. The system uses the model image as the try-on subject and applies the clothing from the product image to the model:**
-  *   - a. Model image: The image of the person who will virtually try on the clothing.
-  *   - b. Product image: The image of the clothing, shoes, or hat to be worn by the model.
-  * - **Second, you can select the corresponding product type based on the actual product. Supported types include tops, bottoms, jumpsuits, dresses, shoes, and hats:**
-  *   - a. Specify product type: You can directly specify the type of the current product, and the system will process it according to the specified type.
-  *   - b. Automatic type recognition: If you do not specify the product type, the system automatically recognizes the product category in the product image and performs the virtual try-on based on the recognition result.
-  * - **Finally, the system generates a virtual try-on image by combining the model image, product image, and product type to display the wearing effect of the product on the model:**
-  *   - a. Preserve model details: The generation process does not alter the appearance, hairstyle, pose, body shape, or other details of the person in the original model image.
-  *   - b. Maintain image consistency: The background, composition, lighting, and overall visual effect of the original model image remain unchanged. Only the wearing area corresponding to the product is processed.
-  *   - c. Generate try-on effect: The product is naturally applied to the model, fitting the person\\"s pose and body structure to generate a coordinated and realistic virtual try-on image.
+  * - **First, users need to input a model image and a product image. The system uses the model image as the try-on subject and applies the garment from the product image to the model:**
+  *   - a. Model image: the image of the person who needs to perform the virtual try-on.
+  *   - b. Product image: the image of the clothing, shoes, or hat to be worn by the model.
+  * - **Second, users can select the corresponding product type based on the actual product. Supported types include tops, bottoms, jumpsuits, dresses, shoes, and hats:**
+  *   - a. Specify product type: users can directly input the type of the current product, and the system will process it according to the specified type.
+  *   - b. Automatic type recognition: if the user does not input the product type, the system will automatically recognize the product category in the product image and perform the virtual try-on based on the recognition result.
+  * - **Finally, the system combines the model image, product image, and product type to generate a virtual try-on image, displaying the wearing effect of the product on the model:**
+  *   - a. Preserve model details: the generation process does not adjust the appearance, hairstyle, pose, body shape, and other details of the person in the original model image.
+  *   - b. Maintain image consistency: the background, composition, lighting, and overall visual effect of the original model image remain unchanged, and only the wearing area corresponding to the product is processed.
+  *   - c. Generate try-on effect: naturally apply the product to the model, making it fit the person\\"s pose and body structure, and generate a coordinated and realistic virtual try-on image.
   * ## Examples
-  * | **Type** | **Model image** | **Clothing image** | **Try-on result image** |
+  * | **Type** | **Model image** | **Garment image** | **Try-on result image** |
   * | --- | --- | --- | --- |
-  * | Tops | ![lQLPJv-OKUNDSxvNBojNA62wAMWEBuiTUuMKXnNidWFWAA_941_1672.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/e4273b03-0d3b-4e98-b8f3-8713fccee303.png) | ![Front view of male model in shirt-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/d9ab77f7-8791-4fa5-8d76-4fda3e2e1310.png) | ![7c1c0c04-9828-940f-b86d-c08f7ec8fb97_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/42982786-73ee-4d23-a8d0-551f7a18be22.png) |
-  * | Bottoms | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/64147be2-0c95-431a-8c04-f756fac96db2.jpeg) | ![Bootcut jeans-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/f79a31cb-08bd-4b59-be9d-9b9aa3f60230.png) | ![adbb8e02-9738-991a-9699-f46bc5c089a9_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/297f29eb-7bc9-49a5-b4f7-114375a0f312.png) |
+  * | Top | ![lQLPJv-OKUNDSxvNBojNA62wAMWEBuiTUuMKXnNidWFWAA_941_1672.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/e4273b03-0d3b-4e98-b8f3-8713fccee303.png) | ![Front view of male model wearing a shirt-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/d9ab77f7-8791-4fa5-8d76-4fda3e2e1310.png) | ![7c1c0c04-9828-940f-b86d-c08f7ec8fb97_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/42982786-73ee-4d23-a8d0-551f7a18be22.png) |
+  * | Bottom | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/64147be2-0c95-431a-8c04-f756fac96db2.jpeg) | ![Slightly flared jeans-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/f79a31cb-08bd-4b59-be9d-9b9aa3f60230.png) | ![adbb8e02-9738-991a-9699-f46bc5c089a9_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/297f29eb-7bc9-49a5-b4f7-114375a0f312.png) |
   * | Shoes | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/64147be2-0c95-431a-8c04-f756fac96db2.jpeg) | ![Front view of male model\\"s shoes-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/bb9804b5-0ab9-485b-829b-d54708377fd2.png) | ![91d7b8c4-fc31-9a7f-8b6e-3bec5e62efb3_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/8e54fdc3-7a86-4e3b-aa1d-f3741ce7658c.png) |
-  * | Jumpsuits | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/eddffa7c-a494-4f5b-9d66-da758fb0265f.jpeg) | ![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/7f5cec40-a884-4640-8339-6109305dfa1d.png) | ![20c8b46a-213e-985c-aab2-d56f8752f3a4_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/635096eb-f2b2-4fd8-91d8-4c7e2e7d7ad1.png) |
-  * | Dresses | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/eddffa7c-a494-4f5b-9d66-da758fb0265f.jpeg) | ![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/3d4a6de0-95d2-40cf-9105-48b5e899e0d3.png) | ![45b630e6-4e9d-9bf0-bb4e-224b30a91f77_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/a3cbb609-db71-47d6-8ac6-884f18c6596f.png) |
-  * | Hats | ![adbb8e02-9738-991a-9699-f46bc5c089a9_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/ac26f38e-acc7-49d1-a4ec-a51b54e4bd66.png) | ![Hat-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/34176b57-3aa8-4b6e-8d0f-808ae953654a.png) | ![881f02f3-12f5-95dd-b651-98fab6e30fa0_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/949b4c28-8821-4aa5-a2b4-e4acc1e57b9b.png) |
+  * | Jumpsuit | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/eddffa7c-a494-4f5b-9d66-da758fb0265f.jpeg) | ![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/7f5cec40-a884-4640-8339-6109305dfa1d.png) | ![20c8b46a-213e-985c-aab2-d56f8752f3a4_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/635096eb-f2b2-4fd8-91d8-4c7e2e7d7ad1.png) |
+  * | Dress | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/eddffa7c-a494-4f5b-9d66-da758fb0265f.jpeg) | ![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/3d4a6de0-95d2-40cf-9105-48b5e899e0d3.png) | ![45b630e6-4e9d-9bf0-bb4e-224b30a91f77_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/a3cbb609-db71-47d6-8ac6-884f18c6596f.png) |
+  * | Hat | ![adbb8e02-9738-991a-9699-f46bc5c089a9_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/ac26f38e-acc7-49d1-a4ec-a51b54e4bd66.png) | ![Hat-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/34176b57-3aa8-4b6e-8d0f-808ae953654a.png) | ![881f02f3-12f5-95dd-b651-98fab6e30fa0_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/949b4c28-8821-4aa5-a2b4-e4acc1e57b9b.png) |
   * @param request  the request parameters of AiTryOn  AiTryOnRequest
   * @return AiTryOnResponse
  */
@@ -641,29 +646,32 @@ async function diduiAreaDeductionPro(request: DiduiAreaDeductionProRequest): Did
 }
 
 model DocumentTranslateRequest {
-  fileType: string(name='FileType', description='The type of the document. Valid values: PDF and word. Size limits: 
-- Word: 200 MB or 100 pages. 
-- PDF: 200 MB or 100 pages. 
-- Maximum size of a single file: 200 MB.
+  fileType: string(name='FileType', description='Supports PDF, WORD, and EXCEL formats. Use uppercase letters when specifying this parameter.
 
 This parameter is required.', example='PDF', position='Query'),
-  glossary?: string(name='Glossary', description='The ID of the intervention glossary. Specify this parameter when the intervention feature is required. This parameter supports custom translation results, including do-not-translate (ABC-ABC), specified translation (ABC-DEF), and no translation (ABC-null value). It is commonly used in scenarios such as brand word protection.', example='glossary_1', position='Query'),
-  targetLanguage: string(name='TargetLanguage', description='The target language. The language code uses the two-letter representation of the ISO 639-1 standard.
+  glossary?: string(name='Glossary', description='● Specify the intervention glossary ID when the intervention feature is required.   
+● Supports custom translation results, including:   
+○ Do-not-translate (ABC-ABC).   
+○ Specified translation (ABC-DEF).   
+○ Translation omission (ABC-null value).
+This is commonly used in scenarios such as brand word protection.   
+Example value: "glossary_1"', example='glossary_1', position='Query'),
+  targetLanguage: string(name='TargetLanguage', description='The target language.
 
 This parameter is required.', example='en', position='Query'),
-  url: string(name='Url', description='The OSS URL of the document to be translated.
+  url: string(name='Url', description='The OSS URL path of the document to be translated.
 
 This parameter is required.', example='https://aib-innovation-oss.oss-accelerate.aliyuncs.com/AI_Business/38dao/testdemo.pdf?Expires=3356578313&OSSAccessKeyId=LTAI5tE8X3gEy66SRU1V8dig&Signature=8niQY2HtMQY7h05zmSUdyORML9E%3D', position='Query'),
 }
 
 model DocumentTranslateResponseBody = {
-  code?: string(name='Code', description='The response code. This parameter is not returned when the call is successful.', example='success'),
+  code?: string(name='Code', description='The response code.', example='success'),
   data?: {
     taskId?: string(name='TaskId', description='The unique identifier of the asynchronous task, which is used to query the task status and results later.', example='6071a030-5c92-9df1-96d0-44952343439a'),
   }(name='Data', description='The asynchronous task information.'),
-  message?: string(name='Message', description='The error message, such as "The parameter contains sensitive information. Try another input."
+  message?: string(name='Message', description='The error message, such as "The parameters contain sensitive information. Try other inputs."
 This parameter is not returned when the call is successful.', example='Success'),
-  requestId?: string(name='RequestId', description='The unique identifier of the request, used for troubleshooting and tracing analysis.', example='39E8A74B-F99E-1195-A5FF-3ECC5F94F304'),
+  requestId?: string(name='RequestId', description='The unique identity of the request, which is used for troubleshooting and Tracing Analysis.', example='39E8A74B-F99E-1195-A5FF-3ECC5F94F304'),
   success?: boolean(name='Success', description='Indicates whether the call is successful. Valid values:
 - true: The call is successful.
 - false: The call fails.', example='True'),
@@ -676,19 +684,24 @@ model DocumentTranslateResponse = {
 }
 
 /**
-  * @description ## Product introduction
-  * Designed specifically for document translation, this feature supports translation across more than 400 language pairs (including bridged pairs) and meets the needs of multi-scenario, multi-page, and high-complexity document translation. Scanned documents are not currently supported.
+  * @description # Product introduction
+  * Designed specifically for document translation, this service supports more than 150 languages and provides bridging translation capabilities with thousands of language combinations. It handles multi-scenario, multi-page, and highly complex document translations, but does not currently support scanned documents.
   * It excels in the following aspects:
-  * - Content accuracy: Ensures translation accuracy and the accuracy of parameters and units.
-  * - Structural integrity: Maintains overall layout continuity and restores page margins and layouts.
-  * ## Scenarios
-  * Cross-border e-commerce product manuals, contracts, agreements, business proposals, qualification documents, teaching materials, and courseware.
-  * ## Features
-  * - Supports PDF and Word formats, and supports source documents containing multiple languages. For the detailed language list, see [Language pair mapping table](https://www.alibabacloud.com/help/en/document_detail/3041883.html).
-  * - Supports the translation of text in images within documents, as well as complex translation scenarios such as other charts and special symbols.
-  * - Supports highly restored layout after translation.
-  * - Supports up to 100 pages for a single PDF file and up to 100 pages for a single Word file.
-  * - Supports custom translation results, including do-not-translate (ABC-ABC), specified translation (ABC-DEF), and no translation (ABC-null value). This is commonly used in scenarios such as brand word protection. You can implement this by passing the corresponding intervention glossary ID when calling the API operation, which meets your translation needs in different scenarios. Generally, you can upload up to 100,000 intervention words. If you have more requirements, contact the platform for processing.
+  * *   Content accuracy: translation accuracy, and accuracy of parameters and units.
+  *     
+  * *   Structural integrity: overall layout continuity, and restoration of page margins and layouts.
+  * # Scenarios
+  * Cross-border e-commerce product manuals, contracts, agreements, business proposals, qualification documents, teaching materials, courseware, and various other scenarios.
+  * # Features
+  * *   Supports PDF, Word, and Excel formats. Supports source documents that contain multiple languages. For the detailed language list, see Section 4.4.
+  *     
+  * *   Supports the translation of text within images in documents, as well as complex translation scenarios involving other charts and special symbols.
+  *     
+  * *   Supports highly accurate layout restoration after translation.
+  *     
+  * *   Supports the translation of a single PDF or Word document with up to **800 pages**.
+  *     
+  * *   Supports custom translation results, including do-not-translate (ABC-ABC), specified translation (ABC-DEF), and translation omission (ABC-null value). This is commonly used in scenarios such as brand word protection. You can implement this by passing the corresponding intervention glossary ID when calling the API to meet your translation needs in different scenarios. Generally, you can upload up to 100,000 intervention terms. If you need more, contact the platform for assistance. For detailed instructions on translation intervention, see [Full-modal translation - Translation intervention instruction manual](https://www.alibabacloud.com/help/en/aidge/full-modal-translation-translation-intervention-instruction-manual)
   * @param request  the request parameters of DocumentTranslate  DocumentTranslateRequest
   * @return DocumentTranslateResponse
  */
@@ -3031,6 +3044,59 @@ async function productHotspotDetection(request: ProductHotspotDetectionRequest):
   return @handler.do('RPC', 'ProductHotspotDetection', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ProductVideoGenerationRequest {
+  aspectRatio?: string(name='aspect_ratio', description='The aspect ratio. Default value: 9:16. Valid values: 16:9, 1:1, 3:4, and 9:16.', example='9:16', position='Query'),
+  duration?: long(name='duration', description='The video duration in seconds. Default value: 15. If no script is provided, the value must be an integer from 5 to 15. If a script is provided, the value must be an integer from 5 to 30. A value of 15.0 is treated as 15.', example='15', position='Query'),
+  productImages: [ string ](name='product_images', description='The public image URLs. At least one image URL is required. Each URL must start with http:// or https:// after leading and trailing whitespaces are removed.
+
+This parameter is required.', shrink='json', position='Query'),
+  productTitle: string(name='product_title', description='The product title. This parameter is required.
+
+This parameter is required.', example='White minimalist ceramic mug', position='Query'),
+  resolution?: string(name='resolution', description='The resolution. Default value: 720P. Valid values: 720P and 1080P. The value is case-insensitive and is automatically converted to uppercase by the service.', example='720P', position='Query'),
+  script?: string(name='script', description='The existing storyboard script. If this parameter is not provided or is left blank, automatic planning is used.', example='create a dog', position='Query'),
+}
+
+model ProductVideoGenerationResponseBody = {
+  code?: string(name='Code', description='The error code.', example='success'),
+  data?: {
+    route?: string(name='route', description='The planning route written upon acceptance. Valid values: DIRECT (with script) and AUTO_PLAN (automatic planning).', example='AUTO_PLAN'),
+    status?: string(name='status', description='The current status.', example='PENDING'),
+    taskId?: string(name='task_id', description='The task ID of this service.', example='task_778fa8bd21804828a5d147050e30edac'),
+  }(name='Data', description='The task acceptance result.'),
+  message?: string(name='Message', description='The returned message or failure description.', example='Task submitted'),
+  requestId?: string(name='RequestId', description='Id of the request', example='70CBEFDF-BB17-1EB3-8A21-569F3124738F'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful.', example='True'),
+}
+
+model ProductVideoGenerationResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ProductVideoGenerationResponseBody(name='body'),
+}
+
+/**
+  * @description # Product introduction
+  * The basic e-commerce video edition is designed for e-commerce merchants and platforms. It generates a single-product showcase video based on a product title and multiple images of the same product. You can optionally provide a storyboard script. The system automatically selects reference images, plans a three-shot storyboard, and generates the video. This API uses asynchronous tasks, supports 720P and 1080P resolutions and four aspect ratios, and applies to product content production for non-apparel categories. For apparel categories, use the e-commerce enhanced edition.
+  * # Scenarios
+  * - New product material generation: Provide a product title and images to automatically plan storyboard content such as product debut, details, or usage demonstrations.
+  * - Video production with existing scripts: Provide a storyboard script or creative description. The system optimizes the storyboard script based on the product images and retains shot intentions that are supported by the images.
+  * - Adaptation to different video placements: Use the aspect ratio parameter to adapt to vertical short videos, main product images, detail pages, and horizontal displays. For batch production, each request corresponds to one product and one video.
+  * # Features
+  * - Automatic image selection and storyboard planning: When no script is provided, the system generates a storyboard based on the product title and images. When a script is provided, the system still performs image selection and planning, eliminating the need for callers to organize video prompts.
+  * - Product appearance consistency constraint: The system uses the selected complete product image as the appearance baseline. It checks the color scheme, structure, proportion, texture, version, and specifications of other images, and selects only reference images that can be confirmed to belong to the same SKU.
+  * - Flexible video specifications: Without a script, the duration is 5 to 15 seconds. With a script, the duration is 5 to 30 seconds. The system supports four aspect ratios (16:9, 1:1, 3:4, and 9:16) and two resolutions (720P and 1080P).
+  * - Asynchronous generation and task query: After a task is created, a task ID is returned. Callers use the query API to obtain the result. The final video includes background music, no voiceover, and no additional subtitles or marketing text.
+  * # Examples
+  * [View the attachment Digital_040_WiFi6_Gigabit_Router.mp4 in the DingTalk document.](https://alidocs.dingtalk.com/i/nodes/gwva2dxOW4vRkd9DUn1g1p6kJbkz3BRL?cid=6760411388:7016395022&corpId=dingd8e1123006514592&iframeQuery=anchorId%3DX02mvsyycduj3nepwoeush&utm_medium=im_card&utm_scene=person_space&utm_source=im)
+  * @param request  the request parameters of ProductVideoGeneration  ProductVideoGenerationRequest
+  * @return ProductVideoGenerationResponse
+ */
+async function productVideoGeneration(request: ProductVideoGenerationRequest): ProductVideoGenerationResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ProductVideoGeneration', 'POST', '/v1/product-video/tasks', 'json', false, 'json', request);
+}
+
 model QueryAsyncTaskResultRequest {
   taskId?: string(name='TaskId', description='The ID of the asynchronous task. This parameter is required.', example='b67f6089-085a-9402-93c6-bac0561b3a06', position='Query'),
 }
@@ -4033,26 +4099,24 @@ model VirtualTryOnRequest {
   clothImageUrl: string(name='ClothImageUrl', description='The URL of the garment image. Only one image is supported. The URL must be a publicly accessible HTTP or HTTPS URL. The image must be in JPG, JPEG, PNG, BMP, or WEBP format. The resolution must be between 256×256 and 2049×2049 pixels, and the file size must not exceed 10 MB.<br>
 
 This parameter is required.', example='https://ae01.alicdn.com/kf/S342f0070dc9f4be09a6cbed34e90dc8fs.jpg', position='Query'),
-  clothType?: string(name='ClothType', description='The garment type. Valid values: tops, bottoms, dresses, tops_and_bottoms, shoes, and hats. If you do not specify this parameter, the system automatically recognizes the garment type.', example='tops', position='Query'),
+  clothType?: string(name='ClothType', description='The type of the garment. Valid values: tops, bottoms, dresses, tops_and_bottoms, shoes, and hats. If this parameter is not specified, the system automatically recognizes the garment type.', example='tops', position='Query'),
   modelImageUrl: string(name='ModelImageUrl', description='The URL of the model image. Only one image is supported. The URL must be a publicly accessible HTTP or HTTPS URL. The image must be in JPG, JPEG, PNG, BMP, or WEBP format. The resolution must be between 256×256 and 2049×2049 pixels, and the file size must not exceed 10 MB.<br>
 
 This parameter is required.', example='https://ae01.alicdn.com/kf/S342f0070dc9f4be09a6cbed34e90dc8fs.jpg', position='Query'),
-  resolution: string(name='Resolution', description='Required. The image resolution. Valid values: 1K and 2K.
+  resolution: string(name='Resolution', description='Required. The resolution of the generated image. Valid values: 1K and 2K.
 
 This parameter is required.', example='1K', position='Query'),
 }
 
 model VirtualTryOnResponseBody = {
-  code?: string(name='Code', description='The error code. This parameter is not returned when the call is successful.', example='200'),
+  code?: string(name='Code', description='The error code. This parameter is not returned for successful calls.', example='200'),
   data?: {
-    taskId?: string(name='TaskId', description='The ID of the asynchronous task, which is used to query the task result later.', example='task-xxxx-xxxx-xxxx'),
-    usageMap?: map[string]any(name='UsageMap', description='The usage details.'),
+    taskId?: string(name='TaskId', description='The ID of the asynchronous task. It is used to query the task result later.', example='task-xxxx-xxxx-xxxx'),
+    usageMap?: map[string]any(name='UsageMap', description='The usage details.', example='{"ProcessingCount":1}'),
   }(name='Data', description='The returned result struct.'),
-  message?: string(name='Message', description='The error message. This parameter is not returned when the call is successful.', example='OK'),
-  requestId?: string(name='RequestId', description='The request ID, which is used to identify a unique request.', example='E1AD60F1-BAC7-546B-9533-E7AD02B16E3F'),
-  success?: boolean(name='Success', description='Indicates whether the call is successful. Valid values:
-- true: The call is successful.
-- false: The call fails.', example='True'),
+  message?: string(name='Message', description='The error message. This parameter is not returned for successful calls.', example='OK'),
+  requestId?: string(name='RequestId', description='The ID of the request. It is used to identify a unique request.', example='E1AD60F1-BAC7-546B-9533-E7AD02B16E3F'),
+  success?: boolean(name='Success', description='Indicates whether the call is successful. A value of true indicates success, and a value of false indicates failure.', example='True'),
 }
 
 model VirtualTryOnResponse = {
@@ -4064,21 +4128,21 @@ model VirtualTryOnResponse = {
 /**
   * @description ## Scenarios
   * - **Virtual try-on for clothing:**
-  * Supports various clothing categories such as tops, bottoms, jumpsuits, and dresses. After you upload a model image and a garment image, the system generates natural and realistic try-on effects to visually demonstrate how the clothing looks on the model.
+  * Supports various clothing categories such as tops, bottoms, jumpsuits, and dresses. After users upload a model image and a garment image, the system generates natural and realistic try-on effects to intuitively display how the garment looks on the model.
   * - **Virtual try-on for shoes and hats:**
-  * Supports virtual try-on for accessories such as shoes and hats. The system intelligently matches the position and proportion of the items based on the model\\"s pose and body parts to present a coordinated and realistic wearing effect.
+  * Supports virtual try-on for accessories such as shoes and hats. The system intelligently matches the position and proportion of the product based on the model\\"s pose and body parts, presenting a coordinated and realistic wearing effect.
   * - **E-commerce product display and marketing:**
-  *  Helps merchants quickly generate model try-on images for different products, reducing the costs of traditional photography, outfit changes, and post-production, and improving the production efficiency of product images.  
+  * Helps merchants quickly generate model try-on images for different products, reducing the costs of traditional photography, outfit changes, and post-production, and improving the production efficiency of product images.  
   * - **Online shopping experience optimization:**
-  * Allows consumers to preview the wearing effect of products through virtual try-on, providing a more intuitive understanding of the style, matching, and overall effect of the products, which assists in purchase decisions and enhances the shopping experience.
+  * Allows consumers to preview the wearing effect of products through virtual try-on, providing a more intuitive understanding of the style, matching, and overall effect of the product, which assists in purchase decisions and enhances the shopping experience.
   * ## Features
-  * - **First, you need to input a model image and a product image. The system uses the model image as the try-on subject and applies the garment from the product image to the model:**
-  *   - a. Model image: the image of the person who will wear the clothing in the virtual try-on.
-  *   - b. Product image: the image of the clothing, shoes, or hat to be worn by the model.
-  * - **Second, you can select the corresponding product type based on the actual product. Supported types include tops, bottoms, jumpsuits, dresses, shoes, and hats:**
-  *   - a. Specify product type: you can directly input the type of the current product, and the system will process it according to the specified type.
-  *   - b. Automatic type recognition: if you do not input the product type, the system will automatically recognize the product category in the product image and perform the virtual try-on based on the recognition result.
-  * - **Finally, the system combines the model image, product image, and product type to generate a virtual try-on image, showing the wearing effect of the product on the model:**
+  * - **First, users need to input a model image and a garment image. The system uses the model image as the try-on subject and applies the garment from the garment image to the model:**
+  *   - a. Model image: the image of the person for the virtual try-on.
+  *   - b. Garment image: the image of the clothing, shoes, or hat to be worn by the model.
+  * - **Second, users can select the corresponding product type based on the actual product. Supported types include tops, bottoms, jumpsuits, dresses, shoes, and hats:**
+  *   - a. Specify product type: users can directly input the type of the current product, and the system will process it according to the specified type.
+  *   - b. Automatic type recognition: if the user does not input the product type, the system will automatically recognize the product category in the garment image and perform the virtual try-on based on the recognition result.
+  * - **Finally, the system combines the model image, garment image, and product type to generate a virtual try-on image, displaying the wearing effect of the product on the model:**
   *   - a. Preserve model details: the generation process does not adjust the appearance, hairstyle, pose, body shape, or other details of the person in the original model image.
   *   - b. Maintain image consistency: the background, composition, lighting, and overall visual effect of the original model image remain unchanged. Only the wearing area corresponding to the product is processed.
   *   - c. Generate try-on effect: the product is naturally applied to the model, fitting the person\\"s pose and body structure to generate a coordinated and realistic virtual try-on image.
@@ -4086,8 +4150,8 @@ model VirtualTryOnResponse = {
   * | **Type** | **Model image** | **Garment image** | **Try-on result** |
   * | --- | --- | --- | --- |
   * | Tops | ![lQLPJv-OKUNDSxvNBojNA62wAMWEBuiTUuMKXnNidWFWAA_941_1672.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/e4273b03-0d3b-4e98-b8f3-8713fccee303.png) | ![Front view of male model wearing a shirt-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/d9ab77f7-8791-4fa5-8d76-4fda3e2e1310.png) | ![7c1c0c04-9828-940f-b86d-c08f7ec8fb97_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/42982786-73ee-4d23-a8d0-551f7a18be22.png) |
-  * | Bottoms | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/64147be2-0c95-431a-8c04-f756fac96db2.jpeg) | ![Bootcut jeans-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/f79a31cb-08bd-4b59-be9d-9b9aa3f60230.png) | ![adbb8e02-9738-991a-9699-f46bc5c089a9_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/297f29eb-7bc9-49a5-b4f7-114375a0f312.png) |
-  * | Shoes | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/64147be2-0c95-431a-8c04-f756fac96db2.jpeg) | ![Front view of men\\"s shoes-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/bb9804b5-0ab9-485b-829b-d54708377fd2.png) | ![91d7b8c4-fc31-9a7f-8b6e-3bec5e62efb3_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/8e54fdc3-7a86-4e3b-aa1d-f3741ce7658c.png) |
+  * | Bottoms | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/64147be2-0c95-431a-8c04-f756fac96db2.jpeg) | ![Flared jeans-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/f79a31cb-08bd-4b59-be9d-9b9aa3f60230.png) | ![adbb8e02-9738-991a-9699-f46bc5c089a9_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/297f29eb-7bc9-49a5-b4f7-114375a0f312.png) |
+  * | Shoes | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/64147be2-0c95-431a-8c04-f756fac96db2.jpeg) | ![Front view of male model\\"s shoes-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/bb9804b5-0ab9-485b-829b-d54708377fd2.png) | ![91d7b8c4-fc31-9a7f-8b6e-3bec5e62efb3_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/8e54fdc3-7a86-4e3b-aa1d-f3741ce7658c.png) |
   * | Jumpsuits | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/eddffa7c-a494-4f5b-9d66-da758fb0265f.jpeg) | ![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/7f5cec40-a884-4640-8339-6109305dfa1d.png) | ![20c8b46a-213e-985c-aab2-d56f8752f3a4_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/635096eb-f2b2-4fd8-91d8-4c7e2e7d7ad1.png) |
   * | Dresses | ![lQDPJwcNMfxtoRvNBQDNAtCwhseujKzDt_QKXnNSTPaeAA_720_1280.jpeg](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/eddffa7c-a494-4f5b-9d66-da758fb0265f.jpeg) | ![image.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/3d4a6de0-95d2-40cf-9105-48b5e899e0d3.png) | ![45b630e6-4e9d-9bf0-bb4e-224b30a91f77_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/a3cbb609-db71-47d6-8ac6-884f18c6596f.png) |
   * | Hats | ![adbb8e02-9738-991a-9699-f46bc5c089a9_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/ac26f38e-acc7-49d1-a4ec-a51b54e4bd66.png) | ![Hat-aidge.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/34176b57-3aa8-4b6e-8d0f-808ae953654a.png) | ![881f02f3-12f5-95dd-b651-98fab6e30fa0_qwen_image3_serving_output_0.png](https://alidocs.oss-cn-zhangjiakou.aliyuncs.com/res/4j6OJ5PZM1WeKq3p/img/949b4c28-8821-4aa5-a2b4-e4acc1e57b9b.png) |
