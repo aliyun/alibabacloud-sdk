@@ -2,6 +2,7 @@
  *
  */
 import Util;
+import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -11,6 +12,9 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
+  @productId = 'OpenAgent';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -30,11 +34,11 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
 
 model CancelRunHeaders {
   commonHeaders?: map[string]string,
-  xOpenAgentIdempotencyKey?: string(name='X-OpenAgent-Idempotency-Key', description='The idempotency key of the request. Use the same value and the same business parameters when retrying the same cancellation request.', example='cancel-example-001'),
+  xOpenAgentIdempotencyKey?: string(name='X-OpenAgent-Idempotency-Key', description='The idempotency key for the request. Use the same value and the same business parameters when you retry the same cancellation request.', example='cancel-example-001'),
 }
 
 model CancelRunRequest {
-  reason?: string(name='reason', description='The reason for the cancellation. The value must be 1 to 1,024 characters in length.', example='The user manually canceled this task'),
+  reason?: string(name='reason', description='The reason for the cancellation. The value must be 1 to 1,024 characters in length.', example='The user manually canceled the task'),
 }
 
 model CancelRunResponseBody = {
@@ -270,7 +274,7 @@ model GetReadonlyModeResponseBody = {
     configName?: string(name='configName', description='The configuration name. The value is fixed to readonly.', example='readonly'),
     exists?: boolean(name='exists', description='Indicates whether a configuration record exists.', example='true'),
     gmtUpdate?: string(name='gmtUpdate', description='The last update time in ISO 8601 format. The value is null if no configuration record exists.', example='2026-01-01T00:00:00Z'),
-    value?: string(name='value', description='The current effective read-only mode, returned as a string. A value of true indicates that the mode is enabled, and a value of false indicates that the mode is disabled. The value is true if not configured.', example='true'),
+    value?: string(name='value', description='The current read-only mode in effect, returned as a string. A value of true indicates that the mode is enabled, and a value of false indicates that the mode is disabled. The default value is true if not configured.', example='true'),
     valueType?: string(name='valueType', description='The configuration value type. The value is fixed to BOOL.', example='BOOL'),
   }(name='data', description='The returned data.'),
   requestId?: string(name='requestId', description='The request ID.', example='00000000-0000-4000-8000-000000000001'),
@@ -286,7 +290,7 @@ model GetReadonlyModeResponse = {
 /**
  * @summary Queries the read-only mode.
  *
- * @description Queries the read-only mode switch for the current account. The read-only mode is enabled by default if it is not configured.
+ * @description Queries the read-only mode switch of the current account. It is enabled by default if not configured.
  *
  * @param request GetReadonlyModeRequest
  * @param headers map
@@ -315,7 +319,7 @@ async function getReadonlyModeWithOptions(request: GetReadonlyModeRequest, heade
 /**
  * @summary Queries the read-only mode.
  *
- * @description Queries the read-only mode switch for the current account. The read-only mode is enabled by default if it is not configured.
+ * @description Queries the read-only mode switch of the current account. It is enabled by default if not configured.
  *
  * @param request GetReadonlyModeRequest
  * @return GetReadonlyModeResponse
@@ -331,7 +335,7 @@ model GetRunRequest {
 
 model GetRunResponseBody = {
   data?: {
-    createdAt?: string(name='createdAt', description='The time when the run was created, in ISO 8601 format.', example='2026-01-01T00:00:00Z'),
+    createdAt?: string(name='createdAt', description='The run creation time in ISO 8601 format.', example='2026-01-01T00:00:00Z'),
     outcome?: {
       interrupts?: [ 
         {
@@ -344,28 +348,41 @@ model GetRunResponseBody = {
             ](name='apiCalls', description='The list of APIs pending approval.'),
             approvalId?: string(name='approvalId', description='The approval ID.', example='approval_example_001'),
             approvalUrl?: string(name='approvalUrl', description='The approval URL.', example='https://example.com/approvals/approval_example_001'),
-            cancellable?: boolean(name='cancellable', description='Specifies whether the interrupt can be canceled.', example='true'),
-            changeDigest?: string(name='changeDigest', description='The change digest.', example='example-change-digest'),
+            cancellable?: boolean(name='cancellable', description='Indicates whether it can be canceled.', example='true'),
+            changeDigest?: string(name='changeDigest', description='The change summary.', example='example-change-digest'),
             title?: string(name='title', description='The approval title.', example='Sample change approval'),
           }(name='data', description='The interrupt data.'),
-          expiresAt?: string(name='expiresAt', description='The expiration time of the interrupt, in ISO 8601 format.', example='2026-01-02T00:00:00Z'),
+          expiresAt?: string(name='expiresAt', description='The interrupt expiration time in ISO 8601 format.', example='2026-01-02T00:00:00Z'),
           id?: string(name='id', description='The interrupt ID.', example='interrupt_example_001'),
-          message?: string(name='message', description='The interrupt prompt.', example='Specify the region of the target resource'),
+          message?: string(name='message', description='The interrupt message.', example='Specify the region of the target resource'),
           metadata?: map[string]any(name='metadata', description='The extended information.', example='{}'),
-          reason?: string(name='reason', description='The reason for the interrupt: `tool_call` (tool calling requires processing), `input_required` (user input is required), `confirmation` (confirmation is required), or `out_of_band_approval` (waiting for out-of-band approval).', example='input_required'),
-          responseSchema?: map[string]any(name='responseSchema', description='The JSON Schema that the payload must conform to when resuming the interrupt.', example='{"type":"object","properties":{"region":{"type":"string"}},"required":["region"]}'),
-          toolCallId?: string(name='toolCallId', description='The ID used to invoke the tool calling.', example='tool_call_example_001'),
+          reason?: string(name='reason', description='The interrupt reason. Valid values:
+- `tool_call`: tool invocation requires handling
+- `input_required`: user input is required
+- `confirmation`: confirmation is required
+- `out_of_band_approval`: waiting for out-of-band approval', example='input_required'),
+          responseSchema?: map[string]any(name='responseSchema', description='The JSON schema that the payload must comply with when resuming this interrupt.', example='{"type":"object","properties":{"region":{"type":"string"}},"required":["region"]}'),
+          toolCallId?: string(name='toolCallId', description='The tool invocation ID.', example='tool_call_example_001'),
         }
-      ](name='interrupts', description='The list of interrupts.'),
-      type?: string(name='type', description='The outcome type: `success` (completed successfully) or `interrupt` (waiting for interrupt processing).', example='interrupt'),
+      ](name='interrupts', description='The interrupt list.'),
+      type?: string(name='type', description='The result type. Valid values:
+- `success`: successfully completed
+- `interrupt`: waiting for interrupt handling', example='interrupt'),
     }(name='outcome', description='The run outcome.'),
     runId?: string(name='runId', description='The run ID.', example='run_example_001'),
     sessionId?: string(name='sessionId', description='The session ID.', example='session_example_001'),
-    status?: string(name='status', description='The run status: `PENDING` (pending execution), `RUNNING` (running), `WAITING_USER` (waiting for interrupt processing), `COMPLETED` (completed), `FAILED` (failed), `CANCELLED` (canceled), or `REJECTED` (rejected).', example='COMPLETED'),
-    updatedAt?: string(name='updatedAt', description='The time when the run was last updated, in ISO 8601 format.', example='2026-01-01T00:01:00Z'),
+    status?: string(name='status', description='The run status. Valid values:
+- `PENDING`: pending execution
+- `RUNNING`: running
+- `WAITING_USER`: waiting for interrupt handling
+- `COMPLETED`: completed
+- `FAILED`: failed
+- `CANCELLED`: canceled
+- `REJECTED`: rejected', example='COMPLETED'),
+    updatedAt?: string(name='updatedAt', description='The last update time of the run in ISO 8601 format.', example='2026-01-01T00:01:00Z'),
   }(name='data', description='The returned data.'),
   requestId?: string(name='requestId', description='The request ID.', example='00000000-0000-4000-8000-000000000001'),
-  success?: boolean(name='success', description='Indicates whether the request was successful.', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model GetRunResponse = {
@@ -423,11 +440,11 @@ model GetSessionRequest {
 model GetSessionResponseBody = {
   data?: {
     createdAt?: string(name='createdAt', description='The time when the session was created, in ISO 8601 format.', example='2026-01-01T00:00:00Z'),
-    lastRunId?: string(name='lastRunId', description='The ID of the most recent run.', example='run_example_001'),
-    lastRunStatus?: string(name='lastRunStatus', description='The status of the most recent run. Valid values: `PENDING` (pending execution), `RUNNING` (running), `WAITING_USER` (waiting for interrupt handling), `COMPLETED` (completed), `FAILED` (failed), `CANCELLED` (cancelled), and `REJECTED` (rejected).', example='COMPLETED'),
+    lastRunId?: string(name='lastRunId', description='The ID of the last run.', example='run_example_001'),
+    lastRunStatus?: string(name='lastRunStatus', description='The status of the last run. Valid values: `PENDING` (pending), `RUNNING` (running), `WAITING_USER` (waiting for interrupt handling), `COMPLETED` (completed), `FAILED` (failed), `CANCELLED` (cancelled), `REJECTED` (rejected).', example='COMPLETED'),
     pinned?: boolean(name='pinned', description='Indicates whether the session is pinned.', example='false'),
     sessionId?: string(name='sessionId', description='The session ID.', example='session_example_001'),
-    status?: string(name='status', description='The session status. Valid values: `IDLE` (idle), `ACTIVE` (active), `WAITING_USER_INPUT` (waiting for user input), `WAITING_APPROVAL` (waiting for user confirmation), `WAITING_OUT_OF_BAND_APPROVAL` (waiting for out-of-band approval), and `CLOSED` (closed).', example='IDLE'),
+    status?: string(name='status', description='The session status. Valid values: `IDLE` (idle), `ACTIVE` (running), `WAITING_USER_INPUT` (waiting for user input), `WAITING_APPROVAL` (waiting for user confirmation), `WAITING_OUT_OF_BAND_APPROVAL` (waiting for out-of-band approval), `CLOSED` (closed).', example='IDLE'),
     title?: string(name='title', description='The session title.', example='Cloud resource inspection example'),
     updatedAt?: string(name='updatedAt', description='The time when the session was last updated, in ISO 8601 format.', example='2026-01-01T00:01:00Z'),
   }(name='data', description='The returned data.'),
@@ -444,7 +461,7 @@ model GetSessionResponse = {
 /**
  * @summary Queries a session.
  *
- * @description Queries the title, status, pinning information, and the ID and status of the most recent run of a specified session.
+ * @description Queries the title, status, and pinned state of a specified session, along with the ID and status of its last run.
  *
  * @param request GetSessionRequest
  * @param headers map
@@ -473,7 +490,7 @@ async function getSessionWithOptions(sessionId: string, request: GetSessionReque
 /**
  * @summary Queries a session.
  *
- * @description Queries the title, status, pinning information, and the ID and status of the most recent run of a specified session.
+ * @description Queries the title, status, and pinned state of a specified session, along with the ID and status of its last run.
  *
  * @param request GetSessionRequest
  * @return GetSessionResponse
@@ -486,8 +503,8 @@ async function getSession(sessionId: string, request: GetSessionRequest): GetSes
 
 model ListMessagesRequest {
   maxResults?: string(name='maxResults', description='The maximum number of timeline entries to return per page. The value must be a positive integer.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter for the first request. For subsequent requests, use the value returned from the previous page.', example='example-next-token'),
-  runId?: string(name='runId', description='Filters messages by the specified run ID.', example='run_example_001'),
+  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter in the first request. For subsequent requests, use the value returned from the previous response.', example='example-next-token'),
+  runId?: string(name='runId', description='Filters messages by a specified run ID.', example='run_example_001'),
 }
 
 model ListMessagesResponseBody = {
@@ -498,9 +515,9 @@ model ListMessagesResponseBody = {
       {
         message?: {
           activityType?: string(name='activityType', description='The type identifier of the activity message.', example='example_activity'),
-          content?: any(name='content', description='The message content. The structure is determined by the message type.', example='Query the status of the sample resource'),
-          encryptedValue?: string(name='encryptedValue', description='The encrypted content. The example is an invalid placeholder value and does not contain real ciphertext.', example='EXAMPLE_ENCRYPTED_VALUE'),
-          error?: string(name='error', description='The error description when tool execution fails.', example='Sample tool execution failure'),
+          content?: any(name='content', description='The message content. The structure is determined by the message type.', example='Check the status of the sample resource'),
+          encryptedValue?: string(name='encryptedValue', description='The encrypted content. The example is an invalid placeholder value and does not contain actual ciphertext.', example='EXAMPLE_ENCRYPTED_VALUE'),
+          error?: string(name='error', description='The error description when the tool execution fails.', example='Sample tool execution failure'),
           id?: string(name='id', description='The message ID.', example='message_example_001'),
           interruptOutcome?: {
             interrupts?: [ 
@@ -509,14 +526,14 @@ model ListMessagesResponseBody = {
                   apiCalls?: [ 
                     {
                       action?: string(name='action', description='The name of the API action.', example='ExampleAction'),
-                      description?: string(name='description', description='The description of the operation pending approval.', example='Execute changes on the sample resource'),
+                      description?: string(name='description', description='The description of the operation pending approval.', example='Modify the sample resource'),
                     }
                   ](name='apiCalls', description='The list of API operations that require approval.'),
-                  approvalId?: string(name='approvalId', description='The associated approval ID.', example='approval_example_001'),
-                  approvalUrl?: string(name='approvalUrl', description='The URL of the approval page. The example URL cannot be used for actual approval.', example='https://example.com/approvals/approval_example_001'),
+                  approvalId?: string(name='approvalId', description='The ID of the associated approval request.', example='approval_example_001'),
+                  approvalUrl?: string(name='approvalUrl', description='The URL of the approval page. The example URL cannot be used for actual approvals.', example='https://example.com/approvals/approval_example_001'),
                   cancellable?: boolean(name='cancellable', description='Specifies whether the approval can be canceled.', example='true'),
-                  changeDigest?: string(name='changeDigest', description='The digest identifier of the change pending approval.', example='example-change-digest'),
-                  title?: string(name='title', description='The title of the approval item.', example='Sample change approval'),
+                  changeDigest?: string(name='changeDigest', description='The summary identifier of the change pending approval.', example='example-change-digest'),
+                  title?: string(name='title', description='The title of the approval request.', example='Sample change approval'),
                 }(name='data', description='The supplementary business data for the interrupt.'),
                 expiresAt?: string(name='expiresAt', description='The expiration time of the interrupt, in RFC 3339 format.', example='2026-01-02T00:00:00Z'),
                 id?: string(name='id', description='The interrupt ID.', example='interrupt_example_001'),
@@ -524,11 +541,11 @@ model ListMessagesResponseBody = {
                 metadata?: map[string]any(name='metadata', description='The extended metadata of the interrupt.', example='{}'),
                 reason?: string(name='reason', description='The reason for the interrupt. Valid values: `tool_call` (tool invocation requires processing), `input_required` (user input is required), `confirmation` (confirmation is required), and `out_of_band_approval` (waiting for out-of-band approval).', example='input_required'),
                 responseSchema?: map[string]any(name='responseSchema', description='The JSON schema that the resume result payload must follow.', example='{"type":"object","properties":{"region":{"type":"string"}},"required":["region"]}'),
-                toolCallId?: string(name='toolCallId', description='The ID of the tool invocation associated with the interrupt.', example='tool_call_example_001'),
+                toolCallId?: string(name='toolCallId', description='The tool invocation ID associated with the interrupt.', example='tool_call_example_001'),
               }
             ](name='interrupts', description='The list of historical interrupts.'),
-            type?: string(name='type', description='The type of the interrupt result. The value is fixed to `interrupt`.', example='interrupt'),
-          }(name='interruptOutcome', description='The result information of historical interrupts.'),
+            type?: string(name='type', description='The interrupt result type. The value is fixed to `interrupt`.', example='interrupt'),
+          }(name='interruptOutcome', description='The result information of the historical interrupt.'),
           metadata?: map[string]any(name='metadata', description='The extended metadata of the message.', example='{}'),
           name?: string(name='name', description='The name of the message sender.', example='example-user'),
           resumeInput?: {
@@ -536,35 +553,35 @@ model ListMessagesResponseBody = {
             resume?: [ 
               {
                 interruptId?: string(name='interruptId', description='The ID of the processed interrupt.', example='interrupt_example_001'),
-                payload?: any(name='payload', description='The processing result for the corresponding interrupt, which must comply with the responseSchema of the interrupt.', example='{"region":"cn-hangzhou"}'),
-                status?: string(name='status', description='The response method for the current interrupt. Valid values: `resolved` (the answer, confirmation, or tool result required by the interrupt has been submitted, including the `payload`) and `cancelled` (the interrupt has been canceled, excluding the `payload`).', example='resolved'),
+                payload?: any(name='payload', description='The processing result for the corresponding interrupt. The result must comply with the responseSchema of the interrupt.', example='{"region":"cn-hangzhou"}'),
+                status?: string(name='status', description='The response method for this interrupt. Valid values: `resolved` (the answer, confirmation, or tool result required by the interrupt has been submitted, which includes the `payload`) and `cancelled` (the interrupt has been canceled, which does not include the `payload`).', example='resolved'),
               }
             ](name='resume', description='The submitted processing results for each interrupt.'),
-            runId?: string(name='runId', description='The ID of the original run that was resumed.', example='run_example_001'),
+            runId?: string(name='runId', description='The ID of the original run that is resumed.', example='run_example_001'),
             source?: string(name='source', description='The source of the resume request. Valid values: `USER` (submitted by a user) and `INTERNAL` (submitted by an internal process).', example='USER'),
           }(name='resumeInput', description='The resume input corresponding to the historical interrupt.'),
           role?: string(name='role', description='The role of the message. Valid values: `user` (user message), `assistant` (assistant message), `tool` (tool result), `activity` (activity message), `reasoning` (reasoning message), and `interrupt` (interrupt record).', example='user'),
-          toolCallId?: string(name='toolCallId', description='The ID of the tool invocation associated with the tool result.', example='tool_call_example_001'),
+          toolCallId?: string(name='toolCallId', description='The tool invocation ID associated with the tool result.', example='tool_call_example_001'),
           toolCalls?: [ 
             {
-              encryptedValue?: string(name='encryptedValue', description='The encrypted content of the tool invocation. The example is only a placeholder value.', example='EXAMPLE_ENCRYPTED_VALUE'),
+              encryptedValue?: string(name='encryptedValue', description='The encrypted content of the tool invocation. The example is a placeholder value only.', example='EXAMPLE_ENCRYPTED_VALUE'),
               function?: {
-                arguments?: string(name='arguments', description='The tool parameters in the form of a JSON string.', example='{"keyword":"example"}'),
+                arguments?: string(name='arguments', description='The tool parameters as a JSON string.', example='{"keyword":"example"}'),
                 name?: string(name='name', description='The name of the function or tool.', example='lookup_example'),
-              }(name='function', description='The information about the function to be executed.'),
+              }(name='function', description='The information about the function to execute.'),
               id?: string(name='id', description='The tool invocation ID.', example='tool_call_example_001'),
               metadata?: map[string]any(name='metadata', description='The extended metadata of the tool invocation.', example='{}'),
-              type?: string(name='type', description='The type of the tool invocation. The value is fixed to `function`.', example='function'),
+              type?: string(name='type', description='The tool invocation type. The value is fixed to `function`.', example='function'),
             }
           ](name='toolCalls', description='The list of tool invocations initiated by the agent.'),
-        }(name='message', description='The message object. Different message types are distinguished by role, and each type uses the corresponding fields.'),
+        }(name='message', description='The message object. Message types are distinguished by role, and each type uses its corresponding fields.'),
         runId?: string(name='runId', description='The ID of the run to which the message belongs.', example='run_example_001'),
       }
-    ](name='timeline', description='The message records returned in a timeline.'),
-    total?: int32(name='total', description='The number of timeline records on the current page, which is equal to the length of the timeline array.', example='1'),
+    ](name='timeline', description='The message records returned in chronological order.'),
+    total?: int32(name='total', description='The number of timeline records on the current page. The value is equal to the length of the timeline array.', example='1'),
   }(name='data', description='The message history and pagination information.'),
   requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='00000000-0000-4000-8000-000000000001'),
-  success?: boolean(name='success', description='Indicates whether the request is successful. A value of true indicates success.', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request was successful. A value of true indicates success.', example='true'),
 }
 
 model ListMessagesResponse = {
@@ -576,7 +593,7 @@ model ListMessagesResponse = {
 /**
  * @summary Lists messages.
  *
- * @description Performs a paging query on the message timeline of a specified session. Use the returned nextToken to retrieve the next page.
+ * @description Queries the message timeline of a specified session in pages. Use the returned nextToken to retrieve the next page.
  *
  * @param request ListMessagesRequest
  * @param headers map
@@ -617,7 +634,7 @@ async function listMessagesWithOptions(sessionId: string, request: ListMessagesR
 /**
  * @summary Lists messages.
  *
- * @description Performs a paging query on the message timeline of a specified session. Use the returned nextToken to retrieve the next page.
+ * @description Queries the message timeline of a specified session in pages. Use the returned nextToken to retrieve the next page.
  *
  * @param request ListMessagesRequest
  * @return ListMessagesResponse
@@ -629,8 +646,8 @@ async function listMessages(sessionId: string, request: ListMessagesRequest): Li
 }
 
 model ListSessionsRequest {
-  maxResults?: string(name='maxResults', description='The maximum number of sessions to return per page. The value must be a positive integer.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter for the first request. For subsequent requests, pass the nextToken value returned in the previous response. Do not parse or construct this value.', example='example-next-token'),
+  maxResults?: string(name='maxResults', description='The maximum number of sessions to return per page. Set this parameter to a positive integer.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token. Do not pass this parameter in the first request. For subsequent requests, pass the nextToken returned in the previous response. Do not parse or construct the token.', example='example-next-token'),
 }
 
 model ListSessionsResponseBody = {
@@ -640,23 +657,10 @@ model ListSessionsResponseBody = {
       {
         createdAt?: string(name='createdAt', description='The time when the session was created, in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
         lastRunId?: string(name='lastRunId', description='The ID of the most recent run.', example='run_example_001'),
-        lastRunStatus?: string(name='lastRunStatus', description='The status of the most recent run. Valid values:
-- `PENDING`: Pending.
-- `RUNNING`: Running.
-- `WAITING_USER`: Waiting for interrupt handling.
-- `COMPLETED`: Completed.
-- `FAILED`: Failed.
-- `CANCELLED`: Cancelled.
-- `REJECTED`: Rejected.', example='COMPLETED'),
-        pinned?: boolean(name='pinned', description='Specifies whether the session is pinned.', example='false'),
+        lastRunStatus?: string(name='lastRunStatus', description='The status of the most recent run. Valid values: `PENDING` (pending), `RUNNING` (running), `WAITING_USER` (waiting for interruption handling), `COMPLETED` (completed), `FAILED` (failed), `CANCELLED` (cancelled), and `REJECTED` (rejected).', example='COMPLETED'),
+        pinned?: boolean(name='pinned', description='Indicates whether the session is pinned.', example='false'),
         sessionId?: string(name='sessionId', description='The session ID.', example='session_example_001'),
-        status?: string(name='status', description='The session status. Valid values:
-- `IDLE`: Idle.
-- `ACTIVE`: Active.
-- `WAITING_USER_INPUT`: Waiting for user input.
-- `WAITING_APPROVAL`: Waiting for user confirmation.
-- `WAITING_OUT_OF_BAND_APPROVAL`: Waiting for out-of-band approval.
-- `CLOSED`: Closed.', example='IDLE'),
+        status?: string(name='status', description='The session status. Valid values: `IDLE` (idle), `ACTIVE` (running), `WAITING_USER_INPUT` (waiting for user input), `WAITING_APPROVAL` (waiting for user confirmation), `WAITING_OUT_OF_BAND_APPROVAL` (waiting for out-of-band approval), and `CLOSED` (closed).', example='IDLE'),
         title?: string(name='title', description='The session title.', example='Cloud resource inspection example'),
         updatedAt?: string(name='updatedAt', description='The time when the session was last updated, in RFC 3339 format.', example='2026-01-01T00:01:00Z'),
       }
@@ -664,7 +668,7 @@ model ListSessionsResponseBody = {
     total?: int32(name='total', description='The number of sessions returned on the current page.', example='1'),
   }(name='data', description='The list of sessions and pagination information for the current page.'),
   requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='00000000-0000-4000-8000-000000000001'),
-  success?: boolean(name='success', description='Specifies whether the request is successful. A value of true indicates success.', example='true'),
+  success?: boolean(name='success', description='Indicates whether the request is successful. A value of true indicates success.', example='true'),
 }
 
 model ListSessionsResponse = {
@@ -676,7 +680,7 @@ model ListSessionsResponse = {
 /**
  * @summary Lists sessions.
  *
- * @description Uses paging to query the list of sessions accessible to the current identity used to invoke. Use the returned nextToken to retrieve the next page.
+ * @description Performs a paging query for the list of sessions accessible to the current invoke identity. Use the returned nextToken to retrieve the next page.
  *
  * @param request ListSessionsRequest
  * @param headers map
@@ -714,7 +718,7 @@ async function listSessionsWithOptions(request: ListSessionsRequest, headers: ma
 /**
  * @summary Lists sessions.
  *
- * @description Uses paging to query the list of sessions accessible to the current identity used to invoke. Use the returned nextToken to retrieve the next page.
+ * @description Performs a paging query for the list of sessions accessible to the current invoke identity. Use the returned nextToken to retrieve the next page.
  *
  * @param request ListSessionsRequest
  * @return ListSessionsResponse
@@ -731,16 +735,24 @@ model SendMessageHeaders {
 }
 
 model SendMessageRequest {
-  content?: string(name='content', description='The message text in MESSAGE mode. This parameter cannot be empty. The type can be omitted in this mode.', example='Query the status of the sample resource without making any changes'),
+  attachments?: [ 
+    {
+      fileExtension?: string(name='fileExtension', description='The file name extension.', example='xlsx'),
+      fileId?: string(name='fileId', description='The ID of the file after it is uploaded.', example='att_12345678'),
+      sourceName?: string(name='sourceName', description='The original name of the file.', example='file.xlsx'),
+      workspacePath?: string(name='workspacePath', description='The workspace path.', example='source/att_12345678.xlsx'),
+    }
+  ](name='attachments', description='The list of attachments.', example='[]'),
+  content?: string(name='content', description='The message text in MESSAGE mode. This parameter cannot be empty. The type parameter can be omitted in this mode.', example='Query the status of the sample resource without making changes'),
   resume?: [ 
     {
-      interruptId?: string(name='interruptId', description='The ID of the interrupt to be replied to. Obtain this value from `data.outcome.interrupts[].id` in the SSE `RUN_FINISHED` event or `data.outcome.interrupts[].id` in the `GetRun` response.', example='interrupt_example_001'),
-      payload?: any(name='payload', description='The interrupt handling result. This parameter is required when `status` is set to `resolved` and must conform to the `responseSchema` of the corresponding interrupt. Do not pass this parameter when `status` is set to `cancelled`.', example='{"region":"cn-hangzhou"}'),
-      status?: string(name='status', description='The reply method for the current interrupt. `resolved` indicates that the answer, confirmation, or tool result required by the interrupt is submitted, and `payload` must be provided. `cancelled` indicates that the interrupt is canceled, and `payload` is not passed.', example='resolved'),
+      interruptId?: string(name='interruptId', description='The ID of the interrupt to be replied to. Obtain this value from data.outcome.interrupts[].id in the SSE RUN_FINISHED event or the GetRun response.', example='interrupt_example_001'),
+      payload?: any(name='payload', description='The interrupt handling result. This parameter is required when status is set to resolved and must conform to the responseSchema of the corresponding interrupt. Do not pass this parameter when status is set to cancelled.', example='{"region":"cn-hangzhou"}'),
+      status?: string(name='status', description='The reply method for the interrupt. Valid values: resolved (submits the answer, confirmation, or tool result required by the interrupt, and must include payload) and cancelled (cancels the interrupt without passing payload).', example='resolved'),
     }
-  ](name='resume', description='The list of interrupt replies. This parameter is required when `type` is set to `RESUME`. You must reply to all pending interrupts at once, and each `interruptId` can appear only once.'),
+  ](name='resume', description='The list of interrupt replies. This parameter is required when type is set to RESUME. You must reply to all pending interrupts at once. Each interruptId can appear only once.'),
   runId?: string(name='runId', description='The ID of the active run to resubscribe to. This parameter is required in RECONNECT mode.', example='run_example_001'),
-  type?: string(name='type', description='The request type. Valid values: `MESSAGE` (sends a message), `RESUME` (resumes a run), and `RECONNECT` (reconnects to a run). Default value: `MESSAGE`.', example='MESSAGE'),
+  type?: string(name='type', description='The request type. Valid values: MESSAGE (sends a message), RESUME (resumes a run), and RECONNECT (reconnects to a run). Default value: MESSAGE.', example='MESSAGE'),
 }
 
 model SendMessageResponse = {
@@ -762,6 +774,9 @@ model SendMessageResponse = {
 async function sendMessageWithOptions(sessionId: string, request: SendMessageRequest, headers: SendMessageHeaders, runtime: Util.RuntimeOptions): SendMessageResponse {
   Util.validateModel(request);
   var body : map[string]any = {};
+  if (!Util.isUnset(request.attachments)) {
+    body['attachments'] = request.attachments;
+  }
   if (!Util.isUnset(request.content)) {
     body['content'] = request.content;
   }
@@ -815,18 +830,18 @@ async function sendMessage(sessionId: string, request: SendMessageRequest): Send
 }
 
 model UpdateReadonlyModeRequest {
-  value?: string(name='value', description='Required. Pass the string true to enable read-only mode, or false to disable it. The value is case-insensitive.', example='true'),
+  value?: string(name='value', description='Required. Pass the string true to enable read-only mode or false to disable it. The value is case-insensitive.', example='true'),
 }
 
 model UpdateReadonlyModeResponseBody = {
   data?: {
-    configName?: string(name='configName', description='The name of the configuration. The value is fixed to readonly.', example='readonly'),
+    configName?: string(name='configName', description='The configuration name. The value is fixed to readonly.', example='readonly'),
     exists?: boolean(name='exists', description='Indicates whether a configuration record already exists.', example='true'),
     gmtUpdate?: string(name='gmtUpdate', description='The last update time in ISO 8601 format.', example='2026-01-01T00:00:00Z'),
-    value?: string(name='value', description='The currently active configuration value, returned as the string true or false.', example='true'),
-    valueType?: string(name='valueType', description='The type of the configuration value. The value is BOOL for this API operation.', example='BOOL'),
-  }(name='data', description='The currently active configuration information.'),
-  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='00000000-0000-4000-8000-000000000001'),
+    value?: string(name='value', description='The current effective configuration value. The value is returned as a string, either true or false.', example='true'),
+    valueType?: string(name='valueType', description='The type of the configuration value. The value is BOOL for this operation.', example='BOOL'),
+  }(name='data', description='The current effective configuration information.'),
+  requestId?: string(name='requestId', description='The request ID used to locate and troubleshoot issues.', example='00000000-0000-4000-8000-000000000001'),
   success?: boolean(name='success', description='Indicates whether the request is successful. A value of true indicates success.', example='true'),
 }
 
@@ -887,39 +902,39 @@ async function updateReadonlyMode(request: UpdateReadonlyModeRequest): UpdateRea
 
 model UpdateSessionHeaders {
   commonHeaders?: map[string]string,
-  xOpenAgentIdempotencyKey?: string(name='X-OpenAgent-Idempotency-Key', description='The idempotency key for the request. Use the same value when you retry the same update request.', example='update-session-example-001'),
+  xOpenAgentIdempotencyKey?: string(name='X-OpenAgent-Idempotency-Key', description='The idempotency key for the request. Use the same value when retrying the same update request.', example='update-session-example-001'),
 }
 
 model UpdateSessionRequest {
-  pinned?: boolean(name='pinned', description='Specifies whether to pin the session. If you do not specify this parameter, the pinned status remains unchanged.', example='true'),
-  title?: string(name='title', description='The new title of the session. If you do not need to update the title, do not specify this parameter.', example='Updated inspection session'),
+  pinned?: boolean(name='pinned', description='Specifies whether to pin the session. If this parameter is not specified, the pinned status remains unchanged.', example='true'),
+  title?: string(name='title', description='The updated title of the session. If you do not need to update the title, you can leave this parameter empty.', example='Updated inspection session'),
 }
 
 model UpdateSessionResponseBody = {
   data?: {
-    createdAt?: string(name='createdAt', description='The time when the session was created, in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
+    createdAt?: string(name='createdAt', description='The time when the session was created. The time is in RFC 3339 format.', example='2026-01-01T00:00:00Z'),
     lastRunId?: string(name='lastRunId', description='The ID of the last run.', example='run_example_001'),
     lastRunStatus?: string(name='lastRunStatus', description='The status of the last run. Valid values:
-- `PENDING`: Pending.
-- `RUNNING`: Running.
-- `WAITING_USER`: Waiting for interrupt handling.
-- `COMPLETED`: Completed.
-- `FAILED`: Failed.
-- `CANCELLED`: Cancelled.
-- `REJECTED`: Rejected.', example='COMPLETED'),
+- `PENDING`: pending
+- `RUNNING`: running
+- `WAITING_USER`: waiting for interrupt handling
+- `COMPLETED`: completed
+- `FAILED`: failed
+- `CANCELLED`: cancelled
+- `REJECTED`: rejected', example='COMPLETED'),
     pinned?: boolean(name='pinned', description='Indicates whether the session is pinned.', example='false'),
-    sessionId?: string(name='sessionId', description='The session ID.', example='session_example_001'),
-    status?: string(name='status', description='The session status. Valid values:
-- `IDLE`: Idle.
-- `ACTIVE`: Active.
-- `WAITING_USER_INPUT`: Waiting for user input.
-- `WAITING_APPROVAL`: Waiting for user confirmation.
-- `WAITING_OUT_OF_BAND_APPROVAL`: Waiting for out-of-band approval.
-- `CLOSED`: Closed.', example='IDLE'),
-    title?: string(name='title', description='The session title.', example='Cloud resource inspection example'),
-    updatedAt?: string(name='updatedAt', description='The time when the session was last updated, in RFC 3339 format.', example='2026-01-01T00:01:00Z'),
+    sessionId?: string(name='sessionId', description='The ID of the session.', example='session_example_001'),
+    status?: string(name='status', description='The status of the session. Valid values:
+- `IDLE`: idle
+- `ACTIVE`: running
+- `WAITING_USER_INPUT`: waiting for user input
+- `WAITING_APPROVAL`: waiting for user confirmation
+- `WAITING_OUT_OF_BAND_APPROVAL`: waiting for out-of-band approval
+- `CLOSED`: closed', example='IDLE'),
+    title?: string(name='title', description='The title of the session.', example='Cloud resource inspection example'),
+    updatedAt?: string(name='updatedAt', description='The time when the session was last updated. The time is in RFC 3339 format.', example='2026-01-01T00:01:00Z'),
   }(name='data', description='The session information.'),
-  requestId?: string(name='requestId', description='The request ID, which is used to locate and troubleshoot issues.', example='00000000-0000-4000-8000-000000000001'),
+  requestId?: string(name='requestId', description='The ID of the request. You can use the ID to locate and troubleshoot issues.', example='00000000-0000-4000-8000-000000000001'),
   success?: boolean(name='success', description='Indicates whether the request is successful. A value of true indicates success.', example='true'),
 }
 
@@ -932,7 +947,7 @@ model UpdateSessionResponse = {
 /**
  * @summary Updates the title or pinned status of a session.
  *
- * @description Updates the title or pinned status of a specified session. Specify at least one of the title and pinned fields. Unspecified fields remain unchanged.
+ * @description Updates the title or pinned status of a specified session. You must specify at least one of the title and pinned parameters. Fields that are not specified remain unchanged.
  *
  * @param request UpdateSessionRequest
  * @param headers UpdateSessionHeaders
@@ -977,7 +992,7 @@ async function updateSessionWithOptions(sessionId: string, request: UpdateSessio
 /**
  * @summary Updates the title or pinned status of a session.
  *
- * @description Updates the title or pinned status of a specified session. Specify at least one of the title and pinned fields. Unspecified fields remain unchanged.
+ * @description Updates the title or pinned status of a specified session. You must specify at least one of the title and pinned parameters. Fields that are not specified remain unchanged.
  *
  * @param request UpdateSessionRequest
  * @return UpdateSessionResponse
