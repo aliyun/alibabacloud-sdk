@@ -21,8 +21,9 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'InternetBankOpen';
   @version = '2024-06-12';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
+    'cn-beijing' = 'internetbankopen.aliyuncs.com',
   };
 }
 
@@ -30,15 +31,52 @@ function close(): void {
   @handler.close();
 }
 
+model GetAiReportRequest {
+  callId?: string(name='callId', example='call-3f2b8c1e-6d4a-4b7e-9a1c-2e5f7d8b9c0a', position='Query'),
+  reportId?: string(name='reportId', example='report-3f2b8c1e-6d4a-4b7e-9a1c-2e5f7d8b9c0a', position='Query'),
+}
+
+model GetAiReportResponseBody = {
+  data?: {
+    report?: {
+      contentExpiresAt?: string(name='ContentExpiresAt', example='2026-12-12T06:20:00Z'),
+      downloadUrl?: string(name='DownloadUrl', example='https://reports.example.com/report-3f2b8c1e-6d4a-4b7e-9a1c-2e5f7d8b9c0a.pdf'),
+      reportId?: string(name='ReportId', example='report-3f2b8c1e-6d4a-4b7e-9a1c-2e5f7d8b9c0a'),
+      urlExpiresAt?: string(name='UrlExpiresAt', example='2026-11-12T06:25:00Z'),
+    }(name='Report'),
+    reportStatus?: string(name='ReportStatus', example='AVAILABLE'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', example='9634F2B3-B59C-5475-BA9F-96D95271882C'),
+}
+
+model GetAiReportResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAiReportResponseBody(name='body'),
+}
+
+/**
+  * @description 查询数据产品附带的 AI 报告状态，并在报告可用时返回临时下载地址。本接口是只读查询，不会再次调用数据服务方，也不会启动或重新生成报告。
+  * callId 与 reportId 必须且只能提供一个，参数名大小写以本页定义为准。按次报告：先调用 InvokeDataProduct 获取 callId，再用 callId 查询；报告状态为 AVAILABLE 时，从 Report 获取下载地址。周期报告：先调用 ListProductReports 获取 ReportId，再将该编号作为 reportId 查询；按周期商品的 callId 查询始终返回 WAITING_PERIOD，即使对应周期报告已经生成，也不会返回下载地址。内部任务编号不是本接口的查询键。
+  * 查询范围限定为当前云账号（主账号）所属的调用和报告；编号不存在或不属于该账号时，均返回 ReportNotFound（HTTP 404），不区分两种原因。使用 RAM 身份调用时，由网关校验 internetbank:GetAiReport 操作权限。
+  * 仅 ReportStatus 为 AVAILABLE 时返回 Report 对象。DownloadUrl 为临时签名下载地址，签发有效期不超过 300 秒，且不晚于 ContentExpiresAt；应在 UrlExpiresAt 前使用，不要公开分享。链接到期而报告内容仍在保留期内时，可以再次查询获取新链接。报告过期或被暂停交付时不返回下载地址；对象核验或签名等交付异常返回 ReportDeliveryFailed（HTTP 500）。参数不合法返回对应的 InvalidParameter 类错误（HTTP 400）。
+  * @param request  the request parameters of GetAiReport  GetAiReportRequest
+  * @return GetAiReportResponse
+ */
+async function getAiReport(request: GetAiReportRequest): GetAiReportResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetAiReport', 'POST', '/pop/api/v1/ai-report', 'json', false, 'json', request);
+}
+
 model InvokeDataProductRequest {
-  clientToken?: string(name='clientToken', position='Query'),
-  productCode?: string(name='productCode', position='Query'),
-  serviceParameters?: string(name='serviceParameters', position='Query'),
+  clientToken?: string(name='clientToken', description='The customer transaction serial number used for idempotence. This parameter is required for business purposes. If it is missing, MissingParameter.ClientToken is returned. Only 1 to 64 ASCII letters, digits, periods (.), underscores (_), or hyphens (-) are allowed. It is case-sensitive and leading and trailing spaces are not trimmed. If the format is invalid, InvalidParameter.ClientToken is returned. The ClientToken is globally unique under the same Alibaba Cloud account and is not product-specific. When you retry with the same parameters, the result of the first call and the original CallId are returned, and the data service provider is not called again. If the first request is still being processed, RequestInProgress (HTTP 409) is returned. Retry with the original parameters later. If the same ClientToken is used with a different ProductCode or ServiceParameters, IdempotentParameterMismatch is returned. Use a new serial number. If the result is not obtained due to a network interruption, retry with the original ClientToken and do not change the serial number.', example='a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d', position='Query'),
+  productCode?: string(name='productCode', description='The commodity code of the data product, used to identify the data product invoked in this call. The gateway uses this code to complete product authorization and route the request to the corresponding data service provider. This parameter is required for business purposes. If it is missing, MissingParameter.ProductCode is returned. If the code is not registered or is deactivated, InvalidParameter.ProductCode is returned. If the current account has not activated the product, Forbidden.ProductNotAuthorized is returned.', example='cloudsec.demo.v1', position='Query'),
+  serviceParameters?: string(name='serviceParameters', description='The business element package, which must be a JSON object serialized as a string. It carries the business parameters required for this data product invocation. This parameter is required for business purposes. If it is missing, MissingParameter.ServiceParameters is returned. For sensitive information such as mobile phone numbers and ID card numbers, only digests are passed, and plaintext is not allowed. If plaintext fields such as mobile or certNo are passed, InvalidParameter.ServiceParameters is returned. Fields ending with Sha256 must be 64-character hexadecimal strings, and fields ending with Md5 must be 32-character hexadecimal strings. Uppercase letters are automatically converted to lowercase. The specific required elements are determined by the product corresponding to the ProductCode. For example, some products require at least one of mobileSha256 and mobileMd5. If required elements are missing, the JSON is invalid, or the digest format is incorrect, InvalidParameter.ServiceParameters is returned.', example='{"mobileMd5":"25f9e794323b453885f5181f1b624d0b","certNoSha256":"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"}', position='Query'),
 }
 
 model InvokeDataProductResponseBody = {
-  data?: string(name='data'),
-  requestId?: string(name='requestId'),
+  data?: string(name='data', description='The business result of this invocation, which is a JSON object. If the invocation is successful, it contains: contractVersion (the contract version, fixed as PRODUCT_CALL_V1), callId (the invocation ID, in the format of call- followed by a UUID, used for querying AI reports and troubleshooting), dataStatus (FOUND indicates that data is found, and NOT_FOUND indicates that no data is found), extend (the business result returned by the data service provider, passed through as is. The specific structure depends on the data product and may not be returned if no data is found), and reportMode (the product report mode: NONE indicates no report, PER_CALL indicates that a report is generated for each invocation, and WEEKLY indicates that a report is generated on a weekly basis). If the invocation fails or the first request is still being processed, contractVersion and callId are still returned if an invocation ID has been assigned, to facilitate retrying with the original ClientToken.', example='{"contractVersion":"PRODUCT_CALL_V1","callId":"call-3f2b8c1e-6d4a-4b7e-9a1c-2e5f7d8b9c0a","dataStatus":"FOUND","extend":"{\\\\"score\\\\":\\\\"650\\\\"}","reportMode":"NONE"}'),
+  requestId?: string(name='requestId', description='The unique identity of this request, generated by the gateway (obtained from x-acs-req-uuid). It is used for troubleshooting and Tracing Analysis.', example='9634F2B3-B59C-5475-BA9F-96D95271882C'),
 }
 
 model InvokeDataProductResponse = {
@@ -48,11 +86,54 @@ model InvokeDataProductResponse = {
 }
 
 /**
+  * @description Provides a unified entry point to invoke data products. After the gateway completes identity parsing, RAM authentication, and product authorization, it forwards the request to the data service provider corresponding to the data product and returns the business data. If the invocation is successful, HTTP 200 is returned, and the response body contains RequestId and Data. If the invocation fails, the corresponding HTTP status code is returned (400 for parameter errors, 403 for no permissions or inactive products, 409 if the first request with the same ClientToken is still being processed, 429 for throttled requests, 503 for temporarily unavailable services, and 500 for internal errors), and the response body includes Code and Message to explain the cause.
+  * This operation accepts only three business parameters: ClientToken, ProductCode, and ServiceParameters. It does not accept TaskId, Operation, parameters starting with Ai, or EnableAiArtifact (including when set to false). If these are passed, an InvalidParameter error is returned. Whether a product includes an AI report is determined by the product configuration corresponding to the ProductCode. For products that include reports, you can call ListProductReports to query the report list, and use GetAiReport to retrieve the report by CallId or ReportId.
+  * Prerequisites for invocation: When calling this operation with a RAM user, you must first grant the RAM user the operation permissions for this operation in RAM. Set Action to internetbank:InvokeDataProduct and Resource to acs:internetbank:*:<your Alibaba Cloud account UID>:*. No additional authorization is required when calling this operation directly with the AccessKey of an Alibaba Cloud account.
+  * Service-linked role: After the preceding authorization is completed, the system performs automatic creation of the service-linked role (SLR) AliyunServiceRoleForInternetBankPredict under your Alibaba Cloud account. This role is used to invoke the corresponding data service provider on behalf of the customer as a service. You can view the invocation records that associate with your account in ActionTrail.
   * @param request  the request parameters of InvokeDataProduct  InvokeDataProductRequest
   * @return InvokeDataProductResponse
  */
 async function invokeDataProduct(request: InvokeDataProductRequest): InvokeDataProductResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'InvokeDataProduct', 'POST', '/pop/api/v1/rpc', 'json', false, 'json', request);
+}
+
+model ListProductReportsRequest {
+  latestOnly?: boolean(name='LatestOnly', position='Query'),
+  productCode: string(name='ProductCode', description='This parameter is required.', example='cloudsec.demo.v1', position='Query'),
+}
+
+model ListProductReportsResponseBody = {
+  data?: {
+    reports?: [ 
+      {
+        periodEnd?: string(name='PeriodEnd', example='2026-11-08T16:00:00Z'),
+        periodStart?: string(name='PeriodStart', example='2026-11-01T16:00:00Z'),
+        productCode?: string(name='ProductCode', example='cloudsec.demo.v1'),
+        reportId?: string(name='ReportId', example='report-3f2b8c1e-6d4a-4b7e-9a1c-2e5f7d8b9c0a'),
+      }
+    ](name='Reports'),
+  }(name='Data'),
+  requestId?: string(name='RequestId', example='9634F2B3-B59C-5475-BA9F-96D95271882C'),
+}
+
+model ListProductReportsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListProductReportsResponseBody(name='body'),
+}
+
+/**
+  * @description 查询当前云账号（主账号）下指定商品已经生成的可用周期报告。列表只用于发现报告编号和所属周期，不返回下载地址；取得 ReportId 后，调用 GetAiReport，并将该编号作为 reportId 获取最新状态及下载地址。本接口不会调用数据服务方，也不会触发报告生成。
+  * LatestOnly 省略或为 false 时，在最近十个已结束的北京时间自然周范围内查询，按周期从新到旧返回，最多十条报告记录；没有报告的周不会补空记录，不保证返回十份报告。LatestOnly 为 true 时，从所有已结束的历史周期中查找最近一条可用报告，最多返回一条，不受最近十周范围限制。
+  * 自然周按北京时间（Asia/Shanghai）计算，从周一 00:00:00 到下一周周一 00:00:00，区间左闭右开，不包含当前尚未结束的自然周。PeriodStart 与 PeriodEnd 使用 UTC RFC 3339 格式输出。一个自然周可能对应多条报告记录，因此两条记录的周期起止相同不表示重复，使用 ReportId 区分。
+  * 列表依据已发布报告的资产记录判断可用性，不返回已过期或被暂停交付的报告；实际下载状态以 GetAiReport 查询结果为准。没有可用报告时，成功返回空 Reports 数组，不返回 ReportNotFound。本接口只提供 ProductCode 和 LatestOnly 两个业务参数，不支持分页及自定义周期过滤；传入 PeriodStart、PageSize 或 NextToken 时返回对应的 InvalidParameter 类错误（HTTP 400）。
+  * 使用 RAM 身份调用时，由网关校验 internetbank:ListProductReports 操作权限。查询只读取当前账号的既有报告，不再次检查商品商业开通状态。参数错误返回对应的 InvalidParameter 类错误（HTTP 400）；报告资产记录不一致或查询异常返回 ReportDeliveryFailed（HTTP 500）。
+  * @param request  the request parameters of ListProductReports  ListProductReportsRequest
+  * @return ListProductReportsResponse
+ */
+async function listProductReports(request: ListProductReportsRequest): ListProductReportsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListProductReports', 'POST', '/pop/api/v1/product-reports', 'json', false, 'json', request);
 }
 
