@@ -2,6 +2,7 @@
  *
  */
 import Util;
+import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -11,6 +12,9 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
+  @productId = 'FC';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   @endpointMap = {
     'ap-northeast-1' = 'fcv3.ap-northeast-1.aliyuncs.com',
@@ -149,7 +153,7 @@ model CORSConfig {
   allowMethods?: [ string ](name='allowMethods', description='The list of allowed HTTP methods.', example='["GET", "POST", "OPTIONS"]'),
   allowOrigins?: [ string ](name='allowOrigins', description='The list of allowed origins.', example='["https://example.com", "https://app.example.com"]'),
   exposeHeaders?: [ string ](name='exposeHeaders', description='The list of exposed response headers.', example='["X-Custom-Header"]'),
-  maxAge?: int32(name='maxAge', description='The cache time for preflight requests, in seconds.', example='3600'),
+  maxAge?: int32(name='maxAge', description='The preflight request cache time, in seconds.', example='3600'),
 }
 
 model CertConfig {
@@ -171,9 +175,9 @@ model ChangeResourceGroupInput {
 }
 
 model ChangeResourceGroupOutput {
-  newResourceGroupId?: string(name='NewResourceGroupId'),
-  oldResourceGroupId?: string(name='OldResourceGroupId'),
-  resourceId?: string(name='ResourceId'),
+  newResourceGroupId?: string(name='NewResourceGroupId', description='The ID of the new resource group.', example='rg-aek0example0abc0d'),
+  oldResourceGroupId?: string(name='OldResourceGroupId', description='The ID of the original resource group.', example='rg-aek0example0abc0d'),
+  resourceId?: string(name='ResourceId', description='The ID of the resource whose resource group is changed.', example='example-function-one'),
 }
 
 model ConcurrencyConfig {
@@ -190,7 +194,7 @@ model CookieSessionAffinityConfig {
 
 model CreateAliasInput {
   additionalVersionWeight?: map[string]float(name='additionalVersionWeight', description='The weight of the canary release version.'),
-  aliasName?: string(name='aliasName', description='The name of the alias.
+  aliasName?: string(name='aliasName', description='The alias.
 
 This parameter is required.', example='prod'),
   description?: string(name='description', description='The description of the alias.', example='my alias'),
@@ -276,18 +280,20 @@ model CreateLayerVersionInput {
 
 model CreateSessionInput {
   allowInternetAccess?: boolean(name='allowInternetAccess'),
-  autoPauseFileSystemOnly?: boolean(name='autoPauseFileSystemOnly'),
-  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse. Default value: False, which indicates that after a session expires, you can use the same SessionID to initiate requests. The system treats this as a new session and binds it to a new instance. If set to True, the SessionID cannot be reused after the session expires.', example='false'),
+  autoPauseFileSystemOnly?: boolean(name='autoPauseFileSystemOnly', description='The autoPause feature saves only the file system.'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='The default value is False, which indicates that after a session expires, you can continue to send requests with the same session ID, and the system treats it as a new session and binds it to a new instance. If set to True, the session ID cannot be reused after the session expires.', example='false'),
   enableAutoPause?: boolean(name='enableAutoPause'),
   enableAutoResume?: boolean(name='enableAutoResume'),
-  juiceFsConfig?: JuiceFsConfig(name='juiceFsConfig', description='The JuiceFs mount configuration.'),
-  nasConfig?: NASConfig(name='nasConfig', description='The NAS configuration. After this parameter is configured, instances associated with the session can access the specified NAS resources.'),
+  juiceFsConfig?: JuiceFsConfig(name='juiceFsConfig', description='The JuiceFS mount configuration.'),
+  nasConfig?: NASConfig(name='nasConfig', description='The NAS configuration. If configured, the instance associated with the session can access specified NAS resources.'),
   network?: CreateSessionNetworkConfig(name='network'),
-  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='The OSS configuration. After this parameter is configured, instances associated with the session can access the specified OSS resources.'),
-  polarFsConfig?: PolarFsConfig(name='polarFsConfig', description='The PolarFs configuration. After this parameter is configured, instances associated with the session can access the specified PolarFs resources.'),
-  sessionId?: string(name='sessionId', description='The custom session ID. If not configured, the server generates one. If configured, this value is used as the session ID. This parameter is applicable only to the HEADER_FIELD affinity mode. Format: The length is limited to [0,64]. The first character must be from **a-zA-Z0-9_**. Subsequent characters can be from **a-zA-Z0-9_-**.', example='custom-test-session-id'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='The OSS configuration. If configured, the instance associated with the session can access specified OSS resources.'),
+  pausedExpirationSeconds?: long(name='pausedExpirationSeconds', description='The deep sleep retention period in seconds.', example='86400'),
+  polarFsConfig?: PolarFsConfig(name='polarFsConfig', description='The PolarFS configuration. If configured, the instance associated with the session can access specified PolarFS resources.'),
+  sessionId?: string(name='sessionId', description='The custom session ID. If not configured, it is generated by the server. If configured, this value is used as the session ID. This parameter is only applicable to the HEADER_FIELD affinity mode. Format requirements: The length is limited to 0 to 64 characters. The first character must be **a-zA-Z0-9_**, and subsequent characters can be **a-zA-Z0-9_-**.', example='custom-test-session-id'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The session idle timeout.', example='1800'),
-  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The session lifetime.', example='21600'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The session TTL.', example='21600'),
+  snapshotExpirationSeconds?: long(name='snapshotExpirationSeconds', description='The user snapshot retention period in seconds.', example='604800'),
   snapshotId?: string(name='snapshotId'),
 }
 
@@ -614,8 +620,8 @@ model FunctionLockInfo {
 
 model FunctionRestriction {
   disable?: boolean(name='disable'),
-  lastModifiedTime?: string(name='lastModifiedTime'),
-  reason?: string(name='reason'),
+  lastModifiedTime?: string(name='lastModifiedTime', example='2026-10-01T10:00:00Z'),
+  reason?: string(name='reason', example='Function invocation is disabled.'),
 }
 
 model GPUConfig {
@@ -684,13 +690,13 @@ model InstanceEventItem {
 }
 
 model InstanceInfo {
-  createdTimeMs?: long(name='createdTimeMs'),
-  destroyedTimeMs?: long(name='destroyedTimeMs'),
-  instanceId?: string(name='instanceId', description='Instance ID.', example='1ef6b6ff-7f7b-485e-ab49-501ac681****'),
-  qualifier?: string(name='qualifier'),
-  resourceType?: string(name='resourceType'),
-  status?: string(name='status'),
-  versionId?: string(name='versionId', description='The version of the function to which the instance belongs. If the instance is under the LATEST alias of the function, the returned version number is 0.', example='0'),
+  createdTimeMs?: long(name='createdTimeMs', description='The time when the instance was created, represented as a UNIX timestamp in milliseconds.', example='0'),
+  destroyedTimeMs?: long(name='destroyedTimeMs', description='The time when the instance was destroyed, represented as a UNIX timestamp in milliseconds.', example='0'),
+  instanceId?: string(name='instanceId', description='The instance ID.', example='1ef6b6ff-7f7b-485e-ab49-501ac681****'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function to which the instance belongs.', example='3'),
+  resourceType?: string(name='resourceType', description='The resource type of the instance.', example='Normal'),
+  status?: string(name='status', description='The instance status.', example='Destroyed'),
+  versionId?: string(name='versionId', description='The version of the function to which the instance belongs. If the function instance belongs to the LATEST alias, 0 is returned as the version ID.', example='0'),
 }
 
 model InstanceLifecycleConfig {
@@ -933,10 +939,10 @@ model MNSTopicTriggerConfig {
 model MicroSandboxConfig {
   acrInstanceId?: string(name='acrInstanceId', description='The ID of the ACR Enterprise Edition image repository instance. It is used in combination with MicroSandbox images. This parameter is optional. If it is not provided, the server resolves it on demand.'),
   image?: string(name='image', description='The image address.'),
-  osType?: string(name='osType', description='The operating system type.'),
-  readyCommand?: string(name='readyCommand', description='The ready command.'),
+  osType?: string(name='osType', description='The operating system type.', example='linux-amd64'),
+  readyCommand?: string(name='readyCommand', description='The ready command.', example='curl -fs http://127.0.0.1:8080/health'),
   registryConfig?: RegistryConfig(name='registryConfig', description='The image repository configuration.'),
-  startCommand?: string(name='startCommand', description='The startup command.'),
+  startCommand?: string(name='startCommand', description='The startup command.', example='/usr/local/bin/start-service'),
   steps?: [
     Step
   ](name='steps', description='The build steps.'),
@@ -963,11 +969,12 @@ model OSSMountConfig {
 }
 
 model OSSMountPoint {
-  bucketName?: string(name='bucketName', description='The OSS bucket that you want to mount.', example='my-bucket'),
-  bucketPath?: string(name='bucketPath', description='The path of the mounted OSS bucket.', example='/my-dir'),
+  bucketName?: string(name='bucketName', description='The mounted OSS bucket.', example='my-bucket'),
+  bucketPath?: string(name='bucketPath', description='The mounted OSS bucket path.', example='/my-dir'),
   endpoint?: string(name='endpoint', description='The OSS endpoint.', example='http://oss-cn-shanghai.aliyuncs.com'),
   mountDir?: string(name='mountDir', description='The mount directory.', example='/mnt/dir'),
-  readOnly?: boolean(name='readOnly', description='Specifies whether it is read-only.', example='true'),
+  nonempty?: boolean(name='nonempty', description='Specifies whether to allow mounting OSS to a local directory that contains existing files or subdirectories.'),
+  readOnly?: boolean(name='readOnly', description='Specifies whether the mount is read-only.', example='true'),
 }
 
 model OSSTriggerConfig {
@@ -1001,16 +1008,16 @@ model PolarFsConfig {
   groupId?: int32(name='groupId', description='The group ID.', example='0'),
   mountPoints?: [
     PolarFsMountConfig
-  ](name='mountPoints', description='The mount points.'),
+  ](name='mountPoints', description='The list of mount points.'),
   userId?: int32(name='userId', description='The account ID.', example='0'),
 }
 
 model PolarFsMountConfig {
-  extraOptions?: string(name='extraOptions', description='The additional mount parameter settings.', example='--skip-delete-rows-check=false  --skip-dir-nlink=0'),
-  instanceId?: string(name='instanceId', description='The PolarFS instance ID.', example='pfs-xxx'),
+  extraOptions?: string(name='extraOptions', description='The other mount parameter settings.', example='--skip-delete-rows-check=false  --skip-dir-nlink=0'),
+  instanceId?: string(name='instanceId', description='The PolarFs instance ID.', example='pfs-xxx'),
   mountDir?: string(name='mountDir', description='The local mount directory.', example='/mnt/polarfs'),
   readOnly?: boolean(name='readOnly', description='The read-only mount.', example='false'),
-  remoteDir?: string(name='remoteDir', description='The PolarFS directory.', example='/share'),
+  remoteDir?: string(name='remoteDir', description='The PolarFs directory.', example='/share'),
 }
 
 model ProvisionConfig {
@@ -1178,9 +1185,9 @@ Use the UTC time format: yyyy-MM-ddTHH:mmZ'),
 }
 
 model Resource {
-  resouceType?: string(name='resouceType', description='The name of the resource type. For a function in Function Compute 3.0, use ALIYUN::FC::FUNCTION. For a service in an earlier version of Function Compute, use ALIYUN::FC::SERVICE.', example='ALIYUN::FC::FUNCTION'),
+  resouceType?: string(name='resouceType', description='The resource type name. Valid values: ALIYUN::FC::FUNCTION for functions in Function Compute 3.0, and ALIYUN::FC::SERVICE for services in legacy Function Compute.', example='ALIYUN::FC::FUNCTION'),
   resourceArn?: string(name='resourceArn', description='The Alibaba Cloud resource descriptor.', example='acs:fc:cn-shanghai:****:functions/demo'),
-  tags?: map[string]string(name='tags', description='The tag dictionary.'),
+  tags?: map[string]string(name='tags', description='The tag dictionary. key indicates the tag key, and value indicates the tag value.'),
 }
 
 model RetryStrategy {
@@ -1304,31 +1311,27 @@ model ScheduledPolicy {
 
 model Session {
   allowInternetAccess?: boolean(name='allowInternetAccess'),
-  autoPauseFileSystemOnly?: boolean(name='autoPauseFileSystemOnly'),
-  containerId?: string(name='containerId', description='The instance ID of the function associated with the session.', example='c-68999e02-16a1955c-d2a03d1ccs'),
-  createdTime?: string(name='createdTime', description='The time when the session was created.', example='2025-04-01T08:15:27Z'),
-  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse after the session expires. Valid values:
-- False: After the session expires, you can use the same session ID to initiate requests. The system treats it as a new session and binds it to a new instance.
-- True: After the session expires, the session ID cannot be reused.
-
-Default value: False.', example='false'),
+  autoPauseFileSystemOnly?: boolean(name='autoPauseFileSystemOnly', description='Specifies whether to save only the file system during auto-pause.'),
+  containerId?: string(name='containerId', description='The function instance ID associated with the session.', example='c-68999e02-16a1955c-d2a03d1ccs'),
+  createdTime?: string(name='createdTime', description='The creation time of the session.', example='2025-04-01T08:15:27Z'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse. Default value: False. A value of False indicates that after a session expires, you can continue to send requests with the same session ID, and the system treats it as a new session and binds it to a new instance. A value of True indicates that after a session expires, the session ID cannot be reused.', example='false'),
   enableAutoPause?: boolean(name='enableAutoPause'),
   enableAutoResume?: boolean(name='enableAutoResume'),
   functionName?: string(name='functionName', description='The name of the function to which the session belongs.', example='functionName1'),
-  juiceFsConfig?: JuiceFsConfig(name='juiceFsConfig'),
+  juiceFsConfig?: JuiceFsConfig(name='juiceFsConfig', description='The JuiceFS mount configuration.'),
   lastModifiedTime?: string(name='lastModifiedTime', description='The time when the session was last updated.', example='2025-04-01T18:15:27Z'),
-  nasConfig?: NASConfig(name='nasConfig', description='The NAS configuration. After configuration, the instance associated with the session can access the specified NAS resource.'),
+  nasConfig?: NASConfig(name='nasConfig', description='The NAS configuration. After this configuration is applied, the instance associated with the session can access the specified NAS resources.'),
   network?: CreateSessionNetworkConfig(name='network'),
-  ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
-  polarFsConfig?: PolarFsConfig(name='polarFsConfig'),
-  qualifier?: string(name='qualifier', description='The qualifier passed when the customer created the session. If not specified, the default value is LATEST.', example='AliasName1'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='The OSS mount configuration, which allows the associated function instance to access the specified OSS resources.'),
+  pausedExpirationSeconds?: long(name='pausedExpirationSeconds', description='The deep hibernation retention duration for the saved session, in seconds. The minimum value is 600. The timing starts each time the session successfully enters deep hibernation. If this parameter is not configured, this field may not be returned.', example='600'),
+  polarFsConfig?: PolarFsConfig(name='polarFsConfig', description='The PolarFS mount configuration, which allows the associated function instance to access the specified PolarFS resources.'),
+  qualifier?: string(name='qualifier', description='The qualifier passed by the user when creating the session. If no qualifier is passed, the default value LATEST is used.', example='AliasName1'),
   sessionAffinityType?: string(name='sessionAffinityType', description='The session affinity type.', example='HEADER_FIELD'),
   sessionId?: string(name='sessionId', description='The unique identifier of the function session.', example='81f70ae156904eb9b7d43e12f511fe58'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The session idle timeout.', example='1800'),
-  sessionStatus?: string(name='sessionStatus', description='The session status. Valid values:
-- Active: The session is valid.
-- Expired: The session has expired.', example='Active'),
+  sessionStatus?: string(name='sessionStatus', description='The session status. Active indicates that the session is valid, and Expired indicates that the session has expired.', example='Active'),
   sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The maximum session lifetime.', example='21600'),
+  snapshotExpirationSeconds?: long(name='snapshotExpirationSeconds', description='The retention duration for subsequent user snapshots saved in the session, in seconds. The minimum value is 600. Updating this policy affects only newly created user snapshots and does not modify the expiration time of existing snapshots.', example='600'),
   trafficAccessToken?: string(name='trafficAccessToken'),
 }
 
@@ -1358,28 +1361,28 @@ This parameter is required.', example='1073741824'),
   cpu?: long(name='cpu', description='The CPU specification.
 
 This parameter is required.', example='2'),
-  createdTime?: string(name='createdTime', description='The snapshot creation time in UTC RFC3339 format.
+  createdTime?: string(name='createdTime', description='The time when the snapshot was created, in UTC RFC3339 format.
 
 This parameter is required.', example='2026-07-30T10:00:00Z'),
   description?: string(name='description', description='The snapshot description.
 
 This parameter is required.', example='Snapshot for production environment'),
-  diskSizeMB?: long(name='diskSizeMB', description='The disk specification, in MB.
+  diskSizeMB?: long(name='diskSizeMB', description='The disk size, in MB.
 
 This parameter is required.', example='10240'),
-  envs?: map[string]string(name='envs', description='The environment variables saved when creating the snapshot.
+  envs?: map[string]string(name='envs', description='The environment variables saved when the snapshot was created.
 
 This parameter is required.'),
-  expiredTime?: string(name='expiredTime', description='The snapshot expiration time in UTC RFC3339 format.
+  expiredTime?: string(name='expiredTime', description='The time when the snapshot expires, in UTC RFC3339 format.
 
 This parameter is required.', example='2026-08-29T10:00:00Z'),
   functionName?: string(name='functionName', description='The function name.
 
 This parameter is required.', example='my-function'),
-  imageDigest?: string(name='imageDigest', description='The function image digest.
+  imageDigest?: string(name='imageDigest', description='The digest of the function image.
 
 This parameter is required.', example='sha256:0123456789abcdef'),
-  imageRepository?: string(name='imageRepository', description='The function image repository address.
+  imageRepository?: string(name='imageRepository', description='The address of the function image repository.
 
 This parameter is required.', example='registry-vpc.cn-hangzhou.aliyuncs.com/example/function'),
   memoryMB?: long(name='memoryMB', description='The memory specification, in MB.
@@ -1388,17 +1391,17 @@ This parameter is required.', example='3072'),
   osType?: string(name='osType', description='The operating system type.
 
 This parameter is required.', example='linux'),
-  qualifier?: string(name='qualifier', description='The function alias or version used when creating the snapshot.
+  qualifier?: string(name='qualifier', description='The function alias or version used when the snapshot was created.
 
 This parameter is required.', example='production'),
   readyCommand?: string(name='readyCommand', description='The MicroSandbox readiness check command.
 
 This parameter is required.', example='/code/ready.sh'),
-  resolvedVersion?: string(name='resolvedVersion', description='The specific function version resolved when creating the snapshot.', example='1'),
-  snapshotId?: string(name='snapshotId', description='The snapshot ID, a standard UUID string generated by the server.
+  resolvedVersion?: string(name='resolvedVersion', description='The specific function version resolved when the snapshot was created.', example='1'),
+  snapshotId?: string(name='snapshotId', description='The snapshot ID, which is generated by the server and is a standard UUID string.
 
 This parameter is required.', example='550e8400-e29b-41d4-a716-446655440000'),
-  sourceSessionId?: string(name='sourceSessionId', description='The source session ID used to create the snapshot.
+  sourceSessionId?: string(name='sourceSessionId', description='The ID of the source session from which the snapshot was created.
 
 This parameter is required.', example='custom-test-session-id'),
   startCommand?: string(name='startCommand', description='The MicroSandbox start command.
@@ -1482,13 +1485,13 @@ model Step {
 }
 
 model TLSConfig {
-  cipherSuites?: [ string ](name='cipherSuites', description='The TLS cipher suites.
+  cipherSuites?: [ string ](name='cipherSuites', description='The list of TLS cipher suites.
 
 This parameter is required.'),
   maxVersion?: string(name='maxVersion', description='The maximum TLS version. Valid values: TLSv1.3 and TLSv1.2.', example='TLSv1.3'),
   minVersion?: string(name='minVersion', description='The minimum TLS version. Valid values: TLSv1.3 and TLSv1.2.
 
-This parameter is required.', example='TLSv1.0'),
+This parameter is required.', example='TLSv1.2'),
 }
 
 model Tag {
@@ -1569,8 +1572,8 @@ model TimerTriggerConfig {
 }
 
 model TracingConfig {
-  params?: map[string]string(name='params', description='The parameters for Tracing Analysis. The value is a map[string]string where the key is "endpoint" and the value is the internal network endpoint for Tracing Analysis. For example: endpoint: http\\\\://tracing-analysis-dc-hz.aliyuncs.com/adapt_xxx/api/otlp/traces.'),
-  type?: string(name='type', description='The Protocol Type for Tracing Analysis. Only Jaeger is supported.', example='Jaeger'),
+  params?: map[string]string(name='params', description='The tracing parameters. The parameter is a map[string]string, where the key is "endpoint" and the value is your Tracing Analysis internal network endpoint. Example: endpoint: http://tracing-analysis-dc-hz.aliyuncs.com/adapt_xxx/api/otlp/traces.'),
+  type?: string(name='type', description='The Tracing Analysis protocol type. Currently, only Jaeger is supported.', example='Jaeger'),
 }
 
 model Trigger {
@@ -1600,9 +1603,9 @@ model Trigger {
 }
 
 model UpdateAliasInput {
-  additionalVersionWeight?: map[string]float(name='additionalVersionWeight', description='Weight of the canary release version'),
-  description?: string(name='description', description='Description of the alias', example='my alias'),
-  versionId?: string(name='versionId', description='Version that the alias points to', example='1'),
+  additionalVersionWeight?: map[string]float(name='additionalVersionWeight', description='The weight of the canary release version.'),
+  description?: string(name='description', description='The description of the alias.', example='my alias'),
+  versionId?: string(name='versionId', description='The version pointed to by the alias.', example='1'),
 }
 
 model UpdateCustomDomainInput {
@@ -1665,17 +1668,19 @@ model UpdateResidentResourcePoolInput {
 
 model UpdateSessionInput {
   allowInternetAccess?: boolean(name='allowInternetAccess'),
-  autoPauseFileSystemOnly?: boolean(name='autoPauseFileSystemOnly'),
-  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse after the session expires. Default value: False, which indicates that after a session expires, you can use the same session ID to initiate requests. The system treats the request as a new session and binds it to a new instance. If you set this parameter to True, the session ID cannot be reused after the session expires.', example='false'),
+  autoPauseFileSystemOnly?: boolean(name='autoPauseFileSystemOnly', description='Specifies whether to save only the file system during auto-pause.'),
+  disableSessionIdReuse?: boolean(name='disableSessionIdReuse', description='Specifies whether to disable session ID reuse. Default value: false. A value of false indicates that after a session ID expires, you can continue to send requests with the same session ID, and the system treats it as a new session and binds it to a new instance. A value of true indicates that the session ID cannot be reused after the session expires.', example='false'),
   enableAutoPause?: boolean(name='enableAutoPause'),
   enableAutoResume?: boolean(name='enableAutoResume'),
-  juiceFsConfig?: JuiceFsConfig(name='juiceFsConfig'),
-  nasConfig?: NASConfig(name='nasConfig'),
+  juiceFsConfig?: JuiceFsConfig(name='juiceFsConfig', description='The JuiceFS mount configuration.'),
+  nasConfig?: NASConfig(name='nasConfig', description='The NAS mount point configuration for the session.'),
   network?: UpdateSessionNetworkConfig(name='network'),
-  ossMountConfig?: OSSMountConfig(name='ossMountConfig'),
-  polarFsConfig?: PolarFsConfig(name='polarFsConfig'),
+  ossMountConfig?: OSSMountConfig(name='ossMountConfig', description='The OSS mount point configuration for the session.'),
+  pausedExpirationSeconds?: long(name='pausedExpirationSeconds', description='The deep sleep retention period in seconds. The minimum value is 600, and the maximum value is determined by the plan configuration. If this parameter is not specified, the original value is retained. The update takes effect upon the next successful pause. This parameter cannot be modified when the session is in the Paused state.', example='86400'),
+  polarFsConfig?: PolarFsConfig(name='polarFsConfig', description='The PolarFS mount point configuration for the session.'),
   sessionIdleTimeoutInSeconds?: long(name='sessionIdleTimeoutInSeconds', description='The session idle timeout.', example='1800'),
-  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The session lifetime.', example='21600'),
+  sessionTTLInSeconds?: long(name='sessionTTLInSeconds', description='The session time-to-live.', example='21600'),
+  snapshotExpirationSeconds?: long(name='snapshotExpirationSeconds', description='The retention period for subsequently created user snapshots in seconds. The minimum value is 600, and the maximum value is determined by the plan configuration. If this parameter is not specified, the original value is retained. This update only affects snapshots created after the update, and the expiration time of existing snapshots remains unchanged.', example='86400'),
 }
 
 model UpdateSessionNetworkConfig {
@@ -1897,7 +1902,7 @@ model CreateFunctionResponse = {
 /**
  * @summary Creates a function.
  *
- * @description When you create a function by using an OSS code package, if the error "unable to access object xxx in bucket xxx" is returned, grant the current user access permissions to the OSS bucket. For example, you can attach the system access policy AliyunOSSReadOnlyAccess or a custom authorization with finer granularity such as oss:GetObject. For details about the policy content, see [Grant a Resource Access Management (RAM) user the permissions to read all resources in a bucket](https://help.aliyun.com/document_detail/199058.html).
+ * @description When you create a function by using an OSS code package, if the error "unable to access object xxx in bucket xxx" is returned, you must grant the current user access permissions to the OSS bucket. For example, you can attach the system access policy AliyunOSSReadOnlyAccess or a custom authorization with finer granularity such as oss:GetObject. For details about the policy content, refer to [Grant a Resource Access Management (RAM) user the permissions to read all resources in a specific bucket](https://help.aliyun.com/document_detail/199058.html).
  *
  * @param request CreateFunctionRequest
  * @param headers map
@@ -1927,7 +1932,7 @@ async function createFunctionWithOptions(request: CreateFunctionRequest, headers
 /**
  * @summary Creates a function.
  *
- * @description When you create a function by using an OSS code package, if the error "unable to access object xxx in bucket xxx" is returned, grant the current user access permissions to the OSS bucket. For example, you can attach the system access policy AliyunOSSReadOnlyAccess or a custom authorization with finer granularity such as oss:GetObject. For details about the policy content, see [Grant a Resource Access Management (RAM) user the permissions to read all resources in a bucket](https://help.aliyun.com/document_detail/199058.html).
+ * @description When you create a function by using an OSS code package, if the error "unable to access object xxx in bucket xxx" is returned, you must grant the current user access permissions to the OSS bucket. For example, you can attach the system access policy AliyunOSSReadOnlyAccess or a custom authorization with finer granularity such as oss:GetObject. For details about the policy content, refer to [Grant a Resource Access Management (RAM) user the permissions to read all resources in a specific bucket](https://help.aliyun.com/document_detail/199058.html).
  *
  * @param request CreateFunctionRequest
  * @return CreateFunctionResponse
@@ -1991,8 +1996,8 @@ async function createLayerVersion(layerName: string, request: CreateLayerVersion
 }
 
 model CreateSessionRequest {
-  body?: CreateSessionInput(name='body', description='The session configuration.'),
-  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='aliasName1'),
+  body?: CreateSessionInput(name='body', description='The configuration for creating the session.'),
+  qualifier?: string(name='qualifier', description='The version or alias to which the session belongs.', example='aliasName1'),
 }
 
 model CreateSessionResponse = {
@@ -2002,7 +2007,7 @@ model CreateSessionResponse = {
 }
 
 /**
- * @summary Creates an explicit session resource. The system automatically generates a unique session ID, pre-allocates a function instance, and binds the instance to the session. You can specify the TTL and idle timeout. This operation applies to the HEADER_FIELD or GENERATED_COOKIE affinity types to implement session warm-up and configuration initialization. After the session is created, you can include the session ID in InvokeFunction requests to route requests.
+ * @summary Creates an explicit session resource. The system automatically generates a unique session ID, pre-allocates function instances, and binds them to the session. You can specify the TTL and idle timeout. This operation applies to the HEADER_FIELD or GENERATED_COOKIE affinity types to implement session warm-up and configuration initialization. After the API is called, the session ID can be included in InvokeFunction requests to route requests.
  *
  * @param request CreateSessionRequest
  * @param headers map
@@ -2036,7 +2041,7 @@ async function createSessionWithOptions(functionName: string, request: CreateSes
 }
 
 /**
- * @summary Creates an explicit session resource. The system automatically generates a unique session ID, pre-allocates a function instance, and binds the instance to the session. You can specify the TTL and idle timeout. This operation applies to the HEADER_FIELD or GENERATED_COOKIE affinity types to implement session warm-up and configuration initialization. After the session is created, you can include the session ID in InvokeFunction requests to route requests.
+ * @summary Creates an explicit session resource. The system automatically generates a unique session ID, pre-allocates function instances, and binds them to the session. You can specify the TTL and idle timeout. This operation applies to the HEADER_FIELD or GENERATED_COOKIE affinity types to implement session warm-up and configuration initialization. After the API is called, the session ID can be included in InvokeFunction requests to route requests.
  *
  * @param request CreateSessionRequest
  * @return CreateSessionResponse
@@ -3235,7 +3240,7 @@ async function getCustomDomain(domainName: string): GetCustomDomainResponse {
 }
 
 model GetFunctionRequest {
-  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST'),
 }
 
 model GetFunctionResponse = {
@@ -3549,7 +3554,7 @@ model GetSessionResponse = {
 }
 
 /**
- * @summary Retrieves the details of a specified session, including the session ID, associated function, affinity type, lifecycle configuration, status, and instance information. This operation queries the current metadata of a single session and supports precise lookup by functionName and qualifier to facilitate monitoring and debugging by external systems. Only sessions in the Active state can be queried.
+ * @summary Retrieves the details of a specified session, including the session ID, associated function, affinity type, lifecycle configuration, status, and instance information. This operation queries the current metadata of a single session and supports precise lookup by function name and qualifier to facilitate external system monitoring and debugging. Only sessions in the Active state can be queried.
  *
  * @param request GetSessionRequest
  * @param headers map
@@ -3582,7 +3587,7 @@ async function getSessionWithOptions(functionName: string, sessionId: string, re
 }
 
 /**
- * @summary Retrieves the details of a specified session, including the session ID, associated function, affinity type, lifecycle configuration, status, and instance information. This operation queries the current metadata of a single session and supports precise lookup by functionName and qualifier to facilitate monitoring and debugging by external systems. Only sessions in the Active state can be queried.
+ * @summary Retrieves the details of a specified session, including the session ID, associated function, affinity type, lifecycle configuration, status, and instance information. This operation queries the current metadata of a single session and supports precise lookup by function name and qualifier to facilitate external system monitoring and debugging. Only sessions in the Active state can be queried.
  *
  * @param request GetSessionRequest
  * @return GetSessionResponse
@@ -4224,12 +4229,12 @@ model ListFunctionsRequest {
 - v2: Lists only Function Compute 2.0 functions.
 
 Default value: empty. An empty value indicates that both Function Compute 3.0 and Function Compute 2.0 functions are listed.', example='v3'),
-  functionName?: string(name='functionName', description='The name of the function.'),
+  functionName?: string(name='functionName', description='The name of the function.', example='example-function'),
   gpuType?: string(name='gpuType', description='The GPU type used to filter functions.', example='fc.gpu.tesla.1'),
   limit?: int32(name='limit', description='The number of functions to return. Valid values: 1 to 100.', example='10'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNCNhYmM='),
   prefix?: string(name='prefix', description='The prefix of the function name.', example='my-func'),
-  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-a1b2c3d4e5f6g7h'),
   runtime?: string(name='runtime', description='The runtime used to filter functions.', example='python3.10'),
   tags?: [
     Tag
@@ -4243,12 +4248,12 @@ model ListFunctionsShrinkRequest {
 - v2: Lists only Function Compute 2.0 functions.
 
 Default value: empty. An empty value indicates that both Function Compute 3.0 and Function Compute 2.0 functions are listed.', example='v3'),
-  functionName?: string(name='functionName', description='The name of the function.'),
+  functionName?: string(name='functionName', description='The name of the function.', example='example-function'),
   gpuType?: string(name='gpuType', description='The GPU type used to filter functions.', example='fc.gpu.tesla.1'),
   limit?: int32(name='limit', description='The number of functions to return. Valid values: 1 to 100.', example='10'),
   nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNCNhYmM='),
   prefix?: string(name='prefix', description='The prefix of the function name.', example='my-func'),
-  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-a1b2c3d4e5f6g7h'),
   runtime?: string(name='runtime', description='The runtime used to filter functions.', example='python3.10'),
   tagsShrink?: string(name='tags', description='The tags used to filter functions.'),
 }
@@ -4341,25 +4346,25 @@ async function listFunctions(request: ListFunctionsRequest): ListFunctionsRespon
 }
 
 model ListInstancesRequest {
-  endTimeMs?: long(name='endTimeMs', description='The end time of the query range, specified as a UNIX timestamp in milliseconds.', example='1790899200000'),
-  instanceIds?: [ string ](name='instanceIds', description='A list of instance IDs to return.'),
-  instanceStatus?: [ string ](name='instanceStatus', description='An array of instance statuses. The operation returns only instances whose status is in this array.'),
+  endTimeMs?: long(name='endTimeMs', description='The end time (UNIX timestamp in milliseconds).', example='1790899200000'),
+  instanceIds?: [ string ](name='instanceIds', description='The list of instance IDs.'),
+  instanceStatus?: [ string ](name='instanceStatus', description='The list of instance statuses.'),
   limit?: string(name='limit', description='The maximum number of instances to return.', example='100'),
-  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST'),
-  startKey?: string(name='startKey', description='The token that specifies where to start the query. It is returned in a truncated response and can be used to retrieve the next page of results.', example='c-01234567-89abcdef-0123456789ab～'),
-  startTimeMs?: long(name='startTimeMs', description='The start time of the query range, specified as a UNIX timestamp in milliseconds.', example='1790812800000'),
-  withAllActive?: boolean(name='withAllActive', description='Specifies whether to list all active instances.', example='true'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST'),
+  startKey?: string(name='startKey', description='The start marker.', example='c-01234567-89abcdef-0123456789ab～'),
+  startTimeMs?: long(name='startTimeMs', description='The start time (UNIX timestamp in milliseconds).', example='1790812800000'),
+  withAllActive?: boolean(name='withAllActive', description='Specifies whether to list all instances. Valid values: true, false.', example='true'),
 }
 
 model ListInstancesShrinkRequest {
-  endTimeMs?: long(name='endTimeMs', description='The end time of the query range, specified as a UNIX timestamp in milliseconds.', example='1790899200000'),
-  instanceIdsShrink?: string(name='instanceIds', description='A list of instance IDs to return.'),
-  instanceStatusShrink?: string(name='instanceStatus', description='An array of instance statuses. The operation returns only instances whose status is in this array.'),
+  endTimeMs?: long(name='endTimeMs', description='The end time (UNIX timestamp in milliseconds).', example='1790899200000'),
+  instanceIdsShrink?: string(name='instanceIds', description='The list of instance IDs.'),
+  instanceStatusShrink?: string(name='instanceStatus', description='The list of instance statuses.'),
   limit?: string(name='limit', description='The maximum number of instances to return.', example='100'),
-  qualifier?: string(name='qualifier', description='The function version or alias.', example='LATEST'),
-  startKey?: string(name='startKey', description='The token that specifies where to start the query. It is returned in a truncated response and can be used to retrieve the next page of results.', example='c-01234567-89abcdef-0123456789ab～'),
-  startTimeMs?: long(name='startTimeMs', description='The start time of the query range, specified as a UNIX timestamp in milliseconds.', example='1790812800000'),
-  withAllActive?: boolean(name='withAllActive', description='Specifies whether to list all active instances.', example='true'),
+  qualifier?: string(name='qualifier', description='The version or alias of the function.', example='LATEST'),
+  startKey?: string(name='startKey', description='The start marker.', example='c-01234567-89abcdef-0123456789ab～'),
+  startTimeMs?: long(name='startTimeMs', description='The start time (UNIX timestamp in milliseconds).', example='1790812800000'),
+  withAllActive?: boolean(name='withAllActive', description='Specifies whether to list all instances. Valid values: true, false.', example='true'),
 }
 
 model ListInstancesResponse = {
@@ -4369,7 +4374,7 @@ model ListInstancesResponse = {
 }
 
 /**
- * @summary Lists function instances.
+ * @summary Queries the list of function instances.
  *
  * @param tmpReq ListInstancesRequest
  * @param headers map
@@ -4431,7 +4436,7 @@ async function listInstancesWithOptions(functionName: string, tmpReq: ListInstan
 }
 
 /**
- * @summary Lists function instances.
+ * @summary Queries the list of function instances.
  *
  * @param request ListInstancesRequest
  * @return ListInstancesResponse
@@ -4699,11 +4704,11 @@ async function listScalingConfigs(request: ListScalingConfigsRequest): ListScali
 }
 
 model ListSessionsRequest {
-  limit?: int32(name='limit', description='The maximum number of sessions to return. Default value: 20.', example='10'),
-  nextToken?: string(name='nextToken', description='The pagination token.', example='MTIzNCNhYmM='),
+  limit?: int32(name='limit', description='The number of sessions to return. Default value: 20.', example='10'),
+  nextToken?: string(name='nextToken', description='The starting token for pagination.', example='MTIzNCNhYmM='),
   qualifier?: string(name='qualifier', description='The alias or version of the function.', example='aliasName1'),
-  sessionId?: string(name='sessionId', description='The ID of the session used for filtering. If you specify this parameter, all active or expired status information associated with the session is returned.', example='test-session-id-1'),
-  sessionStatus?: string(name='sessionStatus', description='The session status to filter. By default, all session information in the Active or Expired state is returned. You can specify Active to retrieve only active session information, or specify Expired to retrieve only expired session information.', example='Active'),
+  sessionId?: string(name='sessionId', description='The session ID used for filtering. If you specify this parameter, all active or expired status information associated with this session is returned.', example='test-session-id-1'),
+  sessionStatus?: string(name='sessionStatus', description='The session status used for filtering. By default, all session information in the Active or Expired state is returned. You can specify Active to retrieve only active session information, or specify Expired to retrieve only expired session information.', example='Active'),
 }
 
 model ListSessionsResponse = {
@@ -4713,7 +4718,7 @@ model ListSessionsResponse = {
 }
 
 /**
- * @summary Lists the active or expired sessions of a specified function. This operation supports filtering by qualifier, status, and session ID, and supports paging. It returns the basic property of sessions to help you view session distribution and status in batches, facilitate Service Monitoring and external system integration, and improve session visibility and management.
+ * @summary Lists the active or expired sessions of a specified function. Supports filtering by qualifier, status, and session ID, and paging for paged query. Returns the basic session property to help you view session distribution and status in batches, facilitate Service Monitoring and external system integration, and improve session visibility and management.
  *
  * @param request ListSessionsRequest
  * @param headers map
@@ -4758,7 +4763,7 @@ async function listSessionsWithOptions(functionName: string, request: ListSessio
 }
 
 /**
- * @summary Lists the active or expired sessions of a specified function. This operation supports filtering by qualifier, status, and session ID, and supports paging. It returns the basic property of sessions to help you view session distribution and status in batches, facilitate Service Monitoring and external system integration, and improve session visibility and management.
+ * @summary Lists the active or expired sessions of a specified function. Supports filtering by qualifier, status, and session ID, and paging for paged query. Returns the basic session property to help you view session distribution and status in batches, facilitate Service Monitoring and external system integration, and improve session visibility and management.
  *
  * @param request ListSessionsRequest
  * @return ListSessionsResponse
@@ -5075,7 +5080,7 @@ model PauseSessionResponse = {
 /**
  * @summary Pauses or saves a session.
  *
- * @description Pauses an Active session, persists the state of the environment used to execute functions, and then releases compute resources. After you invoke this operation, the session state changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configurations, such as SessionTTL, and the SessionID. It can be used to interrupt long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions that are configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
+ * @description Pauses an active session, persists the state of its associated environment to execute, and then releases compute resources. After you invoke it, the session state changes to Paused, and the session no longer accepts function calling requests. This operation retains the session configurations, such as SessionTTL, and the SessionID. You can use it to break long-running nodes or save snapshots of development environments to achieve cost optimization and state management. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request PauseSessionRequest
  * @param headers map
@@ -5113,7 +5118,7 @@ async function pauseSessionWithOptions(functionName: string, sessionId: string, 
 /**
  * @summary Pauses or saves a session.
  *
- * @description Pauses an Active session, persists the state of the environment used to execute functions, and then releases compute resources. After you invoke this operation, the session state changes to Paused, and the session no longer accepts function invocation requests. This operation retains the session configurations, such as SessionTTL, and the SessionID. It can be used to interrupt long-running tasks or save snapshots of development environments for cost optimization and state management. This operation applies to custom image functions that are configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
+ * @description Pauses an active session, persists the state of its associated environment to execute, and then releases compute resources. After you invoke it, the session state changes to Paused, and the session no longer accepts function calling requests. This operation retains the session configurations, such as SessionTTL, and the SessionID. You can use it to break long-running nodes or save snapshots of development environments to achieve cost optimization and state management. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request PauseSessionRequest
  * @return PauseSessionResponse
@@ -5475,7 +5480,7 @@ model ResumeSessionResponse = {
 /**
  * @summary Resumes a session.
  *
- * @description Resumes a session in the Paused state. The system quickly resumes the session in a new environment to execute based on the previously persisted state, restoring it to the state before it was paused. After the session is successfully resumed, its state changes back to Active, and it can continue to receive requests to invoke functions and route them to the resumed instance. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
+ * @description Recovers a session in the Paused state. The system quickly recovers the session in a new execution environment based on the previously persisted state, restoring it to the state before it was paused. After the session is successfully recovered, its state changes back to Active, and it can continue to receive requests to invoke functions and route them to the recovered instance. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request ResumeSessionRequest
  * @param headers map
@@ -5513,7 +5518,7 @@ async function resumeSessionWithOptions(functionName: string, sessionId: string,
 /**
  * @summary Resumes a session.
  *
- * @description Resumes a session in the Paused state. The system quickly resumes the session in a new environment to execute based on the previously persisted state, restoring it to the state before it was paused. After the session is successfully resumed, its state changes back to Active, and it can continue to receive requests to invoke functions and route them to the resumed instance. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
+ * @description Recovers a session in the Paused state. The system quickly recovers the session in a new execution environment based on the previously persisted state, restoring it to the state before it was paused. After the session is successfully recovered, its state changes back to Active, and it can continue to receive requests to invoke functions and route them to the recovered instance. This operation applies to custom image functions configured with the HEADER_FIELD or GENERATED_COOKIE affinity type and session isolation.
  *
  * @param request ResumeSessionRequest
  * @return ResumeSessionResponse
@@ -5876,7 +5881,7 @@ async function updateFunction(functionName: string, request: UpdateFunctionReque
 
 model UpdateSessionRequest {
   body?: UpdateSessionInput(name='body', description='The session update configuration.'),
-  qualifier?: string(name='qualifier', description='The alias or version of the function associated with the session ID to update.', example='aliasName1'),
+  qualifier?: string(name='qualifier', description='The alias or version of the function associated with the session ID to be updated.', example='aliasName1'),
 }
 
 model UpdateSessionResponse = {
@@ -5886,7 +5891,7 @@ model UpdateSessionResponse = {
 }
 
 /**
- * @summary Updates the session configuration for active sessions, such as lifecycle configurations including SessionTTLInSeconds and SessionIdleTimeoutInSeconds. The updates take effect immediately, and LastModifiedTime is automatically refreshed. This operation extends or shortens the session validity period to implement dynamic management without changing the execution environment bound to the session.
+ * @summary Updates the session configuration for active sessions, such as lifecycle configurations including SessionTTLInSeconds and SessionIdleTimeoutInSeconds. The updates take effect immediately, and LastModifiedTime is automatically refreshed. This operation extends or shortens the session validity period for dynamic management without changing the execution environment bound to the session.
  *
  * @param request UpdateSessionRequest
  * @param headers map
@@ -5920,7 +5925,7 @@ async function updateSessionWithOptions(functionName: string, sessionId: string,
 }
 
 /**
- * @summary Updates the session configuration for active sessions, such as lifecycle configurations including SessionTTLInSeconds and SessionIdleTimeoutInSeconds. The updates take effect immediately, and LastModifiedTime is automatically refreshed. This operation extends or shortens the session validity period to implement dynamic management without changing the execution environment bound to the session.
+ * @summary Updates the session configuration for active sessions, such as lifecycle configurations including SessionTTLInSeconds and SessionIdleTimeoutInSeconds. The updates take effect immediately, and LastModifiedTime is automatically refreshed. This operation extends or shortens the session validity period for dynamic management without changing the execution environment bound to the session.
  *
  * @param request UpdateSessionRequest
  * @return UpdateSessionResponse
