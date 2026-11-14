@@ -97,15 +97,15 @@ model ContainerConfiguration {
 
 model CreateApiKeyInput {
   apiKeyName?: string(name='apiKeyName', description='The name of the API key. The name can be up to 128 characters in length and can contain only letters, digits, spaces, hyphens (-), underscores (_), and half-width periods (.).', example='ci-pipeline-key'),
-  expireTime?: string(name='expireTime', description='The expiration time of the API key in UTC. The time must be in RFC 3339 format. If this parameter is left empty, the API key never expires.', example='2099-12-31T23:59:59Z'),
+  expireTime?: string(name='expireTime', description='The expiration time of the API key. The time must be in UTC and follow the RFC 3339 format. If this parameter is left empty, the API key never expires.', example='2099-12-31T23:59:59Z'),
   ipBlacklist?: [
     IPConfig
   ](name='ipBlacklist', description='The IP address blacklist. After you configure this parameter, the IP addresses in the list cannot use the API key. This parameter is mutually exclusive with ipWhitelist.'),
   ipWhitelist?: [
     IPConfig
   ](name='ipWhitelist', description='The IP address whitelist. After you configure this parameter, only the IP addresses in the list can use the API key. This parameter is mutually exclusive with ipBlacklist.'),
-  teamID?: string(name='teamID', description='The ID of the team to which the API key belongs. The ID must be in UUID format. If this parameter is not specified, the default team of the current account is used.', example='5f4a2c18-****'),
-  vpcBindings?: [ string ](name='vpcBindings', description='The list of source VPC IDs that are allowed to use this API key to initiate management requests. The list is matched as a set. If this parameter is omitted, set to null, or set to an empty array, no restrictions are applied to source VPCs. If this parameter is not empty, only requests from trusted source VPCs that match the list are allowed. Requests from the Internet or from unverified source VPCs are rejected. You can configure this parameter together with an IP address whitelist or blacklist. Requests must meet both restrictions. This field does not create VPC bindings for underlying functions.', example='["vpc-examplea","vpc-exampleb"]'),
+  teamID?: string(name='teamID', description='The ID of the team to which the API key belongs. The ID must be in the UUID format. If this parameter is not specified, the default team of the current account is used.', example='5f4a2c18-****'),
+  vpcBindings?: [ string ](name='vpcBindings', description='The list of source VPC IDs that are allowed to use this API key to initiate management and control requests. The list is matched as a set. If this parameter is omitted, set to null, or set to an empty array, no restrictions are imposed on the source VPCs. If this parameter is not empty, only requests from trusted source VPCs that match the list are allowed. Requests from the Internet or from unverified source VPCs are rejected. This parameter can be configured together with the IP address whitelist or blacklist. Requests must meet both restrictions. This field is independent of the vpcBindings field of the template.', example='["vpc-examplea","vpc-exampleb"]'),
 }
 
 model CreateCustomDomainInput {
@@ -208,7 +208,7 @@ model CreateTemplateRuntimeConfig {
   logConfig?: CreateTemplateLogConfig(name='logConfig', description='The log delivery configuration of the sandbox instance.'),
   memorySize?: int32(name='memorySize', description='The memory specifications of the sandbox instance, in MB.', example='2048'),
   sandboxConfig?: CreateTemplateSandboxConfig(name='sandboxConfig', description='The image and startup configuration of the sandbox instance.'),
-  vpcBindings?: [ string ](name='vpcBindings', description='The list of allowed inbound source VPCs. This feature is supported only for generation 2 templates (sandboxConfig.generation=2). A non-empty array specifies the set of source VPCs that are allowed to access the sandbox data endpoint. Omitting the field, setting it to null, or providing an empty array indicates that no inbound bindings are configured. This setting is independent of the egress network vpcConfig and does not modify the API key source policy. A null value is treated as omitted to maintain compatibility with SDK requests where the field is not set. For generation 1 templates, explicitly providing an empty or non-empty array returns a 400 error. You can update or clear the list by calling UpdateTemplate. The changes take effect after a new version is successfully built, and existing sandboxes continue to use the original functions and policies.', example='["vpc-examplea","vpc-exampleb"]'),
+  vpcBindings?: [ string ](name='vpcBindings', description='A non-empty array configures the set of source VPCs that are allowed to access the sandbox data endpoint. Omitting the field, setting it to null, or providing an empty array indicates that no inbound bindings are configured. This configuration is independent of the egress network vpcConfig and does not modify the API key source policy. A null value is treated as omitted to maintain compatibility with SDK requests where the field is not set. You can update or clear the list by calling UpdateTemplate. The changes take effect after a new version is successfully built, and existing sandboxes continue to use the original configuration.', example='["vpc-examplea","vpc-exampleb"]'),
   vpcConfig?: CreateTemplateVPCConfig(name='vpcConfig', description='The VPC configuration of the sandbox instance.'),
 }
 
@@ -257,6 +257,15 @@ model CreateVolumeInput {
   ossVolumeConfig?: OSSVolumeConfig(name='ossVolumeConfig', description='The OSS Volume configuration.'),
   teamID?: string(name='teamID', description='The unique identifier of the team.', example='37ddc466-****'),
   volumeName?: string(name='volumeName', description='The name, which must be unique within the team.', example='workspace'),
+}
+
+model CreateWarmPoolInput {
+  capacityPolicy?: WarmPoolCapacityPolicyInput(name='capacityPolicy', description='The warm pool capacity policy, which includes the base target capacity and optional scheduled rules.
+
+This parameter is required.'),
+  templateID?: string(name='templateID', description='The template ID, which specifies the template associated with the warm pool.
+
+This parameter is required.', example='tpl-example1234567890'),
 }
 
 model CustomDomainResp {
@@ -774,14 +783,14 @@ model PublicTemplateRegistryNetworkConfig {
 }
 
 model PublicTemplateRuntimeConfig {
-  cpu?: float(name='cpu', description='The CPU specification of the sandbox instance, in cores.', example='2'),
-  diskSize?: int32(name='diskSize', description='The disk specification of the sandbox instance, in MB.', example='10240'),
+  cpu?: float(name='cpu', description='The CPU specifications of the sandbox instance, in cores.', example='2'),
+  diskSize?: int32(name='diskSize', description='The disk specifications of the sandbox instance, in MB.', example='10240'),
   internetAccess?: boolean(name='internetAccess', description='Specifies whether the sandbox instance is allowed to access the Internet.'),
   logConfig?: PublicTemplateLogConfig(name='logConfig', description='The log delivery configuration of the sandbox instance.'),
-  memorySize?: int32(name='memorySize', description='The memory specification of the sandbox instance, in MB.', example='2048'),
+  memorySize?: int32(name='memorySize', description='The memory specifications of the sandbox instance, in MB.', example='2048'),
   sandboxConfig?: PublicTemplateSandboxConfig(name='sandboxConfig', description='The image and startup configuration of the sandbox instance.'),
-  vpcBindings?: [ string ](name='vpcBindings', description='The set of allowed inbound source VPCs configured for Generation 2 templates. An omitted or empty array indicates that no inbound VPC bindings are configured, and this field can be omitted for historical records without configurations. This configuration is independent of the egress network vpcConfig. Subsequent template updates do not overwrite the bindings of functions used by existing sandboxes. When the feature switch is enabled, POST /init requests without query parameters to the standard E2B sandbox envd port 49983 are temporarily exempt from VPC source checks, while other authentication mechanisms remain in effect.', example='["vpc-examplea","vpc-exampleb"]'),
-  vpcConfig?: PublicTemplateVPCConfig(name='vpcConfig', description='The virtual private cloud (VPC) configuration of the sandbox instance.'),
+  vpcBindings?: [ string ](name='vpcBindings', description='The collection of inbound source VPCs allowed by the current template configuration. Omitting this field or providing an empty array indicates that no inbound VPC bindings are configured. This configuration is independent of the egress network vpcConfig. Subsequent template updates do not change the inbound VPC bindings of existing sandbox instances.', example='["vpc-examplea","vpc-exampleb"]'),
+  vpcConfig?: PublicTemplateVPCConfig(name='vpcConfig', description='The VPC configuration of the sandbox instance.'),
 }
 
 model PublicTemplateSandboxConfig {
@@ -877,12 +886,12 @@ model PublicUpdateTemplateRegistryNetworkConfig {
 
 model PublicUpdateTemplateRuntimeConfig {
   cpu?: float(name='cpu', description='The number of vCPU cores.', example='2'),
-  diskSize?: int32(name='diskSize', description='The size of the system cloud disk in MB.', example='512'),
+  diskSize?: int32(name='diskSize', description='The system cloud disk size in MB.', example='512'),
   internetAccess?: boolean(name='internetAccess', description='Specifies whether the sandbox is allowed to access the Internet.'),
   logConfig?: PublicUpdateTemplateLogConfig(name='logConfig', description='The log configuration.'),
   memorySize?: int32(name='memorySize', description='The memory size in MB.', example='2048'),
   sandboxConfig?: PublicUpdateTemplateSandboxConfig(name='sandboxConfig', description='The sandbox configuration.'),
-  vpcBindings?: [ string ](name='vpcBindings', description='Supported only for generation 2 templates. Omitting this field or setting it to null retains the original list. A non-empty array replaces the entire allowed set. An explicit empty array [] clears the inbound VPC restrictions for the new version. This field is independent of vpcConfig. An empty request body {}, an empty runtimeConfig, or a runtimeConfig containing only vpcBindings: null returns a 400 error and does not clear the bindings. The actual JSON received by the server prevails. An empty array omitted by the SDK cannot clear the list. If the target is a generation 1 template, explicitly passing an empty or non-empty array returns a 400 error. If non-empty bindings already exist, you must first clear them on the generation 2 template and wait for the update to succeed before switching to generation 1.', example='["vpc-examplea","vpc-exampleb"]'),
+  vpcBindings?: [ string ](name='vpcBindings', description='If omitted or set to null, the original list is retained. A non-empty array replaces the entire allowed set. An explicit empty array [] clears the inbound VPC restrictions for the new version. This field is independent of vpcConfig. An empty request body {}, an empty runtimeConfig, or a runtimeConfig that contains only vpcBindings: null returns a 400 error and does not clear the bindings. The actual JSON received by the server prevails. An empty array omitted by the SDK cannot clear the list.', example='["vpc-examplea","vpc-exampleb"]'),
   vpcConfig?: PublicUpdateTemplateVPCConfig(name='vpcConfig', description='The VPC network configuration.'),
 }
 
@@ -910,6 +919,27 @@ model PublicUpdateTemplateVPCConfig {
   securityGroupId?: string(name='securityGroupId', description='The security group ID.', example='sg-bp1abc123'),
   vSwitchIds?: [ string ](name='vSwitchIds', description='The list of vSwitch IDs.'),
   vpcId?: string(name='vpcId', description='VPC ID', example='vpc-bp1abc123'),
+}
+
+model PublicWarmPool {
+  capacityObservedTime?: string(name='capacityObservedTime', description='The most recent observation time of the capacity status.', example='2026-12-01T00:00:00Z'),
+  capacityPolicy?: WarmPoolCapacityPolicy(name='capacityPolicy', description='The capacity policy of the warm pool, which includes the base target capacity and optional scheduled rules.'),
+  currentError?: string(name='currentError', description='The masked text of the current background error. This value is null if no error occurs.', example='SourceNotFound: source template does not exist'),
+  deleting?: boolean(name='deleting', description='Indicates whether the warm pool is being deleted.'),
+  preparing?: long(name='preparing', description='The number of sandboxes that are currently being prepared.', example='0'),
+  ready?: long(name='ready', description='The number of sandboxes that are currently ready.', example='0'),
+  releasing?: long(name='releasing', description='The number of sandboxes that are currently being released.', example='0'),
+  sourceUnavailable?: boolean(name='sourceUnavailable', description='Indicates whether the source of the associated template is unavailable.'),
+  targetCapacity?: long(name='targetCapacity', description='The current target capacity.', example='0'),
+  teamID?: string(name='teamID', description='The team ID.', example='team-example1234567890'),
+  templateID?: string(name='templateID', description='The template ID, which specifies the template associated with the warm pool.', example='tpl-example1234567890'),
+}
+
+model PublicWarmPoolConfig {
+  capacityPolicy?: WarmPoolCapacityPolicy(name='capacityPolicy', description='The warm pool capacity policy, which includes the base target capacity and optional scheduling rules.'),
+  deleting?: boolean(name='deleting', description='Indicates whether the warm pool is being deleted.'),
+  teamID?: string(name='teamID', description='The team ID.', example='team-example1234567890'),
+  templateID?: string(name='templateID', description='The template ID, which specifies the template associated with the warm pool.', example='tpl-example1234567890'),
 }
 
 model Quota {
@@ -1050,6 +1080,12 @@ model UpdateVolumeInput {
   ossVolumeConfig?: OSSVolumeConfig(name='ossVolumeConfig', description='The OSS Volume configuration.'),
 }
 
+model UpdateWarmPoolInput {
+  capacityPolicy?: WarmPoolCapacityPolicyInput(name='capacityPolicy', description='The warm pool capacity policy, which includes the base target capacity and optional scheduled rules.
+
+This parameter is required.'),
+}
+
 model VolumeMountConfig {
   role?: string(name='role', description='The RAM role that grants the required permissions to Function Compute. Scenarios include:
 
@@ -1062,12 +1098,57 @@ model VolumeMountConfig {
   }(name='vpcConfig', description='The VPC configuration.'),
 }
 
+model WarmPoolCapacityPolicy {
+  minReadySandboxes?: long(name='minReadySandboxes', description='The base target number of ready sandboxes. This parameter is required and can be set to 0.', example='0'),
+  scheduledPolicies?: [
+    WarmPoolScheduledPolicy
+  ](name='scheduledPolicies', description='The list of scheduled capacity rules. This parameter is optional.'),
+}
+
+model WarmPoolCapacityPolicyInput {
+  minReadySandboxes?: long(name='minReadySandboxes', description='The base target number of ready sandboxes, which is required and can be set to 0.
+
+This parameter is required.', example='0'),
+  scheduledPolicies?: [
+    WarmPoolScheduledPolicyInput
+  ](name='scheduledPolicies', description='The list of scheduled capacity rules, which is optional.'),
+}
+
+model WarmPoolCurrentError {
+  code?: string(name='code', description='The error code of the current error.', example='SourceNotFound'),
+  message?: string(name='message', description='The description of the current error.', example='Source template does not exist'),
+}
+
+model WarmPoolScheduledPolicy {
+  endTime?: string(name='endTime', description='The end time when the rule expires, in RFC 3339 format.', example='2026-12-31T23:59:59Z'),
+  name?: string(name='name', description='The name of the scheduled rule. It must be unique within the same warm pool.', example='daily-scale'),
+  scheduleExpression?: string(name='scheduleExpression', description='The cron expression for the scheduled rule, in the cron (second minute hour day month week) format.', example='cron(0 0 0 * * *)'),
+  startTime?: string(name='startTime', description='The start time when the rule takes effect, in RFC 3339 format.', example='2026-12-01T00:00:00Z'),
+  target?: long(name='target', description='The target number of ready sandboxes after the rule is triggered. The value can be 0.', example='0'),
+  timeZone?: string(name='timeZone', description='The IANA time zone used to execute the scheduled rule.', example='Asia/Shanghai'),
+}
+
+model WarmPoolScheduledPolicyInput {
+  endTime?: string(name='endTime', description='The end time when the rule expires, in RFC 3339 format.', example='2026-12-31T23:59:59Z'),
+  name?: string(name='name', description='The name of the scheduled rule. It must be unique within the same warm pool.
+
+This parameter is required.', example='daily-scale'),
+  scheduleExpression?: string(name='scheduleExpression', description='The cron expression for the scheduled rule, in the cron (second minute hour day month week) format.
+
+This parameter is required.', example='cron(0 0 0 * * *)'),
+  startTime?: string(name='startTime', description='The start time when the rule takes effect, in RFC 3339 format.', example='2026-12-01T00:00:00Z'),
+  target?: long(name='target', description='The target number of ready sandboxes after the rule is triggered. The value can be 0.
+
+This parameter is required.', example='0'),
+  timeZone?: string(name='timeZone', description='The IANA time zone used to execute the scheduled rule.', example='Asia/Shanghai'),
+}
+
 model CreateApiKeyRequest {
   body?: CreateApiKeyInput(name='body', description='The request parameters for creating an API key.'),
 }
 
 model CreateApiKeyResponseBody = {
-  apiKey?: ApiKey(name='apiKey', description='The API key information.', example='[Replace with a masked API key example]'),
+  apiKey?: ApiKey(name='apiKey', description='The API key information.', example='[Replace with a redacted API key example]'),
   code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
   ipBlacklist?: [
     IPConfig
@@ -1075,7 +1156,7 @@ model CreateApiKeyResponseBody = {
   ipWhitelist?: [
     IPConfig
   ](name='ipWhitelist', description='The list of IP address whitelist rules.'),
-  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
+  message?: string(name='message', description='The response message. The value is success for a successful request.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
 }
 
@@ -1190,7 +1271,7 @@ model CreateTemplateResponseBody = {
   code?: string(name='code', description='The error code. The value is 200 if the request is successful.', example='200'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
-  templateID?: string(name='templateID', description='The unique identifier of the created template.', example='us7dxqaezw5uu7aa2cm5'),
+  templateID?: string(name='templateID', description='The unique ID of the created template.', example='us7dxqaezw5uu7aa2cm5'),
 }
 
 model CreateTemplateResponse = {
@@ -1202,7 +1283,7 @@ model CreateTemplateResponse = {
 /**
  * @summary Creates a template.
  *
- * @description Creates a template. runtimeConfig.vpcBindings is supported only for second-generation templates. A null value is treated as omitted. First-generation templates return a 400 error if an empty or non-empty array is explicitly provided. Inbound bindings are independent of the egress vpcConfig and API key source policies. When the feature switch is enabled, POST /init requests without query parameters to the standard envd port 49983 of the E2B sandbox are temporarily exempt from VPC source checks, while other authentication mechanisms remain in effect.
+ * @description Creates a template. If runtimeConfig.vpcBindings is null, it is treated as omitted. Inbound bindings are independent of the egress vpcConfig and API key source policy.
  *
  * @param request CreateTemplateRequest
  * @param headers map
@@ -1232,7 +1313,7 @@ async function createTemplateWithOptions(request: CreateTemplateRequest, headers
 /**
  * @summary Creates a template.
  *
- * @description Creates a template. runtimeConfig.vpcBindings is supported only for second-generation templates. A null value is treated as omitted. First-generation templates return a 400 error if an empty or non-empty array is explicitly provided. Inbound bindings are independent of the egress vpcConfig and API key source policies. When the feature switch is enabled, POST /init requests without query parameters to the standard envd port 49983 of the E2B sandbox are temporarily exempt from VPC source checks, while other authentication mechanisms remain in effect.
+ * @description Creates a template. If runtimeConfig.vpcBindings is null, it is treated as omitted. Inbound bindings are independent of the egress vpcConfig and API key source policy.
  *
  * @param request CreateTemplateRequest
  * @return CreateTemplateResponse
@@ -1355,6 +1436,63 @@ async function createVolume(request: CreateVolumeRequest): CreateVolumeResponse 
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return createVolumeWithOptions(request, headers, runtime);
+}
+
+model CreateWarmPoolRequest {
+  body?: CreateWarmPoolInput(name='body', description='The request body, which contains the warm pool configuration.'),
+}
+
+model CreateWarmPoolResponseBody = {
+  code?: string(name='code', description='The response business code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='01234567-89AB-CDEF-0123-456789ABCDEF'),
+  warmPool?: PublicWarmPoolConfig(name='warmPool', description='The warm pool configuration or current status.'),
+}
+
+model CreateWarmPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateWarmPoolResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a warm pool.
+ *
+ * @param request CreateWarmPoolRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateWarmPoolResponse
+ */
+async function createWarmPoolWithOptions(teamID: string, request: CreateWarmPoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): CreateWarmPoolResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateWarmPool',
+    version = '2026-08-20',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-08-20/teams/${OpenApiUtil.getEncodeParam(teamID)}/warmPools`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a warm pool.
+ *
+ * @param request CreateWarmPoolRequest
+ * @return CreateWarmPoolResponse
+ */
+async function createWarmPool(teamID: string, request: CreateWarmPoolRequest): CreateWarmPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createWarmPoolWithOptions(teamID, request, headers, runtime);
 }
 
 model DeleteApiKeyRequest {
@@ -1653,8 +1791,8 @@ model DeleteVolumeRequest {
 }
 
 model DeleteVolumeResponseBody = {
-  code?: string(name='code', description='The response code. 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. success indicates a successful request.', example='success'),
+  code?: string(name='code', description='The response code. The value is 200 if the request is successful.', example='200'),
+  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
 }
 
@@ -1707,6 +1845,53 @@ async function deleteVolume(volumeID: string, request: DeleteVolumeRequest): Del
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return deleteVolumeWithOptions(volumeID, request, headers, runtime);
+}
+
+model DeleteWarmPoolRequest {
+}
+
+model DeleteWarmPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+}
+
+/**
+ * @summary Deletes a warm pool.
+ *
+ * @param request DeleteWarmPoolRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteWarmPoolResponse
+ */
+async function deleteWarmPoolWithOptions(teamID: string, templateID: string, request: DeleteWarmPoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DeleteWarmPoolResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteWarmPool',
+    version = '2026-08-20',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-08-20/teams/${OpenApiUtil.getEncodeParam(teamID)}/warmPools/${OpenApiUtil.getEncodeParam(templateID)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'none',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a warm pool.
+ *
+ * @param request DeleteWarmPoolRequest
+ * @return DeleteWarmPoolResponse
+ */
+async function deleteWarmPool(teamID: string, templateID: string, request: DeleteWarmPoolRequest): DeleteWarmPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteWarmPoolWithOptions(teamID, templateID, request, headers, runtime);
 }
 
 model DescribeApiKeyRequest {
@@ -1893,6 +2078,61 @@ async function describeTemplateCache(templateID: string, request: DescribeTempla
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return describeTemplateCacheWithOptions(templateID, request, headers, runtime);
+}
+
+model DescribeWarmPoolRequest {
+}
+
+model DescribeWarmPoolResponseBody = {
+  code?: string(name='code', description='The response business code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='01234567-89AB-CDEF-0123-456789ABCDEF'),
+  warmPool?: PublicWarmPool(name='warmPool', description='The warm pool configuration or current status.'),
+}
+
+model DescribeWarmPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeWarmPoolResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the warm pool.
+ *
+ * @param request DescribeWarmPoolRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeWarmPoolResponse
+ */
+async function describeWarmPoolWithOptions(teamID: string, templateID: string, request: DescribeWarmPoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): DescribeWarmPoolResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeWarmPool',
+    version = '2026-08-20',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-08-20/teams/${OpenApiUtil.getEncodeParam(teamID)}/warmPools/${OpenApiUtil.getEncodeParam(templateID)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the warm pool.
+ *
+ * @param request DescribeWarmPoolRequest
+ * @return DescribeWarmPoolResponse
+ */
+async function describeWarmPool(teamID: string, templateID: string, request: DescribeWarmPoolRequest): DescribeWarmPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return describeWarmPoolWithOptions(teamID, templateID, request, headers, runtime);
 }
 
 model GetMetricDataRequest {
@@ -2865,6 +3105,76 @@ async function listVolumes(request: ListVolumesRequest): ListVolumesResponse {
   return listVolumesWithOptions(request, headers, runtime);
 }
 
+model ListWarmPoolsRequest {
+  maxResults?: int32(name='maxResults', description='The actual maximum number of results returned per page.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates that no more results are available.', example='example-token'),
+}
+
+model ListWarmPoolsResponseBody = {
+  code?: string(name='code', description='The business code in the response.', example='200'),
+  maxResults?: int32(name='maxResults', description='The actual maximum number of results returned per page.', example='20'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates that no more results are available.', example='example-token'),
+  requestId?: string(name='requestId', description='Id of the request', example='01234567-89AB-CDEF-0123-456789ABCDEF'),
+  warmPools?: [
+    PublicWarmPoolConfig
+  ](name='warmPools', description='The list of warm pools.'),
+}
+
+model ListWarmPoolsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListWarmPoolsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of warm pools.
+ *
+ * @param request ListWarmPoolsRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListWarmPoolsResponse
+ */
+async function listWarmPoolsWithOptions(teamID: string, request: ListWarmPoolsRequest, headers: map[string]string, runtime: Util.RuntimeOptions): ListWarmPoolsResponse {
+  Util.validateModel(request);
+  var query : map[string]any = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListWarmPools',
+    version = '2026-08-20',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-08-20/teams/${OpenApiUtil.getEncodeParam(teamID)}/warmPools`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of warm pools.
+ *
+ * @param request ListWarmPoolsRequest
+ * @return ListWarmPoolsResponse
+ */
+async function listWarmPools(teamID: string, request: ListWarmPoolsRequest): ListWarmPoolsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listWarmPoolsWithOptions(teamID, request, headers, runtime);
+}
+
 model ResetApiKeyRequest {
 }
 
@@ -3112,7 +3422,7 @@ async function updateTeam(teamID: string, request: UpdateTeamRequest): UpdateTea
 }
 
 model UpdateTemplateRequest {
-  body?: PublicUpdateTemplateInput(name='body', description='The request struct for updating the template. Specify only the fields that you want to modify.'),
+  body?: PublicUpdateTemplateInput(name='body', description='The request struct for updating a template. Specify only the fields that you want to update.'),
   teamID?: string(name='teamID', description='The team ID.', example='team-a1b2c3d4e5f6'),
 }
 
@@ -3132,7 +3442,7 @@ model UpdateTemplateResponse = {
 /**
  * @summary Updates a template.
  *
- * @description Updates a template. For Generation 2 templates, runtimeConfig.vpcBindings supports omission or null retention, full replacement with a non-empty array, or clearing with an empty array. The new list takes effect upon a successful build of the new version. Existing sandboxes continue to use the original functions and policies. If the build fails, the previously effective version is retained. For Generation 1 templates, explicitly passing an empty or non-empty array returns a 400 error. Before switching to Generation 1, you must clear the bindings and wait for the update to succeed. When the feature switch is enabled, POST /init requests without query parameters to the standard envd port 49983 of E2B sandboxes are temporarily exempt from VPC source checks, while other authentication mechanisms remain in effect.
+ * @description Updates a template. For runtimeConfig.vpcBindings, you can omit the field or set it to null to retain the current bindings, provide a non-empty array to replace the entire list, or provide an empty array [] to clear the list. The new list takes effect when the new version is successfully built. Existing sandboxes continue to use the original configuration. If the build fails, the original effective version is retained.
  *
  * @param request UpdateTemplateRequest
  * @param headers map
@@ -3168,7 +3478,7 @@ async function updateTemplateWithOptions(templateID: string, request: UpdateTemp
 /**
  * @summary Updates a template.
  *
- * @description Updates a template. For Generation 2 templates, runtimeConfig.vpcBindings supports omission or null retention, full replacement with a non-empty array, or clearing with an empty array. The new list takes effect upon a successful build of the new version. Existing sandboxes continue to use the original functions and policies. If the build fails, the previously effective version is retained. For Generation 1 templates, explicitly passing an empty or non-empty array returns a 400 error. Before switching to Generation 1, you must clear the bindings and wait for the update to succeed. When the feature switch is enabled, POST /init requests without query parameters to the standard envd port 49983 of E2B sandboxes are temporarily exempt from VPC source checks, while other authentication mechanisms remain in effect.
+ * @description Updates a template. For runtimeConfig.vpcBindings, you can omit the field or set it to null to retain the current bindings, provide a non-empty array to replace the entire list, or provide an empty array [] to clear the list. The new list takes effect when the new version is successfully built. Existing sandboxes continue to use the original configuration. If the build fails, the original effective version is retained.
  *
  * @param request UpdateTemplateRequest
  * @return UpdateTemplateResponse
@@ -3241,5 +3551,62 @@ async function updateVolume(volumeID: string, request: UpdateVolumeRequest): Upd
   var runtime = new Util.RuntimeOptions{};
   var headers : map[string]string = {};
   return updateVolumeWithOptions(volumeID, request, headers, runtime);
+}
+
+model UpdateWarmPoolRequest {
+  body?: UpdateWarmPoolInput(name='body', description='The request body, which contains the warm pool configuration.'),
+}
+
+model UpdateWarmPoolResponseBody = {
+  code?: string(name='code', description='The response business code.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='Id of the request', example='01234567-89AB-CDEF-0123-456789ABCDEF'),
+  warmPool?: PublicWarmPoolConfig(name='warmPool', description='The warm pool configuration or current status.'),
+}
+
+model UpdateWarmPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateWarmPoolResponseBody(name='body'),
+}
+
+/**
+ * @summary Updates the capacity policy of a warm pool.
+ *
+ * @param request UpdateWarmPoolRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateWarmPoolResponse
+ */
+async function updateWarmPoolWithOptions(teamID: string, templateID: string, request: UpdateWarmPoolRequest, headers: map[string]string, runtime: Util.RuntimeOptions): UpdateWarmPoolResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(request.body),
+  };
+  var params = new OpenApi.Params{
+    action = 'UpdateWarmPool',
+    version = '2026-08-20',
+    protocol = 'HTTPS',
+    pathname = `/pop/2026-08-20/teams/${OpenApiUtil.getEncodeParam(teamID)}/warmPools/${OpenApiUtil.getEncodeParam(templateID)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Updates the capacity policy of a warm pool.
+ *
+ * @param request UpdateWarmPoolRequest
+ * @return UpdateWarmPoolResponse
+ */
+async function updateWarmPool(teamID: string, templateID: string, request: UpdateWarmPoolRequest): UpdateWarmPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateWarmPoolWithOptions(teamID, templateID, request, headers, runtime);
 }
 
