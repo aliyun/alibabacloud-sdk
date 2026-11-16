@@ -1,6 +1,7 @@
 /**
  *
  */
+import GatewayClient;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -9,6 +10,9 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
+  @productId = 'STAROps';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -24,6 +28,12 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
     return endpointMap[regionId];
   }
   return OpenApiUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model AutoPassPolicy {
+  commandPrefix?: [ string ](name='commandPrefix', description='The selected command prefix. The array must contain exactly one prefix. You must specify either this parameter or fullCommand.', example='["starops sls"]'),
+  fullCommand?: string(name='fullCommand', description='The exact match for the full command. The command must not be empty. You must specify either this parameter or commandPrefix.', example='starops tool list'),
+  version?: string(name='version', description='A version is required for a valid rule. The current version is v1.0.0.', example='v1.0.0'),
 }
 
 model ConnectorAuthentication {
@@ -141,7 +151,7 @@ model ConnectorCreateInput {
   authentication?: ConnectorAuthenticationInput(name='authentication', description='The authentication configuration for accessing the target service.
 
 This parameter is required.'),
-  capabilityGrants?: [ map[string]any ](name='capabilityGrants', description='The list of capabilities granted to the connector.
+  capabilityGrants?: [ map[string]any ](name='capabilityGrants', description='The list of capabilities granted to the Connector.
 
 This parameter is required.'),
   clientToken?: string(name='clientToken', description='Idempotency token
@@ -157,14 +167,14 @@ This parameter is required.', example='cms2-prod'),
   displayName?: string(name='displayName', description='Display name
 
 This parameter is required.', example='CMS 2.0 production workspace'),
-  enabled?: boolean(name='enabled', description='Specifies whether to enable the connector after creation.'),
-  policy?: map[string]any(name='policy', description='The execution policy for the connector.
+  enabled?: boolean(name='enabled', description='Specifies whether to enable the Connector after creation.'),
+  policy?: map[string]any(name='policy', description='The execution policy of the Connector.
 
 This parameter is required.'),
   provider?: string(name='provider', description='Provider
 
 This parameter is required.', example='AlibabaCloudCms'),
-  runtime?: ConnectorRuntime(name='runtime', description='The runtime configuration for the connector.
+  runtime?: ConnectorRuntime(name='runtime', description='The runtime configuration of the Connector.
 
 This parameter is required.'),
   target?: map[string]any(name='target', description='Provider target
@@ -176,7 +186,7 @@ model ConnectorInfo {
   authentication?: ConnectorAuthentication(name='authentication', description='Safe authentication identity
 
 This parameter is required.'),
-  capabilityGrants?: [ map[string]any ](name='capabilityGrants', description='The list of capabilities granted to the Connector.
+  capabilityGrants?: [ map[string]any ](name='capabilityGrants', description='The list of capabilities granted to the connector.
 
 This parameter is required.'),
   configuration?: map[string]any(name='configuration', description='Provider configuration
@@ -192,7 +202,7 @@ This parameter is required.', example='2026-08-25T12:00:00Z'),
   displayName?: string(name='displayName', description='Display name
 
 This parameter is required.', example='CMS 2.0 production workspace'),
-  enabled?: boolean(name='enabled', description='Specifies whether the Connector is enabled.
+  enabled?: boolean(name='enabled', description='Specifies whether the connector is enabled.
 
 This parameter is required.'),
   etag?: string(name='etag', description='ETag
@@ -201,7 +211,7 @@ This parameter is required.', example='"connector-rev-1"'),
   name?: string(name='name', description='Digital employee name
 
 This parameter is required.', example='production-ops'),
-  policy?: map[string]any(name='policy', description='The execution policy of the Connector.
+  policy?: map[string]any(name='policy', description='The execution policy of the connector.
 
 This parameter is required.'),
   provider?: string(name='provider', description='Provider
@@ -210,7 +220,7 @@ This parameter is required.', example='AlibabaCloudCms'),
   revision?: long(name='revision', description='Revision
 
 This parameter is required.', example='1'),
-  runtime?: ConnectorRuntime(name='runtime', description='The runtime configuration of the Connector.
+  runtime?: ConnectorRuntime(name='runtime', description='The runtime configuration of the connector.
 
 This parameter is required.'),
   status?: map[string]any(name='status', description='Resource status
@@ -225,6 +235,8 @@ This parameter is required.', example='2026-08-25T12:00:00Z'),
 }
 
 model ConnectorRuntime {
+  capabilityId?: string(name='capabilityId', description='The native client capability referenced by the SATELLITE runtime. This parameter is mutually exclusive with extensionName.', example='bash'),
+  extensionName?: string(name='extensionName', description='The environment agent extension name referenced by the SATELLITE runtime. This parameter is mutually exclusive with capabilityId.', example='gitlab-corp'),
   mode?: string(name='mode', description='Runtime mode
 
 This parameter is required.', example='STAROPS_MANAGED'),
@@ -242,6 +254,23 @@ model ConnectorUpdateInput {
   policy?: map[string]any(name='policy', description='The execution policy used to replace the existing policy.'),
   runtime?: ConnectorRuntime(name='runtime', description='The runtime configuration used to update the Connector.'),
   target?: map[string]any(name='target', description='The provider target used to update the Connector.'),
+}
+
+model Hook {
+  description?: string(name='description', description='The description.', example='检查工具调用中的命令是否安全。'),
+  enable?: boolean(name='enable', description='Specifies whether the hook is enabled. The hook is executed only when this parameter is set to true. If this parameter is not configured, the hook is disabled.', example='true'),
+  event?: string(name='event', description='The event. Each hook processes only one event.', example='ToolStart'),
+  execution?: {
+    failResult?: string(name='failResult', description='The handling policy for invalid return values. If the return value of the handler remains invalid after retries, it is processed as allow or reject.', example='allow'),
+    instruction?: string(name='instruction', description='The execution instruction. For the prompt type, it specifies a prompt. For the bash type, it specifies a Bash script. For the python3 type, it specifies a Python 3 script. For the hint type, it specifies contextual text that is directly appended. You must provide non-empty UTF-8 text for all four types.', example='检查当前工具调用是否安全。'),
+    maxRetry?: long(name='maxRetry', description='The maximum number of additional attempts after a failure. Valid values: 0 to 3.', example='0'),
+    timeoutSeconds?: long(name='timeoutSeconds', description='The timeout period in seconds. Valid values: 1 to 30. All attempts and waits for the hook share this timeout period.', example='10'),
+    type?: string(name='type', description='The handler type. Valid values: prompt, bash, python3, and hint.', example='prompt'),
+  }(name='execution', description='The execution configuration. This configuration specifies the synchronous execution, total timeout, number of retries, and handling policy for invalid return values of the hook.'),
+  match?: [ string ](name='match', description='The list of tool names. Only the ToolStart and ToolEnd events perform an exact match on the actual tool names. Tool names such as Read, Write, Bash, and Edit are supported, but wildcards are not supported. An empty array does not restrict the tools, and this field is ignored for other events.', example='["Read","Write","Bash","Edit"]'),
+  name?: string(name='name', description='Only digits, letters, underscores, and hyphens are allowed, and the value cannot be empty. Hooks with the same name are executed independently in the order they appear in the list.', example='command-guard'),
+  schemaVersion?: string(name='schemaVersion', description='The configuration protocol version.', example='v1'),
+  scope?: string(name='scope', description='The effective scope. A value of all indicates that the hook takes effect in both Chat and Mission scenarios. A value of chat or mission indicates that the hook takes effect only in the corresponding scenario.', example='all'),
 }
 
 model Tag {
@@ -511,7 +540,7 @@ async function createChat(request: CreateChatRequest): CreateChatResponse {
 }
 
 model CreateDigitalEmployeeRequest {
-  attributes?: map[string]string(name='attributes', description='The digital employee properties.'),
+  attributes?: map[string]string(name='attributes', description='The attributes of the digital employee.'),
   channel?: string(name='channel', description='The channel type.', example='default'),
   defaultRule?: string(name='defaultRule', description='The default rule of the digital employee.', example='test'),
   description?: string(name='description', description='The description of the digital employee.', example='aaa'),
@@ -519,10 +548,10 @@ model CreateDigitalEmployeeRequest {
   knowledges?: {
     bailian?: [ 
       {
-        attributes?: string(name='attributes', description='The knowledge base properties.', example='test'),
-        indexId?: string(name='indexId', description='The Bailian index ID.', example='index-xxxx'),
+        attributes?: string(name='attributes', description='The attributes of the knowledge base.', example='test'),
+        indexId?: string(name='indexId', description='The ID of the Bailian index.', example='index-xxxx'),
         region?: string(name='region', description='The region of the knowledge base.', example='cn-beijing'),
-        workspaceId?: string(name='workspaceId', description='The Bailian workspace ID.', example='llm-xxxxx'),
+        workspaceId?: string(name='workspaceId', description='The ID of the Bailian workspace.', example='llm-xxxxx'),
       }
     ](name='bailian', description='The list of Bailian knowledge bases.'),
     sop?: [  map[string]any ](name='sop', description='The list of SOP knowledge bases.'),
@@ -530,32 +559,40 @@ model CreateDigitalEmployeeRequest {
   name?: string(name='name', description='The name of the digital employee.
 
 This parameter is required.', example='test'),
-  resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-ae******ey'),
-  roleArn?: string(name='roleArn', description='The RAM role ARN.
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-ae******ey'),
+  roleArn?: string(name='roleArn', description='The ARN of the RAM role.
 
 This parameter is required.', example='acs:ram::12345678912:role/testrole'),
   sandboxNetworkPolicy?: {
-    allowCidrs?: [ string ](name='allowCidrs', description='The list of allowed CIDRs or IP addresses.'),
+    allowCidrs?: [ string ](name='allowCidrs', description='The list of allowed CIDR blocks or IP addresses.'),
     allowFqdns?: [ string ](name='allowFqdns', description='The list of allowed FQDNs.'),
     enableAcl?: boolean(name='enableAcl', description='Specifies whether to enable the sandbox network ACL.', example='false'),
-  }(name='sandboxNetworkPolicy', description='The sandbox network ACL policy configuration of the digital employee.', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
+  }(name='sandboxNetworkPolicy', description='The sandbox network ACL policy configuration for the digital employee.', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
   tags?: [
     Tag
   ](name='tags', description='The tags.'),
   toolPolicy?: {
     aliyun?: {
-      autoPassPolicy?: [ string ](name='autoPassPolicy', description='The RAM actions that are automatically allowed. The format is *, product:ApiName, or product:Prefix*.', example='["log:Get*","log:List*"]'),
-      denyPolicy?: [ string ](name='denyPolicy', description='The RAM actions that are denied. The format is *, product:ApiName, or product:Prefix*.', example='["ecs:RunCommand","ecs:Delete*"]'),
+      autoPassPolicy?: [ string ](name='autoPassPolicy', description='The auto-passed RAM actions. The format is *, product:ApiName, or product:Prefix*.', example='["log:Get*","log:List*"]'),
+      denyPolicy?: [ string ](name='denyPolicy', description='The denied RAM actions. The format is *, product:ApiName, or product:Prefix*.', example='["ecs:RunCommand","ecs:Delete*"]'),
       enable?: boolean(name='enable', description='Specifies whether to enable the policy.', example='true'),
       statements?: [ 
         {
           actions?: [ string ](name='actions', description='The list of Aliyun OpenAPI actions. The format is product:ApiName, product:Prefix*, or product:*.', example='["log:GetProject","log:CreateDashboard"]'),
-          apiVersion?: string(name='apiVersion', description='The Aliyun OpenAPI version that this statement applies to.', example='2020-12-30', deprecated=true),
-          decision?: string(name='decision', description='The execution policy when the API is matched.', example='user_ack'),
-          product?: string(name='product', description='The Aliyun OpenAPI product name that this statement applies to.', example='Sls'),
+          apiVersion?: string(name='apiVersion', description='The Aliyun OpenAPI version corresponding to this statement.', example='2020-12-30', deprecated=true),
+          decision?: string(name='decision', description='The execution policy after the API is matched.', example='user_ack'),
+          product?: string(name='product', description='The Aliyun OpenAPI product name corresponding to this statement.', example='Sls'),
         }
-      ](name='statements', description='**[Deprecated]** Use denyPolicy and autoPassPolicy instead. This field is still returned during the transition period. Original description: The list of Aliyun OpenAPI tool policy statements.', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]', deprecated=true),
+      ](name='statements', description='**[Deprecated]** Use denyPolicy and autoPassPolicy instead. This field is still read during the transition period. Original description: The list of Aliyun OpenAPI tool policy statements.', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]', deprecated=true),
     }(name='aliyun', description='The security policy configuration for Aliyun CLI tool invocation.', example='{"enable":true,"denyPolicy":["ecs:RunCommand","ecs:Delete*"],"autoPassPolicy":["log:Get*","log:List*"],"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
+    global?: {
+      autoPassPolicy?: [
+        AutoPassPolicy
+      ](name='autoPassPolicy', description='The array of auto-pass policies.', example='[{"version":"v1.0.0","fullCommand":"starops tool list"},{"version":"v1.0.0","commandPrefix":["starops sls"]}]'),
+    }(name='global', description='The global auto-pass rules for tool invocation.'),
+    hooks?: [
+      Hook
+    ](name='hooks', description='The hook configuration.'),
   }(name='toolPolicy', description='The tool policy.', example='{"aliyun":{"enable":true,"denyPolicy":["ecs:RunCommand","ecs:Delete*"],"autoPassPolicy":["log:Get*","log:List*"],"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
 }
 
@@ -1572,7 +1609,7 @@ model GetDigitalEmployeeRequest {
 model GetDigitalEmployeeResponseBody = {
   attributes?: map[string]string(name='attributes', description='The attributes.'),
   channel?: string(name='channel', description='The channel type.', example='default'),
-  createTime?: string(name='createTime', description='The creation time in UTC, which follows the RFC 3339 format.
+  createTime?: string(name='createTime', description='The creation time in RFC 3339 format. The time zone is UTC.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-03-11T08:21:58Z'),
   defaultRule?: string(name='defaultRule', description='The default rules of the digital employee.', example='test'),
@@ -1583,15 +1620,15 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-03-11T08:21:58Z'),
     bailian?: [ 
       {
         attributes?: string(name='attributes', description='The attributes of the knowledge base.', example='test'),
-        indexId?: string(name='indexId', description='The ID of the Model Studio index.', example='index-xxxx'),
+        indexId?: string(name='indexId', description='The index ID of Model Studio.', example='index-xxxx'),
         region?: string(name='region', description='The region of the knowledge base.', example='cn-beijing'),
-        workspaceId?: string(name='workspaceId', description='The ID of the Model Studio workspace.', example='llm-xxxxx'),
+        workspaceId?: string(name='workspaceId', description='The workspace ID of Model Studio.', example='llm-xxxxx'),
       }
     ](name='bailian', description='The list of Model Studio knowledge bases.'),
     sop?: [  map[string]any ](name='sop', description='The list of SOP knowledge bases.'),
   }(name='knowledges', description='The list of knowledge bases.'),
   name?: string(name='name', description='The name of the digital employee.', example='test'),
-  regionId?: string(name='regionId', description='The region ID.', example='cn-beijing'),
+  regionId?: string(name='regionId', description='The resource property field that represents the region ID.', example='cn-beijing'),
   requestId?: string(name='requestId', description='The request ID.', example='0B9377D9-C56B-5C2E-A8A4-************'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-ae******ey'),
   roleArn?: string(name='roleArn', description='The ARN of the RAM role.', example='acs:ram::12345678912:role/testrole'),
@@ -1599,29 +1636,35 @@ Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-03-11T08:21:58Z'),
     allowCidrs?: [ string ](name='allowCidrs', description='The list of allowed CIDR blocks or IP addresses.'),
     allowFqdns?: [ string ](name='allowFqdns', description='The list of allowed FQDNs.'),
     enableAcl?: boolean(name='enableAcl', description='Specifies whether to enable the sandbox network ACL.', example='false'),
-  }(name='sandboxNetworkPolicy', description='The sandbox network ACL policy configuration of the digital employee.', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
-  status?: int32(name='status', description='The status of the digital employee. Valid values: 0 (normal) and 1 (disabled).', example='0'),
+  }(name='sandboxNetworkPolicy', description='The sandbox network ACL policy configuration for the digital employee.', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
+  status?: int32(name='status', description='The status of the digital employee. Valid values: 0: Normal. 1: Disabled.', example='0'),
   tags?: [
     Tag
   ](name='tags', description='The tags.'),
   toolPolicy?: {
     aliyun?: {
-      autoPassPolicy?: [ string ](name='autoPassPolicy', description='The automatic allow policy. Each entry is a RAM action string in the format of product:ApiName, product:Prefix*, or product:*. If an action matches an entry, the action is automatically allowed without manual confirmation. If this parameter is empty or not configured, built-in read-only actions (Get*, List*, and Describe*) are automatically allowed. Unmatched actions require human-in-the-loop (HIL) confirmation.', example='["log:Get*","log:List*"]'),
-      denyPolicy?: [ string ](name='denyPolicy', description='The explicit deny policy, which has the highest priority. Each entry is a RAM action string in the format of product:ApiName, product:Prefix*, or product:*. If this parameter is empty or not configured, no operations are actively denied. If an action matches a STAROps entry, the action is directly denied. The POP layer provides a secondary fallback check.', example='["ecs:RunCommand","ecs:Delete*"]'),
+      autoPassPolicy?: [ string ](name='autoPassPolicy', description='The auto-pass policy. Each entry is a RAM action string in the format of product:ApiName, product:Prefix*, or product:*. If an operation matches the policy, it is automatically allowed without manual confirmation. If this parameter is empty or not configured, built-in read-only actions (Get*, List*, and Describe*) are automatically allowed. Unmatched operations require manual confirmation (HIL).', example='["log:Get*","log:List*"]'),
+      denyPolicy?: [ string ](name='denyPolicy', description='The explicit deny policy, which has the highest priority. Each entry is a RAM action string in the format of product:ApiName, product:Prefix*, or product:*. If this parameter is empty or not configured, no operations are actively denied. If a STAROps operation matches the policy, it is directly denied. The POP side provides a secondary fallback.', example='["ecs:RunCommand","ecs:Delete*"]'),
       enable?: boolean(name='enable', description='Specifies whether the policy is enabled.', example='true'),
       statements?: [ 
         {
           actions?: [ string ](name='actions', description='The list of RAM actions.', example='["log:GetProject","log:CreateDashboard"]'),
           apiVersion?: string(name='apiVersion', description='The API version.', example='2020-12-30', deprecated=true),
           decision?: string(name='decision', description='The execution policy.', example='user_ack'),
-          product?: string(name='product', description='The code of the cloud service.
-
-This parameter is required.', example='Sls'),
+          product?: string(name='product', description='The code of the cloud service.', example='Sls'),
         }
-      ](name='statements', description='The list of Aliyun CLI tool policy statements.', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]', deprecated=true),
-    }(name='aliyun', description='The security policy configuration to invoke Aliyun CLI tools.', example='{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
+      ](name='statements', description='The list of policy statements for Alibaba Cloud CLI tools.', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]', deprecated=true),
+    }(name='aliyun', description='The security policy configuration for Alibaba Cloud CLI tool invocation.', example='{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
+    global?: {
+      autoPassPolicy?: [
+        AutoPassPolicy
+      ](name='autoPassPolicy', description='The auto-pass policy for CLI commands.', example='[{"version":"v1.0.0","fullCommand":"starops tool list"},{"version":"v1.0.0","commandPrefix":["starops sls"]}]'),
+    }(name='global', description='The global auto-pass configuration for the digital employee.'),
+    hooks?: [
+      Hook
+    ](name='hooks', description='The hook configuration.'),
   }(name='toolPolicy', description='The tool policy.', example='{"aliyun":{"enable":true,"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
-  updateTime?: string(name='updateTime', description='The update time in UTC, which follows the RFC 3339 format.
+  updateTime?: string(name='updateTime', description='The update time in RFC 3339 format. The time zone is UTC.
 
 Use the UTC time format: yyyy-MM-ddTHH:mm:ssZ', example='2025-02-18T02:25:06Z'),
 }
@@ -2831,44 +2874,49 @@ async function listThreads(name: string, request: ListThreadsRequest): ListThrea
 
 model UpdateDigitalEmployeeRequest {
   attributes?: map[string]string(name='attributes', description='The attributes.'),
-  defaultRule?: string(name='defaultRule', description='The default rule of the digital employee.', example='test'),
+  defaultRule?: string(name='defaultRule', description='The default rules for the digital employee.', example='test'),
   description?: string(name='description', description='The description of the digital employee.', example='test'),
   displayName?: string(name='displayName', description='The display name of the digital employee.', example='test'),
   knowledges?: {
     bailian?: [ 
       {
-        attributes?: string(name='attributes', description='The knowledge base attributes.', example='test'),
-        indexId?: string(name='indexId', description='The Bailian index ID.', example='index-xxxx'),
+        attributes?: string(name='attributes', description='The attributes of the knowledge base.', example='test'),
+        indexId?: string(name='indexId', description='The ID of the Model Studio index.', example='index-xxxx'),
         region?: string(name='region', description='The region of the knowledge base.', example='cn-beijing'),
-        workspaceId?: string(name='workspaceId', description='The Bailian workspace ID.', example='llm-xxxx'),
+        workspaceId?: string(name='workspaceId', description='The ID of the Model Studio workspace.', example='llm-xxxx'),
       }
-    ](name='bailian', description='The Bailian knowledge base list.'),
-    sop?: [  map[string]any ](name='sop', description='The SOP knowledge base list.'),
-  }(name='knowledges', description='The knowledge base list.'),
+    ](name='bailian', description='The list of Model Studio knowledge bases.'),
+    sop?: [  map[string]any ](name='sop', description='The list of SOP knowledge bases.'),
+  }(name='knowledges', description='The list of knowledge bases.'),
   roleArn?: string(name='roleArn', description='The ARN of the RAM role.', example='acs:ram::12345678912:role/testrole'),
   sandboxNetworkPolicy?: {
-    allowCidrs?: [ string ](name='allowCidrs', description='The list of CIDRs or IP addresses that are allowed to be accessed.'),
-    allowFqdns?: [ string ](name='allowFqdns', description='The list of FQDNs that are allowed to be accessed.'),
+    allowCidrs?: [ string ](name='allowCidrs', description='The list of allowed CIDR blocks or IP addresses.'),
+    allowFqdns?: [ string ](name='allowFqdns', description='The list of allowed FQDNs.'),
     enableAcl?: boolean(name='enableAcl', description='Specifies whether to enable the sandbox network ACL.', example='false'),
-  }(name='sandboxNetworkPolicy', description='The list of CIDRs or IP addresses that are allowed to be accessed.', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
+  }(name='sandboxNetworkPolicy', description='The list of allowed CIDR blocks or IP addresses.', example='{"allowFqdns":["api.example.com"],"allowCidrs":["1.2.3.0/24","8.8.8.8"],"enableAcl":false}'),
   toolPolicy?: {
     aliyun?: {
-      autoPassPolicy?: [ string ](name='autoPassPolicy', description='The list of auto-approved RAM actions in the format of *, product:ApiName, or product:Prefix*.', example='["log:Get*","log:List*"]'),
-      denyPolicy?: [ string ](name='denyPolicy', description='The list of denied RAM actions in the format of *, product:ApiName, or product:Prefix*.', example='["ecs:RunCommand","ecs:Delete*"]'),
+      autoPassPolicy?: [ string ](name='autoPassPolicy', description='The list of auto-approved RAM actions. The format is *, product:ApiName, or product:Prefix*.', example='["log:Get*","log:List*"]'),
+      denyPolicy?: [ string ](name='denyPolicy', description='The list of denied RAM actions. The format is *, product:ApiName, or product:Prefix*.', example='["ecs:RunCommand","ecs:Delete*"]'),
       enable?: boolean(name='enable', description='Specifies whether to enable the policy.', example='true'),
       statements?: [ 
         {
           actions?: [ string ](name='actions', description='RAM action', example='["log:GetProject","log:CreateDashboard"]'),
           apiVersion?: string(name='apiVersion', description='**[Deprecated]** The API version.', example='2024-03-30', deprecated=true),
-          decision?: string(name='decision', description='The execution policy. Valid values:
-- allow: Allowed.
-- deny: Denied.
-- user_ack: Requires user confirmation before execution.', example='user_ack'),
-          product?: string(name='product', description='The cloud service code.', example='Cms'),
+          decision?: string(name='decision', description='The execution policy.', example='user_ack'),
+          product?: string(name='product', description='The code of the cloud service.', example='Cms'),
         }
       ](name='statements', description='The list of Aliyun CLI tool policy statements.', example='[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]', deprecated=true),
     }(name='aliyun', description='The security policy configuration for Aliyun CLI tool calling.', example='{"enable":true,"denyPolicy":["ecs:RunCommand","ecs:Delete*"],"autoPassPolicy":["log:Get*","log:List*"],"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}'),
-  }(name='toolPolicy', description='The security policy configuration for tool calling of the digital employee.', example='{"aliyun":{"enable":true,"denyPolicy":["ecs:RunCommand","ecs:Delete*"],"autoPassPolicy":["log:Get*","log:List*"],"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
+    global?: {
+      autoPassPolicy?: [
+        AutoPassPolicy
+      ](name='autoPassPolicy', description='The array of auto-approval policies.', example='[{"version":"v1.0.0","fullCommand":"starops tool list"},{"version":"v1.0.0","commandPrefix":["starops sls"]}]'),
+    }(name='global', description='The global auto-approval rules for tool calling.'),
+    hooks?: [
+      Hook
+    ](name='hooks', description='The hook configuration.'),
+  }(name='toolPolicy', description='The security policy configuration for tool calling by the digital employee.', example='{"aliyun":{"enable":true,"denyPolicy":["ecs:RunCommand","ecs:Delete*"],"autoPassPolicy":["log:Get*","log:List*"],"statements":[{"decision":"user_ack","product":"Sls","apiVersion":"2020-12-30","actions":["log:GetProject","log:CreateDashboard"]}]}}'),
 }
 
 model UpdateDigitalEmployeeResponseBody = {
