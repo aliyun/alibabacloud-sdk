@@ -1173,6 +1173,25 @@ async function createApiKey(request: CreateApiKeyRequest): CreateApiKeyResponse 
   return @handler.do('RESTFUL', 'CreateApiKey', 'POST', '/pop/2026-08-20/api-keys', 'json', false, 'json', request);
 }
 
+model CreateCustomDomainRequest {
+  body?: CreateCustomDomainInput(name='body', description='The request parameters.', position='Body'),
+}
+
+model CreateCustomDomainResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CustomDomainResp  
+}
+
+/**
+  * @param request  the request parameters of CreateCustomDomain  CreateCustomDomainRequest
+  * @return CreateCustomDomainResponse
+ */
+async function createCustomDomain(request: CreateCustomDomainRequest): CreateCustomDomainResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'CreateCustomDomain', 'POST', '/pop/2026-08-20/custom-domains', 'json', false, 'json', request);
+}
+
 model CreateTeamRequest {
   body?: CreateTeamInput(name='body', description='The request parameters for creating a team.', position='Body'),
 }
@@ -1328,6 +1347,31 @@ model DeleteApiKeyResponse = {
 async function deleteApiKey(request: DeleteApiKeyRequest): DeleteApiKeyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'DeleteApiKey', 'DELETE', '/pop/2026-08-20/api-keys/{apiKeyID}', 'json', false, 'json', request);
+}
+
+model DeleteCustomDomainRequest {
+  domainName?: string(name='domainName', description='The domain name to delete.', example='demo.com', position='Path'),
+}
+
+model DeleteCustomDomainResponseBody = {
+  code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='B5AD8B54-4358-5F5B-ACAA-52F2016459C6'),
+}
+
+model DeleteCustomDomainResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteCustomDomainResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of DeleteCustomDomain  DeleteCustomDomainRequest
+  * @return DeleteCustomDomainResponse
+ */
+async function deleteCustomDomain(request: DeleteCustomDomainRequest): DeleteCustomDomainResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'DeleteCustomDomain', 'DELETE', '/pop/2026-08-20/custom-domains/{domainName}', 'json', false, 'json', request);
 }
 
 model DeleteQuotaRequest {
@@ -1590,28 +1634,47 @@ async function describeWarmPool(request: DescribeWarmPoolRequest): DescribeWarmP
   return @handler.do('RESTFUL', 'DescribeWarmPool', 'GET', '/pop/2026-08-20/teams/{teamID}/warmPools/{templateID}', 'json', false, 'json', request);
 }
 
+model GetCustomDomainRequest {
+  domainName?: string(name='domainName', description='The custom domain name.', example='demo.com', position='Path'),
+}
+
+model GetCustomDomainResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CustomDomainResp  
+}
+
+/**
+  * @param request  the request parameters of GetCustomDomain  GetCustomDomainRequest
+  * @return GetCustomDomainResponse
+ */
+async function getCustomDomain(request: GetCustomDomainRequest): GetCustomDomainResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetCustomDomain', 'GET', '/pop/2026-08-20/custom-domains/{domainName}', 'json', false, 'json', request);
+}
+
 model GetMetricDataRequest {
-  endTime?: string(name='endTime', description='时序查询的结束时间，区间不含此时刻。使用 UTC 整秒时间，须晚于 startTime。一次最多查询 7 天。区间须包含至少一个按 period 对齐的时间点，且这些时间点不能晚于当前时间。', example='2026-11-05T00:02:00Z', position='Query'),
-  groupBy?: [ string ](name='groupBy', description='例如，按 teamID 分组可分别查看各团队的指标。可组合最多 4 个不同的分组键，可用键因指标而异。不填时返回查询范围的整体结果。', example='["teamID"]', shrink='json', position='Query'),
-  metricNames: [ string ](name='metricNames', description='要查询的指标名称。一次可查询 1～16 个不同的指标。可选指标和查询范围见指标目录。
+  endTime?: string(name='endTime', description='The end time of the time series query. This time is excluded from the query range. Specify the UTC time accurate to seconds. The end time must be later than the start time. You can query metrics for a maximum of 7 days at a time. The time range must include at least one time point aligned with the period, and these time points cannot be later than the current time.', example='2026-11-05T00:02:00Z', position='Query'),
+  groupBy?: [ string ](name='groupBy', description='Groups metrics by a specific key. For example, you can group metrics by teamID to view the metrics of each team separately. You can combine up to four different grouping keys. The available keys vary by metric. If you do not specify this parameter, the overall results within the query scope are returned.', example='["teamID"]', shrink='json', position='Query'),
+  metricNames: [ string ](name='metricNames', description='The names of the metrics to query. You can query 1 to 16 different metrics at a time. For available metrics and query scopes, see the metric catalog.
 
 This parameter is required.', example='["cpuUsedCores"]', shrink='json', position='Query'),
-  period: int32(name='period', description='时序查询的时间间隔，单位为秒。可选 60、300、900、1800、3600、86400。60 对应整分钟，86400 对应每日 UTC 零点。部分统计指标的计算时长随间隔变化。
+  period: int32(name='period', description='The time interval for time series queries, in seconds. Valid values: 60, 300, 900, 1800, 3600, and 86400. A value of 60 corresponds to full minutes, and 86400 corresponds to midnight UTC every day. The calculation duration of some statistical metrics varies with the interval.
 
 This parameter is required.', example='60', position='Query'),
-  sandboxID?: string(name='sandboxID', description='要查询的沙箱 ID。请同时填写所属的 teamID 和 templateID，并选择支持按沙箱查询的指标。', example='sbx-62105527-699e-48df-ad3b-7425001ae4f2', position='Query'),
-  sandboxPlan?: string(name='sandboxPlan', description='按沙箱版本查询沙箱数量。仅适用于 sandboxCount，可选 eco、std、pro、ent。', example='pro', position='Query'),
-  startTime?: string(name='startTime', description='时序查询的开始时间，包含此时刻。请按示例填写 UTC 时间，精确到秒，并同时填写 endTime。', example='2026-11-05T00:00:00Z', position='Query'),
-  teamID?: string(name='teamID', description='要查询的团队 ID。不填时查询当前账号。', example='70d1c834-0333-58d8-97ac-5336eb9179eb', position='Query'),
-  templateID?: string(name='templateID', description='要查询的模板 ID。请同时填写模板所属的 teamID。', example='4hrtmghh2nzrsdh6yr65', position='Query'),
-  time?: string(name='time', description='查询某一时刻时，只填写 time。请按示例填写当前或过去的 UTC 时间，精确到秒。省略所有时间参数时，查询当前时刻。', example='2026-11-05T00:01:00Z', position='Query'),
+  sandboxID?: string(name='sandboxID', description='The ID of the sandbox to query. You must also specify the teamID and templateID to which the sandbox belongs, and select a metric that supports sandbox-level queries.', example='sbx-62105527-699e-48df-ad3b-7425001ae4f2', position='Query'),
+  sandboxPlan?: string(name='sandboxPlan', description='Queries the number of sandboxes by sandbox plan. This parameter applies only to sandboxCount. Valid values: eco, std, pro, and ent.', example='pro', position='Query'),
+  startTime?: string(name='startTime', description='The start time of the time series query. This time is included in the query range. Specify the UTC time accurate to seconds and also specify endTime.', example='2026-11-05T00:00:00Z', position='Query'),
+  teamID?: string(name='teamID', description='The ID of the team to query. If you leave this parameter empty, the metrics of the current account are queried.', example='70d1c834-0333-58d8-97ac-5336eb9179eb', position='Query'),
+  templateID?: string(name='templateID', description='The ID of the template to query. You must also specify the teamID to which the template belongs.', example='4hrtmghh2nzrsdh6yr65', position='Query'),
+  time?: string(name='time', description='The specific point in time to query. If you query metrics at a specific point in time, specify only this parameter. Specify the current or past UTC time accurate to seconds. If you omit all time parameters, the metrics at the current time are queried.', example='2026-11-05T00:01:00Z', position='Query'),
 }
 
 model GetMetricDataResponseBody = {
-  code?: string(name='code', description='成功时为 200。失败时为对应的错误码。', example='200'),
-  message?: string(name='message', description='本次请求的结果说明。', example='success'),
-  metricData?: MetricData(name='metricData', description='各指标的查询结果及对应的时间和分组。', example='{"period":60,"startTime":"2026-11-05T00:00:00Z","endTime":"2026-11-05T00:02:00Z","groupBy":["teamID"],"results":[{"metricName":"cpuUsedCores","unit":"Core","series":[{"dimensions":{"teamID":"70d1c834-0333-58d8-97ac-5336eb9179eb"},"points":[{"timestamp":"2026-11-05T00:00:00Z","value":0.25},{"timestamp":"2026-11-05T00:01:00Z","value":0.5}]}]}]}'),
-  requestId?: string(name='requestId', description='本次请求的唯一标识。', example='12345678-1234-5678-9abc-123456789abc'),
+  code?: string(name='code', description='The status code. A value of 200 indicates success. If the request fails, the corresponding error code is returned.', example='200'),
+  message?: string(name='message', description='The message returned for the request.', example='success'),
+  metricData?: MetricData(name='metricData', description='The query results of each metric, along with the corresponding time and grouping information.', example='{"period":60,"startTime":"2026-11-05T00:00:00Z","endTime":"2026-11-05T00:02:00Z","groupBy":["teamID"],"results":[{"metricName":"cpuUsedCores","unit":"Core","series":[{"dimensions":{"teamID":"70d1c834-0333-58d8-97ac-5336eb9179eb"},"points":[{"timestamp":"2026-11-05T00:00:00Z","value":0.25},{"timestamp":"2026-11-05T00:01:00Z","value":0.5}]}]}]}'),
+  requestId?: string(name='requestId', description='The unique identifier of the request.', example='12345678-1234-5678-9abc-123456789abc'),
 }
 
 model GetMetricDataResponse = {
@@ -1621,7 +1684,7 @@ model GetMetricDataResponse = {
 }
 
 /**
-  * @description 查看某一时刻的监控指标，或查询一段时间内的变化趋势。支持按账号、团队、模板或沙箱查询。
+  * @description Views monitoring metrics at a specific point in time or queries trends over a period of time. Supports querying by account, team, template, or sandbox.
   * @param request  the request parameters of GetMetricData  GetMetricDataRequest
   * @return GetMetricDataResponse
  */
@@ -1803,6 +1866,40 @@ model ListApiKeysResponse = {
 async function listApiKeys(request: ListApiKeysRequest): ListApiKeysResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'ListApiKeys', 'GET', '/pop/2026-08-20/api-keys', 'json', false, 'json', request);
+}
+
+model ListCustomDomainsRequest {
+  maxResults?: int32(name='maxResults', description='The maximum number of records to return per page.', example='20', position='Query'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='example-token', position='Query'),
+}
+
+model ListCustomDomainsResponseBody = {
+  code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
+  customDomains?: [
+    CustomDomainResp
+  ](name='customDomains', description='The custom domain names.', example='[]'),
+  hasMore?: boolean(name='hasMore', description='Indicates whether there is a next page.', example='False'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records to return per page.', example='20'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextOffset?: int32(name='nextOffset', description='The offset for the next page.', example='100'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page. This value is empty when no more results are available.', example='cae5f900-8b1d-4c0e-9c2a-1a2b3c4d5e6f'),
+  requestId?: string(name='requestId', description='The request ID.', example='2BCFAE0A-9FA9-5F72-8E8B-724632BC19A9'),
+  total?: long(name='total', description='The total number of records.', example='65'),
+}
+
+model ListCustomDomainsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListCustomDomainsResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListCustomDomains  ListCustomDomainsRequest
+  * @return ListCustomDomainsResponse
+ */
+async function listCustomDomains(request: ListCustomDomainsRequest): ListCustomDomainsResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListCustomDomains', 'GET', '/pop/2026-08-20/custom-domains', 'json', false, 'json', request);
 }
 
 model ListQuotaRequest {
@@ -2077,6 +2174,26 @@ model UpdateApiKeyResponse = {
 async function updateApiKey(request: UpdateApiKeyRequest): UpdateApiKeyResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'UpdateApiKey', 'PUT', '/pop/2026-08-20/api-keys/{apiKeyID}', 'json', false, 'json', request);
+}
+
+model UpdateCustomDomainRequest {
+  domainName?: string(name='domainName', description='The domain name.', example='demo.com', position='Path'),
+  body?: UpdateCustomDomainInput(name='body', description='The parameters for updating the domain name.', position='Body'),
+}
+
+model UpdateCustomDomainResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CustomDomainResp  
+}
+
+/**
+  * @param request  the request parameters of UpdateCustomDomain  UpdateCustomDomainRequest
+  * @return UpdateCustomDomainResponse
+ */
+async function updateCustomDomain(request: UpdateCustomDomainRequest): UpdateCustomDomainResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UpdateCustomDomain', 'PUT', '/pop/2026-08-20/custom-domains/{domainName}', 'json', false, 'json', request);
 }
 
 model UpdateQuotaRequest {
