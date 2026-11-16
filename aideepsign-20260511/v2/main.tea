@@ -1,6 +1,7 @@
 /**
  *
  */
+import GatewayClient;
 import OpenApi;
 import OpenApi.OpenApiUtil;
 
@@ -9,6 +10,9 @@ extends OpenApi;
 
 init(config: OpenApiUtil.Config){
   super(config);
+  @productId = 'AIDeepSign';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -101,17 +105,18 @@ async function cancelC2paBucketSignTask(request: CancelC2paBucketSignTaskRequest
 }
 
 model CreateC2paBucketSignTaskRequest {
-  bucketName?: string(name='BucketName', description='The name of the user OSS bucket. You must authorize the service-linked role AliyunServiceRoleForAIDeepSign to access the bucket in advance.
+  bucketName?: string(name='BucketName', description='The name of the OSS bucket. The value must be 3 to 63 characters in length. Before you call this operation, you must authorize the `AliyunServiceRoleForAIDeepSign` service-linked role to read the source files, and access and write the signing results and reports.
 
 This parameter is required.', example='example-bucket'),
-  bucketRegionId?: string(name='BucketRegionId', description='The region of the user OSS bucket. It must be consistent with the actual region of the bucket.
+  bucketRegionId?: string(name='BucketRegionId', description='The region of the OSS bucket. The value can be up to 64 characters in length and must match the actual region of the bucket. Example: `cn-hangzhou`.
 
 This parameter is required.', example='cn-hangzhou'),
-  softwareAgent?: string(name='SoftwareAgent', description='The optional name of the software that generated the content. This parameter is not supported in the current version.', example='Adobe Photoshop 25.0'),
-  sourcePrefix?: string(name='SourcePrefix', description='The source object prefix. It must be `ai-deepsign/` or its subdirectory. The service recursively processes objects under this prefix.
+  customAssertions?: string(name='CustomAssertions', description='The optional list of custom assertions. Pass a JSON array string. The original JSON text can be up to 4,096 UTF-8 bytes in length and contain up to 64 assertions. Each item must and can only contain `label` and `data`. `data` supports any JSON value. Objects and arrays can be nested up to 5 levels deep, and JSON integers must be within the signed 64-bit range. The assertions are written into the manifest of the signature file and can be read and authenticated for integrity by `label`. Each file in the same batch uses the same set of assertions. The content saved during creation is retained after the task is paused and resumed. For detailed formats, limits, and examples, see the supplementary description of request parameters.', example='[{"label":"com.shein.internal","data":{"meta_id":"emp001","generation":{"modelVersion":"2.1","count":3},"tags":["AI-generated","E-commerce"],"enabled":true,"optional":null}}]'),
+  softwareAgent?: string(name='SoftwareAgent', description='The optional name of the software that generated or processed the content. The value can be up to 128 characters in length. Example: `Example Studio 1.0`. This software information is written into the content credential of the signature file. Each file in the same batch uses the value saved when the task is created. The original value is retained after the task is paused and resumed.', example='Adobe Photoshop 25.0'),
+  sourcePrefix?: string(name='SourcePrefix', description='The prefix of the objects to be processed. The value can be up to 1,023 UTF-8 bytes in length and must be `ai-deepsign/` or its subdirectory. If the trailing `/` is missing, the service automatically appends it, and the completed prefix must also meet the length limit. The service recursively processes non-directory objects under this prefix and supports `.jpg`, `.jpeg`, `.png`, `.mp4`, `.flac`, `.m4a`, `.mp3`, and `.wav` extensions, which are case-insensitive. Scanning the root directory of the bucket is not allowed, and the prefix cannot overlap with the output prefix `ai-deepsign-signed/`.
 
 This parameter is required.', example='ai-deepsign/images/'),
-  sourceType?: string(name='SourceType', description='The optional content source type. This parameter is not supported in the current version.', example='digitalCapture'),
+  sourceType?: string(name='SourceType', description='The optional content source type. The value can be up to 128 characters in length. It supports 19 short names and their corresponding full HTTP URIs, which are case-sensitive. Examples: `digitalCapture` and `trainedAlgorithmicMedia`. The source declaration is written into the content credential of the signature file. Each file in the same batch uses the value saved when the task is created. If this parameter is left empty, no additional declaration is made. The service will deny invalid values during the creation phase. For the complete enumeration and URIs, see the supplementary description of request parameters.', example='digitalCapture'),
 }
 
 model CreateC2paBucketSignTaskResponseBody = {
@@ -130,17 +135,13 @@ model CreateC2paBucketSignTaskResponse = {
 }
 
 /**
- * @summary Creates a batch C2PA content credential signing task for objects in a specified OSS bucket.
+ * @summary Creates a batch C2PA content credential signing task for files in a specified OSS bucket.
  *
- * @description ## Operation description
- * - This operation creates a batch C2PA content credential signing task for files under a specified source prefix in an OSS bucket. It supports JPEG, JPG, PNG, MP4, FLAC, M4A, MP3, and WAV formats, and allows mixed processing under the same prefix.
- * - `SourcePrefix` must be `ai-deepsign/` or its subdirectory, and must not overlap with the output prefix `ai-deepsign-signed/`.
- * - By default, a single task processes up to 20,000 non-directory objects. The size of a single file must not exceed 800 MiB.
- * - The RAM identity of the caller must have permissions to call this operation. The service-linked role `AliyunServiceRoleForAIDeepSign` must have access permissions to the specified bucket and associated paths.
- * - File name extensions are case-insensitive. Files in unsupported formats are recorded as failed, but this does not abort the processing of other files.
- * - The signing results are written to the `ai-deepsign-signed/<TaskId>/` directory in the same bucket. The subdirectories relative to `SourcePrefix` and the source file name extensions are preserved, and `_signed` is added before the file name extension. The processing report is `c2pa_report.json` in the task directory.
- * - For example, if `SourcePrefix=ai-deepsign/images/`, the signing result for the source file `ai-deepsign/images/audio/demo.m4a` is `ai-deepsign-signed/<TaskId>/audio/demo_signed.m4a`.
- * - A successful creation only indicates that the task has been accepted. Call `GetC2paSignResult` to query the results. A `SUCCEEDED` status for a batch task does not mean that every file was signed successfully. Check the final statistics and processing report for file-by-file results.
+ * @description Creates a batch standard C2PA content credential signing task for an OSS bucket. The service recursively scans non-directory objects under `SourcePrefix` and supports JPEG/JPG, PNG, MP4, and audio formats including FLAC, M4A, MP3, and WAV. By default, a single task includes up to 20,000 non-directory objects, and the size of a single file cannot exceed 800 MiB.
+ * Before you call this operation, make sure that the `AliyunServiceRoleForAIDeepSign` service-linked role has been granted the OSS List and Get permissions on the source prefix, and the Get and Put permissions on the output prefix. `SourceType`, `SoftwareAgent`, and `CustomAssertions` are optional parameters. The values specified during creation are applied to each file in the batch.
+ * A successful creation only indicates that the task has been accepted. Save the returned `TaskId` and call `GetC2paSignResult` to query the status and statistics. You can use `PauseC2paBucketSignTask`, `ResumeC2paBucketSignTask`, and `CancelC2paBucketSignTask` to control the task.
+ * The signature files are written to `ai-deepsign-signed/<TaskId>/<folder of the object relative to SourcePrefix>/<original file name>_signed.<extension>` in the same bucket, preserving the relative subdirectory and source file extensions. The final JSON report is saved as `ai-deepsign-signed/<TaskId>/c2pa_report.json`.
+ * This operation is metered based on the number of successfully signed files. The same account can create multiple tasks for the same bucket and prefix, and each task uses an independent output directory. Duplicate creations may result in duplicate signing and metering.
  *
  * @param request CreateC2paBucketSignTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -155,6 +156,9 @@ async function createC2paBucketSignTaskWithOptions(request: CreateC2paBucketSign
   }
   if (!$isNull(request.bucketRegionId)) {
     query['BucketRegionId'] = request.bucketRegionId;
+  }
+  if (!$isNull(request.customAssertions)) {
+    query['CustomAssertions'] = request.customAssertions;
   }
   if (!$isNull(request.softwareAgent)) {
     query['SoftwareAgent'] = request.softwareAgent;
@@ -183,17 +187,13 @@ async function createC2paBucketSignTaskWithOptions(request: CreateC2paBucketSign
 }
 
 /**
- * @summary Creates a batch C2PA content credential signing task for objects in a specified OSS bucket.
+ * @summary Creates a batch C2PA content credential signing task for files in a specified OSS bucket.
  *
- * @description ## Operation description
- * - This operation creates a batch C2PA content credential signing task for files under a specified source prefix in an OSS bucket. It supports JPEG, JPG, PNG, MP4, FLAC, M4A, MP3, and WAV formats, and allows mixed processing under the same prefix.
- * - `SourcePrefix` must be `ai-deepsign/` or its subdirectory, and must not overlap with the output prefix `ai-deepsign-signed/`.
- * - By default, a single task processes up to 20,000 non-directory objects. The size of a single file must not exceed 800 MiB.
- * - The RAM identity of the caller must have permissions to call this operation. The service-linked role `AliyunServiceRoleForAIDeepSign` must have access permissions to the specified bucket and associated paths.
- * - File name extensions are case-insensitive. Files in unsupported formats are recorded as failed, but this does not abort the processing of other files.
- * - The signing results are written to the `ai-deepsign-signed/<TaskId>/` directory in the same bucket. The subdirectories relative to `SourcePrefix` and the source file name extensions are preserved, and `_signed` is added before the file name extension. The processing report is `c2pa_report.json` in the task directory.
- * - For example, if `SourcePrefix=ai-deepsign/images/`, the signing result for the source file `ai-deepsign/images/audio/demo.m4a` is `ai-deepsign-signed/<TaskId>/audio/demo_signed.m4a`.
- * - A successful creation only indicates that the task has been accepted. Call `GetC2paSignResult` to query the results. A `SUCCEEDED` status for a batch task does not mean that every file was signed successfully. Check the final statistics and processing report for file-by-file results.
+ * @description Creates a batch standard C2PA content credential signing task for an OSS bucket. The service recursively scans non-directory objects under `SourcePrefix` and supports JPEG/JPG, PNG, MP4, and audio formats including FLAC, M4A, MP3, and WAV. By default, a single task includes up to 20,000 non-directory objects, and the size of a single file cannot exceed 800 MiB.
+ * Before you call this operation, make sure that the `AliyunServiceRoleForAIDeepSign` service-linked role has been granted the OSS List and Get permissions on the source prefix, and the Get and Put permissions on the output prefix. `SourceType`, `SoftwareAgent`, and `CustomAssertions` are optional parameters. The values specified during creation are applied to each file in the batch.
+ * A successful creation only indicates that the task has been accepted. Save the returned `TaskId` and call `GetC2paSignResult` to query the status and statistics. You can use `PauseC2paBucketSignTask`, `ResumeC2paBucketSignTask`, and `CancelC2paBucketSignTask` to control the task.
+ * The signature files are written to `ai-deepsign-signed/<TaskId>/<folder of the object relative to SourcePrefix>/<original file name>_signed.<extension>` in the same bucket, preserving the relative subdirectory and source file extensions. The final JSON report is saved as `ai-deepsign-signed/<TaskId>/c2pa_report.json`.
+ * This operation is metered based on the number of successfully signed files. The same account can create multiple tasks for the same bucket and prefix, and each task uses an independent output directory. Duplicate creations may result in duplicate signing and metering.
  *
  * @param request CreateC2paBucketSignTaskRequest
  * @return CreateC2paBucketSignTaskResponse
@@ -204,20 +204,26 @@ async function createC2paBucketSignTask(request: CreateC2paBucketSignTaskRequest
 }
 
 model CreateC2paSignTaskRequest {
-  fileUrl?: string(name='FileUrl', description='The absolute HTTP or HTTPS URL of the file to be signed. The URL can be up to 4,096 characters in length.
-
-This parameter is required.', example='https://example.com/images/photo.png?token=xxx'),
-  softwareAgent?: string(name='SoftwareAgent', description='Not supported in the current version.', example='Alibaba Cloud Qwen ImageGen'),
-  sourceType?: string(name='SourceType', description='Not supported in the current version.', example='trainedAlgorithmicMedia'),
+  allowOverwrite?: boolean(name='AllowOverwrite', description='Specifies whether to allow overwriting when the target object already exists. Default value: false. If the target object exists and this parameter is set to false, the creation is rejected. If this parameter is set to true, existing objects can be overwritten, which supports in-place signing where the target object key can be the same as the source object key.', example='false'),
+  bucketName?: string(name='BucketName', description='The name of the user\\\\"s OSS bucket where the source file is located. This parameter, together with BucketRegionId and ObjectKey, forms the bucket source. Either this parameter or FileUrl is required.', example='example-bucket'),
+  bucketRegionId?: string(name='BucketRegionId', description='The region ID of the user\\\\"s OSS bucket where the source file is located. This parameter, together with BucketName and ObjectKey, forms the bucket source. Either this parameter or FileUrl is required. Example: cn-hangzhou.', example='cn-hangzhou'),
+  customAssertions?: string(name='CustomAssertions', description='The optional list of custom assertions. Pass a JSON array string. The original JSON text can be up to 4,096 UTF-8 bytes in length and contain up to 64 assertions. Each item must and can only contain label and data. data supports any JSON value. Objects and arrays can be nested up to 5 levels deep. JSON integers must be within the signed 64-bit range. The assertions are written into the manifest of the signed file and can be read and authenticated for integrity by label. For detailed formats, limits, and examples, refer to the supplementary description of request parameters.', example='[{"label":"com.shein.internal","data":{"meta_id":"emp001","generation":{"modelVersion":"2.1","count":3},"tags":["AI-generated","E-commerce"],"enabled":true,"optional":null}}]'),
+  fileUrl?: string(name='FileUrl', description='The absolute HTTP or HTTPS URL of signature file to be signed. The URL can be up to 4,096 characters in length and cannot contain URL user info. The URL path must end with a .jpg, .jpeg, .png, .mp4, .flac, .m4a, .mp3, or .wav file name. Signature file extension is case-insensitive. The URL query is not used for file name identification. The source URL must be accessible by the service and directly return an HTTP 200 status code. Redirection is not supported. The size of a single file cannot exceed 800 MiB.', example='https://example.com/images/photo.png?token=xxx'),
+  objectKey?: string(name='ObjectKey', description='The object key of the source file in the user\\\\"s OSS bucket. This parameter, together with BucketRegionId and BucketName, forms the bucket source. Either this parameter or FileUrl is required.', example='ai-deepsign/example.png'),
+  softwareAgent?: string(name='SoftwareAgent', description='The optional name of the software that generated or processed the content. The value can be up to 128 characters in length, such as Example Studio 1.0. This software information is written into the content credentials of the signed file and is independent of SourceType and CustomAssertions.', example='Alibaba Cloud Qwen ImageGen'),
+  sourceType?: string(name='SourceType', description='The optional content source type. The value can be up to 128 characters in length. It supports 19 short names and their corresponding full HTTP URIs, and is case-sensitive. Examples include digitalCapture and trainedAlgorithmicMedia. The source declaration is written into the content credentials of the signed file. If this parameter is not specified, no additional source type is declared. The service denies invalid values during the creation phase. For the complete enumeration and URIs, refer to the supplementary description of request parameters.', example='trainedAlgorithmicMedia'),
+  targetBucketName?: string(name='TargetBucketName', description='The optional name of the user\\\\"s OSS bucket to which the signing result is written. If this parameter is empty, the result is written to an internal bucket of the service and returned through SignedFileUrl.', example='example-target-bucket'),
+  targetBucketRegion?: string(name='TargetBucketRegion', description='The optional region ID of the user\\\\"s OSS bucket to which the signing result is written. If this parameter is empty, the source BucketRegionId is reused for same-region writes. For cross-region writes, this parameter must be explicitly specified.', example='cn-shanghai'),
+  targetObjectKey?: string(name='TargetObjectKey', description='The optional full object key of the signed artifact written to the user\\\\"s bucket. This parameter must be provided together with TargetBucketName. It must start with ai-deepsign-signed/ and be a full object name with an extension, not a directory prefix. The server does not append the _signed suffix or a trailing slash.', example='ai-deepsign-signed/2026/photo.png'),
 }
 
 model CreateC2paSignTaskResponseBody = {
   code?: string(name='Code', description='The business error code. If the request is successful, OK is returned.', example='OK'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. If the request is successful, 200 is returned.', example='200'),
   message?: string(name='Message', description='The additional information. If the request is successful, success is returned.', example='success'),
-  requestId?: string(name='RequestId', description='The request ID returned when you invoke this OpenAPI operation.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
+  requestId?: string(name='RequestId', description='The request ID of this OpenAPI call.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
   success?: boolean(name='Success', description='Indicates whether the request is successful.', example='True'),
-  taskId?: string(name='TaskId', description='The opaque task ID generated by the service. You can use this ID to call GetC2paSignResult.', example='7093c29e-f472-4e1e-91c6-a43df7c7382e'),
+  taskId?: string(name='TaskId', description='The opaque task ID generated by the service, which is used to call GetC2paSignResult.', example='7093c29e-f472-4e1e-91c6-a43df7c7382e'),
 }
 
 model CreateC2paSignTaskResponse = {
@@ -229,15 +235,10 @@ model CreateC2paSignTaskResponse = {
 /**
  * @summary Creates a C2PA content credential signing task for a specified file and returns the task ID.
  *
- * @description ## Request description
- * - This operation adds standard C2PA content credentials to a single JPEG/JPG, PNG, MP4, FLAC, M4A, MP3, or WAV file.
- * - `FileUrl` must be an absolute HTTP or HTTPS URL accessible by the service and cannot contain a username or password.
- * - File name extensions are case-insensitive, and URL query parameters are not used for file name identification. For example, the file name for `https://example.com/media/demo.m4a?token=xxx` is `demo.m4a`.
- * - The source URL must directly return an HTTP 200 status code. Redirect URLs are not supported.
- * - The size of a single file cannot exceed 800 MiB. Provide a valid file in a supported format. Changing only the file name extension does not transform the file format.
- * - The signing result retains the source file name extension and adds `_signed` before the extension. For example, `demo.m4a` becomes `demo_signed.m4a`.
- * - Unsupported file name extensions return `InvalidParam`, and the error message is `FileUrl only supports files with .jpg, .jpeg, .png, .mp4, .flac, .m4a, .mp3, or .wav extensions`.
- * - A successful creation only indicates that the task has been accepted. Save the returned `TaskId` and invoke `GetC2paSignResult` to query the task status and final result.
+ * @description Adds standard C2PA content credentials to a single JPEG/JPG, PNG, MP4, FLAC, M4A, MP3, or WAV file. The operation receives an accessible absolute HTTP or HTTPS file URL, asynchronously retrieves and signs the file, and returns a TaskId for querying the result. The size of a single file cannot exceed 800 MiB.
+ * You can declare the content source, software name, and custom business data by using the optional SourceType, SoftwareAgent, and CustomAssertions parameters. This information is written into the content credentials of the signed file.
+ * A successful creation only indicates that the request has been accepted. Save the returned TaskId and call GetC2paSignResult to query the final status and signing result.
+ * This operation is independent of the synchronous SignUserImage operation. It only supports creating tasks through file URLs and does not accept file content, buckets, object keys, caller-specified TaskIds, or idempotency keys. This operation is metered based on the number of successfully signed files. Repeated calls create different tasks. Do not create tasks repeatedly before confirming the task result to avoid duplicate signing and metering.
  *
  * @param request CreateC2paSignTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -247,14 +248,38 @@ model CreateC2paSignTaskResponse = {
 async function createC2paSignTaskWithOptions(request: CreateC2paSignTaskRequest, runtime: $RuntimeOptions): CreateC2paSignTaskResponse {
   request.validate();
   var query = {};
+  if (!$isNull(request.allowOverwrite)) {
+    query['AllowOverwrite'] = request.allowOverwrite;
+  }
+  if (!$isNull(request.bucketName)) {
+    query['BucketName'] = request.bucketName;
+  }
+  if (!$isNull(request.bucketRegionId)) {
+    query['BucketRegionId'] = request.bucketRegionId;
+  }
+  if (!$isNull(request.customAssertions)) {
+    query['CustomAssertions'] = request.customAssertions;
+  }
   if (!$isNull(request.fileUrl)) {
     query['FileUrl'] = request.fileUrl;
+  }
+  if (!$isNull(request.objectKey)) {
+    query['ObjectKey'] = request.objectKey;
   }
   if (!$isNull(request.softwareAgent)) {
     query['SoftwareAgent'] = request.softwareAgent;
   }
   if (!$isNull(request.sourceType)) {
     query['SourceType'] = request.sourceType;
+  }
+  if (!$isNull(request.targetBucketName)) {
+    query['TargetBucketName'] = request.targetBucketName;
+  }
+  if (!$isNull(request.targetBucketRegion)) {
+    query['TargetBucketRegion'] = request.targetBucketRegion;
+  }
+  if (!$isNull(request.targetObjectKey)) {
+    query['TargetObjectKey'] = request.targetObjectKey;
   }
   var req = new OpenApiUtil.OpenApiRequest{ 
     query = OpenApiUtil.query(query),
@@ -276,15 +301,10 @@ async function createC2paSignTaskWithOptions(request: CreateC2paSignTaskRequest,
 /**
  * @summary Creates a C2PA content credential signing task for a specified file and returns the task ID.
  *
- * @description ## Request description
- * - This operation adds standard C2PA content credentials to a single JPEG/JPG, PNG, MP4, FLAC, M4A, MP3, or WAV file.
- * - `FileUrl` must be an absolute HTTP or HTTPS URL accessible by the service and cannot contain a username or password.
- * - File name extensions are case-insensitive, and URL query parameters are not used for file name identification. For example, the file name for `https://example.com/media/demo.m4a?token=xxx` is `demo.m4a`.
- * - The source URL must directly return an HTTP 200 status code. Redirect URLs are not supported.
- * - The size of a single file cannot exceed 800 MiB. Provide a valid file in a supported format. Changing only the file name extension does not transform the file format.
- * - The signing result retains the source file name extension and adds `_signed` before the extension. For example, `demo.m4a` becomes `demo_signed.m4a`.
- * - Unsupported file name extensions return `InvalidParam`, and the error message is `FileUrl only supports files with .jpg, .jpeg, .png, .mp4, .flac, .m4a, .mp3, or .wav extensions`.
- * - A successful creation only indicates that the task has been accepted. Save the returned `TaskId` and invoke `GetC2paSignResult` to query the task status and final result.
+ * @description Adds standard C2PA content credentials to a single JPEG/JPG, PNG, MP4, FLAC, M4A, MP3, or WAV file. The operation receives an accessible absolute HTTP or HTTPS file URL, asynchronously retrieves and signs the file, and returns a TaskId for querying the result. The size of a single file cannot exceed 800 MiB.
+ * You can declare the content source, software name, and custom business data by using the optional SourceType, SoftwareAgent, and CustomAssertions parameters. This information is written into the content credentials of the signed file.
+ * A successful creation only indicates that the request has been accepted. Save the returned TaskId and call GetC2paSignResult to query the final status and signing result.
+ * This operation is independent of the synchronous SignUserImage operation. It only supports creating tasks through file URLs and does not accept file content, buckets, object keys, caller-specified TaskIds, or idempotency keys. This operation is metered based on the number of successfully signed files. Repeated calls create different tasks. Do not create tasks repeatedly before confirming the task result to avoid duplicate signing and metering.
  *
  * @param request CreateC2paSignTaskRequest
  * @return CreateC2paSignTaskResponse
@@ -295,19 +315,19 @@ async function createC2paSignTask(request: CreateC2paSignTaskRequest): CreateC2p
 }
 
 model CreateImageDefectDetectionTaskRequest {
-  clientToken?: string(name='ClientToken', description='The idempotency token.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
-  imageUrl?: string(name='ImageUrl', description='The URL of the image to be detected. Only HTTP/HTTPS protocols are supported.', example='https://example.com/product.jpg'),
+  clientToken?: string(name='ClientToken', description='The idempotency parameter.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
+  imageUrl?: string(name='ImageUrl', description='The URL of the image to be detected. Only HTTP and HTTPS protocols are supported.', example='https://example.com/product.jpg'),
 }
 
 model CreateImageDefectDetectionTaskResponseBody = {
-  code?: string(name='Code', description='The business error code. The value `OK` is returned if the request was successful.', example='OK'),
-  httpStatusCode?: string(name='HttpStatusCode', description='The HTTP status code. The value `200` is returned if the request was successful.', example='200'),
-  message?: string(name='Message', description='The additional information. The value `success` is returned if the request was successful.', example='success'),
+  code?: string(name='Code', description='The business error code. `OK` is returned if the request is successful.', example='OK'),
+  httpStatusCode?: string(name='HttpStatusCode', description='The HTTP status code. `200` is returned if the request is successful.', example='200'),
+  message?: string(name='Message', description='The additional information. `success` is returned if the request is successful.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
-- true: The call was successful.
-- false: The call failed.', example='true'),
-  taskId?: string(name='TaskId', description='The defect detection task ID, used for subsequent queries through the GetImageDefectDetectionTaskResult operation.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+  success?: boolean(name='Success', description='Indicates whether the call is successful. Valid values:
+- true: The call is successful.
+- false: The call fails.', example='true'),
+  taskId?: string(name='TaskId', description='The defect detection task ID, which is used for subsequent GetImageDefectDetectionTaskResult queries.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
 model CreateImageDefectDetectionTaskResponse = {
@@ -317,14 +337,14 @@ model CreateImageDefectDetectionTaskResponse = {
 }
 
 /**
- * @summary Submits an image for defect detection and returns a task ID for querying results.
+ * @summary Submits an image for defect detection and returns a task ID for querying the result.
  *
  * @description ## Request description
- * - This operation commits an image to the server for defect detection, including but not limited to blurriness, distortion, glare, and other anomalies in the image subject.
- * - **ImageUrl is required** and must be a publicly accessible HTTP/HTTPS URL. Currently, only image URLs accessible from the Chinese mainland public network are supported. Upload the image to an Alibaba Cloud OSS bucket in a Chinese mainland region first, and then use the presigned URL of the image as the input parameter for this operation. References: [How to obtain the URL of a single object or the URLs of multiple objects](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
- * - After successful commit, a node ID is returned immediately. Regardless of whether the node has been completed or is still being processed, call the GetImageDefectDetectionTaskResult operation to perform polling for the final detection result.
- * - If a parameter fault or other issue occurs during the commit procedure, the corresponding error message is returned directly without creating a node record.
- * - The image file size cannot exceed 10 MB. Detection is failed for images that exceed this limit.
+ * - This operation submits an image to the server for defect detection, including but not limited to abnormal issues such as a blurred main subject, distortion, and reflection.
+ * - **ImageUrl is required** and must be a publicly accessible HTTP or HTTPS URL. Currently, images from outside the Chinese mainland are not supported. Only image URLs accessible over the public network in the Chinese mainland are supported. We recommend that you upload the image to an Alibaba Cloud OSS bucket in a region in the Chinese mainland, and then use the presigned URL of the image as the input parameter for this operation. Reference: [How to obtain the URL of a single file or the URLs of multiple files](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects).
+ * - After a successful submission, a task ID is immediately returned. Regardless of whether the task is completed immediately or is still being processed, you must poll the GetImageDefectDetectionTaskResult operation to obtain the final detection result.
+ * - If a parameter error or other issue occurs during the submission process, the corresponding error message is directly returned without creating a task record.
+ * - The image size cannot exceed 10 MB. Detection fails for images that exceed this limit.
  *
  * @param request CreateImageDefectDetectionTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -358,14 +378,14 @@ async function createImageDefectDetectionTaskWithOptions(request: CreateImageDef
 }
 
 /**
- * @summary Submits an image for defect detection and returns a task ID for querying results.
+ * @summary Submits an image for defect detection and returns a task ID for querying the result.
  *
  * @description ## Request description
- * - This operation commits an image to the server for defect detection, including but not limited to blurriness, distortion, glare, and other anomalies in the image subject.
- * - **ImageUrl is required** and must be a publicly accessible HTTP/HTTPS URL. Currently, only image URLs accessible from the Chinese mainland public network are supported. Upload the image to an Alibaba Cloud OSS bucket in a Chinese mainland region first, and then use the presigned URL of the image as the input parameter for this operation. References: [How to obtain the URL of a single object or the URLs of multiple objects](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
- * - After successful commit, a node ID is returned immediately. Regardless of whether the node has been completed or is still being processed, call the GetImageDefectDetectionTaskResult operation to perform polling for the final detection result.
- * - If a parameter fault or other issue occurs during the commit procedure, the corresponding error message is returned directly without creating a node record.
- * - The image file size cannot exceed 10 MB. Detection is failed for images that exceed this limit.
+ * - This operation submits an image to the server for defect detection, including but not limited to abnormal issues such as a blurred main subject, distortion, and reflection.
+ * - **ImageUrl is required** and must be a publicly accessible HTTP or HTTPS URL. Currently, images from outside the Chinese mainland are not supported. Only image URLs accessible over the public network in the Chinese mainland are supported. We recommend that you upload the image to an Alibaba Cloud OSS bucket in a region in the Chinese mainland, and then use the presigned URL of the image as the input parameter for this operation. Reference: [How to obtain the URL of a single file or the URLs of multiple files](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects).
+ * - After a successful submission, a task ID is immediately returned. Regardless of whether the task is completed immediately or is still being processed, you must poll the GetImageDefectDetectionTaskResult operation to obtain the final detection result.
+ * - If a parameter error or other issue occurs during the submission process, the corresponding error message is directly returned without creating a task record.
+ * - The image size cannot exceed 10 MB. Detection fails for images that exceed this limit.
  *
  * @param request CreateImageDefectDetectionTaskRequest
  * @return CreateImageDefectDetectionTaskResponse
@@ -376,23 +396,23 @@ async function createImageDefectDetectionTask(request: CreateImageDefectDetectio
 }
 
 model CreateImageDetectionTaskRequest {
-  clientToken?: string(name='ClientToken', description='Ensures the idempotency of the request. This value is generated by the client and must be unique across different requests. `ClientToken` supports only ASCII characters and cannot exceed 64 characters in length.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
-  detectType?: string(name='DetectType', description='**[Deprecated]** The detection type. All detections use the tampering detection pipeline. This parameter no longer affects the actual detection mode. The values tamper/aigc are still accepted for backward compatibility. Passing other values returns InvalidParam. Do not pass this parameter for new calls.', example='tamper'),
-  imageUrl?: string(name='ImageUrl', description='The URL of the image to be detected. Only HTTP/HTTPS protocols are supported. Specify either `ImageUrl` or `ObjectKey`. At least one must be provided.', example='https://example.com/id-card.jpg'),
-  useTamperSmallModel?: boolean(name='UseTamperSmallModel', description='**Specifies whether to use the small model for tampering detection**. This parameter takes effect only when the tampering detection pipeline is used (DetectType is not passed or is set to tamper). If not passed, the large model is used by default.
+  clientToken?: string(name='ClientToken', description='The client token that ensures the idempotence of the request. The value is generated by the client and must be unique across different requests. `ClientToken` supports only ASCII characters and can be up to 64 characters in length.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
+  detectType?: string(name='DetectType', description='**(Deprecated)** The detection type. All detections use the tampering detection pipeline, and this parameter no longer affects the actual detection mode. The values `tamper` and `aigc` are still accepted for backward compatibility. If you pass other values, `InvalidParam` is returned. We recommend that you do not pass this parameter.', example='tamper'),
+  imageUrl?: string(name='ImageUrl', description='The URL of the image to be detected. Only HTTP and HTTPS protocols are supported. You must specify either `ImageUrl` or `ObjectKey`.', example='https://example.com/id-card.jpg'),
+  useTamperSmallModel?: boolean(name='UseTamperSmallModel', description='**Specifies whether to use a small model for tampering detection**. This parameter takes effect only when the tampering detection pipeline is used (when `DetectType` is not passed or is set to `tamper`). If this parameter is not passed, the large model is used by default.
 
-*   `true`: The small model is used for tampering detection. No large model report is generated. LlmResult is empty, but basic algorithm results such as AIGC/AI post-processing/PS localization are still returned.
-*   `false`: The large model is used for tampering detection. A comprehensive large model analysis report (LlmResult) is returned.
-*   Not passed: The large model is used by default.'),
+*   `true`: Uses the small model for tampering detection. No large model report is generated, and `LlmResult` is empty. However, basic algorithm results such as AIGC, AI post-processing, and image manipulation localization are still returned.
+*   `false`: Uses the large model for tampering detection and returns a comprehensive analysis report from the large model (`LlmResult`).
+*   Not passed: Uses the large model by default.'),
 }
 
 model CreateImageDetectionTaskResponseBody = {
-  code?: string(name='Code', description='The business error code. `OK` is returned if the request was successful.', example='OK'),
-  httpStatusCode?: string(name='HttpStatusCode', description='The HTTP status code. `200` is returned if the request was successful.', example='200'),
-  message?: string(name='Message', description='The additional information. `success` is returned if the request was successful.', example='success'),
+  code?: string(name='Code', description='The business error code. If the request is successful, `OK` is returned.', example='OK'),
+  httpStatusCode?: string(name='HttpStatusCode', description='The HTTP status code. If the request is successful, `200` is returned.', example='200'),
+  message?: string(name='Message', description='The additional information. If the request is successful, `success` is returned.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
-  taskId?: string(name='TaskId', description='The task ID, which is used to call `GetImageDetectionTaskResult` to query results.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.'),
+  taskId?: string(name='TaskId', description='The task ID, which can be used to call `GetImageDetectionTaskResult` to query the results.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
 model CreateImageDetectionTaskResponse = {
@@ -405,12 +425,10 @@ model CreateImageDetectionTaskResponse = {
  * @summary Creates an asynchronous image tampering detection task and returns the task ID.
  *
  * @description ## Request description
- * - **ImageUrl** is required and must be a publicly accessible HTTP/HTTPS URL.
- * - External images are not currently supported. Only image URLs accessible from the Chinese mainland public network are supported. Upload images to an Alibaba Cloud OSS bucket in a Chinese mainland region first, and then use the presigned URL as the input parameter for this operation. References: [How to obtain the URL of a single object or the URLs of multiple objects](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects).
- * - The **DetectType** parameter is deprecated. This parameter is still accepted (`tamper`/`aigc`) but does not affect the actual detection pattern. Regardless of the value passed, tampering detection is executed and `DetectMode=tamper` is returned. New callers should not pass this parameter.
- * - The **UseTamperSmallModel** parameter specifies whether to use the small model. If set to `true`, the small model is used and no large model report is generated. If set to `false` or not passed, the large model is used by default and a comprehensive large model analysis report is returned.
- * ## Settings
- * - When **UseTamperSmallModel** is not specified, the large model is used by default.
+ * - **ImageUrl** is required and must be a publicly accessible HTTP or HTTPS URL.
+ * - Images from outside the Chinese mainland are not supported. Only image URLs accessible over the public network in the Chinese mainland are supported. Upload the image to an Alibaba Cloud OSS bucket in a region in the Chinese mainland and then use the pre-signed URL of the image as the input parameter for this operation. References: [How to obtain the URL of a single file or the URLs of multiple files](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects).
+ * - The **DetectType** parameter is deprecated. This parameter is still accepted (`tamper` or `aigc`) but does not affect the actual detection mode. Regardless of the value passed, tampering detection is executed and `DetectMode=tamper` is returned. Do not pass this parameter when you invoke the operation.
+ * - The **UseTamperSmallModel** parameter specifies whether to use a small model. If it is set to `true`, the small model is used and no large model report is generated. If it is set to `false` or left empty, the large model is used by default and a comprehensive analysis report from the large model is returned.
  *
  * @param request CreateImageDetectionTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -453,12 +471,10 @@ async function createImageDetectionTaskWithOptions(request: CreateImageDetection
  * @summary Creates an asynchronous image tampering detection task and returns the task ID.
  *
  * @description ## Request description
- * - **ImageUrl** is required and must be a publicly accessible HTTP/HTTPS URL.
- * - External images are not currently supported. Only image URLs accessible from the Chinese mainland public network are supported. Upload images to an Alibaba Cloud OSS bucket in a Chinese mainland region first, and then use the presigned URL as the input parameter for this operation. References: [How to obtain the URL of a single object or the URLs of multiple objects](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects).
- * - The **DetectType** parameter is deprecated. This parameter is still accepted (`tamper`/`aigc`) but does not affect the actual detection pattern. Regardless of the value passed, tampering detection is executed and `DetectMode=tamper` is returned. New callers should not pass this parameter.
- * - The **UseTamperSmallModel** parameter specifies whether to use the small model. If set to `true`, the small model is used and no large model report is generated. If set to `false` or not passed, the large model is used by default and a comprehensive large model analysis report is returned.
- * ## Settings
- * - When **UseTamperSmallModel** is not specified, the large model is used by default.
+ * - **ImageUrl** is required and must be a publicly accessible HTTP or HTTPS URL.
+ * - Images from outside the Chinese mainland are not supported. Only image URLs accessible over the public network in the Chinese mainland are supported. Upload the image to an Alibaba Cloud OSS bucket in a region in the Chinese mainland and then use the pre-signed URL of the image as the input parameter for this operation. References: [How to obtain the URL of a single file or the URLs of multiple files](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects).
+ * - The **DetectType** parameter is deprecated. This parameter is still accepted (`tamper` or `aigc`) but does not affect the actual detection mode. Regardless of the value passed, tampering detection is executed and `DetectMode=tamper` is returned. Do not pass this parameter when you invoke the operation.
+ * - The **UseTamperSmallModel** parameter specifies whether to use a small model. If it is set to `true`, the small model is used and no large model report is generated. If it is set to `false` or left empty, the large model is used by default and a comprehensive analysis report from the large model is returned.
  *
  * @param request CreateImageDetectionTaskRequest
  * @return CreateImageDetectionTaskResponse
@@ -470,18 +486,18 @@ async function createImageDetectionTask(request: CreateImageDetectionTaskRequest
 
 model CreateImageIncomeTaxDetectionTaskRequest {
   clientToken?: string(name='ClientToken', description='The idempotency parameter.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
-  imageUrl?: string(name='ImageUrl', description='The URL of the income tax screenshot to detect. Only HTTP/HTTPS URLs are supported. The image size cannot exceed 10 MB. External images are not supported. Only URLs accessible from the Chinese mainland public network are supported.', example='https://example.com/incometax.png'),
+  imageUrl?: string(name='ImageUrl', description='The URL of the individual income tax screenshot to be detected. Only HTTP and HTTPS protocols are supported, and the image size cannot exceed 10 MB. Images from outside the Chinese mainland are not supported. Only URLs accessible from the public network within the Chinese mainland are supported.', example='https://example.com/incometax.png'),
 }
 
 model CreateImageIncomeTaxDetectionTaskResponseBody = {
-  code?: string(name='Code', description='The business error code. The value `OK` is returned if the request was successful.', example='OK'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. The value `200` is returned if the request was successful.', example='200'),
-  message?: string(name='Message', description='The additional information. The value `success` is returned if the request was successful.', example='success'),
+  code?: string(name='Code', description='The business error code. `OK` is returned when the request is successful.', example='OK'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. `200` is returned when the request is successful.', example='200'),
+  message?: string(name='Message', description='The additional information. `success` is returned when the request is successful.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
   success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
 - true: The call was successful.
 - false: The call failed.', example='true'),
-  taskId?: string(name='TaskId', description='The income tax screenshot detection task ID. Use this ID to query the result by calling GetImageIncomeTaxDetectionTaskResult.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+  taskId?: string(name='TaskId', description='The ID of the individual income tax screenshot detection task. This ID is used to query the task result by calling the GetImageIncomeTaxDetectionTaskResult operation.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
 model CreateImageIncomeTaxDetectionTaskResponse = {
@@ -491,12 +507,12 @@ model CreateImageIncomeTaxDetectionTaskResponse = {
 }
 
 /**
- * @summary Submits a personal income tax record screenshot for forgery detection and returns a task ID.
+ * @summary Submits a screenshot of an individual income tax record for forgery detection and returns a task ID.
  *
- * @description ## Request description
- * - **ImageUrl** is required and must be a publicly accessible HTTP/HTTPS URL (the server needs to download the image).
- * - External images are not supported. Only image URLs accessible from the Chinese mainland public network are supported. Upload the image to an Alibaba Cloud OSS bucket in a Chinese mainland region first, and then use the presigned URL of the image as the input parameter of this operation. References: [How do I obtain the URL of one or more files?](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
- * - The image file size cannot exceed 10 MB. Detection of images that exceed this limit will be failed.
+ * @description ## Request instructions
+ * - **ImageUrl** is required and must be a publicly accessible HTTP or HTTPS URL. The server must be able to download the image from this URL.
+ * - Currently, images from outside the Chinese mainland are not supported. Only images accessible from the public network within the Chinese mainland are supported. We recommend that you first upload the image to an Alibaba Cloud OSS bucket in a region within the Chinese mainland, and then use the pre-signed URL of the image as the input parameter for this operation. References: [How to obtain the URL of a single file or the URLs of multiple files](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
+ * - The image size cannot exceed 10 MB. Detection will be failed for images that exceed this limit.
  *
  * @param request CreateImageIncomeTaxDetectionTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -530,12 +546,12 @@ async function createImageIncomeTaxDetectionTaskWithOptions(request: CreateImage
 }
 
 /**
- * @summary Submits a personal income tax record screenshot for forgery detection and returns a task ID.
+ * @summary Submits a screenshot of an individual income tax record for forgery detection and returns a task ID.
  *
- * @description ## Request description
- * - **ImageUrl** is required and must be a publicly accessible HTTP/HTTPS URL (the server needs to download the image).
- * - External images are not supported. Only image URLs accessible from the Chinese mainland public network are supported. Upload the image to an Alibaba Cloud OSS bucket in a Chinese mainland region first, and then use the presigned URL of the image as the input parameter of this operation. References: [How do I obtain the URL of one or more files?](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
- * - The image file size cannot exceed 10 MB. Detection of images that exceed this limit will be failed.
+ * @description ## Request instructions
+ * - **ImageUrl** is required and must be a publicly accessible HTTP or HTTPS URL. The server must be able to download the image from this URL.
+ * - Currently, images from outside the Chinese mainland are not supported. Only images accessible from the public network within the Chinese mainland are supported. We recommend that you first upload the image to an Alibaba Cloud OSS bucket in a region within the Chinese mainland, and then use the pre-signed URL of the image as the input parameter for this operation. References: [How to obtain the URL of a single file or the URLs of multiple files](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
+ * - The image size cannot exceed 10 MB. Detection will be failed for images that exceed this limit.
  *
  * @param request CreateImageIncomeTaxDetectionTaskRequest
  * @return CreateImageIncomeTaxDetectionTaskResponse
@@ -546,23 +562,23 @@ async function createImageIncomeTaxDetectionTask(request: CreateImageIncomeTaxDe
 }
 
 model CreateImageTaskRequest {
-  clientToken?: string(name='ClientToken', description='The idempotency token. This parameter is used to ensure the idempotence of the request. The value is generated by the client and must be unique across different requests. ClientToken supports only ASCII characters and cannot exceed 64 characters in length.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
-  model?: string(name='Model', description='The model name. Default value: `qwen-image-2.0-pro`.', example='qwen-image-2.0-pro'),
-  n?: int32(name='N', description='The number of images to generate (1 to 6). Default value: `1`.', example='1'),
-  negativePrompt?: string(name='NegativePrompt', description='The negative prompt, up to 500 characters.', example='低质量,模糊,变形'),
-  prompt?: string(name='Prompt', description='The image description (positive prompt), up to 800 characters.', example='一间全是猫的会议室'),
-  promptExtend?: boolean(name='PromptExtend', description='Specifies whether to enable intelligent prompt rewriting. Default value: true.'),
-  seed?: int32(name='Seed', description='The random seed (0 to 2147483647). A value of 0 indicates random.', example='42'),
-  size?: string(name='Size', description='The image size (format: width×height). Default value: `2048*2048`.', example='1024*1024'),
+  clientToken?: string(name='ClientToken', description='Ensures the idempotence of the request. The parameter value is generated by the client and must be unique across different requests. `ClientToken` supports only ASCII characters and can be up to 64 characters in length.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
+  model?: string(name='Model', description='The name of the model. Default value: `qwen-image-2.0-pro`.', example='qwen-image-2.0-pro'),
+  n?: int32(name='N', description='The number of images to generate. Valid values: 1 to 6. Default value: `1`.', example='1'),
+  negativePrompt?: string(name='NegativePrompt', description='The negative prompt. The prompt can be up to 500 characters in length.', example='Low quality, blurry, deformed'),
+  prompt?: string(name='Prompt', description='The text description of the image, which is the positive prompt. The prompt can be up to 800 characters in length.', example='A meeting room full of cats'),
+  promptExtend?: boolean(name='PromptExtend', description='Specifies whether to enable intelligent rewriting for the prompt. Default value: true.'),
+  seed?: int32(name='Seed', description='The random seed. Valid values: 0 to 2147483647. A value of 0 indicates a random seed.', example='42'),
+  size?: string(name='Size', description='The size of the image in the format of width*height. Default value: `2048*2048`.', example='1024*1024'),
 }
 
 model CreateImageTaskResponseBody = {
-  code?: string(name='Code', description='The business error code. The value `OK` is returned if the request was successful.', example='OK'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. The value `200` is returned if the request was successful.', example='200'),
-  message?: string(name='Message', description='The additional information. The value `success` is returned if the request was successful.', example='success'),
+  code?: string(name='Code', description='The business error code. `OK` is returned if the request is successful.', example='OK'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. `200` is returned if the request is successful.', example='200'),
+  message?: string(name='Message', description='The additional information. `success` is returned if the request is successful.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
-  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values: true and false.'),
-  taskId?: string(name='TaskId', description='The task ID. Use this ID to call the GetImageTaskResult operation to query the results.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+  success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values: true: The call was successful. false: The call failed.'),
+  taskId?: string(name='TaskId', description='The task ID, which is used to call the `GetImageTaskResult` operation to query the result.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
 model CreateImageTaskResponse = {
@@ -572,14 +588,14 @@ model CreateImageTaskResponse = {
 }
 
 /**
- * @summary Generates images based on a provided text description and returns a task ID.
+ * @summary Generates an image based on the provided text description and returns the task ID.
  *
- * @description ## Operation description
- * - This operation creates an AI image generation task. The system generates images based on the positive prompt provided by the user.
- * - You can configure parameters such as negative prompt, model, and image size to optimize the generation results.
- * - By default, generated images are automatically embedded with a C2PA digital signature. You can optionally add a watermark in the lower-right corner.
- * - Set the ClientToken parameter to ensure the idempotence of the request and guarantee uniqueness across different requests.
- * - After the task is created, call the GetImageTaskResult operation with the TaskId to query the generation results.
+ * @description ## Request description
+ * - This operation creates an AI image generation task. The system generates the corresponding image based on the positive prompt provided by the user.
+ * - You can configure parameters such as the negative prompt, model, and image size to optimize the generation results.
+ * - By default, the generated image is automatically embedded with a C2PA digital signature. You can choose whether to add a watermark in the lower-right corner.
+ * - You can set the `ClientToken` parameter to ensure the idempotence of the request and guarantee uniqueness across different requests.
+ * - After the task is created, use the `TaskId` to call the `GetImageTaskResult` operation to query the generation result.
  *
  * @param request CreateImageTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -631,14 +647,14 @@ async function createImageTaskWithOptions(request: CreateImageTaskRequest, runti
 }
 
 /**
- * @summary Generates images based on a provided text description and returns a task ID.
+ * @summary Generates an image based on the provided text description and returns the task ID.
  *
- * @description ## Operation description
- * - This operation creates an AI image generation task. The system generates images based on the positive prompt provided by the user.
- * - You can configure parameters such as negative prompt, model, and image size to optimize the generation results.
- * - By default, generated images are automatically embedded with a C2PA digital signature. You can optionally add a watermark in the lower-right corner.
- * - Set the ClientToken parameter to ensure the idempotence of the request and guarantee uniqueness across different requests.
- * - After the task is created, call the GetImageTaskResult operation with the TaskId to query the generation results.
+ * @description ## Request description
+ * - This operation creates an AI image generation task. The system generates the corresponding image based on the positive prompt provided by the user.
+ * - You can configure parameters such as the negative prompt, model, and image size to optimize the generation results.
+ * - By default, the generated image is automatically embedded with a C2PA digital signature. You can choose whether to add a watermark in the lower-right corner.
+ * - You can set the `ClientToken` parameter to ensure the idempotence of the request and guarantee uniqueness across different requests.
+ * - After the task is created, use the `TaskId` to call the `GetImageTaskResult` operation to query the generation result.
  *
  * @param request CreateImageTaskRequest
  * @return CreateImageTaskResponse
@@ -730,26 +746,26 @@ async function createSensitiveScanTask(request: CreateSensitiveScanTaskRequest):
 model CreateVideoTaskRequest {
   media?: [
     {
-      type?: string(name='Type', description='The media type for the first item. Valid values: first_frame, last_frame, reference_image, reference_video, reference_audio, file, and link.', example='JPEG'),
-      url?: string(name='Url', description='The media URL for the first item. You can specify a public HTTP or HTTPS URL, a temporary oss:// URL, or inline data in the format of data:{mime};base64,....', example='Image URL'),
+      type?: string(name='Type', description='The material type for the first item. Valid values: first_frame, last_frame, reference_image, reference_video, reference_audio, file, and link.', example='JPEG'),
+      url?: string(name='Url', description='The material URL for the first item. The value can be a public HTTP or HTTPS URL, a temporary oss:// URL, or inline data in the data:{mime};base64,... format.', example='Image URL'),
     }
   ](name='Media'),
   audio?: boolean(name='Audio', description='Specifies whether to include an audio track. Default value: true.', example='true'),
   clientToken?: string(name='ClientToken', description='The idempotency parameter.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
-  duration?: int32(name='Duration', description='The video duration in seconds. Valid values: an integer in the range of [2, 30], -1 (intelligent duration), and 0 (the server uses the default value of 5 seconds).', example='2'),
+  duration?: int32(name='Duration', description='The duration of the video in seconds. Valid values: an integer from 2 to 30, -1 for intelligent duration, and 0 for the server default of 5 seconds.', example='2'),
   model?: string(name='Model', description='The model name. Valid values: wan3.0-video (default) and wan3.0-video-prime (high-speed version).', example='wan3.0-video'),
-  prompt?: string(name='Prompt', description='The video description prompt. Either this parameter or Media is required. For pure text-to-video generation, only Prompt is required.', example='A meeting room full of cats'),
-  promptExtend?: boolean(name='PromptExtend', description='Specifies whether to enable intelligent rewriting (prompt_extend). Default value: true.', example='true'),
-  ratio?: string(name='Ratio', description='The aspect ratio. Valid values: adaptive (default), 16:9, 4:3, 1:1, 3:4, and 9:16.', example='adaptive'),
-  resolution?: string(name='Resolution', description='The resolution. Valid values: 1080P (default), 720P, and 480P.', example='1080P'),
-  seed?: int32(name='Seed', description='The random seed. Valid values: -1 (random), an integer in the range of [0, 2147483647], and 0 (the server uses a random seed by default).', example='42'),
+  prompt?: string(name='Prompt', description='The video description prompt. Either this parameter or Media is required. For text-to-video generation, only Prompt is required.', example='A meeting room full of cats'),
+  promptExtend?: boolean(name='PromptExtend', description='Specifies whether to enable intelligent prompt rewriting. Default value: true.', example='true'),
+  ratio?: string(name='Ratio', description='The aspect ratio of the video. Valid values: adaptive, 16:9, 4:3, 1:1, 3:4, and 9:16. Default value: adaptive.', example='adaptive'),
+  resolution?: string(name='Resolution', description='The video resolution. Valid values: 1080P, 720P, and 480P. Default value: 1080P.', example='1080P'),
+  seed?: int32(name='Seed', description='The random seed. Valid values: -1 (random) or an integer from 0 to 2147483647. A value of 0 is a valid reproducible seed. If not specified, the server uses a random seed by default.', example='42'),
   watermark?: boolean(name='Watermark', description='Specifies whether to add a Model Studio watermark. Default value: false.', example='false'),
 }
 
 model CreateVideoTaskResponseBody = {
   code?: string(name='Code', description='The return code.', example='OK'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='**HTTP status code**. A value of 200 indicates that the request is successful.', example='200'),
-  message?: string(name='Message', description='The additional information. A value of success indicates that the request is successful.', example='success'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The **HTTP status code**. A value of 200 is returned if the request is successful.', example='200'),
+  message?: string(name='Message', description='The additional information. A value of success is returned if the request is successful.', example='success'),
   requestId?: string(name='RequestId', description='Id of the request', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
   success?: boolean(name='Success', description='Indicates whether the call is successful. Valid values:
 - true: The call is successful.
@@ -846,29 +862,27 @@ async function createVideoTask(request: CreateVideoTaskRequest): CreateVideoTask
 }
 
 model CreateWatermarkEmbedTaskRequest {
-  clientToken?: string(name='ClientToken', description='A reserved idempotency field. This field is not supported. Passing a value does not cause an error, but it does not produce an idempotency effect.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
-  fileType?: string(name='FileType', description='The file type. Valid values:
-- image: image.
-- video: video.
-
-The value must match the actual file type.
+  clientToken?: string(name='ClientToken', description='The reserved idempotency field. This field is not supported. Passing this field does not cause an error, but it does not provide idempotency.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
+  fileType?: string(name='FileType', description='The file type. Valid values: image, video, and audio. The value must match the actual file type. If the input is an audio file, the output is always in WAV format.
 
 This parameter is required.', example='video'),
-  fileUrl?: string(name='FileUrl', description='The URL of the file to be processed. Images and videos are supported. Only the HTTP and HTTPS protocols are supported. Videos must be no longer than 10 minutes and no larger than 100 MB.', example='https://example.com/demo.mp4'),
-  level?: string(name='Level', description='The embedding strength. Valid values: 0 to 5. A higher strength provides better robustness but lower visual quality.
+  fileUrl?: string(name='FileUrl', description='The URL of the file to be processed. Images and videos are supported. Only HTTP and HTTPS protocols are supported. Videos must be shorter than 10 minutes and smaller than 100 MB.', example='https://example.com/demo.mp4'),
+  level?: string(name='Level', description='The embedding strength. Valid values: integers from 0 to 3. A higher strength indicates better robustness but lower visual quality.
 
-This parameter is required.', example='"2"'),
-  reserved?: string(name='Reserved', description='A reserved field. No valid values are available. Do not specify this parameter.', example='""'),
-  watermarkContent?: string(name='WatermarkContent', description='The watermark content. The embedded content can be restored to the original text by calling the extraction operation.', example='wm-e2e-85970647'),
+This parameter is required.', example='"1"'),
+  reserved?: string(name='Reserved', description='The reserved field. No valid values are available. We recommend that you do not pass this field when you call the operation.', example='""', deprecated=true),
+  watermarkContent?: string(name='WatermarkContent', description='The watermark content. The embedded text can be restored from the output file by calling the extraction operation.
+
+This parameter is required.', example='wm-e2e-85970647'),
 }
 
 model CreateWatermarkEmbedTaskResponseBody = {
-  code?: string(name='Code', description='The business error code. The value OK is returned if the request is successful.', example='OK'),
-  httpStatusCode?: string(name='HttpStatusCode', description='The HTTP status code. The value 200 is returned if the request is successful.', example='200'),
-  message?: string(name='Message', description='The response message.', example='success'),
+  code?: string(name='Code', description='The **business error code**. "OK" is returned if the request is successful.', example='OK'),
+  httpStatusCode?: string(name='HttpStatusCode', description='The **HTTP status code**. 200 is returned if the request is successful.', example='200'),
+  message?: string(name='Message', description='The returned message.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
   success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
-  taskId?: string(name='TaskId', description='The invisible watermark embedding task ID. Use this ID to call GetWatermarkEmbedTaskResult to query the result.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+  taskId?: string(name='TaskId', description='The ID of the invisible watermark embedding task. You can use this ID to call GetWatermarkEmbedTaskResult to query the result.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
 model CreateWatermarkEmbedTaskResponse = {
@@ -880,12 +894,12 @@ model CreateWatermarkEmbedTaskResponse = {
 /**
  * @summary Submits an image or video file for invisible watermark embedding and returns a task ID for querying the result.
  *
- * @description ## Operation description
- * - **FileUrl** must be a publicly accessible HTTP/HTTPS URL. External files are not supported. Only file URLs accessible over the Chinese mainland public network are supported. Upload the file to an Alibaba Cloud Object Storage Service (OSS) bucket in a Chinese mainland region first, and then use the presigned URL of the file as the input parameter for this operation. References: [How do I obtain the URL of one or more objects?](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
- * - **FileType** must match the actual file type. The same value must be specified during both embedding and fetch.
- * - Supported file specifications: Video files must be no longer than 10 minutes and no larger than 100 MB. Image files must be no larger than 100 MB.
- * - The task completion time is approximately equal to the file duration. For example, embedding a 10-second video takes about 10 seconds.
- * - If the submission fails, no task record is created and a synchronous error is returned.
+ * @description ## Request description
+ * - **FileUrl** must be a publicly accessible HTTP or HTTPS URL. Files from outside the Chinese mainland are not supported. Only file URLs accessible over the public network in the Chinese mainland are supported. Upload the file to an Object Storage Service (OSS) bucket in a region in the Chinese mainland and then use the presigned URL of the file as the input parameter for this operation. References: [How to obtain the URL of a single object or the URLs of multiple objects](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects).
+ * - **FileType** must match the actual file type and must be the same for both embedding and fetch.
+ * - The maximum supported file size is **512 MB**.
+ * - The node completion time is approximately equal to the duration of the file. For example, embedding a 10-second video takes about 10 seconds.
+ * - If the commit failed, no node record is created, and a synchronization fault is returned directly.
  *
  * @param request CreateWatermarkEmbedTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -933,12 +947,12 @@ async function createWatermarkEmbedTaskWithOptions(request: CreateWatermarkEmbed
 /**
  * @summary Submits an image or video file for invisible watermark embedding and returns a task ID for querying the result.
  *
- * @description ## Operation description
- * - **FileUrl** must be a publicly accessible HTTP/HTTPS URL. External files are not supported. Only file URLs accessible over the Chinese mainland public network are supported. Upload the file to an Alibaba Cloud Object Storage Service (OSS) bucket in a Chinese mainland region first, and then use the presigned URL of the file as the input parameter for this operation. References: [How do I obtain the URL of one or more objects?](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
- * - **FileType** must match the actual file type. The same value must be specified during both embedding and fetch.
- * - Supported file specifications: Video files must be no longer than 10 minutes and no larger than 100 MB. Image files must be no larger than 100 MB.
- * - The task completion time is approximately equal to the file duration. For example, embedding a 10-second video takes about 10 seconds.
- * - If the submission fails, no task record is created and a synchronous error is returned.
+ * @description ## Request description
+ * - **FileUrl** must be a publicly accessible HTTP or HTTPS URL. Files from outside the Chinese mainland are not supported. Only file URLs accessible over the public network in the Chinese mainland are supported. Upload the file to an Object Storage Service (OSS) bucket in a region in the Chinese mainland and then use the presigned URL of the file as the input parameter for this operation. References: [How to obtain the URL of a single object or the URLs of multiple objects](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects).
+ * - **FileType** must match the actual file type and must be the same for both embedding and fetch.
+ * - The maximum supported file size is **512 MB**.
+ * - The node completion time is approximately equal to the duration of the file. For example, embedding a 10-second video takes about 10 seconds.
+ * - If the commit failed, no node record is created, and a synchronization fault is returned directly.
  *
  * @param request CreateWatermarkEmbedTaskRequest
  * @return CreateWatermarkEmbedTaskResponse
@@ -949,21 +963,21 @@ async function createWatermarkEmbedTask(request: CreateWatermarkEmbedTaskRequest
 }
 
 model CreateWatermarkExtractTaskRequest {
-  clientToken?: string(name='ClientToken', description='A reserved idempotency field. Idempotency is not supported. Passing in a value does not cause an error, but it does not produce an idempotency effect.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
-  fileType?: string(name='FileType', description='The file type. Valid values: `image` and `video`. The value must be the same as the `FileType` used when the watermark was embedded.
+  clientToken?: string(name='ClientToken', description='The reserved idempotency field. This field is not supported. Passing this field does not cause an error, but it does not take effect.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
+  fileType?: string(name='FileType', description='The file type. Valid values: `image`, `video`, and `audio`. The value must be the same as the FileType used when the watermark was embedded.
 
 This parameter is required.', example='video'),
-  fileUrl?: string(name='FileUrl', description='The URL of the file from which the watermark is to be extracted. Images and videos are supported. Only the `http/https` protocol is supported. Videos must be no longer than 10 minutes and no larger than 100 MB.', example='https://example.com/demo.mp4'),
-  reserved?: string(name='Reserved', description='A reserved field. No valid values are available. Do not pass in this parameter.', example='""'),
+  fileUrl?: string(name='FileUrl', description='The URL of the file from which the watermark is to be extracted. Images and videos are supported. Only the HTTP and HTTPS protocols are supported.', example='https://example.com/demo.mp4'),
+  reserved?: string(name='Reserved', description='The reserved field. No valid values are available. Do not pass this field when you call the operation.', example='""', deprecated=true),
 }
 
 model CreateWatermarkExtractTaskResponseBody = {
-  code?: string(name='Code', description='The business error code. OK is returned if the request is successful.', example='OK'),
-  httpStatusCode?: string(name='HttpStatusCode', description='The HTTP status code. `200` is returned if the request is successful.', example='200'),
-  message?: string(name='Message', description='The additional information. "success" is returned if the request is successful.', example='success'),
+  code?: string(name='Code', description='The business error code. If the request is successful, OK is returned.', example='OK'),
+  httpStatusCode?: string(name='HttpStatusCode', description='The **HTTP status code**. If the request is successful, `200` is returned.', example='200'),
+  message?: string(name='Message', description='The additional information. If the request is successful, "success" is returned.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
   success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
-  taskId?: string(name='TaskId', description='The dark watermark extraction task ID, which is used to call GetWatermarkExtractTaskResult to query the result.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+  taskId?: string(name='TaskId', description='The ID of the invisible watermark extraction task. You can use this ID to call the GetWatermarkExtractTaskResult operation to query the result.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
 model CreateWatermarkExtractTaskResponse = {
@@ -973,13 +987,13 @@ model CreateWatermarkExtractTaskResponse = {
 }
 
 /**
- * @summary Submits an image or video file to extract a dark watermark and returns a task ID.
+ * @summary Submits an image or video file to extract an invisible watermark and returns the task ID.
  *
  * @description ## Request description
- * - **FileUrl** must be a publicly accessible HTTP/HTTPS URL. External files are not supported. Only file URLs accessible from the Chinese mainland public network are supported. Upload the file to an Alibaba Cloud OSS bucket in a region within the Chinese mainland first, and then use the presigned URL of the file as the input parameter of this operation. References: [How do I obtain the URL of one or more objects?](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
- * - **FileType must be the same as the one used during embedding**: Make sure that the file type (image or video) for extraction is the same as the file type used when the watermark was embedded.
- * - **File specification limits**: Video files must be no longer than 10 minutes and no larger than 100 MB. Image files must also be no larger than 100 MB.
- * - **Processing time**: Approximately equal to the actual playback duration of the file. For example, a 10-second video takes approximately 10 seconds to complete the watermark fetch procedure.
+ * - **FileUrl** must be a publicly accessible HTTP or HTTPS URL. Files on external networks are not supported. Only files accessible over the public network in the Chinese mainland are supported. Upload the file to an OSS bucket in a region in the Chinese mainland and use the presigned URL of the file as the input parameter for this operation. References: [How to obtain the URL of a single object or the URLs of multiple objects](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
+ * - **FileType must be consistent with the embedding phase**: Ensure that the file type (image, video, or audio) for fetching matches the file type used when the watermark was embedded.
+ * - **File size limit**: The maximum file size is 512 MB.
+ * - **Processing time**: The processing time is approximately equal to the actual playback duration of the file. For example, it takes about 10 seconds to complete the watermark fetching procedure for a 10-second video.
  *
  * @param request CreateWatermarkExtractTaskRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1019,13 +1033,13 @@ async function createWatermarkExtractTaskWithOptions(request: CreateWatermarkExt
 }
 
 /**
- * @summary Submits an image or video file to extract a dark watermark and returns a task ID.
+ * @summary Submits an image or video file to extract an invisible watermark and returns the task ID.
  *
  * @description ## Request description
- * - **FileUrl** must be a publicly accessible HTTP/HTTPS URL. External files are not supported. Only file URLs accessible from the Chinese mainland public network are supported. Upload the file to an Alibaba Cloud OSS bucket in a region within the Chinese mainland first, and then use the presigned URL of the file as the input parameter of this operation. References: [How do I obtain the URL of one or more objects?](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
- * - **FileType must be the same as the one used during embedding**: Make sure that the file type (image or video) for extraction is the same as the file type used when the watermark was embedded.
- * - **File specification limits**: Video files must be no longer than 10 minutes and no larger than 100 MB. Image files must also be no larger than 100 MB.
- * - **Processing time**: Approximately equal to the actual playback duration of the file. For example, a 10-second video takes approximately 10 seconds to complete the watermark fetch procedure.
+ * - **FileUrl** must be a publicly accessible HTTP or HTTPS URL. Files on external networks are not supported. Only files accessible over the public network in the Chinese mainland are supported. Upload the file to an OSS bucket in a region in the Chinese mainland and use the presigned URL of the file as the input parameter for this operation. References: [How to obtain the URL of a single object or the URLs of multiple objects](https://www.alibabacloud.com/help/en/oss/user-guide/how-to-obtain-the-url-of-a-single-object-or-the-urls-of-multiple-objects)
+ * - **FileType must be consistent with the embedding phase**: Ensure that the file type (image, video, or audio) for fetching matches the file type used when the watermark was embedded.
+ * - **File size limit**: The maximum file size is 512 MB.
+ * - **Processing time**: The processing time is approximately equal to the actual playback duration of the file. For example, it takes about 10 seconds to complete the watermark fetching procedure for a 10-second video.
  *
  * @param request CreateWatermarkExtractTaskRequest
  * @return CreateWatermarkExtractTaskResponse
@@ -1035,26 +1049,145 @@ async function createWatermarkExtractTask(request: CreateWatermarkExtractTaskReq
   return createWatermarkExtractTaskWithOptions(request, runtime);
 }
 
+model CreateWatermarkSignTaskRequest {
+  allowOverwrite?: boolean(name='AllowOverwrite', description='Specifies whether to allow overwriting when the target object already exists. Default value: false. If the target object exists, the creation is rejected. If you set this parameter to true, existing objects can be overwritten, which supports in-place signing. The target object key can be the same as the source object key.', example='false'),
+  clientToken?: string(name='ClientToken', description='The idempotency parameter.', example='xxx'),
+  customAssertions?: string(name='CustomAssertions', description='The optional custom C2PA assertions. It is a JSON array string. You can specify up to 64 assertions, and each assertion cannot exceed 4,096 bytes.', example='[{"label":"com.xxx.internal","data":{"meta_id":"emp001","generation":{"modelVersion":"2.1","count":3},"tags":["AI-generated","E-commerce"],"enabled":true,"optional":null}}]'),
+  fileType?: string(name='FileType', description='The file type. Valid values: image, video, and audio. For audio files, the watermark is always processed through the EAS link, the capacity is always 32 bits (auto_len is invalid), and the file extension of the signed output is always .wav.
+
+This parameter is required.', example='video'),
+  fileUrl?: string(name='FileUrl', description='The URL of the file to be processed. You must specify either this parameter or ObjectKey. Images, videos, and audio files are supported. Only HTTP and HTTPS protocols are supported. The source file extension is verified based on the intersection of C2PA signing capabilities and watermark level capabilities. For images, only .jpg, .jpeg, and .png are supported. For videos, only .mp4 is supported, and the video must be within 10 minutes and 100 MB in size. For audio files, only .flac, .m4a, .mp3, and .wav are supported.', example='https://example.com/images/photo.png?token=xxx'),
+  level?: string(name='Level', description='The watermark embedding strength. Valid values: 0 to 3. Default value: 2. A higher strength indicates better robustness but lower visual quality.
+
+This parameter is required.', example='"2"'),
+  reserved?: string(name='Reserved', description='The reserved parameter. It is used to pass extended parameters such as subkeys. Example: subkey:xxx. A subkey is used to isolate different customers under the same primary key and cannot contain commas.', example='""'),
+  softwareAgent?: string(name='SoftwareAgent', description='The optional name of the software that generated the content. It is used for C2PA tracing. The current version does not support writing to the DigiCert manifest.', example='Adobe Photoshop 25.0'),
+  sourceType?: string(name='SourceType', description='The optional content source type. It is used for C2PA tracing. The current version does not support writing to the DigiCert manifest.', example='digitalCapture'),
+  targetBucketName?: string(name='TargetBucketName', description='The optional name of the user\\\\"s Object Storage Service (OSS) bucket to which the signing result is written. If this parameter is empty, the result is written to an internal bucket of the service and returned through SignedFileUrl.', example='test-bucket'),
+  targetBucketRegion?: string(name='TargetBucketRegion', description='The region ID of the user\\\\"s OSS bucket. This parameter is required when TargetBucketName is not empty. Example: cn-hangzhou.', example='cn-hangzhou'),
+  targetObjectKey?: string(name='TargetObjectKey', description='The optional full object key of the signed output written to the user\\\\"s bucket. This parameter must be provided together with TargetBucketName. It must start with ai-deepsign-signed/ and be a full object name with an extension, not a directory prefix. The server does not append the _signed suffix or a trailing slash.', example='ai-deepsign-signed/2026/photo.png'),
+  watermarkContent?: string(name='WatermarkContent', description='The watermark content. The service internally maps it to an integer watermark ID and restores it when the watermark is extracted.
+
+This parameter is required.', example='wm-e2e-85970647'),
+}
+
+model CreateWatermarkSignTaskResponseBody = {
+  code?: string(name='Code', description='The status code. A value of 200 indicates success.', example='OK'),
+  httpStatusCode?: string(name='HttpStatusCode', description='The HTTP status code. If the request is successful, `200` is returned.', example='200'),
+  message?: string(name='Message', description='The details of the backend exception.', example='poll timeout: no result within 30m0s'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
+  taskId?: string(name='TaskId', description='The ID of the combined task. It is used for subsequent GetWatermarkSignTaskResult queries.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+}
+
+model CreateWatermarkSignTaskResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateWatermarkSignTaskResponseBody(name='body'),
+}
+
+/**
+ * @summary Submits a combined task for invisible watermark embedding and C2PA signing.
+ *
+ * @description Completes invisible watermark embedding and official C2PA signing in a single call. It first embeds an invisible watermark into an image, video, or audio file, and then applies an official DigiCert C2PA signature to the result. You only need to upload and download the file once.
+ *
+ * @param request CreateWatermarkSignTaskRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateWatermarkSignTaskResponse
+ */
+@context("createWatermarkSignTaskWithContext")
+async function createWatermarkSignTaskWithOptions(request: CreateWatermarkSignTaskRequest, runtime: $RuntimeOptions): CreateWatermarkSignTaskResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.allowOverwrite)) {
+    query['AllowOverwrite'] = request.allowOverwrite;
+  }
+  if (!$isNull(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.customAssertions)) {
+    query['CustomAssertions'] = request.customAssertions;
+  }
+  if (!$isNull(request.fileType)) {
+    query['FileType'] = request.fileType;
+  }
+  if (!$isNull(request.fileUrl)) {
+    query['FileUrl'] = request.fileUrl;
+  }
+  if (!$isNull(request.level)) {
+    query['Level'] = request.level;
+  }
+  if (!$isNull(request.reserved)) {
+    query['Reserved'] = request.reserved;
+  }
+  if (!$isNull(request.softwareAgent)) {
+    query['SoftwareAgent'] = request.softwareAgent;
+  }
+  if (!$isNull(request.sourceType)) {
+    query['SourceType'] = request.sourceType;
+  }
+  if (!$isNull(request.targetBucketName)) {
+    query['TargetBucketName'] = request.targetBucketName;
+  }
+  if (!$isNull(request.targetBucketRegion)) {
+    query['TargetBucketRegion'] = request.targetBucketRegion;
+  }
+  if (!$isNull(request.targetObjectKey)) {
+    query['TargetObjectKey'] = request.targetObjectKey;
+  }
+  if (!$isNull(request.watermarkContent)) {
+    query['WatermarkContent'] = request.watermarkContent;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateWatermarkSignTask',
+    version = '2026-05-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Submits a combined task for invisible watermark embedding and C2PA signing.
+ *
+ * @description Completes invisible watermark embedding and official C2PA signing in a single call. It first embeds an invisible watermark into an image, video, or audio file, and then applies an official DigiCert C2PA signature to the result. You only need to upload and download the file once.
+ *
+ * @param request CreateWatermarkSignTaskRequest
+ * @return CreateWatermarkSignTaskResponse
+ */
+async function createWatermarkSignTask(request: CreateWatermarkSignTaskRequest): CreateWatermarkSignTaskResponse {
+  var runtime = new $RuntimeOptions{};
+  return createWatermarkSignTaskWithOptions(request, runtime);
+}
+
 model DetectAigcImageRequest {
-  imageUrl?: string(name='ImageUrl', description='The URL of the image to detect. Only HTTP/HTTPS protocols are supported. You must provide at least one of `ImageUrl` and `ObjectKey`.', example='https://example.com/photo.jpg'),
+  imageUrl?: string(name='ImageUrl', description='The URL of the image to be detected. Only the HTTP and HTTPS protocols are supported. Specify at least one of ImageUrl and ObjectKey.', example='https://example.com/photo.jpg'),
 }
 
 model DetectAigcImageResponseBody = {
   body?: [ 
     {
-      confidence?: string(name='Confidence', description='The confidence score. Value range: 0 to 1. A higher value indicates a higher probability.', example='0.51'),
-      label?: string(name='Label', description='The detection label. Valid values:
-- `ai_generated`: AI-generated.
-- `non_ai_generated`: Not AI-generated.', example='ai_generated'),
+      confidence?: string(name='Confidence', description='**Confidence score**. Valid values: 0 to 1. A larger value indicates a higher probability.', example='0.51'),
+      label?: string(name='Label', description='**Detection label**. Valid values:
+- ai_generated: AI-generated.
+- non_ai_generated: Non-AI-generated.', example='ai_generated'),
     }
   ](name='Body', description='The list of AIGC detection result labels.'),
-  code?: string(name='Code', description='The business error code. The value `OK` is returned if the request is successful.', example='OK'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. The value `200` is returned if the request is successful.', example='200'),
-  message?: string(name='Message', description='The additional information. The value `success` is returned if the request is successful.', example='success'),
+  code?: string(name='Code', description='The business error code. If the request is successful, OK is returned.', example='OK'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. If the request is successful, 200 is returned.', example='200'),
+  message?: string(name='Message', description='The additional information. If the request is successful, success is returned.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
   success?: boolean(name='Success', description='Indicates whether the call was successful. Valid values:
-- true: Successful.
-- false: Failed.'),
+- true: The call was successful.
+- false: The call failed.'),
 }
 
 model DetectAigcImageResponse = {
@@ -1064,18 +1197,21 @@ model DetectAigcImageResponse = {
 }
 
 /**
- * @summary Determines whether an image is AI-generated and returns detection labels with confidence scores.
+ * @deprecated OpenAPI DetectAigcImage is deprecated, please use AIDeepSign::2026-05-11::CreateImageDetectionTask instead.
+ *
+ * @summary Determines whether an image is AI-generated and returns the detection label and confidence score.
  *
  * @description ## Request description
- * - This operation detects whether a specified image is AI-generated content (AIGC). You can specify the image to detect by using an image URL or an OSS ObjectKey.
- * - You must provide at least one of ImageUrl and ObjectKey. If both are provided, ObjectKey takes precedence.
- * - When using the ObjectKey method, the system verifies whether the ObjectKey belongs to the current caller. Cross-tenant access is not allowed.
- * - This is a synchronous operation suitable for real-time detection of a single image. If you need asynchronous detection or credential detection at the same time, use the CreateImageDetectionTask operation.
+ * - This operation detects whether a specified image is AI-generated content (AIGC). You can specify the image to be detected by using an image URL or an OSS ObjectKey.
+ * - You must specify at least one of ImageUrl and ObjectKey. If both are specified, ObjectKey takes precedence.
+ * - When ObjectKey is used, the system verifies whether the ObjectKey belongs to the current caller. Cross-tenant access is not allowed.
+ * - This operation is synchronous and suitable for real-time detection of a single image. If you need asynchronous detection or simultaneous credential detection, use the CreateImageDetectionTask operation.
  *
  * @param request DetectAigcImageRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return DetectAigcImageResponse
  */
+// Deprecated
 @context("detectAigcImageWithContext")
 async function detectAigcImageWithOptions(request: DetectAigcImageRequest, runtime: $RuntimeOptions): DetectAigcImageResponse {
   request.validate();
@@ -1101,17 +1237,20 @@ async function detectAigcImageWithOptions(request: DetectAigcImageRequest, runti
 }
 
 /**
- * @summary Determines whether an image is AI-generated and returns detection labels with confidence scores.
+ * @deprecated OpenAPI DetectAigcImage is deprecated, please use AIDeepSign::2026-05-11::CreateImageDetectionTask instead.
+ *
+ * @summary Determines whether an image is AI-generated and returns the detection label and confidence score.
  *
  * @description ## Request description
- * - This operation detects whether a specified image is AI-generated content (AIGC). You can specify the image to detect by using an image URL or an OSS ObjectKey.
- * - You must provide at least one of ImageUrl and ObjectKey. If both are provided, ObjectKey takes precedence.
- * - When using the ObjectKey method, the system verifies whether the ObjectKey belongs to the current caller. Cross-tenant access is not allowed.
- * - This is a synchronous operation suitable for real-time detection of a single image. If you need asynchronous detection or credential detection at the same time, use the CreateImageDetectionTask operation.
+ * - This operation detects whether a specified image is AI-generated content (AIGC). You can specify the image to be detected by using an image URL or an OSS ObjectKey.
+ * - You must specify at least one of ImageUrl and ObjectKey. If both are specified, ObjectKey takes precedence.
+ * - When ObjectKey is used, the system verifies whether the ObjectKey belongs to the current caller. Cross-tenant access is not allowed.
+ * - This operation is synchronous and suitable for real-time detection of a single image. If you need asynchronous detection or simultaneous credential detection, use the CreateImageDetectionTask operation.
  *
  * @param request DetectAigcImageRequest
  * @return DetectAigcImageResponse
  */
+// Deprecated
 async function detectAigcImage(request: DetectAigcImageRequest): DetectAigcImageResponse {
   var runtime = new $RuntimeOptions{};
   return detectAigcImageWithOptions(request, runtime);
@@ -1190,27 +1329,28 @@ async function detectImageBasicInfo(request: DetectImageBasicInfoRequest): Detec
 }
 
 model GetC2paSignResultRequest {
-  taskId?: string(name='TaskId', description='The opaque task ID returned by CreateC2paSignTask, up to 64 characters in length.
+  taskId?: string(name='TaskId', description='The opaque task ID returned by CreateC2paSignTask. The ID can be up to 64 characters in length.
 
 This parameter is required.', example='7093c29e-f472-4e1e-91c6-a43df7c7382e'),
 }
 
 model GetC2paSignResultResponseBody = {
-  code?: string(name='Code', description='The business error code for the API call. OK is returned when the call succeeds.', example='OK'),
-  errorCode?: string(name='ErrorCode', description='The error code for task failure. This parameter is returned only when Status is FAILED.', example='C2PA_FORMAT_UNSUPPORTED'),
-  errorMessage?: string(name='ErrorMessage', description='The error message for task failure. This parameter is returned only when Status is FAILED.', example='only valid JPEG and PNG source files are supported'),
+  code?: string(name='Code', description='The business error code for this API call. OK is returned when the call is successful.', example='OK'),
+  errorCode?: string(name='ErrorCode', description='The error code for a failed task. This parameter is returned only when Status is FAILED.', example='C2PA_FORMAT_UNSUPPORTED'),
+  errorMessage?: string(name='ErrorMessage', description='The error message for a failed task. This parameter is returned only when Status is FAILED.', example='only valid JPEG and PNG source files are supported'),
   failedCount?: long(name='FailedCount', description='The number of objects that failed to be signed, were skipped, or were terminated in the Bucket task. This parameter is returned only when the Bucket task is in the SUCCEEDED or CANCELED state.', example='2'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. 200 is returned when the API call succeeds.', example='200'),
-  message?: string(name='Message', description='The additional information. success is returned when the API call succeeds.', example='success'),
-  reportFileUrl?: string(name='ReportFileUrl', description='The temporary download URL returned when a Bucket task enters the CANCELED state and the JSON report is successfully generated. The report covers only the objects discovered before termination.', example='https://example-bucket.oss-cn-hangzhou.aliyuncs.com/c2pa_report.json?Expires=1788000000&Signature=***'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. 200 is returned when the API call is successful.', example='200'),
+  message?: string(name='Message', description='The additional information. success is returned when the API call is successful.', example='success'),
+  objectKey?: string(name='ObjectKey', description='The destination object key returned when the signing results are written to the user Bucket. This parameter is returned only when a single-file task succeeds.', example='ai-deepsign-signed/example_signed.png'),
+  reportFileUrl?: string(name='ReportFileUrl', description='The temporary download URL returned when a Bucket task enters the CANCELED state and the JSON report is generated successfully. The report covers only the objects discovered before termination.', example='https://example-bucket.oss-cn-hangzhou.aliyuncs.com/c2pa_report.json?Expires=1788000000&Signature=***'),
   reportObjectKey?: string(name='ReportObjectKey', description='The object key of the final standard JSON report for the Bucket task. This parameter is returned only when the Bucket task succeeds.', example='ai-deepsign-signed/047b8305-9572-4eed-b7fb-8588b989b6e5/c2pa_report.json'),
-  requestId?: string(name='RequestId', description='The request ID of the OpenAPI call.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
-  signedFileUrl?: string(name='SignedFileUrl', description='The temporary download URL of the signature file. This parameter is returned only when Status is SUCCEEDED.', example='https://example.oss-cn-hangzhou.aliyuncs.com/...'),
-  status?: string(name='Status', description='The task status. Valid values: PROCESSING, SUCCEEDED, and FAILED.', example='SUCCEEDED'),
+  requestId?: string(name='RequestId', description='The request ID of this OpenAPI invocation.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
+  signedFileUrl?: string(name='SignedFileUrl', description='The temporary download URL of the signed file. This parameter is returned only when Status is SUCCEEDED.', example='https://example.oss-cn-hangzhou.aliyuncs.com/...'),
+  status?: string(name='Status', description='The status of the task. Valid values: PROCESSING, SUCCEEDED, and FAILED.', example='SUCCEEDED'),
   succeededCount?: long(name='SucceededCount', description='The number of successfully signed objects in the Bucket task. This parameter is returned only when the Bucket task is in the SUCCEEDED or CANCELED state.', example='1'),
   success?: boolean(name='Success', description='Indicates whether the query call is successful. This value may still be true even if the task itself fails.', example='True'),
-  taskId?: string(name='TaskId', description='The C2PA signing task ID.', example='7093c29e-f472-4e1e-91c6-a43df7c7382e'),
-  taskType?: string(name='TaskType', description='The task type. Valid values: FILE and BUCKET.', example='BUCKET'),
+  taskId?: string(name='TaskId', description='The ID of the C2PA signing task.', example='7093c29e-f472-4e1e-91c6-a43df7c7382e'),
+  taskType?: string(name='TaskType', description='The type of the task. Valid values: FILE and BUCKET.', example='BUCKET'),
   totalCount?: long(name='TotalCount', description='The total number of objects scanned by the Bucket task. This parameter is returned only when the Bucket task is in the SUCCEEDED or CANCELED state.', example='3'),
 }
 
@@ -1224,10 +1364,10 @@ model GetC2paSignResultResponse = {
  * @summary Queries the status and results of a single-file or OSS Bucket batch C2PA signing task.
  *
  * @description ## Request description
- * - This operation queries the status and final results of nodes created by using CreateC2paSignTask or CreateC2paBucketSignTask.
- * - It supports signing node queries for images, videos, and various audio formats (FLAC, M4A, MP3, and WAV).
- * - For BUCKET nodes, intermediate statistics information is not provided when the node is in the PROCESSING, PAUSING, PAUSED, or CANCELING state. Complete statistics information and the report location are returned only after the node enters the SUCCEEDED or CANCELED state.
- * - A valid TaskId must be provided for the query. This ID must be the value returned when the node was created. It supports the standard UUID format and is compatible with legacy decimal node IDs.
+ * - This operation queries the status and final results of tasks created by invoking CreateC2paSignTask or CreateC2paBucketSignTask.
+ * - You can query signing tasks for images, videos, and various audio formats such as FLAC, M4A, MP3, and WAV.
+ * - For BUCKET tasks, intermediate statistics information is not provided when the task is in the PROCESSING, PAUSING, PAUSED, or CANCELING state. Complete statistics information and the report location are returned only after the task enters the SUCCEEDED or CANCELED state.
+ * - You must provide a valid TaskId when querying. The ID must be the value returned when the task was created. Standard UUID formats are supported and compatible with legacy decimal task IDs.
  *
  * @param request GetC2paSignResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1261,10 +1401,10 @@ async function getC2paSignResultWithOptions(request: GetC2paSignResultRequest, r
  * @summary Queries the status and results of a single-file or OSS Bucket batch C2PA signing task.
  *
  * @description ## Request description
- * - This operation queries the status and final results of nodes created by using CreateC2paSignTask or CreateC2paBucketSignTask.
- * - It supports signing node queries for images, videos, and various audio formats (FLAC, M4A, MP3, and WAV).
- * - For BUCKET nodes, intermediate statistics information is not provided when the node is in the PROCESSING, PAUSING, PAUSED, or CANCELING state. Complete statistics information and the report location are returned only after the node enters the SUCCEEDED or CANCELED state.
- * - A valid TaskId must be provided for the query. This ID must be the value returned when the node was created. It supports the standard UUID format and is compatible with legacy decimal node IDs.
+ * - This operation queries the status and final results of tasks created by invoking CreateC2paSignTask or CreateC2paBucketSignTask.
+ * - You can query signing tasks for images, videos, and various audio formats such as FLAC, M4A, MP3, and WAV.
+ * - For BUCKET tasks, intermediate statistics information is not provided when the task is in the PROCESSING, PAUSING, PAUSED, or CANCELING state. Complete statistics information and the report location are returned only after the task enters the SUCCEEDED or CANCELED state.
+ * - You must provide a valid TaskId when querying. The ID must be the value returned when the task was created. Standard UUID formats are supported and compatible with legacy decimal task IDs.
  *
  * @param request GetC2paSignResultRequest
  * @return GetC2paSignResultResponse
@@ -1364,69 +1504,68 @@ async function getImageDefectDetectionTaskResult(request: GetImageDefectDetectio
 }
 
 model GetImageDetectionTaskResultRequest {
-  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotency of the request. You can use the client to generate the token, but you must make sure that the token is unique among different requests. The ClientToken value can contain only ASCII characters and cannot exceed 64 characters in length.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
-  taskId?: string(name='TaskId', description='The task ID returned by CreateImageDetectionTask.
+  clientToken?: string(name='ClientToken', description='Ensures the idempotency of the request. The parameter value is generated by the client and must be unique across different requests. ClientToken supports only ASCII characters and can be up to 64 characters in length.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
+  taskId?: string(name='TaskId', description='The task ID, which is returned by CreateImageDetectionTask.
 
 This parameter is required.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
 model GetImageDetectionTaskResultResponseBody = {
-  code?: string(name='Code', description='The business error code. The value "OK" is returned when the request succeeds.', example='OK'),
-  detectMode?: string(name='DetectMode', description='The detection mode that was actually executed. Valid values:
-- aigc: AIGC only.
-- tamper: tamper detection.
-
-This field is returned only when Status is succeeded.', example='tamper'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. The value 200 is returned when the request succeeds.', example='200'),
+  code?: string(name='Code', description='**Service error code**. If the request is successful, OK is returned.', example='OK'),
+  detectMode?: string(name='DetectMode', description='The actual detection mode executed. Valid values:
+- aigc: AIGC detection only
+- tamper: tampering detection
+This parameter is returned only when Status is succeeded.', example='tamper'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='**HTTP status code**. If the request is successful, 200 is returned.', example='200'),
   labels?: [ 
     {
-      confidence?: float(name='Confidence', description='The confidence level. Value range: 0 to 1.', example='0.9562'),
-      label?: string(name='Label', description='The detection label. When DetectMode is aigc, valid values are: risk_aigc (the image is suspected to be AIGC-generated), risk_fake (the image is suspected to be a composite image), risk_edit (the image is suspected to be AI-edited). When DetectMode is tamper, valid values are: aigc (AIGC detection score), aips (AI post-processing detection score).', example='risk_aigc'),
+      confidence?: float(name='Confidence', description='The confidence level. Valid values: 0 to 1.', example='0.9562'),
+      label?: string(name='Label', description='The detection label. When DetectMode is aigc, valid values are risk_aigc (the image is suspected to be generated by AIGC), risk_fake (the image is suspected to be a synthetic image), and risk_edit (the image is suspected to be edited by AI). When DetectMode is tamper, valid values are aigc (the AIGC detection score) and aips (the AI post-processing detection score).', example='risk_aigc'),
     }
-  ](name='Labels', description='The list of detection result labels. This field is returned only when Status is succeeded and AIGC detection is included. The label values and confidence ranges vary depending on DetectMode. In aigc mode, AIGC generation identification labels are returned (see the table below). In tamper mode, aigc/aips labels are returned (confidence range: 0 to 1).'),
-  message?: string(name='Message', description='The additional information. The value "success" is returned when the request succeeds. The error message is returned when the task fails. This field is returned only when Status is failed.', example='success'),
+  ](name='Labels', description='The list of detection result labels. This parameter is returned only when Status is succeeded and AIGC detection is included. The label values and confidence ranges vary based on DetectMode. In aigc mode, AIGC generation identification labels are returned. In tamper mode, aigc or aips labels are returned with a confidence range of 0 to 1.'),
+  message?: string(name='Message', description='**Additional information**. If the request is successful, success is returned. If the task fails, the error message is returned. This parameter is returned only when Status is failed.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
   status?: string(name='Status', description='The task status. Valid values:
-- pending: waiting.
-- running: in progress.
-- succeeded: completed.
-- failed: failed.', example='succeeded'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
+- pending: waiting
+- running: running
+- succeeded: completed
+- failed: failed', example='succeeded'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.'),
   tamper?: {
-    aiWatermark?: string(name='AiWatermark', description='The AI visible watermark. This field is returned only in large model mode. It is empty in small model mode.', example='是'),
+    aiWatermark?: string(name='AiWatermark', description='The AI visible watermark. This parameter is generated only in large model mode and is empty in small model mode.', example='Yes'),
     baseResults?: {
       aigc?: {
-        desc?: string(name='Desc', description='The AIGC detection result description.', example='Suspected AI-generated image'),
-        risk?: string(name='Risk', description='The AIGC dimension risk label.', example='高风险'),
-        score?: float(name='Score', description='The AIGC detection score. Value range: 0 to 1. A higher value indicates a greater likelihood of AI generation.', example='0.47'),
-      }(name='Aigc', description='The AIGC detection result.'),
+        desc?: string(name='Desc', description='The description of the AIGC detection result.', example='Suspected AI-generated image'),
+        risk?: string(name='Risk', description='**AIGC dimension risk label**.', example='High risk'),
+        score?: float(name='Score', description='The AIGC detection score. Valid values: 0 to 1. A higher value indicates a higher probability that the image is generated by AI.', example='0.47'),
+      }(name='Aigc', description='**AIGC detection**.'),
       aips?: {
-        desc?: string(name='Desc', description='The AI post-processing detection result description.', example='No AI post-processing traces detected'),
-        risk?: string(name='Risk', description='The local PS/AI editing dimension risk label.', example='高风险'),
-        score?: float(name='Score', description='The AI post-processing detection score. Value range: 0 to 1. A higher value indicates a greater likelihood of AI post-processing.', example='0.12'),
+        desc?: string(name='Desc', description='The description of the AI post-processing detection result.', example='No AI post-processing traces found'),
+        risk?: string(name='Risk', description='The local PS/AI editing dimension risk label.', example='High risk'),
+        score?: float(name='Score', description='The AI post-processing detection score. Valid values: 0 to 1. A higher value indicates a higher probability of AI post-processing.', example='0.12'),
       }(name='Aips', description='The AI post-processing detection score.'),
       imgType?: string(name='ImgType', description='The image type.', example='natural'),
       psLoc?: {
-        desc?: string(name='Desc', description='The PS tamper localization result description.', example='1 suspected PS-modified region detected'),
+        desc?: string(name='Desc', description='The description of the PS tampering localization result.', example='One suspected PS-modified region found'),
         items?: [ 
           {
-            bbox?: [ float ](name='Bbox', description='The bounding box coordinates of the tampered region, in the format `[x1, y1, x2, y2]`.'),
-            score?: float(name='Score', description='The tamper confidence of the region. Value range: 0 to 1.', example='0.67'),
+            bbox?: [ float ](name='Bbox', description='The bounding box coordinates of the tampered region, in the format of [x1, y1, x2, y2].', example='[120.0, 80.0, 350.0, 260.0]'),
+            score?: float(name='Score', description='The tampering confidence level of the region. Valid values: 0 to 1.', example='0.67'),
           }
         ](name='Items', description='The list of tampered regions.'),
-      }(name='PsLoc', description='The PS tamper localization result.'),
+      }(name='PsLoc', description='The PS tampering localization results.'),
       recap?: {
-        desc?: string(name='Desc', description='The recapture/copy detection result description.', example='Recapture detection score'),
-        risk?: string(name='Risk', description='The recapture/copy dimension risk label.', example='高风险'),
-        score?: float(name='Score', description='The recapture/copy detection score. Value range: 0 to 1. A higher value indicates a greater likelihood of recapture or copying.', example='0.9998'),
-      }(name='Recap', description='The recapture/copy detection result.'),
-    }(name='BaseResults', description='The basic algorithm detection results, including multi-dimensional detection scores and risk labels.'),
-    finalConclusion?: string(name='FinalConclusion', description='The final conclusion.', example='Metadata data analytics result verified as high risk'),
-    llmResult?: string(name='LlmResult', description='The comprehensive analysis result from the large language model.', example='The image has been detected with traces of AI generation. The AIGC detection score is 0.95. We recommend further verifying the image source'),
-    metadataAiFlag?: string(name='MetadataAiFlag', description='The metadata AI flag. This field is always returned.', example='高风险'),
-    metadataAiSource?: string(name='MetadataAiSource', description='The source of the metadata AI flag. This field is returned only in large model mode. It is empty in small model mode.', example='通义'),
-    riskLevel?: string(name='RiskLevel', description='The determination result. This field is always returned.', example='高风险'),
-  }(name='Tamper', description='The tamper detection result.'),
+        desc?: string(name='Desc', description='The description of the recapture/copy detection result.', example='Recapture detection score'),
+        risk?: string(name='Risk', description='The recapture/copy dimension risk label.', example='High risk'),
+        score?: float(name='Score', description='**Recapture/copy detection score**. Valid values: 0 to 1. A higher value indicates a higher probability of recapture or copy.', example='0.9998'),
+      }(name='Recap', description='**Recapture/copy detection**.'),
+    }(name='BaseResults', description='**Basic algorithm detection results**, including multi-dimensional detection scores and risk labels.'),
+    finalConclusion?: string(name='FinalConclusion', description='The final conclusion.', example='Metadata data analytics result verified as high risk.'),
+    llmResult?: string(name='LlmResult', description='The comprehensive analysis results of the large model.', example='The image is detected to have AI generation traces, with an AIGC detection score of 0.95. Further verification of the image source is recommended'),
+    metadataAiFlag?: string(name='MetadataAiFlag', description='The metadata AI identifier. This parameter is always returned.', example='High risk'),
+    metadataAiSource?: string(name='MetadataAiSource', description='The source of the metadata AI identifier. This parameter is generated only in large model mode and is empty in small model mode.', example='Tongyi'),
+    riskLevel?: string(name='RiskLevel', description='**Judgment result**. This parameter is always returned.', example='High risk'),
+  }(name='Tamper', description='**Tampering detection results**.'),
   taskId?: string(name='TaskId', description='The task ID.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
@@ -1437,13 +1576,13 @@ model GetImageDetectionTaskResultResponse = {
 }
 
 /**
- * @summary Queries the status and result of an image detection task created by CreateImageDetectionTask.
+ * @summary Queries the status and results of an image detection task created by calling CreateImageDetectionTask.
  *
- * @description ## Description
- * Call this operation to query the execution status and result of a specified image detection task, including AIGC detection labels and tamper detection results. Poll at intervals of 2 to 5 seconds until the task status changes to succeeded or failed.
+ * @description ## Request description
+ * Call this operation to query the execution status and results of a specified image detection task, including AIGC detection labels and tampering detection results. Poll the task at an interval of 2 to 5 seconds until the task status changes to succeeded or failed.
  * ## Precautions
- * * Ensure that you use a valid TaskId for the query.
- * * If the task is not complete, increase the polling interval to avoid wasting resources due to frequent requests.
+ * * Use a valid TaskId for the query.
+ * * If the task is not completed, increase the polling interval to avoid resource waste caused by frequent requests.
  *
  * @param request GetImageDetectionTaskResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1477,13 +1616,13 @@ async function getImageDetectionTaskResultWithOptions(request: GetImageDetection
 }
 
 /**
- * @summary Queries the status and result of an image detection task created by CreateImageDetectionTask.
+ * @summary Queries the status and results of an image detection task created by calling CreateImageDetectionTask.
  *
- * @description ## Description
- * Call this operation to query the execution status and result of a specified image detection task, including AIGC detection labels and tamper detection results. Poll at intervals of 2 to 5 seconds until the task status changes to succeeded or failed.
+ * @description ## Request description
+ * Call this operation to query the execution status and results of a specified image detection task, including AIGC detection labels and tampering detection results. Poll the task at an interval of 2 to 5 seconds until the task status changes to succeeded or failed.
  * ## Precautions
- * * Ensure that you use a valid TaskId for the query.
- * * If the task is not complete, increase the polling interval to avoid wasting resources due to frequent requests.
+ * * Use a valid TaskId for the query.
+ * * If the task is not completed, increase the polling interval to avoid resource waste caused by frequent requests.
  *
  * @param request GetImageDetectionTaskResultRequest
  * @return GetImageDetectionTaskResultResponse
@@ -1678,37 +1817,34 @@ async function getImageTaskResult(request: GetImageTaskResultRequest): GetImageT
 }
 
 model GetSensitiveScanResultRequest {
-  taskId?: string(name='TaskId', description='The task ID returned by `CreateSensitiveScanTask`.
+  taskId?: string(name='TaskId', description='The task ID, which is returned by `CreateSensitiveScanTask`.
 
 This parameter is required.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
 model GetSensitiveScanResultResponseBody = {
-  code?: string(name='Code', description='The business error code. The value "OK" is returned when the request succeeds.', example='OK'),
-  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. The value 200 is returned when the request succeeds.', example='200'),
-  message?: string(name='Message', description='The additional information. The value "success" is returned when the request succeeds.', example='success'),
+  code?: string(name='Code', description='The business error code. If the request is successful, "OK" is returned.', example='OK'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. If the request is successful, 200 is returned.', example='200'),
+  message?: string(name='Message', description='The additional information. If the request is successful, "success" is returned.', example='success'),
   requestId?: string(name='RequestId', description='The request ID.', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
   result?: {
     ossObjectDetail?: {
-      bucketName?: string(name='BucketName', description='The name of the bucket to which the object belongs.', example='aideepsign-bucket'),
-      categoryName?: string(name='CategoryName', description='The sensitive data category name.', example='个人信息'),
-      name?: string(name='Name', description='The name of the scanned object.', example='abc12345.jpg'),
-      riskLevelName?: string(name='RiskLevelName', description='The overall risk level name.', example='S2'),
+      bucketName?: string(name='BucketName', description='**The name of the bucket to which the object belongs.**', example='aideepsign-bucket'),
+      categoryName?: string(name='CategoryName', description='**The sensitive data category name.**', example='Personal information'),
+      name?: string(name='Name', description='**The name of the scanned object.**', example='abc12345.jpg'),
+      riskLevelName?: string(name='RiskLevelName', description='**The overall risk level name.**', example='S2'),
       ruleList?: [ 
         {
-          categoryName?: string(name='CategoryName', description='The category name of the rule.', example='个人信息'),
+          categoryName?: string(name='CategoryName', description='The category name of the rule.', example='Personal information'),
           count?: int32(name='Count', description='The number of hits.', example='1'),
           riskLevelName?: string(name='RiskLevelName', description='The risk level name of the rule.', example='S2'),
-          ruleName?: string(name='RuleName', description='The rule name.', example='身份证号'),
+          ruleName?: string(name='RuleName', description='The rule name.', example='ID card number'),
         }
-      ](name='RuleList', description='The list of sensitive data rules that are hit.'),
-    }(name='OssObjectDetail', description='The name of the scanned object.'),
-  }(name='Result', description='The scan result. This parameter is returned only when the status is completed.'),
-  status?: string(name='Status', description='The task status. Valid values:
-- running: The task is running.
-- completed: The task is completed.
-- terminated: The task is terminated or failed.', example='completed'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.'),
+      ](name='RuleList', description='The list of matched sensitive data rules.'),
+    }(name='OssObjectDetail', description='The scan object name.'),
+  }(name='Result', description='The scan results. This parameter is returned only when the task status is `completed`.'),
+  status?: string(name='Status', description='The task status. Valid values: `running` (running), `completed` (completed), and `terminated` (terminated or failed).', example='completed'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.'),
 }
 
 model GetSensitiveScanResultResponse = {
@@ -1718,12 +1854,12 @@ model GetSensitiveScanResultResponse = {
 }
 
 /**
- * @summary Queries the status and result of a sensitive information scan task and returns the details of the sensitive data discovered during the scan.
+ * @summary Queries the status and results of a sensitive information scan task, and returns the details of the sensitive data discovered by the scan.
  *
- * @description ## Operation description
- * - Call this operation to query the execution status and result of a sensitive information scan task created by `CreateSensitiveScanTask`.
- * - Poll at intervals of 3 to 5 seconds until the task status changes to `completed` or `terminated`.
- * - The `ClientToken` parameter ensures the idempotence of the request. It is generated by the client, must be unique across different requests, supports ASCII characters, and cannot exceed 64 characters in length.
+ * @description ## Request description
+ * - Call this operation to query the execution status and results of a sensitive information scan task created by calling `CreateSensitiveScanTask`.
+ * - Poll the task at an interval of 3 to 5 seconds until the task status changes to `completed` or `terminated`.
+ * - The `ClientToken` parameter is used to ensure the idempotence of the request. It is generated by the client and must be unique across different requests. It supports ASCII characters and can be up to 64 characters in length.
  *
  * @param request GetSensitiveScanResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1754,12 +1890,12 @@ async function getSensitiveScanResultWithOptions(request: GetSensitiveScanResult
 }
 
 /**
- * @summary Queries the status and result of a sensitive information scan task and returns the details of the sensitive data discovered during the scan.
+ * @summary Queries the status and results of a sensitive information scan task, and returns the details of the sensitive data discovered by the scan.
  *
- * @description ## Operation description
- * - Call this operation to query the execution status and result of a sensitive information scan task created by `CreateSensitiveScanTask`.
- * - Poll at intervals of 3 to 5 seconds until the task status changes to `completed` or `terminated`.
- * - The `ClientToken` parameter ensures the idempotence of the request. It is generated by the client, must be unique across different requests, supports ASCII characters, and cannot exceed 64 characters in length.
+ * @description ## Request description
+ * - Call this operation to query the execution status and results of a sensitive information scan task created by calling `CreateSensitiveScanTask`.
+ * - Poll the task at an interval of 3 to 5 seconds until the task status changes to `completed` or `terminated`.
+ * - The `ClientToken` parameter is used to ensure the idempotence of the request. It is generated by the client and must be unique across different requests. It supports ASCII characters and can be up to 64 characters in length.
  *
  * @param request GetSensitiveScanResultRequest
  * @return GetSensitiveScanResultResponse
@@ -1935,26 +2071,26 @@ async function getWatermarkEmbedTaskResult(request: GetWatermarkEmbedTaskResultR
 }
 
 model GetWatermarkExtractTaskResultRequest {
-  clientToken?: string(name='ClientToken', description='A reserved idempotence field. This field is not supported. Passing in a value does not cause an error, but it does not produce an idempotence effect.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
-  taskId?: string(name='TaskId', description='The dark watermark task ID returned by the CreateWatermarkExtractTask operation.
+  clientToken?: string(name='ClientToken', description='The reserved idempotency parameter. This parameter is not supported. Passing this parameter does not cause an error but does not provide idempotency.', example='5A2CFF0E-5718-45B5-9D4D-70B3FF3898'),
+  taskId?: string(name='TaskId', description='The ID of the invisible watermark task, which is returned by the CreateWatermarkExtractTask operation.
 
 This parameter is required.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
 }
 
 model GetWatermarkExtractTaskResultResponseBody = {
-  avgAcc?: double(name='AvgAcc', description='The average extraction confidence, ranging from 0 to 1. This parameter is returned only when Status is succeeded.', example='0.99'),
-  code?: string(name='Code', description='The business error code. OK is returned if the request is successful.', example='OK'),
+  avgAcc?: double(name='AvgAcc', description='The average extraction confidence level, which ranges from 0 to 1. This field is returned only when Status is succeeded.', example='0.99', deprecated=true),
+  code?: string(name='Code', description='The business error code. `OK` is returned if the request is successful.', example='OK'),
   detected?: boolean(name='Detected', description='Indicates whether a watermark is detected.', example='true'),
   httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code. 200 is returned if the request is successful.', example='200'),
-  message?: string(name='Message', description='The failure reason when the task fails. This parameter is returned only when Status is failed.', example='The request has failed due to a temporary failure of the server.'),
+  message?: string(name='Message', description='The cause of the task failure. This field is returned only when Status is failed.', example='The request has failed due to a temporary failure of the server.'),
   requestId?: string(name='RequestId', description='Id of the request', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
   status?: string(name='Status', description='The task status. Valid values:
-- running: In progress.
-- succeeded: Completed.
-- failed: Failed.', example='succeeded'),
+- running: The task is running.
+- succeeded: The task is completed.
+- failed: The task failed.', example='succeeded'),
   success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
-  taskId?: string(name='TaskId', description='The dark watermark extraction task ID.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
-  watermarkContent?: string(name='WatermarkContent', description='The extracted watermark content. This parameter is returned only when `Status` is `succeeded` and `Detected=true`.', example='wm-e2e-85970647'),
+  taskId?: string(name='TaskId', description='The ID of the invisible watermark extraction task.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+  watermarkContent?: string(name='WatermarkContent', description='The extracted watermark content. This field is returned only when `Status` is `succeeded` and `Detected=true`.', example='wm-e2e-85970647'),
 }
 
 model GetWatermarkExtractTaskResultResponse = {
@@ -1964,12 +2100,12 @@ model GetWatermarkExtractTaskResultResponse = {
 }
 
 /**
- * @summary Queries the status and extraction result of a dark watermark extraction task.
+ * @summary Queries the status and extraction results of an invisible watermark extraction task.
  *
- * @description ## Operation description
- * - **Polling recommendation**: Set the polling interval to at least 5 seconds. The task completion time is approximately equal to the duration of the carrier media (approximately 1x speed).
- * - **Timeout handling**: The total timeout window for video tasks is 10 minutes, and for image tasks is 5 minutes. If a task is not completed within this time, the task status changes to `failed`.
- * - **Desired state confirmation**: `succeeded` or `failed` is the final status. The result does not change after the task reaches either status.
+ * @description ## Request description
+ * - **Polling recommendation**: Set the polling interval to at least 5 seconds. The task completion time is approximately equal to the duration of the media file (about 1x speed).
+ * - **Timeout handling**: The total timeout window is 10 minutes for video tasks and 5 minutes for image tasks. If a task is not completed within this period, the task status changes to `failed`.
+ * - **Final state confirmation**: `succeeded` and `failed` are final states. The results do not change after a task reaches a final state.
  *
  * @param request GetWatermarkExtractTaskResultRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2003,12 +2139,12 @@ async function getWatermarkExtractTaskResultWithOptions(request: GetWatermarkExt
 }
 
 /**
- * @summary Queries the status and extraction result of a dark watermark extraction task.
+ * @summary Queries the status and extraction results of an invisible watermark extraction task.
  *
- * @description ## Operation description
- * - **Polling recommendation**: Set the polling interval to at least 5 seconds. The task completion time is approximately equal to the duration of the carrier media (approximately 1x speed).
- * - **Timeout handling**: The total timeout window for video tasks is 10 minutes, and for image tasks is 5 minutes. If a task is not completed within this time, the task status changes to `failed`.
- * - **Desired state confirmation**: `succeeded` or `failed` is the final status. The result does not change after the task reaches either status.
+ * @description ## Request description
+ * - **Polling recommendation**: Set the polling interval to at least 5 seconds. The task completion time is approximately equal to the duration of the media file (about 1x speed).
+ * - **Timeout handling**: The total timeout window is 10 minutes for video tasks and 5 minutes for image tasks. If a task is not completed within this period, the task status changes to `failed`.
+ * - **Final state confirmation**: `succeeded` and `failed` are final states. The results do not change after a task reaches a final state.
  *
  * @param request GetWatermarkExtractTaskResultRequest
  * @return GetWatermarkExtractTaskResultResponse
@@ -2016,6 +2152,89 @@ async function getWatermarkExtractTaskResultWithOptions(request: GetWatermarkExt
 async function getWatermarkExtractTaskResult(request: GetWatermarkExtractTaskResultRequest): GetWatermarkExtractTaskResultResponse {
   var runtime = new $RuntimeOptions{};
   return getWatermarkExtractTaskResultWithOptions(request, runtime);
+}
+
+model GetWatermarkSignTaskResultRequest {
+  clientToken?: string(name='ClientToken', description='The idempotency parameter.', example='xxx'),
+  taskId?: string(name='TaskId', description='The ID of the combined task, which is returned by the CreateWatermarkSignTask operation.
+
+This parameter is required.', example='047b8305-9572-4eed-b7fb-8588b989b6e5'),
+}
+
+model GetWatermarkSignTaskResultResponseBody = {
+  code?: string(name='Code', description='The **business error code**. `OK` is returned when the request succeeds.', example='OK'),
+  errorCode?: string(name='ErrorCode', description='The error code of the task. This parameter is returned when Status is FAILED.', example='C2PA_CERTIFICATE_SERVICE_UNAVAILABLE'),
+  errorMessage?: string(name='ErrorMessage', description='The error message of the task. This parameter is returned under the same conditions as ErrorCode.', example='the certificate service is temporarily unavailable'),
+  httpStatusCode?: int32(name='HttpStatusCode', description='The HTTP status code.', example='200'),
+  message?: string(name='Message', description='The error message returned when the task fails.', example='mediaFakeCheck error: code=4010 message=async poll timeout after 30 retries, uuid:D9390706E5EC263C09825D414601BDE7_33.63.90.51_1784254068.723000_937'),
+  objectKey?: string(name='ObjectKey', description='The destination object key returned when the signing result is written to the user\\\\"s bucket. This parameter is returned only when the task succeeds.', example='ai-deepsign-signed/example_signed.png'),
+  requestId?: string(name='RequestId', description='Id of the request', example='A1B2C3D4-E5F6-7890-ABCD-EF1234567890'),
+  signedFileUrl?: string(name='SignedFileUrl', description='The temporary download URL of the signed file. This parameter is returned when the task succeeds in internal bucket mode.', example='https://example-bucket.oss-cn-hangzhou.aliyuncs.com/example_signed.png?Expires=1788000000&Signature=***'),
+  stage?: string(name='Stage', description='The current processing stage. Valid values:
+- WATERMARK: Invisible watermark embedding.
+- SIGNING: C2PA signing.', example='SIGNING'),
+  status?: string(name='Status', description='The task status. Valid values:
+- PROCESSING: The task is being processed.
+- SUCCEEDED: The task succeeded. This is a final state.
+- FAILED: The task failed. This is a final state.
+- CANCELED: The task is canceled. This is a final state.', example='SUCCEEDED'),
+  success?: boolean(name='Success', description='Indicates whether the request succeeded.', example='true'),
+  taskId?: string(name='TaskId', description='The ID of the combined task.', example='f47ac10b-58cc-4372-a567-0e02b2c3d479'),
+}
+
+model GetWatermarkSignTaskResultResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetWatermarkSignTaskResultResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the task result of the combined node for invisible watermark embedding and C2PA signing.
+ *
+ * @description Queries the status and results of the combined task submitted by CreateWatermarkSignTask, and returns the current processing stage (invisible watermark embedding or C2PA signing) and the URL of the final output.
+ *
+ * @param request GetWatermarkSignTaskResultRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetWatermarkSignTaskResultResponse
+ */
+@context("getWatermarkSignTaskResultWithContext")
+async function getWatermarkSignTaskResultWithOptions(request: GetWatermarkSignTaskResultRequest, runtime: $RuntimeOptions): GetWatermarkSignTaskResultResponse {
+  request.validate();
+  var query = {};
+  if (!$isNull(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!$isNull(request.taskId)) {
+    query['TaskId'] = request.taskId;
+  }
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetWatermarkSignTaskResult',
+    version = '2026-05-11',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the task result of the combined node for invisible watermark embedding and C2PA signing.
+ *
+ * @description Queries the status and results of the combined task submitted by CreateWatermarkSignTask, and returns the current processing stage (invisible watermark embedding or C2PA signing) and the URL of the final output.
+ *
+ * @param request GetWatermarkSignTaskResultRequest
+ * @return GetWatermarkSignTaskResultResponse
+ */
+async function getWatermarkSignTaskResult(request: GetWatermarkSignTaskResultRequest): GetWatermarkSignTaskResultResponse {
+  var runtime = new $RuntimeOptions{};
+  return getWatermarkSignTaskResultWithOptions(request, runtime);
 }
 
 model PauseC2paBucketSignTaskRequest {
