@@ -2,6 +2,7 @@
  *
  */
 import Util;
+import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -11,6 +12,9 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
+  @productId = 'BssOpenApi';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   @endpointMap = {
     'cn-hangzhou' = 'business.aliyuncs.com',
@@ -119,30 +123,30 @@ model ItemValues {
 model DataModuleMapListSpnTypeMapListValue = {
   filterModules?: [ 
     {
-      moduleId?: long(name='ModuleId'),
       moduleCode?: string(name='ModuleCode'),
+      moduleId?: long(name='ModuleId'),
       moduleName?: string(name='ModuleName'),
     }
   ](name='FilterModules'),
   showModules?: [ 
     {
-      moduleId?: long(name='ModuleId'),
       moduleCode?: string(name='ModuleCode'),
+      moduleId?: long(name='ModuleId'),
       moduleName?: string(name='ModuleName'),
     }
   ](name='ShowModules'),
 }
 
 model DataStepPriceMapValue = {
-  rightClose?: boolean(name='RightClose'),
-  min?: string(name='Min'),
-  max?: string(name='Max'),
   currency?: string(name='Currency'),
-  leftClose?: boolean(name='LeftClose'),
-  stepPriceValue?: string(name='StepPriceValue'),
-  priceValueType?: string(name='PriceValueType'),
-  priceValue?: string(name='PriceValue'),
   deductCycleType?: string(name='DeductCycleType'),
+  leftClose?: boolean(name='LeftClose'),
+  max?: string(name='Max'),
+  min?: string(name='Min'),
+  priceValue?: string(name='PriceValue'),
+  priceValueType?: string(name='PriceValueType'),
+  rightClose?: boolean(name='RightClose'),
+  stepPriceValue?: string(name='StepPriceValue'),
 }
 
 model AddCouponDeductTagRequest {
@@ -1242,70 +1246,45 @@ async function createInvoice(request: CreateInvoiceRequest): CreateInvoiceRespon
 }
 
 model CreateReportDefinitionRequest {
-  beginBillingCycle?: string(name='BeginBillingCycle', description='The start billing cycle for data push. After the subscription is created, the system automatically pushes data from the start billing cycle to the current time. This parameter is invalid for monthly billing PDF subscriptions, and historical data is not pushed again. Data within the most recent year can be pushed.', example='2025-05'),
-  includeMembers?: string(name='IncludeMembers', description='Specifies whether to include enterprise multi-account members in bills for email subscriptions.', example='true'),
+  beginBillingCycle?: string(name='BeginBillingCycle', description='The start billing cycle for data push. After the subscription is created, the system automatically pushes data from the start billing cycle to the current time. This parameter is invalid for monthly billing PDF subscriptions, and historical data is not pushed again. Data within the recent year can be pushed at most.', example='2025-05'),
+  includeMembers?: string(name='IncludeMembers', description='The email subscription configuration. Specifies whether to include enterprise multi-account members in bills.', example='true'),
   mcProject?: string(name='McProject', description='The name of the MC project.', example='project'),
   mcTableName?: string(name='McTableName', description='The name of the MC subscription table.', example='table'),
   nbid?: string(name='Nbid', description='The ID of the level-1 site. If this parameter is left empty, the ID of the site to which the current user belongs is used by default.', example='2684201000001'),
-  notSendOnNoData?: string(name='NotSendOnNoData', description='Specifies whether to skip sending emails when no bills are generated for email subscriptions.', example='true'),
+  notSendOnNoData?: string(name='NotSendOnNoData', description='The email subscription configuration. Specifies whether to skip sending emails when no bills are generated.', example='true'),
   ossBucketName?: string(name='OssBucketName', description='The name of the OSS bucket that stores the files.', example='sh-bill'),
-  ossBucketOwnerAccountId?: long(name='OssBucketOwnerAccountId', description='The UID of the OSS owner that stores the files. Specify this parameter if the subscription is made by a bidder or reseller and the files need to be pushed to the OSS bucket of a RAM user. The RAM user must be a subordinate account of the calling account and must be granted the AliyunConsumeDump2OSSRole permission. Regular users do not need to specify this parameter. The default value is the calling account.', example='1234567812345678'),
+  ossBucketOwnerAccountId?: long(name='OssBucketOwnerAccountId', description='The UID of the OSS owner that stores the files. Specify this parameter when a BID or reseller subscription needs to push files to the OSS bucket of a RAM user. The RAM user must be a subordinate account of the calling account and must be granted the AliyunConsumeDump2OSSRole permission. Regular users do not need to specify this parameter. The default value is the calling account.', example='1234567812345678'),
   ossBucketPath?: string(name='OssBucketPath', description='The storage path in the OSS bucket.', example='bill/'),
   reportSourceType?: string(name='ReportSourceType', description='The subscription source. Valid values: OSS, MC, and MSC_EMAIL.', example='OSS'),
   reportType?: string(name='ReportType', description='The subscription type. Valid values:
-- consumeDetailBillV2: consumption details. Supported only for OSS and MC subscriptions.
-- splitDetailBillV2: split details. Supported only for OSS and MC subscriptions.
-- costDetailBillV2: cost details. Supported only for OSS and MC subscriptions.
-- monthBillOverview: monthly bill overview. Supported only for OSS and MSC_EMAIL subscriptions.
-- focus: focus bills. Supported only for OSS and MC subscriptions.
+- consumeDetailBillV2: consumption details (supported only by OSS and MC subscriptions).
+- splitDetailBillV2: split details (supported only by OSS and MC subscriptions).
+- costDetailBillV2: cost details (supported only by OSS and MC subscriptions).
+- monthBillOverview: monthly bill summary (supported only by OSS and MSC_EMAIL subscriptions).
+- focus: focus bills (supported only by OSS and MC subscriptions).
 
 This parameter is required.', example='consumeDetailBillV2'),
-  selectedFields?: [ string ](name='SelectedFields', description='The fields to which the user subscribes.'),
-  sendWithAttach?: string(name='SendWithAttach', description='Specifies whether to include bill attachments in emails for email subscriptions.', example='true'),
-  splitFileOnUserId?: string(name='SplitFileOnUserId', description='Specifies whether to split attachments by user ID for email subscriptions.', example='true'),
-}
-
-model CreateReportDefinitionShrinkRequest {
-  beginBillingCycle?: string(name='BeginBillingCycle', description='The start billing cycle for data push. After the subscription is created, the system automatically pushes data from the start billing cycle to the current time. This parameter is invalid for monthly billing PDF subscriptions, and historical data is not pushed again. Data within the most recent year can be pushed.', example='2025-05'),
-  includeMembers?: string(name='IncludeMembers', description='Specifies whether to include enterprise multi-account members in bills for email subscriptions.', example='true'),
-  mcProject?: string(name='McProject', description='The name of the MC project.', example='project'),
-  mcTableName?: string(name='McTableName', description='The name of the MC subscription table.', example='table'),
-  nbid?: string(name='Nbid', description='The ID of the level-1 site. If this parameter is left empty, the ID of the site to which the current user belongs is used by default.', example='2684201000001'),
-  notSendOnNoData?: string(name='NotSendOnNoData', description='Specifies whether to skip sending emails when no bills are generated for email subscriptions.', example='true'),
-  ossBucketName?: string(name='OssBucketName', description='The name of the OSS bucket that stores the files.', example='sh-bill'),
-  ossBucketOwnerAccountId?: long(name='OssBucketOwnerAccountId', description='The UID of the OSS owner that stores the files. Specify this parameter if the subscription is made by a bidder or reseller and the files need to be pushed to the OSS bucket of a RAM user. The RAM user must be a subordinate account of the calling account and must be granted the AliyunConsumeDump2OSSRole permission. Regular users do not need to specify this parameter. The default value is the calling account.', example='1234567812345678'),
-  ossBucketPath?: string(name='OssBucketPath', description='The storage path in the OSS bucket.', example='bill/'),
-  reportSourceType?: string(name='ReportSourceType', description='The subscription source. Valid values: OSS, MC, and MSC_EMAIL.', example='OSS'),
-  reportType?: string(name='ReportType', description='The subscription type. Valid values:
-- consumeDetailBillV2: consumption details. Supported only for OSS and MC subscriptions.
-- splitDetailBillV2: split details. Supported only for OSS and MC subscriptions.
-- costDetailBillV2: cost details. Supported only for OSS and MC subscriptions.
-- monthBillOverview: monthly bill overview. Supported only for OSS and MSC_EMAIL subscriptions.
-- focus: focus bills. Supported only for OSS and MC subscriptions.
-
-This parameter is required.', example='consumeDetailBillV2'),
-  selectedFieldsShrink?: string(name='SelectedFields', description='The fields to which the user subscribes.'),
-  sendWithAttach?: string(name='SendWithAttach', description='Specifies whether to include bill attachments in emails for email subscriptions.', example='true'),
-  splitFileOnUserId?: string(name='SplitFileOnUserId', description='Specifies whether to split attachments by user ID for email subscriptions.', example='true'),
+  sendWithAttach?: string(name='SendWithAttach', description='The email subscription configuration. Specifies whether to include bill attachments in emails.', example='true'),
+  splitFileOnUserId?: string(name='SplitFileOnUserId', description='The email subscription configuration. Specifies whether to split attachments by user ID.', example='true'),
 }
 
 model CreateReportDefinitionResponseBody = {
-  beginBillingCycle?: string(name='BeginBillingCycle', description='The start billing cycle for data push. After the subscription is created, the system automatically pushes data from the start billing cycle to the current time. This parameter is invalid for monthly billing PDF subscriptions, and historical data is not pushed again. Data within the most recent year can be pushed.', example='2025-05'),
+  beginBillingCycle?: string(name='BeginBillingCycle', description='The start billing cycle for data push. After the subscription is created, the system automatically pushes data from the start billing cycle to the current time. This parameter is invalid for monthly billing PDF subscriptions, and historical data is not pushed again. Data within the recent year can be pushed at most.', example='2025-05'),
   metadata?: any(name='Metadata', description='The metadata of the response structure.', example='{}'),
   ossBucketName?: string(name='OssBucketName', description='The name of the OSS bucket that stores the files.', example='sh-bill'),
-  ossBucketOwnerAccountId?: long(name='OssBucketOwnerAccountId', description='The UID of the OSS owner that stores the files. Specify this parameter if the subscription is made by a bidder or reseller and the files need to be pushed to the OSS bucket of a RAM user. The RAM user must be a subordinate account of the calling account and must be granted the AliyunConsumeDump2OSSRole permission. Regular users do not need to specify this parameter. The default value is the calling account.', example='1234567812345678'),
+  ossBucketOwnerAccountId?: long(name='OssBucketOwnerAccountId', description='The UID of the OSS owner that stores the files. Specify this parameter when a BID or reseller subscription needs to push files to the OSS bucket of a RAM user. The RAM user must be a subordinate account of the calling account and must be granted the AliyunConsumeDump2OSSRole permission. Regular users do not need to specify this parameter. The default value is the calling account.', example='1234567812345678'),
   ossBucketPath?: string(name='OssBucketPath', description='The storage path in the OSS bucket.', example='bill/'),
   reportSourceName?: string(name='ReportSourceName', description='The name of the subscription source.', example='OSS'),
   reportSourceType?: string(name='ReportSourceType', description='The subscription source. Valid values: OSS and MC.', example='OSS'),
   reportTaskId?: long(name='ReportTaskId', description='The ID of the billing subscription task.', example='123123'),
   reportType?: string(name='ReportType', description='The subscription type. Valid values:
-- consumeDetailBillV2: consumption details. Supported only for OSS and MC subscriptions.
-- splitDetailBillV2: split details. Supported only for OSS and MC subscriptions.
-- costDetailBillV2: cost details. Supported only for OSS and MC subscriptions.
-- monthBillOverview: monthly bill overview. Supported only for OSS and MSC_EMAIL subscriptions.
-- focus: focus bills. Supported only for OSS and MC subscriptions.', example='consumeDetailBillV2'),
-  requestId?: string(name='RequestId', description='The request ID.', example='340CAB45-0637-5875-9BE4-EFD5750F6BA5'),
-  subscribeCreateTime?: string(name='SubscribeCreateTime', description='The time when the subscription was created. The format is YYYY-MM-DD HH:mm:ss.', example='2025-05-21 10:36:31'),
+- consumeDetailBillV2: consumption details (supported only by OSS and MC subscriptions).
+- splitDetailBillV2: split details (supported only by OSS and MC subscriptions).
+- costDetailBillV2: cost details (supported only by OSS and MC subscriptions).
+- monthBillOverview: monthly bill summary (supported only by OSS and MSC_EMAIL subscriptions).
+- focus: focus bills (supported only by OSS and MC subscriptions).', example='consumeDetailBillV2'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='340CAB45-0637-5875-9BE4-EFD5750F6BA5'),
+  subscribeCreateTime?: string(name='SubscribeCreateTime', description='The time when the subscription was created. The time is in the YYYY-MM-DD HH:mm:ss format.', example='2025-05-21 10:36:31'),
 }
 
 model CreateReportDefinitionResponse = {
@@ -1319,35 +1298,30 @@ model CreateReportDefinitionResponse = {
  *
  * @description When you call this operation, note the following items:
  * - You can subscribe to only one type of billing file at a time.
- * - Except for monthly billing PDFs, starting from the day after the subscription is created, a billing file containing all detailed data from the beginning of the current month to the current day is pushed daily. A full billing file for the entire previous billing cycle is pushed before the 4th day of each month.
- * - Monthly billing PDFs for the previous month are pushed before the 4th day of each month.
- * - Billing files generated on a daily basis may be delayed. Delayed bills are pushed on the day after they are generated and may include bills that were delayed and generated on the previous day. Pull the full files for the previous month at the beginning of each month.
- * > Apply for the billing subscription permissions as described in the documentation: [Billing subscription](https://www.alibabacloud.com/help/en/user-center/user-guide/billing-subscription).
- * - This subscription and the billing subscription in the Expenses and Costs console are the same feature, and subscriptions are interoperable.
+ * - Except for monthly billing PDF files, starting from the day after the subscription is created, a billing file that contains all detailed data from the beginning of the current month to the current day is pushed every day. A full billing file for the entire previous billing cycle is pushed before the 4th day of each month.
+ * - Monthly billing PDF files for the previous month are pushed before the 4th day of each month.
+ * - Billing files generated on a daily basis may be delayed. Delayed billing files are pushed on the day after they are generated, and may also include billing files that were delayed and generated on the previous day. Pull the full files for the previous month at the beginning of each month.
+ * > Apply for permissions by following the instructions in [Billing subscription](https://www.alibabacloud.com/help/en/user-center/user-guide/billing-subscription).
+ * - This subscription and the billing subscription feature in Expenses and Costs are the same feature, and subscriptions are interoperable.
  * - When you subscribe to a directory under a bucket, make sure that the directory naming conventions are met:
- *     - Emojis are not allowed. Use valid UTF-8 characters.
- *     - The forward slash (/) is used to separate paths and create subdirectories. Do not start the path with a forward slash (/) or a backslash (\\), and do not use consecutive forward slashes.
- *     - Subdirectories named .. are not allowed.
- *     - The total length must be 1 to 254 characters.
+ *     - Do not use emojis. Use valid UTF-8 characters.
+ *     - Use forward slashes (/) to separate paths and quickly create subdirectories. Do not start a path with a forward slash (/) or a backslash (\\), and do not use consecutive forward slashes.
+ *     - Do not use subdirectories named `..`.
+ *     - Limit the total length to 1 to 254 characters.
  * - File names:
  *     - Example: **consumeDetailBillV2** (billing item details)
  *     
- *         - Format of the file name pushed daily: `{Account UID}_{Site ID}_{Bill type}_{YYYYMM|YYYYMMDD}`. Example: `169**_2688801000001_consumeDetailBillV2_20190312`.
+ *         - Format of the file name pushed every day: `{Account UID}_{Site ID}_{Billing type}_{YYYYMM|YYYYMMDD}`. Example: `169**_2688801000001_consumeDetailBillV2_20190312`.
  *     
- *         - Format of the complete file name pushed at the beginning of the next month: `{Account UID}_{Site ID}_{Bill type}_{YYYYMM|YYYYMM}`. Example: `169**_2688801000001_consumeDetailBillV2_201903`.
+ *         - Format of the complete file name pushed at the beginning of the next month: `{Account UID}_{Site ID}_{Billing type}_{YYYYMM|YYYYMM}`. Example: `169**_2688801000001_consumeDetailBillV2_201903`.
  * - Monthly billing PDF files are in the .pdf format, and other files are in the .csv format. When the data volume is large, the system automatically splits an exported bill into multiple files and compresses them into one or more ZIP files. The ZIP file names follow the same format.
  *
- * @param tmpReq CreateReportDefinitionRequest
+ * @param request CreateReportDefinitionRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return CreateReportDefinitionResponse
  */
-async function createReportDefinitionWithOptions(tmpReq: CreateReportDefinitionRequest, runtime: Util.RuntimeOptions): CreateReportDefinitionResponse {
-  Util.validateModel(tmpReq);
-  var request = new CreateReportDefinitionShrinkRequest{};
-  OpenApiUtil.convert(tmpReq, request);
-  if (!Util.isUnset(tmpReq.selectedFields)) {
-    request.selectedFieldsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.selectedFields, 'SelectedFields', 'json');
-  }
+async function createReportDefinitionWithOptions(request: CreateReportDefinitionRequest, runtime: Util.RuntimeOptions): CreateReportDefinitionResponse {
+  Util.validateModel(request);
   var query = {};
   if (!Util.isUnset(request.beginBillingCycle)) {
     query['BeginBillingCycle'] = request.beginBillingCycle;
@@ -1372,9 +1346,6 @@ async function createReportDefinitionWithOptions(tmpReq: CreateReportDefinitionR
   }
   if (!Util.isUnset(request.reportType)) {
     query['ReportType'] = request.reportType;
-  }
-  if (!Util.isUnset(request.selectedFieldsShrink)) {
-    query['SelectedFields'] = request.selectedFieldsShrink;
   }
   if (!Util.isUnset(request.sendWithAttach)) {
     query['SendWithAttach'] = request.sendWithAttach;
@@ -1415,22 +1386,22 @@ async function createReportDefinitionWithOptions(tmpReq: CreateReportDefinitionR
  *
  * @description When you call this operation, note the following items:
  * - You can subscribe to only one type of billing file at a time.
- * - Except for monthly billing PDFs, starting from the day after the subscription is created, a billing file containing all detailed data from the beginning of the current month to the current day is pushed daily. A full billing file for the entire previous billing cycle is pushed before the 4th day of each month.
- * - Monthly billing PDFs for the previous month are pushed before the 4th day of each month.
- * - Billing files generated on a daily basis may be delayed. Delayed bills are pushed on the day after they are generated and may include bills that were delayed and generated on the previous day. Pull the full files for the previous month at the beginning of each month.
- * > Apply for the billing subscription permissions as described in the documentation: [Billing subscription](https://www.alibabacloud.com/help/en/user-center/user-guide/billing-subscription).
- * - This subscription and the billing subscription in the Expenses and Costs console are the same feature, and subscriptions are interoperable.
+ * - Except for monthly billing PDF files, starting from the day after the subscription is created, a billing file that contains all detailed data from the beginning of the current month to the current day is pushed every day. A full billing file for the entire previous billing cycle is pushed before the 4th day of each month.
+ * - Monthly billing PDF files for the previous month are pushed before the 4th day of each month.
+ * - Billing files generated on a daily basis may be delayed. Delayed billing files are pushed on the day after they are generated, and may also include billing files that were delayed and generated on the previous day. Pull the full files for the previous month at the beginning of each month.
+ * > Apply for permissions by following the instructions in [Billing subscription](https://www.alibabacloud.com/help/en/user-center/user-guide/billing-subscription).
+ * - This subscription and the billing subscription feature in Expenses and Costs are the same feature, and subscriptions are interoperable.
  * - When you subscribe to a directory under a bucket, make sure that the directory naming conventions are met:
- *     - Emojis are not allowed. Use valid UTF-8 characters.
- *     - The forward slash (/) is used to separate paths and create subdirectories. Do not start the path with a forward slash (/) or a backslash (\\), and do not use consecutive forward slashes.
- *     - Subdirectories named .. are not allowed.
- *     - The total length must be 1 to 254 characters.
+ *     - Do not use emojis. Use valid UTF-8 characters.
+ *     - Use forward slashes (/) to separate paths and quickly create subdirectories. Do not start a path with a forward slash (/) or a backslash (\\), and do not use consecutive forward slashes.
+ *     - Do not use subdirectories named `..`.
+ *     - Limit the total length to 1 to 254 characters.
  * - File names:
  *     - Example: **consumeDetailBillV2** (billing item details)
  *     
- *         - Format of the file name pushed daily: `{Account UID}_{Site ID}_{Bill type}_{YYYYMM|YYYYMMDD}`. Example: `169**_2688801000001_consumeDetailBillV2_20190312`.
+ *         - Format of the file name pushed every day: `{Account UID}_{Site ID}_{Billing type}_{YYYYMM|YYYYMMDD}`. Example: `169**_2688801000001_consumeDetailBillV2_20190312`.
  *     
- *         - Format of the complete file name pushed at the beginning of the next month: `{Account UID}_{Site ID}_{Bill type}_{YYYYMM|YYYYMM}`. Example: `169**_2688801000001_consumeDetailBillV2_201903`.
+ *         - Format of the complete file name pushed at the beginning of the next month: `{Account UID}_{Site ID}_{Billing type}_{YYYYMM|YYYYMM}`. Example: `169**_2688801000001_consumeDetailBillV2_201903`.
  * - Monthly billing PDF files are in the .pdf format, and other files are in the .csv format. When the data volume is large, the system automatically splits an exported bill into multiple files and compresses them into one or more ZIP files. The ZIP file names follow the same format.
  *
  * @param request CreateReportDefinitionRequest
@@ -1772,7 +1743,7 @@ model DescribeCouponRequest {
 This parameter is required.', example='1'),
   ecIdAccountIds?: [ 
     {
-      accountIds?: [ long ](name='AccountIds', description='The list of accounts to access. If this parameter is left empty, all accounts under the current entity ID are selected.'),
+      accountIds?: [ long ](name='AccountIds', description='The list of accessed accounts. If this parameter is left empty, all accounts under the current entity ID are selected.'),
       ecId?: string(name='EcId', description='The enterprise entity ID.', example='1501603440974415'),
     }
   ](name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the coupons of the current account are queried.'),
@@ -1781,13 +1752,13 @@ This parameter is required.', example='1'),
   expireEndDate?: long(name='ExpireEndDate', description='The expiration end time, specified as a UNIX timestamp in milliseconds.', example='1708423156000'),
   expireStartDate?: long(name='ExpireStartDate', description='The expiration start time, specified as a UNIX timestamp in milliseconds.', example='1684750028000'),
   includeShare?: boolean(name='IncludeShare', description='Specifies whether to include shared coupons.'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for a single request.'),
-  nbid?: string(name='Nbid', description='The first-level site information.', example='2684201000001'),
-  nextToken?: string(name='NextToken', description='The token for the next query. If this parameter is empty, no more pages are available.'),
-  pageSize?: int32(name='PageSize', description='The page size.
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for a single query.', example='20'),
+  nbid?: string(name='Nbid', description='The level-1 site information.', example='2684201000001'),
+  nextToken?: string(name='NextToken', description='The token used to start the next query. If this parameter is left empty, no more pages exist.'),
+  pageSize?: int32(name='PageSize', description='The number of items per page.
 
 This parameter is required.', example='20'),
-  productCode?: string(name='ProductCode', description='The product code.'),
+  productCode?: string(name='ProductCode', description='The product code.', example='sfm'),
   status?: string(name='Status', description='The status.', example='AVAILABLE'),
 }
 
@@ -1805,13 +1776,13 @@ This parameter is required.', example='1'),
   expireEndDate?: long(name='ExpireEndDate', description='The expiration end time, specified as a UNIX timestamp in milliseconds.', example='1708423156000'),
   expireStartDate?: long(name='ExpireStartDate', description='The expiration start time, specified as a UNIX timestamp in milliseconds.', example='1684750028000'),
   includeShare?: boolean(name='IncludeShare', description='Specifies whether to include shared coupons.'),
-  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for a single request.'),
-  nbid?: string(name='Nbid', description='The first-level site information.', example='2684201000001'),
-  nextToken?: string(name='NextToken', description='The token for the next query. If this parameter is empty, no more pages are available.'),
-  pageSize?: int32(name='PageSize', description='The page size.
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries to return for a single query.', example='20'),
+  nbid?: string(name='Nbid', description='The level-1 site information.', example='2684201000001'),
+  nextToken?: string(name='NextToken', description='The token used to start the next query. If this parameter is left empty, no more pages exist.'),
+  pageSize?: int32(name='PageSize', description='The number of items per page.
 
 This parameter is required.', example='20'),
-  productCode?: string(name='ProductCode', description='The product code.'),
+  productCode?: string(name='ProductCode', description='The product code.', example='sfm'),
   status?: string(name='Status', description='The status.', example='AVAILABLE'),
 }
 
@@ -1820,18 +1791,18 @@ model DescribeCouponResponseBody = {
   data?: [ 
     {
       amount?: string(name='Amount', description='The face value.', example='9929.750000'),
-      certainAmount?: string(name='CertainAmount', description='CertainAmount'),
+      certainAmount?: string(name='CertainAmount', description='CertainAmount', example='100.00'),
       couponId?: long(name='CouponId', description='The coupon ID.', example='59243658'),
       couponNo?: string(name='CouponNo', description='The coupon code.', example='731074910070'),
       couponType?: string(name='CouponType', description='The coupon type.', example='CERTAIN'),
       couponTypeName?: string(name='CouponTypeName', description='The coupon type name.', example='Threshold discount coupon'),
       currency?: string(name='Currency', description='The currency.', example='CNY'),
-      endTime?: string(name='EndTime', description='The end time in ISO 8601 format. The time is displayed in UTC.', example='2021-03-06T15:12Z'),
-      firstBuy?: boolean(name='FirstBuy', description='Indicates whether the coupon is limited to first-time purchases.'),
+      endTime?: string(name='EndTime', description='The end time in ISO 8601 format. The time zone is UTC.', example='2021-03-06T15:12Z'),
+      firstBuy?: boolean(name='FirstBuy', description='Indicates whether a first-purchase limit applies.'),
       gmtCreate?: string(name='GmtCreate', description='The time when the coupon was issued.', example='2021-03-02T15:12Z'),
       itemNames?: [ string ](name='ItemNames', description='The list of product codes.'),
       moneyLimit?: string(name='MoneyLimit', description='The amount limit.', example='No order amount limit'),
-      orderTimeRule?: string(name='OrderTimeRule', description='The order duration limit rule.', example='Subscription rule: The coupon can be used only for purchase orders with a duration greater than 3,600 seconds'),
+      orderTimeRule?: string(name='OrderTimeRule', description='The order duration limit rule.', example='Subscription rule: The coupon can be used only for orders with a duration greater than 3,600 seconds'),
       remainAmount?: string(name='RemainAmount', description='The remaining amount.', example='100.00'),
       remark?: string(name='Remark', description='The remark.', example='New purchase on the 28th'),
       shareUidList?: [ 
@@ -1840,18 +1811,18 @@ model DescribeCouponResponseBody = {
           userNick?: string(name='UserNick', description='The Alibaba Cloud account.', example='Alibaba Cloud Computing Ltd'),
         }
       ](name='ShareUidList', description='The list of shared accounts.'),
-      showSetDeductTagButton?: boolean(name='ShowSetDeductTagButton', description='Specifies whether the tag deduction button is displayed.', example='true'),
+      showSetDeductTagButton?: boolean(name='ShowSetDeductTagButton', description='Indicates whether the tag deduction button is displayed.', example='true'),
       site?: string(name='Site', description='The site.', example='CHINA'),
       siteName?: string(name='SiteName', description='The site name.', example='Official website direct sales'),
-      startTime?: string(name='StartTime', description='The start time in ISO 8601 format. The time is displayed in UTC.', example='2021-03-02T15:12Z'),
+      startTime?: string(name='StartTime', description='The start time in ISO 8601 format. The time zone is UTC.', example='2021-03-02T15:12Z'),
       status?: string(name='Status', description='The status.', example='Available'),
       suitAccount?: string(name='SuitAccount', description='The applicable account.', example='1902671110151254'),
-      suitItemType?: string(name='SuitItemType', description='The applicable product type: all for all products, white for specified applicable products, and black for specified inapplicable products.', example='all'),
+      suitItemType?: string(name='SuitItemType', description='The applicable product type. Valid values: all: Applicable to all products. white: Applicable to specified products. black: Not applicable to specified products.', example='all'),
       universalType?: string(name='UniversalType', description='The application scope of the coupon.', example='UNIVERSAL'),
       yhOrderTypes?: [ string ](name='YhOrderTypes', description='The list of applicable order types for the coupon.'),
     }
   ](name='Data', description='The data list.'),
-  pageSize?: int32(name='PageSize', description='The page size.', example='20'),
+  pageSize?: int32(name='PageSize', description='The number of items per page.', example='20'),
   requestId?: string(name='RequestId', description='The request ID.', example='C880B065-A781-4F19-B6DD-3E0E3B715C64'),
   totalCount?: int32(name='TotalCount', description='The total number of records.', example='2'),
 }
@@ -1863,7 +1834,7 @@ model DescribeCouponResponse = {
 }
 
 /**
- * @summary Queries a list of coupons.
+ * @summary Queries the list of coupons.
  *
  * @param tmpReq DescribeCouponRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1949,7 +1920,7 @@ async function describeCouponWithOptions(tmpReq: DescribeCouponRequest, runtime:
 }
 
 /**
- * @summary Queries a list of coupons.
+ * @summary Queries the list of coupons.
  *
  * @param request DescribeCouponRequest
  * @return DescribeCouponResponse
@@ -1969,30 +1940,30 @@ model DescribeCouponItemListRequest {
 
 This parameter is required.', example='1004064243473974'),
     }
-  ](name='EcIdAccountIds', description='The list of enterprise entities and accounts. If this parameter is left empty, the current account is queried.'),
-  name?: string(name='Name', description='The product name. Fuzzy matching is supported.', example='云服务器ECS'),
-  nbid?: string(name='Nbid', description='The level-1 sales channel ID. If this parameter is left empty, the channel ID of the current user is used by default.', example='2684201000001'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
+  ](name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
+  name?: string(name='Name', description='The product name. Fuzzy match is supported.', example='Elastic Compute Service'),
+  nbid?: string(name='Nbid', description='The primary marketplace ID. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2684201000001'),
+  pageSize?: int32(name='PageSize', description='The number of items per page.', example='20'),
 }
 
 model DescribeCouponItemListShrinkRequest {
   couponId?: long(name='CouponId', description='The coupon ID.', example='59104570'),
   currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
-  ecIdAccountIdsShrink?: string(name='EcIdAccountIds', description='The list of enterprise entities and accounts. If this parameter is left empty, the current account is queried.'),
-  name?: string(name='Name', description='The product name. Fuzzy matching is supported.', example='云服务器ECS'),
-  nbid?: string(name='Nbid', description='The level-1 sales channel ID. If this parameter is left empty, the channel ID of the current user is used by default.', example='2684201000001'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
+  ecIdAccountIdsShrink?: string(name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
+  name?: string(name='Name', description='The product name. Fuzzy match is supported.', example='Elastic Compute Service'),
+  nbid?: string(name='Nbid', description='The primary marketplace ID. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2684201000001'),
+  pageSize?: int32(name='PageSize', description='The number of items per page.', example='20'),
 }
 
 model DescribeCouponItemListResponseBody = {
   currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
   data?: [ 
     {
-      code?: string(name='Code', description='The product code.', example='vm'),
-      name?: string(name='Name', description='The product name.', example='云服务器ECS'),
+      code?: string(name='Code', description='The commodity code.', example='vm'),
+      name?: string(name='Name', description='The product name.', example='Elastic Compute Service'),
     }
   ](name='Data', description='The data list.'),
-  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
+  pageSize?: int32(name='PageSize', description='The number of items per page.', example='20'),
   requestId?: string(name='RequestId', description='The request ID.', example='EAE08A27-386C-579E-966D-8853EC3C5D0E'),
   totalCount?: int32(name='TotalCount', description='The total number of records.', example='5'),
 }
@@ -2004,7 +1975,7 @@ model DescribeCouponItemListResponse = {
 }
 
 /**
- * @summary Queries the list of products available for a coupon.
+ * @summary Queries the products available for a coupon.
  *
  * @param tmpReq DescribeCouponItemListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2054,7 +2025,7 @@ async function describeCouponItemListWithOptions(tmpReq: DescribeCouponItemListR
 }
 
 /**
- * @summary Queries the list of products available for a coupon.
+ * @summary Queries the products available for a coupon.
  *
  * @param request DescribeCouponItemListRequest
  * @return DescribeCouponItemListResponse
@@ -2066,47 +2037,47 @@ async function describeCouponItemList(request: DescribeCouponItemListRequest): D
 
 model DescribeDeductLogsRequest {
   billInstanceId?: string(name='BillInstanceId', description='The ID of the instance for which the billing is deducted.', example='ecs-******'),
-  billingCommodityCode?: string(name='BillingCommodityCode', description='The commodity code for deduction.', example='snapshot'),
-  billingEndTime?: long(name='BillingEndTime', description='The billing end time. The value is a UNIX timestamp in milliseconds.
+  billingCommodityCode?: string(name='BillingCommodityCode', description='The commodity code of the deducted item.', example='snapshot'),
+  billingEndTime?: long(name='BillingEndTime', description='The end time of the billing cycle. The time is a UNIX timestamp in milliseconds.
 
 This parameter is required.', example='1679068799999'),
-  billingStartTime?: long(name='BillingStartTime', description='The billing start time. The value is a UNIX timestamp in milliseconds.
+  billingStartTime?: long(name='BillingStartTime', description='The start time of the billing cycle. The time is a UNIX timestamp in milliseconds.
 
 This parameter is required.', example='1647446400000'),
   commodityCode?: string(name='CommodityCode', description='The commodity code.', example='ossbag'),
   ecIdAccountIds?: [ 
     {
       accountIds?: [ long ](name='AccountIds', description='The list of accessed accounts. If this parameter is left empty, all accounts under the current entity ID are selected.'),
-      ecId?: string(name='EcId', description='The enterprise entity ID.
+      ecId?: string(name='EcId', description='The ID of the enterprise entity.
 
 This parameter is required.', example='1004064243473974'),
     }
   ](name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
-  group?: string(name='Group', description='The resource dimension.', example='oss_rc'),
-  instanceId?: string(name='InstanceId', description='The instance name.', example='OSSBAG-cn******'),
-  nbid?: string(name='Nbid', description='The level-1 marketplace ID. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2684201000001'),
+  group?: string(name='Group', description='The resource dimension to query.', example='oss_rc'),
+  instanceId?: string(name='InstanceId', description='The name of the instance.', example='OSSBAG-cn******'),
+  nbid?: string(name='Nbid', description='The ID of the level-1 marketplace. If this parameter is left empty, the ID of the marketplace to which the current user belongs is used by default.', example='2684201000001'),
   pageNum?: int32(name='PageNum', description='The current page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
-  relationAccountIds?: [ long ](name='RelationAccountIds', description='The list of accounts for deduction.'),
+  relationAccountIds?: [ long ](name='RelationAccountIds', description='The list of deduction accounts.'),
 }
 
 model DescribeDeductLogsShrinkRequest {
   billInstanceId?: string(name='BillInstanceId', description='The ID of the instance for which the billing is deducted.', example='ecs-******'),
-  billingCommodityCode?: string(name='BillingCommodityCode', description='The commodity code for deduction.', example='snapshot'),
-  billingEndTime?: long(name='BillingEndTime', description='The billing end time. The value is a UNIX timestamp in milliseconds.
+  billingCommodityCode?: string(name='BillingCommodityCode', description='The commodity code of the deducted item.', example='snapshot'),
+  billingEndTime?: long(name='BillingEndTime', description='The end time of the billing cycle. The time is a UNIX timestamp in milliseconds.
 
 This parameter is required.', example='1679068799999'),
-  billingStartTime?: long(name='BillingStartTime', description='The billing start time. The value is a UNIX timestamp in milliseconds.
+  billingStartTime?: long(name='BillingStartTime', description='The start time of the billing cycle. The time is a UNIX timestamp in milliseconds.
 
 This parameter is required.', example='1647446400000'),
   commodityCode?: string(name='CommodityCode', description='The commodity code.', example='ossbag'),
   ecIdAccountIdsShrink?: string(name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
-  group?: string(name='Group', description='The resource dimension.', example='oss_rc'),
-  instanceId?: string(name='InstanceId', description='The instance name.', example='OSSBAG-cn******'),
-  nbid?: string(name='Nbid', description='The level-1 marketplace ID. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2684201000001'),
+  group?: string(name='Group', description='The resource dimension to query.', example='oss_rc'),
+  instanceId?: string(name='InstanceId', description='The name of the instance.', example='OSSBAG-cn******'),
+  nbid?: string(name='Nbid', description='The ID of the level-1 marketplace. If this parameter is left empty, the ID of the marketplace to which the current user belongs is used by default.', example='2684201000001'),
   pageNum?: int32(name='PageNum', description='The current page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
-  relationAccountIdsShrink?: string(name='RelationAccountIds', description='The list of accounts for deduction.'),
+  relationAccountIdsShrink?: string(name='RelationAccountIds', description='The list of deduction accounts.'),
 }
 
 model DescribeDeductLogsResponseBody = {
@@ -2116,66 +2087,66 @@ model DescribeDeductLogsResponseBody = {
       accountId?: long(name='AccountId', description='The account ID.', example='1929817951466001'),
       accountName?: string(name='AccountName', description='The account name.', example='icloudtest'),
       billingCommodity?: {
-        code?: string(name='Code', description='The property code.', example='snapshot'),
-        name?: string(name='Name', description='The property name.', example='Elastic Compute Service (ECS) - Snapshot'),
-      }(name='BillingCommodity', description='The deducted commodity.'),
-      billingCommodityCode?: string(name='BillingCommodityCode', description='The deducted commodity code.', example='snapshot'),
-      billingCommodityName?: string(name='BillingCommodityName', description='The name of the offset commodity.', example='Elastic Compute Service (ECS) - Snapshot'),
-      billingEndTime?: long(name='BillingEndTime', description='The expiration time, specified as a UNIX timestamp in milliseconds.', example='1679036400000'),
+        code?: string(name='Code', description='The attribute code.', example='snapshot'),
+        name?: string(name='Name', description='The attribute name.', example='ECS - Snapshot'),
+      }(name='BillingCommodity', description='The offset commodity.'),
+      billingCommodityCode?: string(name='BillingCommodityCode', description='The offset commodity code.', example='snapshot'),
+      billingCommodityName?: string(name='BillingCommodityName', description='The offset commodity name.', example='ECS - Snapshot'),
+      billingEndTime?: long(name='BillingEndTime', description='The expiration time. This value is a UNIX timestamp in milliseconds.', example='1679036400000'),
       billingInstanceId?: string(name='BillingInstanceId', description='The offset instance.', example='cn-beijing'),
       billingPriceField?: {
-        code?: string(name='Code', description='The property code.', example='Storage'),
-        name?: string(name='Name', description='The property name.', example='Zero-discount used capacity'),
+        code?: string(name='Code', description='The attribute code.', example='Storage'),
+        name?: string(name='Name', description='The attribute name.', example='Fully offset used capacity'),
       }(name='BillingPriceField', description='The offset billable item.'),
       billingPriceFieldCode?: string(name='BillingPriceFieldCode', description='The offset billable item code.', example='Storage'),
-      billingPriceFieldName?: string(name='BillingPriceFieldName', description='The offset billable item name.', example='Zero-discount used capacity'),
-      billingStartTime?: long(name='BillingStartTime', description='The effective period, specified as a UNIX timestamp in milliseconds.', example='1679032800000'),
-      capacityAfterDeductViewUnit?: string(name='CapacityAfterDeductViewUnit', description='The display unit of the capacity after deduction.', example='GB'),
-      capacityAfterDeductViewValue?: string(name='CapacityAfterDeductViewValue', description='The display value of the capacity after deduction.', example='23.896484'),
-      capacityBeforeDeductViewUnit?: string(name='CapacityBeforeDeductViewUnit', description='The display unit of the capacity before deduction.', example='GB'),
-      capacityBeforeDeductViewValue?: string(name='CapacityBeforeDeductViewValue', description='The display value of the capacity before deduction.', example='40.000000'),
-      capacityDeductedViewUnit?: string(name='CapacityDeductedViewUnit', description='The display unit of the deducted capacity.', example='GB'),
-      capacityDeductedViewValue?: string(name='CapacityDeductedViewValue', description='The display value of the deducted capacity.', example='16.103515'),
+      billingPriceFieldName?: string(name='BillingPriceFieldName', description='The offset billable item name.', example='Fully offset used capacity'),
+      billingStartTime?: long(name='BillingStartTime', description='The effective period. This value is a UNIX timestamp in milliseconds.', example='1679032800000'),
+      capacityAfterDeductViewUnit?: string(name='CapacityAfterDeductViewUnit', description='The display unit for capacity after offset.', example='GB'),
+      capacityAfterDeductViewValue?: string(name='CapacityAfterDeductViewValue', description='The display value for capacity after offset.', example='23.896484'),
+      capacityBeforeDeductViewUnit?: string(name='CapacityBeforeDeductViewUnit', description='The display unit for capacity before offset.', example='GB'),
+      capacityBeforeDeductViewValue?: string(name='CapacityBeforeDeductViewValue', description='The display value for capacity before offset.', example='40.000000'),
+      capacityDeductedViewUnit?: string(name='CapacityDeductedViewUnit', description='The display unit for offset capacity.', example='GB'),
+      capacityDeductedViewValue?: string(name='CapacityDeductedViewValue', description='The display value for offset capacity.', example='16.103515'),
       capacityType?: {
-        code?: string(name='Code', description='The property code.', example='absolute'),
-        name?: string(name='Name', description='The property name.', example='Fixed total capacity'),
+        code?: string(name='Code', description='The attribute code.', example='absolute'),
+        name?: string(name='Name', description='The attribute name.', example='Fixed total capacity'),
       }(name='CapacityType', description='The capacity type.'),
       capacityTypeCode?: string(name='CapacityTypeCode', description='The capacity type code.', example='absolute'),
       capacityTypeName?: string(name='CapacityTypeName', description='The capacity type name.', example='Fixed total capacity'),
       commodity?: {
-        code?: string(name='Code', description='The property code.', example='ossbag'),
-        name?: string(name='Name', description='The property name.', example='Object Storage Service (OSS) resource plan (subscription)'),
+        code?: string(name='Code', description='The attribute code.', example='ossbag'),
+        name?: string(name='Name', description='The attribute name.', example='OSS resource plan (subscription)'),
       }(name='Commodity', description='The commodity.'),
       commodityCode?: string(name='CommodityCode', description='The commodity code.', example='ossbag'),
-      commodityName?: string(name='CommodityName', description='The commodity name.', example='Object Storage Service (OSS) resource plan (subscription)'),
+      commodityName?: string(name='CommodityName', description='The commodity name.', example='OSS resource plan (subscription)'),
       cycleType?: {
         code?: string(name='Code', description='The commitment period code.', example='hour'),
         name?: string(name='Name', description='The commitment period name.', example='Hour'),
       }(name='CycleType', description='The commitment period.'),
       cycleTypeCode?: string(name='CycleTypeCode', description='The commitment period code.', example='hour'),
       cycleTypeName?: string(name='CycleTypeName', description='The commitment period name.', example='Hour'),
-      deductTime?: long(name='DeductTime', description='The deduction time. This value is a UNIX timestamp in milliseconds.', example='1679039572000'),
-      factor?: string(name='Factor', description='The offset factor.', example='1'),
-      instanceBelongAccountId?: long(name='InstanceBelongAccountId', description='The account ID of the instance owner.', example='1990699401005016'),
-      instanceBelongAccountName?: string(name='InstanceBelongAccountName', description='The account name of the instance owner.', example='icloudtest'),
-      instanceId?: string(name='InstanceId', description='The instance name.', example='OSSBAG-cn-****s'),
-      measureAfterDeductViewUnit?: string(name='MeasureAfterDeductViewUnit', description='The display unit of the metered amount after offset.', example='Byte'),
-      measureAfterDeductViewValue?: string(name='MeasureAfterDeductViewValue', description='The display value of the metered amount after offset.', example='0'),
-      measureBeforeDeductViewUnit?: string(name='MeasureBeforeDeductViewUnit', description='The display unit of the metered amount before offset.', example='GB'),
-      measureBeforeDeductViewValue?: string(name='MeasureBeforeDeductViewValue', description='The display value of the metered amount before offset.', example='16.103515'),
-      measureDeductedViewUnit?: string(name='MeasureDeductedViewUnit', description='The display unit of the metered offset amount.', example='GB'),
-      measureDeductedViewValue?: string(name='MeasureDeductedViewValue', description='The display value of the metered offset amount.', example='16.103515'),
+      deductTime?: long(name='DeductTime', description='The offset time. This value is a UNIX timestamp in milliseconds.', example='1679039572000'),
+      factor?: string(name='Factor', description='The deduction factor.', example='1'),
+      instanceBelongAccountId?: long(name='InstanceBelongAccountId', description='The ID of the account to which the instance belongs.', example='1990699401005016'),
+      instanceBelongAccountName?: string(name='InstanceBelongAccountName', description='The name of the account to which the instance belongs.', example='icloudtest'),
+      instanceId?: string(name='InstanceId', description='The name of the instance.', example='OSSBAG-cn-****s'),
+      measureAfterDeductViewUnit?: string(name='MeasureAfterDeductViewUnit', description='The display unit of the usage after deduction.', example='Byte'),
+      measureAfterDeductViewValue?: string(name='MeasureAfterDeductViewValue', description='The display value of the usage after deduction.', example='0'),
+      measureBeforeDeductViewUnit?: string(name='MeasureBeforeDeductViewUnit', description='The display unit of the usage before deduction.', example='GB'),
+      measureBeforeDeductViewValue?: string(name='MeasureBeforeDeductViewValue', description='The display value of the usage before deduction.', example='16.103515'),
+      measureDeductedViewUnit?: string(name='MeasureDeductedViewUnit', description='The display unit of the deducted usage.', example='GB'),
+      measureDeductedViewValue?: string(name='MeasureDeductedViewValue', description='The display value of the deducted usage.', example='16.103515'),
       product?: {
-        code?: string(name='Code', description='The property code.', example='oss'),
-        name?: string(name='Name', description='The property name.', example='Object Storage Service'),
+        code?: string(name='Code', description='The attribute code.', example='oss'),
+        name?: string(name='Name', description='The attribute name.', example='Object Storage Service'),
       }(name='Product', description='The product.'),
       productCode?: string(name='ProductCode', description='The product code.', example='oss'),
       productName?: string(name='ProductName', description='The product name.', example='Object Storage Service'),
-      relationAccountId?: long(name='RelationAccountId', description='The ID of the account for deduction.', example='1990699401005016'),
+      relationAccountId?: long(name='RelationAccountId', description='The ID of the deduction account.', example='1990699401005016'),
       relationAccountName?: string(name='RelationAccountName', description='The name of the deduction account.', example='icloudtest'),
       template?: {
-        code?: string(name='Code', description='The property code.', example='FPT_ossbag********'),
-        name?: string(name='Name', description='The property name.', example='Standard storage plan'),
+        code?: string(name='Code', description='The attribute code.', example='FPT_ossbag********'),
+        name?: string(name='Name', description='The attribute name.', example='Standard storage plan'),
       }(name='Template', description='The template.'),
       templateCode?: string(name='TemplateCode', description='The template code.', example='FPT_ossbag********'),
       templateName?: string(name='TemplateName', description='The template name.', example='Standard storage plan'),
@@ -2193,7 +2164,7 @@ model DescribeDeductLogsResponse = {
 }
 
 /**
- * @summary Queries resource plan deduction records.
+ * @summary Queries the deduction records of resource plans.
  *
  * @param tmpReq DescribeDeductLogsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2266,7 +2237,7 @@ async function describeDeductLogsWithOptions(tmpReq: DescribeDeductLogsRequest, 
 }
 
 /**
- * @summary Queries resource plan deduction records.
+ * @summary Queries the deduction records of resource plans.
  *
  * @param request DescribeDeductLogsRequest
  * @return DescribeDeductLogsResponse
@@ -2282,24 +2253,24 @@ model DescribeFrInstancesRequest {
   cycleType?: string(name='CycleType', description='The cycle type.', example='dynamicMonth'),
   ecIdAccountIds?: [ 
     {
-      accountIds?: [ long ](name='AccountIds', description='The list of accessed accounts. If this parameter is left empty, all accounts under the current entity ID are selected.'),
+      accountIds?: [ long ](name='AccountIds', description='The list of accounts to access. If this parameter is left empty, all accounts under the current entity ID are selected.'),
       ecId?: string(name='EcId', description='The enterprise entity ID.
 
 This parameter is required.', example='1004064243473974'),
     }
   ](name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
-  endTime?: long(name='EndTime', description='The end time, specified as a UNIX timestamp in milliseconds.', example='1710604800000'),
-  group?: string(name='Group', description='The resource dimension.', example='cu'),
+  endTime?: long(name='EndTime', description='The end time. The value is a UNIX timestamp in milliseconds.', example='1710604800000'),
+  group?: string(name='Group', description='The resource dimension to query.', example='cu'),
   instanceId?: string(name='InstanceId', description='The instance name.', example='alb_cubag*******'),
-  instanceTag?: string(name='InstanceTag', description='The label value of the resource plan instance tag.', example='FR-***'),
+  instanceTag?: string(name='InstanceTag', description='The tag value of the resource plan instance.', example='FR-***'),
   nbid?: string(name='Nbid', description='The primary marketplace ID. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2684202000018'),
   pageNum?: int32(name='PageNum', description='The current page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
   productCode?: string(name='ProductCode', description='The product code.', example='slb'),
   sortField?: string(name='SortField', description='The sort field.', example='startTime'),
-  sortRule?: string(name='SortRule', description='The sorting collation.', example='asc'),
-  spec?: string(name='Spec', description='The specifications.', example='*'),
-  startTime?: long(name='StartTime', description='The start time, specified as a UNIX timestamp in milliseconds.', example='1678939035000'),
+  sortRule?: string(name='SortRule', description='The sorting rule.', example='asc'),
+  spec?: string(name='Spec', description='The specification.', example='*'),
+  startTime?: long(name='StartTime', description='The start time. The value is a UNIX timestamp in milliseconds.', example='1678939035000'),
   status?: string(name='Status', description='The resource status.', example='valid'),
   templateCode?: string(name='TemplateCode', description='The template code.', example='slb_albcubag*******'),
 }
@@ -2309,18 +2280,18 @@ model DescribeFrInstancesShrinkRequest {
   commodityCode?: string(name='CommodityCode', description='The commodity code.', example='slb_albcubag_dp_cn'),
   cycleType?: string(name='CycleType', description='The cycle type.', example='dynamicMonth'),
   ecIdAccountIdsShrink?: string(name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
-  endTime?: long(name='EndTime', description='The end time, specified as a UNIX timestamp in milliseconds.', example='1710604800000'),
-  group?: string(name='Group', description='The resource dimension.', example='cu'),
+  endTime?: long(name='EndTime', description='The end time. The value is a UNIX timestamp in milliseconds.', example='1710604800000'),
+  group?: string(name='Group', description='The resource dimension to query.', example='cu'),
   instanceId?: string(name='InstanceId', description='The instance name.', example='alb_cubag*******'),
-  instanceTag?: string(name='InstanceTag', description='The label value of the resource plan instance tag.', example='FR-***'),
+  instanceTag?: string(name='InstanceTag', description='The tag value of the resource plan instance.', example='FR-***'),
   nbid?: string(name='Nbid', description='The primary marketplace ID. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2684202000018'),
   pageNum?: int32(name='PageNum', description='The current page number.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
   productCode?: string(name='ProductCode', description='The product code.', example='slb'),
   sortField?: string(name='SortField', description='The sort field.', example='startTime'),
-  sortRule?: string(name='SortRule', description='The sorting collation.', example='asc'),
-  spec?: string(name='Spec', description='The specifications.', example='*'),
-  startTime?: long(name='StartTime', description='The start time, specified as a UNIX timestamp in milliseconds.', example='1678939035000'),
+  sortRule?: string(name='SortRule', description='The sorting rule.', example='asc'),
+  spec?: string(name='Spec', description='The specification.', example='*'),
+  startTime?: long(name='StartTime', description='The start time. The value is a UNIX timestamp in milliseconds.', example='1678939035000'),
   status?: string(name='Status', description='The resource status.', example='valid'),
   templateCode?: string(name='TemplateCode', description='The template code.', example='slb_albcubag*******'),
 }
@@ -2332,22 +2303,22 @@ model DescribeFrInstancesResponseBody = {
       accountId?: long(name='AccountId', description='The account ID.', example='1990699401005016'),
       accountName?: string(name='AccountName', description='The account name.', example='icloudtest'),
       autoPurchase?: {
-        alreadyAutoPurchase?: boolean(name='AlreadyAutoPurchase', description='Indicates whether the resource has been auto-purchased.'),
+        alreadyAutoPurchase?: boolean(name='AlreadyAutoPurchase', description='Indicates whether auto-purchase is already applied.'),
         settingAutoPurchase?: boolean(name='SettingAutoPurchase', description='Indicates whether auto-purchase is configured.'),
         supportAutoPurchase?: boolean(name='SupportAutoPurchase', description='Indicates whether auto-purchase is supported.'),
       }(name='AutoPurchase', description='The auto-purchase information.'),
-      capacitiyTypeName?: string(name='CapacitiyTypeName', description='The capacity type name.', example='Decreasing total capacity'),
+      capacitiyTypeName?: string(name='CapacitiyTypeName', description='The capacity type name.', example='Total decreasing type'),
       capacityType?: {
-        code?: string(name='Code', description='The attribute code.', example='deadlineAcc'),
-        name?: string(name='Name', description='The attribute name.', example='Decreasing total capacity'),
+        code?: string(name='Code', description='The property code.', example='deadlineAcc'),
+        name?: string(name='Name', description='The property name.', example='Total decreasing type'),
       }(name='CapacityType', description='The capacity type.'),
       capacityTypeCode?: string(name='CapacityTypeCode', description='The capacity type code.', example='deadlineAcc'),
       commodity?: {
-        code?: string(name='Code', description='The attribute code.', example='slb_albcubag_dp_cn'),
-        name?: string(name='Name', description='The attribute name.', example='ALB resource plan'),
+        code?: string(name='Code', description='The property code.', example='slb_albcubag_dp_cn'),
+        name?: string(name='Name', description='The property name.', example='ALB resource plan'),
       }(name='Commodity', description='The commodity.'),
       commodityCode?: string(name='CommodityCode', description='The commodity code.', example='pts'),
-      commodityName?: string(name='CommodityName', description='The commodity name.', example='Performance Testing'),
+      commodityName?: string(name='CommodityName', description='The commodity name.', example='Performance testing'),
       currCapacityBaseUnit?: string(name='CurrCapacityBaseUnit', description='The current capacity base unit.', example='CU'),
       currCapacityBaseValue?: string(name='CurrCapacityBaseValue', description='The current capacity base value.', example='1000.000000'),
       currCapacityViewUnit?: string(name='CurrCapacityViewUnit', description='The current capacity display unit.', example='CU'),
@@ -2360,15 +2331,15 @@ model DescribeFrInstancesResponseBody = {
       cycleTypeName?: string(name='CycleTypeName', description='The commitment period name.', example='Hour'),
       deductRegions?: [ 
         {
-          code?: string(name='Code', description='The code of the region where deductions are applicable.', example='cn-beijing'),
-          name?: string(name='Name', description='The region where deductions are applicable.', example='Beijing'),
+          code?: string(name='Code', description='The code of the deductible region.', example='cn-beijing'),
+          name?: string(name='Name', description='The deductible region.', example='Beijing'),
         }
-      ](name='DeductRegions', description='The list of regions where deductions are applicable.'),
+      ](name='DeductRegions', description='The list of deductible regions.'),
       enableDeductRule?: boolean(name='EnableDeductRule', description='Indicates whether the deduction rule is enabled.'),
-      enableExchange?: boolean(name='EnableExchange', description='Indicates whether exchanges are supported.', example='false'),
+      enableExchange?: boolean(name='EnableExchange', description='Indicates whether exchange is supported.', example='false'),
       enableRenew?: boolean(name='EnableRenew', description='Indicates whether renewal is supported.', example='false'),
-      enableUpgrade?: boolean(name='EnableUpgrade', description='Indicates whether upgrades are supported.', example='false'),
-      endTime?: long(name='EndTime', description='The expiration time. The value is a UNIX timestamp in milliseconds.', example='1710604800000'),
+      enableUpgrade?: boolean(name='EnableUpgrade', description='Indicates whether upgrade is supported.', example='false'),
+      endTime?: long(name='EndTime', description='The expiration time. This value is a UNIX timestamp in milliseconds.', example='1710604800000'),
       exchangeCommodityCode?: string(name='ExchangeCommodityCode', description='The commodity code for exchange.', example='null'),
       initCapacityBaseUnit?: string(name='InitCapacityBaseUnit', description='The initial capacity base unit.', example='CU'),
       initCapacityBaseValue?: string(name='InitCapacityBaseValue', description='The initial capacity base value.', example='1000.000000'),
@@ -2377,32 +2348,32 @@ model DescribeFrInstancesResponseBody = {
       instanceId?: string(name='InstanceId', description='The instance name.', example='alb_cubag*******'),
       periodCapacityViewUnit?: string(name='PeriodCapacityViewUnit', description='The period capacity display unit.', example='CU'),
       periodCapacityViewValue?: string(name='PeriodCapacityViewValue', description='The period capacity display value.', example='1000.000000'),
-      periodTime?: string(name='PeriodTime', description='The period time unit, such as hour for hours.', example='hour'),
+      periodTime?: string(name='PeriodTime', description='The period time unit, such as hour.', example='hour'),
       product?: {
-        code?: string(name='Code', description='The attribute code.', example='slb'),
-        name?: string(name='Name', description='The attribute name.', example='Server Load Balancer'),
+        code?: string(name='Code', description='The property code.', example='slb'),
+        name?: string(name='Name', description='The property name.', example='Server Load Balancer'),
       }(name='Product', description='The product.'),
       productCode?: string(name='ProductCode', description='The product code.', example='pts'),
-      productName?: string(name='ProductName', description='The product name.', example='Performance Testing'),
-      purchaseTime?: long(name='PurchaseTime', description='The purchase time. The value is a UNIX timestamp in milliseconds.', example='1678939036000'),
-      region?: string(name='Region', description='The region.', example='*'),
+      productName?: string(name='ProductName', description='The product name.', example='Performance testing'),
+      purchaseTime?: long(name='PurchaseTime', description='The purchase time. This value is a UNIX timestamp in milliseconds.', example='1678939036000'),
+      region?: string(name='Region', description='The region.', example='cn-qingdao'),
       regionName?: string(name='RegionName', description='The region name.', example='cn-qingdao'),
-      spec?: string(name='Spec', description='The specifications.', example='*'),
-      startTime?: long(name='StartTime', description='The effective period. The value is a UNIX timestamp in milliseconds.', example='1678939035000'),
+      spec?: string(name='Spec', description='The specification.', example='1000CU'),
+      startTime?: long(name='StartTime', description='The effective period. This value is a UNIX timestamp in milliseconds.', example='1678939035000'),
       status?: {
-        code?: string(name='Code', description='The attribute code.', example='valid'),
-        name?: string(name='Name', description='The attribute name.', example='Valid'),
+        code?: string(name='Code', description='The property code.', example='valid'),
+        name?: string(name='Name', description='The property name.', example='Valid'),
       }(name='Status', description='The resource status.'),
       statusCode?: string(name='StatusCode', description='The resource status code.', example='valid'),
       statusName?: string(name='StatusName', description='The resource status name.', example='Valid'),
       template?: {
-        code?: string(name='Code', description='The attribute code.', example='alb_cubag*******'),
-        name?: string(name='Name', description='The attribute name.', example='Mainland China'),
+        code?: string(name='Code', description='The property code.', example='alb_cubag*******'),
+        name?: string(name='Name', description='The property name.', example='Chinese mainland region'),
       }(name='Template', description='The template.'),
       templateCode?: string(name='TemplateCode', description='The template code.', example='FPT_armsappbag_deadlineAcc_bj'),
       templateName?: string(name='TemplateName', description='The template name.', example='new_test'),
-      periodCapacityBaseUnit?: string(name='periodCapacityBaseUnit', description='The periodic capacity base unit.', example='CU'),
-      periodCapacityBaseValue?: string(name='periodCapacityBaseValue', description='The periodic capacity base value.', example='1000.000000'),
+      periodCapacityBaseUnit?: string(name='periodCapacityBaseUnit', description='The base unit of the period capacity.', example='CU'),
+      periodCapacityBaseValue?: string(name='periodCapacityBaseValue', description='The base value of the period capacity.', example='1000.000000'),
     }
   ](name='Data', description='The data list.'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
@@ -2764,25 +2735,25 @@ model GetFundAccountCanRecycleAmountRequest {
   currency?: string(name='Currency', description='The currency.
 
 This parameter is required.', example='CNY'),
-  recycleFromFundAccountId?: string(name='RecycleFromFundAccountId', description='The ID of the source account (payer account) from which funds are reclaimed. If not specified, the account ID owned by the current account is used by default.', example='122321223'),
+  recycleFromFundAccountId?: string(name='RecycleFromFundAccountId', description='The ID of the source account for reclamation (the payer account ID). If this parameter is not specified, the ID of the account owned by the current user is used by default.', example='122321223'),
 }
 
 model GetFundAccountCanRecycleAmountResponseBody = {
-  availableAmount?: string(name='AvailableAmount', description='The available balance of the account from which funds are reclaimed.', example='300'),
+  availableAmount?: string(name='AvailableAmount', description='The available balance of the reclaimed account.', example='300'),
   currency?: string(name='Currency', description='The currency.', example='CNY'),
   metadata?: any(name='Metadata', description='The metadata of the response struct.', example='{}'),
-  recycleFromFundAccountId?: string(name='RecycleFromFundAccountId', description='The ID of the source account from which funds are reclaimed.', example='1232122132'),
+  recycleFromFundAccountId?: string(name='RecycleFromFundAccountId', description='The ID of the source account for reclamation.', example='1232122132'),
   recycleToFundAccountList?: [ 
     {
-      fundAccountId?: string(name='FundAccountId', description='The ID of the target account to which funds can be reclaimed.', example='122323121'),
-      fundAccountName?: string(name='FundAccountName', description='The name of the target account to which funds can be reclaimed.', example='云某的账户'),
-      fundAccountOwnerAccountId?: string(name='FundAccountOwnerAccountId', description='The account ID that owns the target account to which funds can be reclaimed.', example='183221321'),
+      fundAccountId?: string(name='FundAccountId', description='The ID of the reclaimable account.', example='122323121'),
+      fundAccountName?: string(name='FundAccountName', description='The name of the reclaimable account.', example='Yun\\\\"s account'),
+      fundAccountOwnerAccountId?: string(name='FundAccountOwnerAccountId', description='The ID of the account that owns the reclaimable account.', example='183221321'),
       maxRecyclableAmount?: string(name='MaxRecyclableAmount', description='The maximum reclaimable amount.', example='120'),
-      originalTransferRemainAmount?: string(name='OriginalTransferRemainAmount', description='The remaining transfer amount that can be reclaimed through the original transfer path.', example='120'),
+      originalTransferRemainAmount?: string(name='OriginalTransferRemainAmount', description='The transfer amount that can be reclaimed through the original route.', example='120'),
     }
-  ](name='RecycleToFundAccountList', description='The list of accounts to which funds can be reclaimed.'),
+  ](name='RecycleToFundAccountList', description='The list of accounts to which the funds can be reclaimed.'),
   requestId?: string(name='RequestId', description='The request ID.', example='6000EE23-274B-4E07-A697-FF2E999520A4'),
-  transferAmount?: string(name='TransferAmount', description='The transfer ledger balance.', example='200'),
+  transferAmount?: string(name='TransferAmount', description='The balance of the transfer ledger.', example='200'),
 }
 
 model GetFundAccountCanRecycleAmountResponse = {
@@ -2836,26 +2807,26 @@ async function getFundAccountCanRecycleAmount(request: GetFundAccountCanRecycleA
 }
 
 model GetFundAccountCanTransferAmountRequest {
-  currency?: string(name='Currency', description='Currency
+  currency?: string(name='Currency', description='The currency.
 
 This parameter is required.', example='CNY'),
-  fundAccountId?: string(name='FundAccountId', description='Transfer source account ID. If not specified, the account ID owned by the current account is used by default.', example='123212'),
+  fundAccountId?: string(name='FundAccountId', description='The ID of the source fund account. If you do not specify this parameter, the ID of the fund account owned by the current account is used by default.', example='123212'),
 }
 
 model GetFundAccountCanTransferAmountResponseBody = {
-  availableAmount?: string(name='AvailableAmount', description='Available amount', example='100'),
-  cashAmount?: string(name='CashAmount', description='Cash ledger balance', example='500'),
-  currency?: string(name='Currency', description='Currency', example='CNY'),
-  fundAccountEcid?: string(name='FundAccountEcid', description='Enterprise entity ID of the account owner', example='2032121324'),
-  fundAccountId?: long(name='FundAccountId', description='Account ID', example='12332112'),
-  fundAccountName?: string(name='FundAccountName', description='Account name', example='云某的账户'),
-  fundAccountOwnerAccountId?: long(name='FundAccountOwnerAccountId', description='Alibaba Cloud account ID of the fund account owner', example='154738212323'),
-  maxTransferableAmount?: string(name='MaxTransferableAmount', description='Transferable amount', example='100'),
-  metadata?: any(name='Metadata', description='Response metadata', example='{}'),
-  nbid?: string(name='Nbid', description='Primary marketplace', example='2684210001'),
-  requestId?: string(name='RequestId', description='Request ID', example='6000EE23-274B-4E07-A697-FF2E999520A4'),
-  site?: string(name='Site', description='Site', example='26842'),
-  transferAmount?: string(name='TransferAmount', description='Transfer ledger balance', example='100'),
+  availableAmount?: string(name='AvailableAmount', description='The available amount.', example='100'),
+  cashAmount?: string(name='CashAmount', description='The cash ledger balance.', example='500'),
+  currency?: string(name='Currency', description='The currency.', example='CNY'),
+  fundAccountEcid?: string(name='FundAccountEcid', description='The enterprise entity ID of the fund account owner.', example='2032121324'),
+  fundAccountId?: long(name='FundAccountId', description='The fund account ID.', example='12332112'),
+  fundAccountName?: string(name='FundAccountName', description='The fund account name.', example='Yun\\\\"s account'),
+  fundAccountOwnerAccountId?: long(name='FundAccountOwnerAccountId', description='The Alibaba Cloud account ID of the fund account owner.', example='154738212323'),
+  maxTransferableAmount?: string(name='MaxTransferableAmount', description='The maximum transferable amount.', example='100'),
+  metadata?: any(name='Metadata', description='The metadata of the response structure.', example='{}'),
+  nbid?: string(name='Nbid', description='The primary sales site.', example='2684210001'),
+  requestId?: string(name='RequestId', description='The request ID.', example='6000EE23-274B-4E07-A697-FF2E999520A4'),
+  site?: string(name='Site', description='The site.', example='26842'),
+  transferAmount?: string(name='TransferAmount', description='The transfer ledger balance.', example='100'),
 }
 
 model GetFundAccountCanTransferAmountResponse = {
@@ -2865,7 +2836,7 @@ model GetFundAccountCanTransferAmountResponse = {
 }
 
 /**
- * @summary Query the transferable amount of a fund account
+ * @summary Queries the transferable amount of a fund account.
  *
  * @param request GetFundAccountCanTransferAmountRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -2898,7 +2869,7 @@ async function getFundAccountCanTransferAmountWithOptions(request: GetFundAccoun
 }
 
 /**
- * @summary Query the transferable amount of a fund account
+ * @summary Queries the transferable amount of a fund account.
  *
  * @param request GetFundAccountCanTransferAmountRequest
  * @return GetFundAccountCanTransferAmountResponse
@@ -2974,14 +2945,14 @@ async function getFundAccountCanWithdrawAmount(request: GetFundAccountCanWithdra
 }
 
 model GetFundAccountLowAvailableAmountAlarmRequest {
-  fundAccountId?: long(name='FundAccountId', description='Fund account ID. If not specified, the account ID owned by the current account is used by default.', example='12332112'),
+  fundAccountId?: long(name='FundAccountId', description='The ID of the fund account. If this parameter is not specified, the ID of the account owned by the current logon account is used by default.', example='12332112'),
 }
 
 model GetFundAccountLowAvailableAmountAlarmResponseBody = {
-  alarmEnabled?: boolean(name='AlarmEnabled', description='Whether the alert is enabled'),
-  metadata?: any(name='Metadata', description='Response structure metadata', example='{}'),
-  requestId?: string(name='RequestId', description='Request ID', example='6000EE23-274B-4E07-A697-FF2E999520A4'),
-  thresholdAmount?: string(name='ThresholdAmount', description='Alert threshold', example='100'),
+  alarmEnabled?: boolean(name='AlarmEnabled', description='Indicates whether the low balance alert is enabled.'),
+  metadata?: any(name='Metadata', description='The metadata of the response struct.', example='{}'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='6000EE23-274B-4E07-A697-FF2E999520A4'),
+  thresholdAmount?: string(name='ThresholdAmount', description='The alert threshold.', example='100'),
 }
 
 model GetFundAccountLowAvailableAmountAlarmResponse = {
@@ -2991,7 +2962,7 @@ model GetFundAccountLowAvailableAmountAlarmResponse = {
 }
 
 /**
- * @summary Query Fund Account Low Balance Alert
+ * @summary Queries the low balance alert for a fund account.
  *
  * @param request GetFundAccountLowAvailableAmountAlarmRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -3021,7 +2992,7 @@ async function getFundAccountLowAvailableAmountAlarmWithOptions(request: GetFund
 }
 
 /**
- * @summary Query Fund Account Low Balance Alert
+ * @summary Queries the low balance alert for a fund account.
  *
  * @param request GetFundAccountLowAvailableAmountAlarmRequest
  * @return GetFundAccountLowAvailableAmountAlarmResponse
@@ -3033,62 +3004,66 @@ async function getFundAccountLowAvailableAmountAlarm(request: GetFundAccountLowA
 
 model GetFundAccountTransactionDetailsRequest {
   billNumber?: string(name='BillNumber', description='The transaction order number.', example='2023212312321'),
-  channelTransactionNumber?: string(name='ChannelTransactionNumber', description='The payment reference No.', example='20250312334312322'),
+  channelTransactionNumber?: string(name='ChannelTransactionNumber', description='The transaction channel serial number.', example='20250312334312322'),
   currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
-  endTime?: long(name='EndTime', description='The end timestamp for the query. Unit: milliseconds.', example='1735664561000'),
-  fundAccountId?: long(name='FundAccountId', description='The ID of the fund account. If you do not specify this parameter, the ID of the account owned by the current user is used by default.', example='123221232'),
+  endTime?: long(name='EndTime', description='The end time of the query. The value is a UNIX timestamp in milliseconds.', example='1735664561000'),
+  fundAccountId?: long(name='FundAccountId', description='The ID of the fund account. If this parameter is not specified, the ID of the fund account owned by the current account is used by default.', example='123221232'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 200.', example='20'),
-  startTime?: long(name='StartTime', description='The start timestamp for the query. Unit: milliseconds.', example='1735664461000'),
-  transactionChannelList?: [ string ](name='TransactionChannelList', description='The list of transaction channels. If you specify this parameter, transactions are queried by channel. If you do not specify this parameter, all channels are queried by default. Valid values:
-- ACCT_CASH: User balance.
+  startTime?: long(name='StartTime', description='The start time of the query. The value is a UNIX timestamp in milliseconds.', example='1735664461000'),
+  transactionChannelList?: [ string ](name='TransactionChannelList', description='The list of transaction channels. If you specify transaction channels, the query returns results of the specified channels. If this parameter is not specified, all transaction channels are queried by default. Valid values:
+- ACCT_CASH: Account balance.
 - ALIPAY: Alipay.
 - ALIPAY_ZHIFUTONG: Alipay Zhifutong.
-- OFFLINE_REMIT: Corporate remittance.
+- OFFLINE_REMIT: Offline remittance.
 - REFUND: Credit limit refund.
 - UNION_PAY_BANK: Online banking.
-- CREDIT_CARD: Credit card. Available only on the international site.
-- AYPAL: PayPal. Available only on the international site.'),
-  transactionDirection?: string(name='TransactionDirection', description='The direction of the transaction.', example='IN'),
+- CREDIT_CARD: Credit card. (Available only on the international site.)
+- PAYPAL: PayPal. (Available only on the international site.)'),
+  transactionDirection?: string(name='TransactionDirection', description='The direction of the transaction. Valid values:
+- IN: Fund inflow.
+- OUT: Fund outflow.', example='IN'),
   transactionNumber?: long(name='TransactionNumber', description='The transaction number.', example='543231231'),
-  transactionType?: string(name='TransactionType', description='The transaction type. If you specify a transaction type, the query returns results of the corresponding type. If no results exist, an empty result is returned. If you do not specify this parameter, all types are returned by default. Valid values:
+  transactionType?: string(name='TransactionType', description='The transaction type. If you specify a transaction type, the query returns results of the specified type. If no results exist, an empty result is returned. If this parameter is not specified, all transaction types are returned by default. Valid values:
 - CHARGE: Top-up.
 - WITHDRAW: Withdrawal.
 - REFUND: Refund.
 - PAY: Payment.
 - TRANSFER: Transfer.
 - ADJUST: Adjustment.
-- PAY_FAILED: Refund for failed order.', example='CHARGE'),
-  transactionTypeList?: [ string ](name='TransactionTypeList', description='The list of transaction types. You can specify multiple parameters for a parameter query.'),
+- PAY_FAILED: Refund for an invalid order.', example='CHARGE'),
+  transactionTypeList?: [ string ](name='TransactionTypeList', description='The list of transaction types. Supports multiple parameter query.'),
 }
 
 model GetFundAccountTransactionDetailsShrinkRequest {
   billNumber?: string(name='BillNumber', description='The transaction order number.', example='2023212312321'),
-  channelTransactionNumber?: string(name='ChannelTransactionNumber', description='The payment reference No.', example='20250312334312322'),
+  channelTransactionNumber?: string(name='ChannelTransactionNumber', description='The transaction channel serial number.', example='20250312334312322'),
   currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
-  endTime?: long(name='EndTime', description='The end timestamp for the query. Unit: milliseconds.', example='1735664561000'),
-  fundAccountId?: long(name='FundAccountId', description='The ID of the fund account. If you do not specify this parameter, the ID of the account owned by the current user is used by default.', example='123221232'),
+  endTime?: long(name='EndTime', description='The end time of the query. The value is a UNIX timestamp in milliseconds.', example='1735664561000'),
+  fundAccountId?: long(name='FundAccountId', description='The ID of the fund account. If this parameter is not specified, the ID of the fund account owned by the current account is used by default.', example='123221232'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 200.', example='20'),
-  startTime?: long(name='StartTime', description='The start timestamp for the query. Unit: milliseconds.', example='1735664461000'),
-  transactionChannelListShrink?: string(name='TransactionChannelList', description='The list of transaction channels. If you specify this parameter, transactions are queried by channel. If you do not specify this parameter, all channels are queried by default. Valid values:
-- ACCT_CASH: User balance.
+  startTime?: long(name='StartTime', description='The start time of the query. The value is a UNIX timestamp in milliseconds.', example='1735664461000'),
+  transactionChannelListShrink?: string(name='TransactionChannelList', description='The list of transaction channels. If you specify transaction channels, the query returns results of the specified channels. If this parameter is not specified, all transaction channels are queried by default. Valid values:
+- ACCT_CASH: Account balance.
 - ALIPAY: Alipay.
 - ALIPAY_ZHIFUTONG: Alipay Zhifutong.
-- OFFLINE_REMIT: Corporate remittance.
+- OFFLINE_REMIT: Offline remittance.
 - REFUND: Credit limit refund.
 - UNION_PAY_BANK: Online banking.
-- CREDIT_CARD: Credit card. Available only on the international site.
-- AYPAL: PayPal. Available only on the international site.'),
-  transactionDirection?: string(name='TransactionDirection', description='The direction of the transaction.', example='IN'),
+- CREDIT_CARD: Credit card. (Available only on the international site.)
+- PAYPAL: PayPal. (Available only on the international site.)'),
+  transactionDirection?: string(name='TransactionDirection', description='The direction of the transaction. Valid values:
+- IN: Fund inflow.
+- OUT: Fund outflow.', example='IN'),
   transactionNumber?: long(name='TransactionNumber', description='The transaction number.', example='543231231'),
-  transactionType?: string(name='TransactionType', description='The transaction type. If you specify a transaction type, the query returns results of the corresponding type. If no results exist, an empty result is returned. If you do not specify this parameter, all types are returned by default. Valid values:
+  transactionType?: string(name='TransactionType', description='The transaction type. If you specify a transaction type, the query returns results of the specified type. If no results exist, an empty result is returned. If this parameter is not specified, all transaction types are returned by default. Valid values:
 - CHARGE: Top-up.
 - WITHDRAW: Withdrawal.
 - REFUND: Refund.
 - PAY: Payment.
 - TRANSFER: Transfer.
 - ADJUST: Adjustment.
-- PAY_FAILED: Refund for failed order.', example='CHARGE'),
-  transactionTypeListShrink?: string(name='TransactionTypeList', description='The list of transaction types. You can specify multiple parameters for a parameter query.'),
+- PAY_FAILED: Refund for an invalid order.', example='CHARGE'),
+  transactionTypeListShrink?: string(name='TransactionTypeList', description='The list of transaction types. Supports multiple parameter query.'),
 }
 
 model GetFundAccountTransactionDetailsResponseBody = {
@@ -3097,42 +3072,42 @@ model GetFundAccountTransactionDetailsResponseBody = {
     {
       balance?: string(name='Balance', description='The balance after the operation.', example='5'),
       billNumber?: string(name='BillNumber', description='The order number or bill number.', example='2323203243'),
-      channelTransactionNumber?: string(name='ChannelTransactionNumber', description='The external transaction serial number.', example='20244389232'),
+      channelTransactionNumber?: string(name='ChannelTransactionNumber', description='The external transaction reference number.', example='20244389232'),
       currency?: string(name='Currency', description='The currency of the transaction amount.', example='USD'),
       fundAccountEcid?: string(name='FundAccountEcid', description='The enterprise entity ID.', example='23473943'),
       fundAccountId?: long(name='FundAccountId', description='The account ID.', example='1232121'),
-      fundAccountName?: string(name='FundAccountName', description='The account name.', example='Sample account name'),
+      fundAccountName?: string(name='FundAccountName', description='The account name.', example='Name of the user'),
       fundAccountOwnerAccountId?: long(name='FundAccountOwnerAccountId', description='The Alibaba Cloud account ID of the account owner.', example='32343231'),
       fundType?: string(name='FundType', description='The fund type.', example='ACCT_BOOK'),
-      nbid?: string(name='Nbid', description='The primary marketplace.', example='2684210001'),
+      nbid?: string(name='Nbid', description='The primary sales channel.', example='2684210001'),
       remark?: string(name='Remark', description='The remark.', example='Order remark'),
       site?: string(name='Site', description='The site.', example='26842'),
-      transactionAccount?: string(name='TransactionAccount', description='The corresponding transaction account, such as the Alipay top-up account or the counterparty account for a transfer.', example='186****3975'),
+      transactionAccount?: string(name='TransactionAccount', description='The corresponding transaction account, such as the Alipay top-up account or the peer account for transfers.', example='186****3975'),
       transactionAmount?: string(name='TransactionAmount', description='The transaction amount.', example='10'),
-      transactionChannel?: string(name='TransactionChannel', description='The list of transaction channels. If you specify this parameter, transactions are queried by channel. If you do not specify this parameter, all channels are queried by default. Valid values:
-- ACCT_CASH: User balance.
+      transactionChannel?: string(name='TransactionChannel', description='The list of transaction channels. If you specify transaction channels, the query returns results of the specified channels. If this parameter is not specified, all transaction channels are queried by default. Valid values:
+- ACCT_CASH: Account balance.
 - ALIPAY: Alipay.
 - ALIPAY_ZHIFUTONG: Alipay Zhifutong.
-- OFFLINE_REMIT: Corporate remittance.
+- OFFLINE_REMIT: Offline remittance.
 - REFUND: Credit limit refund.
 - UNION_PAY_BANK: Online banking.
-- CREDIT_CARD: Credit card. Available only on the international site.
-- AYPAL: PayPal. Available only on the international site.', example='ALIPAY'),
+- CREDIT_CARD: Credit card. (Available only on the international site.)
+- PAYPAL: PayPal. (Available only on the international site.)', example='ALIPAY'),
       transactionDirection?: string(name='TransactionDirection', description='The transaction direction. Valid values: in (income) and out (expense).', example='IN'),
       transactionNumber?: long(name='TransactionNumber', description='The transaction number.', example='5423121'),
       transactionTime?: string(name='TransactionTime', description='The formatted string of the transaction time.', example='2024-12-01 12:00:00'),
-      transactionType?: string(name='TransactionType', description='The transaction type. If you specify a transaction type, the query returns results of the corresponding type. If no results exist, an empty result is returned. If you do not specify this parameter, all types are returned by default. Valid values:
+      transactionType?: string(name='TransactionType', description='The transaction type. If you specify a transaction type, the query returns results of the specified type. If no results exist, an empty result is returned. If this parameter is not specified, all transaction types are returned by default. Valid values:
 - CHARGE: Top-up.
 - WITHDRAW: Withdrawal.
 - REFUND: Refund.
 - PAY: Payment.
 - TRANSFER: Transfer.
 - ADJUST: Adjustment.
-- PAY_FAILED: Refund for failed order.', example='CHARGE'),
+- PAY_FAILED: Refund for an invalid order.', example='CHARGE'),
     }
   ](name='Data', description='The data list.'),
   metadata?: any(name='Metadata', description='The metadata of the response structure.', example='{}'),
-  pageSize?: int32(name='PageSize', description='The page size.', example='20'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
   requestId?: string(name='RequestId', description='The request ID.', example='D6E068C3-25BC-455A-85FE-45F0B22ECB1F'),
   totalCount?: int32(name='TotalCount', description='The total number of records.', example='30'),
 }
@@ -3859,6 +3834,199 @@ async function getSavingPlanUserDeductRule(request: GetSavingPlanUserDeductRuleR
   return getSavingPlanUserDeductRuleWithOptions(request, runtime);
 }
 
+model ListConsumeSummaryRequest {
+  commonFilters?: [ 
+    {
+      filterField?: string(name='FilterField', description='The name of the filter field. For supported fields and operations, see "Common filtering" in the supplementary description of request parameters.', example='ProductCode'),
+      operation?: string(name='Operation', description='The operator. Default value: `IN`. `IN` indicates inclusion or exact match, `NOT` indicates exclusion, and `PREFIX` indicates prefix match. For the specific support scope, see "Common filtering" in the supplementary description of request parameters.', example='IN'),
+      values?: [ string ](name='Values', description='The filter values always use a string array, including single values, Boolean values, and account IDs.', example='["ecs"]'),
+    }
+  ](name='CommonFilters', description='The common filter conditions. Valid conditions for different fields take effect simultaneously. For supported fields and operations, see "Common filtering" in the supplementary description of request parameters.', example='[{"FilterField":"ProductCode","Operation":"IN","Values":["ecs"]}]'),
+  dimensionType?: string(name='DimensionType', description='The aggregation dimension.
+
+`BILLING_ITEM`: aggregates by billing item. This is the default value.
+
+`RESOURCE`: aggregates by resource.
+
+`PRODUCT`: aggregates by product.
+
+`ACCOUNT`: aggregates by account.', example='BILLING_ITEM'),
+  ecIdAccountIds?: [ 
+    {
+      accountIds?: [ long ](name='AccountIds', description='The list of account IDs to query. This parameter is required when an enterprise object is passed. If the entire EcIdAccountIds parameter is omitted, the data of the current calling account is queried by default.', example='[1234567890123456]'),
+      ecId?: string(name='EcId', description='The ID of the enterprise entity.', example='123456'),
+    }
+  ](name='EcIdAccountIds', description='The query scope for enterprises and accounts. If this parameter is not specified, the default billing scope of the current calling account is used. Only one enterprise object can be specified per request, and the actual scope is limited by permissions.', example='[{"EcId":"123456","AccountIds":[1234567890123456]}]'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records expected to be returned for a single query. Specify a positive integer. Keep this value unchanged during pagination. The actual number of returned records may be less than this value.', example='20'),
+  nextToken?: string(name='NextToken', description='The query token for the next page. Do not specify this parameter for the first request. For subsequent requests, pass the value returned in the previous response.', example='example-next-token'),
+  period?: {
+    endTime?: string(name='EndTime', description='For monthly queries, only one month is supported at a time. The value must be the same as the start month, and the format is `yyyy-MM`.
+
+For daily queries, this parameter is required. The format is `yyyy-MM-dd`. The end date cannot be earlier than the start date, and the start and end dates must be in the same month.', example='2026-10-07'),
+    granularity?: string(name='Granularity', description='`MONTHLY`: aggregates by month. `DAILY`: aggregates by day.', example='DAILY'),
+    startTime?: string(name='StartTime', description='For monthly queries, the format is `yyyy-MM`.
+
+For daily queries, the format is `yyyy-MM-dd`.', example='2026-10-01'),
+  }(name='Period', description='The query time range, which specifies the time granularity, start time, and end time.', example='{"Granularity":"DAILY","StartTime":"2026-10-01","EndTime":"2026-10-07"}'),
+}
+
+model ListConsumeSummaryShrinkRequest {
+  commonFiltersShrink?: string(name='CommonFilters', description='The common filter conditions. Valid conditions for different fields take effect simultaneously. For supported fields and operations, see "Common filtering" in the supplementary description of request parameters.', example='[{"FilterField":"ProductCode","Operation":"IN","Values":["ecs"]}]'),
+  dimensionType?: string(name='DimensionType', description='The aggregation dimension.
+
+`BILLING_ITEM`: aggregates by billing item. This is the default value.
+
+`RESOURCE`: aggregates by resource.
+
+`PRODUCT`: aggregates by product.
+
+`ACCOUNT`: aggregates by account.', example='BILLING_ITEM'),
+  ecIdAccountIdsShrink?: string(name='EcIdAccountIds', description='The query scope for enterprises and accounts. If this parameter is not specified, the default billing scope of the current calling account is used. Only one enterprise object can be specified per request, and the actual scope is limited by permissions.', example='[{"EcId":"123456","AccountIds":[1234567890123456]}]'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records expected to be returned for a single query. Specify a positive integer. Keep this value unchanged during pagination. The actual number of returned records may be less than this value.', example='20'),
+  nextToken?: string(name='NextToken', description='The query token for the next page. Do not specify this parameter for the first request. For subsequent requests, pass the value returned in the previous response.', example='example-next-token'),
+  periodShrink?: string(name='Period', description='The query time range, which specifies the time granularity, start time, and end time.', example='{"Granularity":"DAILY","StartTime":"2026-10-01","EndTime":"2026-10-07"}'),
+}
+
+model ListConsumeSummaryResponseBody = {
+  data?: [ 
+    {
+      amountAfterCouponDeduction?: string(name='AmountAfterCouponDeduction', description='The amount after coupon deduction, which is the result of deducting coupons from the amount after discount. When all related fields are available, it equals AmountAfterPromotionDeduction - CouponAmount.', example='65'),
+      amountAfterPromotionDeduction?: string(name='AmountAfterPromotionDeduction', description='The amount after discount, which represents the amount after applying discounts such as website promotions and contract discounts. Coupons are not deducted at this point. When all related fields are available, it equals AmountAfterSavingPlanDeduction - PromotionAmount.', example='70'),
+      amountAfterSavingPlanDeduction?: string(name='AmountAfterSavingPlanDeduction', description='The amount after savings plan deduction, which is the remaining amount after deducting the list price portion covered by the savings plan. When all related fields are available, it equals ListPrice - SavingPlanDeductListPrice.', example='80'),
+      billingDate?: string(name='BillingDate', description='The billing date, which is the consumption date of the cloud product, in the format of yyyy-MM-dd. It has a value only when summarized by day.', example='2026-10-01'),
+      billingFormula?: string(name='BillingFormula', description='The billing formula, which describes how the total list price is calculated. It should be understood in conjunction with the list price on the Alibaba Cloud website, usage, duration, and other billing factors.', example='List price × Usage × Duration'),
+      billingItemCode?: string(name='BillingItemCode', description='The billing item code, which identifies the billing item to which the fee belongs.', example='example_billing_item'),
+      billingItemName?: string(name='BillingItemName', description='The billing item name, which is the display name of the billing item to which the fee belongs.', example='Sample billing item'),
+      billingMonth?: string(name='BillingMonth', description='The billing month, which represents the billing month to which the fee belongs, in the format of yyyy-MM.', example='2026-10'),
+      billingQuantity?: string(name='BillingQuantity', description='The usage that is ultimately used for fee calculation. If usage deduction is applied, this value is the usage before deduction minus the usage deducted by resource plans, free quotas, and other deductions.', example='100'),
+      billingQuantityUnit?: string(name='BillingQuantityUnit', description='The usage unit, used in conjunction with BillingQuantity.', example='GB'),
+      chargeDuration?: string(name='ChargeDuration', description='The duration, which represents the purchase or usage duration involved in billing. It has a value only when the billing formula involves time. If duration deduction is applied, this value is the duration before deduction minus the deducted duration.', example='1'),
+      chargeDurationUnit?: string(name='ChargeDurationUnit', description='The duration unit, used in conjunction with ChargeDuration.', example='Hour'),
+      chargeType?: string(name='ChargeType', description='The billing method. The display name such as prepaid or pay-as-you-go is returned.', example='Pay-as-you-go'),
+      commodityCode?: string(name='CommodityCode', description='The commodity code, used to uniquely identify a specific commodity under a cloud product.', example='ecs'),
+      commodityName?: string(name='CommodityName', description='The commodity name, which is the display name of a specific commodity under a cloud product.', example='Sample commodity'),
+      consumeType?: string(name='ConsumeType', description='The transaction type, which describes the transaction behavior that generated the bill, such as new purchase, renewal, upgrade, downgrade, unsubscription, pay-as-you-go, or adjustment. The display name is returned.', example='Pay-as-you-go'),
+      couponAmount?: string(name='CouponAmount', description='The coupon deduction amount, which is the fee covered by coupons. This amount cannot be used for invoicing.', example='5'),
+      currency?: string(name='Currency', description='The currency, which represents the currency used for the list price and amounts in this record. For example, CNY indicates Chinese Yuan.', example='CNY'),
+      hashKey?: string(name='HashKey', description='The summary record identifier, used as an opaque string. It can be empty.', example='example-summary-key'),
+      instanceId?: string(name='InstanceId', description='The instance ID at the billing granularity, which represents the instance identity used to aggregate fees when a cloud product generates a bill. The billing granularity may differ from the resource management granularity, so it may be different from ResourceId.', example='i-example001'),
+      instanceName?: string(name='InstanceName', description='The resource name, which is the name set by the user for the cloud resource. Whether it is returned depends on whether the product supports querying and whether the resource information is available.', example='example-resource'),
+      instanceSpec?: string(name='InstanceSpec', description='The specification, used to describe the specification information corresponding to the billing item.', example='example.spec'),
+      lineItemType?: string(name='LineItemType', description='The line item type, which describes the nature of the fee, such as subscription prepaid fee, subscription postpaid fee, subscription unsubscription fee, pay-as-you-go fee for cloud resources, adjustment fee, or rounding fee. The display name is returned.', example='Pay-as-you-go'),
+      listPrice?: string(name='ListPrice', description='The total list price, which represents the total amount calculated based on the list price for the purchased cloud resource configuration. Savings plan deductions, discounts, and coupons are not deducted yet. Note that ListPrice in this API is the total amount. For the list unit price, see ListUnitPrice.', example='100'),
+      listPriceUnit?: string(name='ListPriceUnit', description='The price unit, which is the unit corresponding to the list unit price ListUnitPrice, such as CNY/GB.', example='CNY/GB/Hour'),
+      listUnitPrice?: string(name='ListUnitPrice', description='The list price on the Alibaba Cloud website, which is the list unit price of the commodity. It differs in meaning from the total list price ListPrice. In scenarios such as tiered pricing, you cannot recalculate the fee by simply multiplying a single unit price by the total usage.', example='1'),
+      productCode?: string(name='ProductCode', description='The product code, used to uniquely identify a specific cloud product.', example='ecs'),
+      productName?: string(name='ProductName', description='The product name, which is the display name of the cloud product.', example='Elastic Compute Service'),
+      promotionAmount?: string(name='PromotionAmount', description='The discount amount, which represents the total discounts such as website promotions and contract discounts. Coupon deductions are separately recorded in CouponAmount.', example='10'),
+      purchaseConfiguration?: string(name='PurchaseConfiguration', description='The configuration, used to describe the configuration options corresponding to the billing item.', example='Sample configuration'),
+      regionCode?: string(name='RegionCode', description='The region code, which represents the code of the logical region where the cloud resource is located.', example='cn-hangzhou'),
+      regionName?: string(name='RegionName', description='The region, which represents the display name of the region where the cloud resource is located. For products sold by region, it usually corresponds to the region selected when placing the order.', example='China (Hangzhou)'),
+      requireAmount?: string(name='RequireAmount', description='The payable amount, which is the fee to be paid after savings plan deductions, discounts, and coupon deductions. In the new version of bills, this corresponds to the payable amount (tax-inclusive) definition. For fee verification, refer to the actual return value of this field.', example='65'),
+      resourceId?: string(name='ResourceId', description='The resource ID, used to uniquely identify a cloud resource in the corresponding cloud product or service.', example='i-example001'),
+      resourceOwnerAccountId?: string(name='ResourceOwnerAccountId', description='The resource ownership account ID, which is the ID of the account that actually uses the cloud resource instance. It may be different from the purchasing account.', example='1234567890123456'),
+      resourceOwnerAccountName?: string(name='ResourceOwnerAccountName', description='The resource ownership account, which is the name of the account that actually uses the cloud resource instance. It may be different from the purchasing account.', example='owner@example.com'),
+      resourcePurchaseAccountId?: string(name='ResourcePurchaseAccountId', description='The ID of the resource purchasing account, which is the ID of the account that placed the order to purchase the cloud resource instance.', example='1234567890123456'),
+      resourcePurchaseAccountName?: string(name='ResourcePurchaseAccountName', description='The resource purchasing account, which is the name of the account that placed the order to purchase the cloud resource instance.', example='buyer@example.com'),
+      savingPlanDeductAmount?: string(name='SavingPlanDeductAmount', description='The savings plan deduction amount, which is the committed spend of the savings plan consumed to complete this deduction. It is not the list price amount of the deducted resource and cannot replace SavingPlanDeductListPrice for deduction from the total list price.', example='8'),
+      savingPlanDeductListPrice?: string(name='SavingPlanDeductListPrice', description='The savings plan deduction list price, which is the amount calculated based on the list price for the pay-as-you-go resource fees deducted by the savings plan.', example='20'),
+      serviceEntity?: string(name='ServiceEntity', description='The service entity, which is the name of the company that actually provides the product or service. Different products may correspond to different companies.', example='Sample service entity'),
+    }
+  ](name='Data', description='The consumption summary records returned in this request. An empty array is returned if no matching records are found.', example='[]'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records per page used in this query.', example='20'),
+  nextToken?: string(name='NextToken', description='The query token for the next page. If a non-empty value is returned, pass it as is to the next request and keep other query conditions unchanged. If it is not returned or is empty, pagination ends.', example='example-next-token'),
+  requestId?: string(name='RequestId', description='The unique identifier of the request, used for troubleshooting.', example='00000000-0000-4000-8000-000000000001'),
+}
+
+model ListConsumeSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListConsumeSummaryResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the consumption summary for a specified billing month or billing date, and supports viewing expenses by dimensions such as billing item, resource, product, and account.
+ *
+ * @description 1. The final billing details for the current month will be issued at 12:00 on the 3rd day of the following month. Query results before this time are for reference only and should not be used as a basis for reconciliation (minor scenarios that may occur during the month include but are not limited to delayed billing, refunds, adjustments, and overdue payment write-offs).
+ * 2. Billing details are updated with a 24-hour delay compared to actual expense consumption, and information related to instance IDs (resource names) is updated with a 48-hour delay.
+ * 3. Billing data does not support providing specific expenses for each attached resource (such as domain names, buckets, and EIPs) of split-type cloud products (such as CDN, OSS, and Internet Shared Bandwidth). To view data including attached resources, go to split bills.
+ * 4. Data for the last 18 months is supported.
+ * 5. Amounts, usage, and durations are returned as character strings. Use decimal numeric types to process amounts to avoid precision loss caused by binary floating-point numbers.
+ * 6. Whether a field has a value depends on the aggregation dimension, product Billable methods, and billing data. Null values or unreturned fields do not indicate that the value is zero.
+ * 7. This operation uses the field Glossary of the new version of bills. For related concepts, see [Differences and field descriptions of the new version of bills](https://www.alibabacloud.com/help/en/user-center/v2-version-bill-field-description). The English paths in the help documentation are OSS subscribe fields. The parameter names, field names, and return structures of this operation are subject to this topic.
+ *
+ * @param tmpReq ListConsumeSummaryRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListConsumeSummaryResponse
+ */
+async function listConsumeSummaryWithOptions(tmpReq: ListConsumeSummaryRequest, runtime: Util.RuntimeOptions): ListConsumeSummaryResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListConsumeSummaryShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.commonFilters)) {
+    request.commonFiltersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.commonFilters, 'CommonFilters', 'json');
+  }
+  if (!Util.isUnset(tmpReq.ecIdAccountIds)) {
+    request.ecIdAccountIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.ecIdAccountIds, 'EcIdAccountIds', 'json');
+  }
+  if (!Util.isUnset(tmpReq.period)) {
+    request.periodShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.period, 'Period', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.commonFiltersShrink)) {
+    query['CommonFilters'] = request.commonFiltersShrink;
+  }
+  if (!Util.isUnset(request.dimensionType)) {
+    query['DimensionType'] = request.dimensionType;
+  }
+  if (!Util.isUnset(request.ecIdAccountIdsShrink)) {
+    query['EcIdAccountIds'] = request.ecIdAccountIdsShrink;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.periodShrink)) {
+    query['Period'] = request.periodShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListConsumeSummary',
+    version = '2023-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the consumption summary for a specified billing month or billing date, and supports viewing expenses by dimensions such as billing item, resource, product, and account.
+ *
+ * @description 1. The final billing details for the current month will be issued at 12:00 on the 3rd day of the following month. Query results before this time are for reference only and should not be used as a basis for reconciliation (minor scenarios that may occur during the month include but are not limited to delayed billing, refunds, adjustments, and overdue payment write-offs).
+ * 2. Billing details are updated with a 24-hour delay compared to actual expense consumption, and information related to instance IDs (resource names) is updated with a 48-hour delay.
+ * 3. Billing data does not support providing specific expenses for each attached resource (such as domain names, buckets, and EIPs) of split-type cloud products (such as CDN, OSS, and Internet Shared Bandwidth). To view data including attached resources, go to split bills.
+ * 4. Data for the last 18 months is supported.
+ * 5. Amounts, usage, and durations are returned as character strings. Use decimal numeric types to process amounts to avoid precision loss caused by binary floating-point numbers.
+ * 6. Whether a field has a value depends on the aggregation dimension, product Billable methods, and billing data. Null values or unreturned fields do not indicate that the value is zero.
+ * 7. This operation uses the field Glossary of the new version of bills. For related concepts, see [Differences and field descriptions of the new version of bills](https://www.alibabacloud.com/help/en/user-center/v2-version-bill-field-description). The English paths in the help documentation are OSS subscribe fields. The parameter names, field names, and return structures of this operation are subject to this topic.
+ *
+ * @param request ListConsumeSummaryRequest
+ * @return ListConsumeSummaryResponse
+ */
+async function listConsumeSummary(request: ListConsumeSummaryRequest): ListConsumeSummaryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listConsumeSummaryWithOptions(request, runtime);
+}
+
 model ListCouponDeductTagRequest {
   couponId?: string(name='CouponId'),
   ecIdAccountIds?: [ 
@@ -4356,30 +4524,28 @@ async function listInvoiceTitle(): ListInvoiceTitleResponse {
 }
 
 model ListReportDefinitionsRequest {
-  nbid?: string(name='Nbid', description='Primary sales site ID. If empty, the current user\\\\"s site ID is used by default', example='2684201000001'),
+  nbid?: string(name='Nbid', description='The primary marketplace ID. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2684201000001'),
 }
 
 model ListReportDefinitionsResponseBody = {
-  metadata?: any(name='Metadata', description='Response structure metadata'),
+  metadata?: any(name='Metadata', description='The metadata of the response structure.'),
   reportDefinitions?: [ 
     {
-      autoTagFields?: boolean(name='AutoTagFields', description='Whether to enable tag fields'),
-      beginBillingCycle?: string(name='BeginBillingCycle', description='Push start billing cycle. After the subscription is successfully created, the system automatically pushes data from the start billing cycle to the current time. This parameter is invalid for monthly billing PDF subscriptions and does not re-push historical data. A maximum of data from the last 1 year can be pushed.', example='2025-05'),
-      ossBucketName?: string(name='OssBucketName', description='Name of the OSS bucket where files are stored.', example='oss-bill'),
-      ossBucketOwnerAccountId?: long(name='OssBucketOwnerAccountId', description='UID of the OSS owner that stores the files. Specify this parameter if you subscribe as a BID/ReSeller and want to push data to the OSS of a sub-account. The specified account must be a sub-account of the calling account and must be granted the AliyunConsumeDump2OSSRole permission. Regular users do not need to specify this parameter. The default value is the calling account.', example='1234567812345678'),
-      ossBucketPath?: string(name='OssBucketPath', description='OSS bucket storage path.', example='bill/'),
-      reportSourceName?: string(name='ReportSourceName', description='Name of the subscription source.', example='OSS'),
-      reportSourceType?: string(name='ReportSourceType', description='Type of the subscription source. Valid values: OSS and MC.', example='OSS'),
-      reportTaskId?: long(name='ReportTaskId', description='Billing subscription task ID.', example='123321'),
-      reportType?: string(name='ReportType', description='Subscription type. Valid values:
-- BillingItemDetailForBillingPeriod: billing item consumption details.
-- InstanceDetailForBillingPeriod: instance consumption details.
-- BillingItemDetailMonthly: billing item consumption summary by billing cycle.', example='BillingItemDetailForBillingPeriod'),
-      selectedFields?: [ string ](name='SelectedFields', description='Specified subscribed fields'),
-      subscribeCreateTime?: string(name='SubscribeCreateTime', description='Time when the subscription was created.', example='2025-05-21 10:36:31'),
+      beginBillingCycle?: string(name='BeginBillingCycle', description='The start billing cycle for data push. After a successful subscription, the system automatically pushes data from the start billing cycle to the current time. This parameter is invalid for monthly bill PDF subscriptions and historical data is not pushed again. Data for up to the last year can be pushed.', example='2025-05'),
+      ossBucketName?: string(name='OssBucketName', description='The name of the OSS bucket where files are stored.', example='oss-bill'),
+      ossBucketOwnerAccountId?: long(name='OssBucketOwnerAccountId', description='The UID of the OSS bucket owner. Specify this parameter if the subscription is made by a bidder or reseller and data needs to be pushed to the OSS bucket of a RAM user. The target account must be a RAM user of the calling account and must be granted the AliyunConsumeDump2OSSRole permission. Regular users do not need to specify this parameter. By default, the calling account is used.', example='1234567812345678'),
+      ossBucketPath?: string(name='OssBucketPath', description='The storage path in the OSS bucket.', example='bill/'),
+      reportSourceName?: string(name='ReportSourceName', description='The name of the subscription source.', example='OSS'),
+      reportSourceType?: string(name='ReportSourceType', description='The type of the subscription source, such as OSS or MC.', example='OSS'),
+      reportTaskId?: long(name='ReportTaskId', description='The ID of the bill subscription task.', example='123321'),
+      reportType?: string(name='ReportType', description='The subscription type. Valid values:
+- BillingItemDetailForBillingPeriod: billing item consumption details
+- InstanceDetailForBillingPeriod: instance consumption details
+- BillingItemDetailMonthly: billing item consumption summary by billing cycle', example='BillingItemDetailForBillingPeriod'),
+      subscribeCreateTime?: string(name='SubscribeCreateTime', description='The time when the subscription was created.', example='2025-05-21 10:36:31'),
     }
-  ](name='ReportDefinitions', description='Report definition list'),
-  requestId?: string(name='RequestId', description='Request ID.', example='79EE7556-0CFD-44EB-9CD6-B3B526E3A85F'),
+  ](name='ReportDefinitions', description='The data list.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='79EE7556-0CFD-44EB-9CD6-B3B526E3A85F'),
 }
 
 model ListReportDefinitionsResponse = {
@@ -4389,7 +4555,7 @@ model ListReportDefinitionsResponse = {
 }
 
 /**
- * @summary View subscribed report list
+ * @summary Queries the list of subscribed reports.
  *
  * @param request ListReportDefinitionsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -4419,7 +4585,7 @@ async function listReportDefinitionsWithOptions(request: ListReportDefinitionsRe
 }
 
 /**
- * @summary View subscribed report list
+ * @summary Queries the list of subscribed reports.
  *
  * @param request ListReportDefinitionsRequest
  * @return ListReportDefinitionsResponse
@@ -4427,6 +4593,214 @@ async function listReportDefinitionsWithOptions(request: ListReportDefinitionsRe
 async function listReportDefinitions(request: ListReportDefinitionsRequest): ListReportDefinitionsResponse {
   var runtime = new Util.RuntimeOptions{};
   return listReportDefinitionsWithOptions(request, runtime);
+}
+
+model ListSplitSummaryRequest {
+  commonFilters?: [ 
+    {
+      filterField?: string(name='FilterField', description='The name of the filter field. It is required when setting conditions. For supported fields and matching rules, see the supplementary description of request parameters.', example='SplitItemId'),
+      operation?: string(name='Operation', description='The matching method. This parameter is case-insensitive and defaults to IN if it is not specified or is empty. Valid values:
+- IN: includes
+- NOT: excludes
+- PREFIX: literal prefix match
+For the supported scope of each field, refer to the supplementary description of the request parameters.', example='IN'),
+      values?: [ string ](name='Values', description='The filter values. It is always an array of strings. Arrays are also used for single values, Boolean values, and account IDs.', example='["example-bucket"]'),
+    }
+  ](name='CommonFilters', description='The common filter conditions. Supports filtering by product, commodity, region, billing item, fee type, resource, account, financial unit, resource group, and split item. Different fields are combined by AND. Only one object can be passed for the same field. For more information, see the supplementary description of request parameters.', example='[{"FilterField":"SplitItemId","Operation":"IN","Values":["example-bucket"]}]'),
+  costCategoriesFilters?: [ 
+    {
+      costCategoriesKey?: string(name='CostCategoriesKey', description='The cost category name. It cannot be empty or a string of only whitespace characters.
+
+This parameter is required.', example='business'),
+      costCategoriesValues?: [ string ](name='CostCategoriesValues', description='The list of cost category values. Matches any given value under the specified cost category. If this parameter is not passed or an empty array is passed, it only requires the existence of the cost category.', example='["commerce"]'),
+    }
+  ](name='CostCategoriesFilters', description='The cost category filter conditions. Different objects in the list and multiple values of the same cost category are matched by OR. The overall cost category filter is combined with the tag filter and CommonFilters by AND.', example='[{"CostCategoriesKey":"business","CostCategoriesValues":["commerce"]}]'),
+  ecIdAccountIds?: [ 
+    {
+      accountIds?: [ long ](name='AccountIds', description='The list of account IDs to access. If it is empty, all accounts under the current enterprise entity are selected. The actual scope is limited by permissions.', example='[1234567890123456]'),
+      ecId?: string(name='EcId', description='The enterprise entity ID.', example='123456'),
+    }
+  ](name='EcIdAccountIds', description='The query scope for enterprises and accounts. If not passed, the bill scope of the current account is queried. Only one enterprise object can be specified per request. The actual accessible scope is limited by permissions.', example='[{"EcId":"123456","AccountIds":[1234567890123456]}]'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records expected to be returned per page. It is used in conjunction with `NextToken`. Pass a positive integer. We recommend that you explicitly set this parameter and keep it unchanged during pagination. The actual number of returned records may be less than this value.', example='20'),
+  nextToken?: string(name='NextToken', description='The token for the next page of query results. Do not pass this parameter for the first query. For subsequent queries, pass the `NextToken` returned in the previous response as is. The query ends when the token is empty or no longer returned. Do not construct or parse the token yourself. Keep `Period`, account scope, all filter conditions, and `MaxResults` consistent during pagination.', example='opaque-token-example'),
+  period?: {
+    endTime?: string(name='EndTime', description='The end time. It is inclusive. It is required for `DAILY` and the format is `yyyy-MM-dd`. It cannot be earlier than `StartTime` and must be in the same month as `StartTime`. It is optional for `MONTHLY`, but if passed, it must be the same as `StartTime`.', example='2026-09-07'),
+    granularity?: string(name='Granularity', description='The time granularity. This parameter is required for business logic and is case-insensitive. Valid values:
+- DAILY: aggregates by day
+- MONTHLY: aggregates by month', example='DAILY'),
+    startTime?: string(name='StartTime', description='The start time. It is required for business logic and is inclusive. The format is yyyy-MM for MONTHLY and yyyy-MM-dd for DAILY.', example='2026-09-01'),
+  }(name='Period', description='The query time range. It is required for business logic and includes Granularity, StartTime, and EndTime. Only one billing month can be queried per request. If passed, it overrides the legacy flat time parameters.', example='{"Granularity":"DAILY","StartTime":"2026-09-01","EndTime":"2026-09-07"}'),
+  tagFilters?: [ 
+    {
+      tagKey?: string(name='TagKey', description='The tag key. It cannot be empty or a string of only whitespace characters.
+
+This parameter is required.', example='env'),
+      tagValues?: [ string ](name='TagValues', description='The list of tag values. Matches any given value under the specified tag key. If this parameter is not passed or an empty array is passed, it only requires the existence of the tag key.', example='["prod"]'),
+    }
+  ](name='TagFilters', description='The resource tag filter conditions. Different objects in the list and multiple values of the same tag key are matched by OR. The overall tag filter is combined with the cost category filter and CommonFilters by AND.', example='[{"TagKey":"env","TagValues":["prod"]}]'),
+}
+
+model ListSplitSummaryShrinkRequest {
+  commonFiltersShrink?: string(name='CommonFilters', description='The common filter conditions. Supports filtering by product, commodity, region, billing item, fee type, resource, account, financial unit, resource group, and split item. Different fields are combined by AND. Only one object can be passed for the same field. For more information, see the supplementary description of request parameters.', example='[{"FilterField":"SplitItemId","Operation":"IN","Values":["example-bucket"]}]'),
+  costCategoriesFiltersShrink?: string(name='CostCategoriesFilters', description='The cost category filter conditions. Different objects in the list and multiple values of the same cost category are matched by OR. The overall cost category filter is combined with the tag filter and CommonFilters by AND.', example='[{"CostCategoriesKey":"business","CostCategoriesValues":["commerce"]}]'),
+  ecIdAccountIdsShrink?: string(name='EcIdAccountIds', description='The query scope for enterprises and accounts. If not passed, the bill scope of the current account is queried. Only one enterprise object can be specified per request. The actual accessible scope is limited by permissions.', example='[{"EcId":"123456","AccountIds":[1234567890123456]}]'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records expected to be returned per page. It is used in conjunction with `NextToken`. Pass a positive integer. We recommend that you explicitly set this parameter and keep it unchanged during pagination. The actual number of returned records may be less than this value.', example='20'),
+  nextToken?: string(name='NextToken', description='The token for the next page of query results. Do not pass this parameter for the first query. For subsequent queries, pass the `NextToken` returned in the previous response as is. The query ends when the token is empty or no longer returned. Do not construct or parse the token yourself. Keep `Period`, account scope, all filter conditions, and `MaxResults` consistent during pagination.', example='opaque-token-example'),
+  periodShrink?: string(name='Period', description='The query time range. It is required for business logic and includes Granularity, StartTime, and EndTime. Only one billing month can be queried per request. If passed, it overrides the legacy flat time parameters.', example='{"Granularity":"DAILY","StartTime":"2026-09-01","EndTime":"2026-09-07"}'),
+  tagFiltersShrink?: string(name='TagFilters', description='The resource tag filter conditions. Different objects in the list and multiple values of the same tag key are matched by OR. The overall tag filter is combined with the cost category filter and CommonFilters by AND.', example='[{"TagKey":"env","TagValues":["prod"]}]'),
+}
+
+model ListSplitSummaryResponseBody = {
+  data?: [ 
+    {
+      amountAfterCouponDeduction?: string(name='AmountAfterCouponDeduction', description='The amount after coupon deduction, which equals AmountAfterPromotionDeduction minus CouponAmount.', example='85'),
+      amountAfterPromotionDeduction?: string(name='AmountAfterPromotionDeduction', description='The amount after discount, which is the amount after official website discounts and contract discounts are applied, but before coupon deductions. When the savings plan deduction data is complete, this equals ListPrice minus SavingPlanDeductListPrice minus PromotionAmount. When the savings plan deduction list price is unavailable, this is calculated as ListPrice minus PromotionAmount.', example='90'),
+      amountAfterSavingPlanDeduction?: string(name='AmountAfterSavingPlanDeduction', description='The amount after savings plan deduction, which equals ListPrice minus SavingPlanDeductListPrice. This may be empty when there is no savings plan deduction data.', example='100'),
+      billingDate?: string(name='BillingDate', description='The billing date, which is the date when the user consumed the cloud service. The format is yyyy-MM-dd. This has a value only when the data is summarized by day.', example='2026-09-01'),
+      billingItemCode?: string(name='BillingItemCode', description='The billing item code, which is the billing item to which the cloud resource expense belongs. Whether this field has a value depends on the split bill records and summary data.', example='example_billing_item'),
+      billingItemName?: string(name='BillingItemName', description='The billing item name.', example='Sample billing item'),
+      billingMonth?: string(name='BillingMonth', description='The billing month, which is the month to which the expense belongs. The format is yyyy-MM.', example='2026-09'),
+      billingQuantity?: string(name='BillingQuantity', description='The usage, which is the total usage that is ultimately billed. This must be understood in combination with the product, billing item, and unit. Do not directly add up the values if the units or billing rules are different.', example='100'),
+      billingQuantityUnit?: string(name='BillingQuantityUnit', description='The unit of usage, used in conjunction with BillingQuantity.', example='GB'),
+      chargeDuration?: string(name='ChargeDuration', description='The total duration of purchasing or using cloud products. This field is used when the corresponding billing method includes a duration.', example='24'),
+      chargeDurationUnit?: string(name='ChargeDurationUnit', description='The unit of duration, used in conjunction with ChargeDuration.', example='Hour'),
+      chargeType?: string(name='ChargeType', description='The display name of the billing method, returned based on the request language, such as Subscription or Pay-as-you-go. Use Subscription or PayAsYouGo for filtering.', example='Pay-as-you-go'),
+      commodityCode?: string(name='CommodityCode', description='The commodity code, which is the unique identifier of a specific commodity under a cloud service.', example='oss'),
+      commodityName?: string(name='CommodityName', description='The commodity name.', example='Sample commodity'),
+      consumeType?: string(name='ConsumeType', description='The display name of the transaction type, which identifies the transaction corresponding to the bill, such as new purchase, renewal, upgrade, downgrade, unsubscription, pay-as-you-go, and adjustment. Do not use the display name as the ConsumeType filter code.', example='Pay-as-you-go'),
+      costCategories?: string(name='CostCategories', description='The cost category, which indicates the cost category and category value to which the record belongs. It is returned as a string. The specific content is subject to the bill record and can be empty.', example='{"business":"commerce"}'),
+      couponAmount?: string(name='CouponAmount', description='The coupon deduction amount. This amount cannot be used for invoicing.', example='5'),
+      currency?: string(name='Currency', description='The currency corresponding to the amounts and prices.', example='CNY'),
+      financeUnitName?: string(name='FinanceUnitName', description='The name of the financial unit. A financial unit is a unit used to group or classify expenses and must be maintained by the user.', example='engineering'),
+      hashKey?: string(name='HashKey', description='The identifier of the summary record, used as an opaque string. This can be empty. The identifier may change when summary dimensions such as resource groups and tags change.', example='example-split-summary-key'),
+      instanceId?: string(name='InstanceId', description='The instance ID at the billing granularity, which is the dimension for expense statistics and summary when a cloud service generates a bill. This may be different from the resource ID.', example='oss-cn-hangzhou-example'),
+      instanceName?: string(name='InstanceName', description='The resource name, which is the custom name given to the cloud resource by the user. Whether this field has a value depends on whether the product and resource information can be obtained.', example='example-resource'),
+      instanceSpec?: string(name='InstanceSpec', description='The specification, which describes the specification of the resource or billing item associated with this record.', example='example.spec'),
+      internetIp?: string(name='InternetIp', description='The public IP address. This is returned only when the product supports it and the relevant resource information can be obtained.', example='192.0.2.10'),
+      intranetIp?: string(name='IntranetIp', description='The private IP address. This is returned only when the product supports it and the relevant resource information can be obtained.', example='10.0.0.10'),
+      lineItemType?: string(name='LineItemType', description='The display name of the expense type, which identifies the nature of the expense generated by the bill, such as subscription prepaid expense, subscription unsubscription expense, pay-as-you-go expense for cloud resources, adjustment expense, and round-down expense. Do not use the display name as the LineItemType filter code.', example='Pay-as-you-go expense for cloud resources'),
+      listPrice?: string(name='ListPrice', description='The total list price, which is the total list price of the selected configuration.', example='100'),
+      listPriceUnit?: string(name='ListPriceUnit', description='The price unit, used in conjunction with ListUnitPrice.', example='CNY/GB'),
+      listUnitPrice?: string(name='ListUnitPrice', description='The list price on the official website, which is the list unit price of the commodity. Whether this field has a value depends on the split bill and summary data. Do not multiply the total usage by a unit price to recalculate all bills.', example='1'),
+      productCode?: string(name='ProductCode', description='The product code, which is the unique identifier of a specific cloud service on Alibaba Cloud.', example='oss'),
+      productName?: string(name='ProductName', description='The product name.', example='Object Storage Service (OSS)'),
+      promotionAmount?: string(name='PromotionAmount', description='The discount amount, which is the total discount amount on the bill, including official website discounts and contract discounts.', example='10'),
+      purchaseConfiguration?: string(name='PurchaseConfiguration', description='The purchase configuration of the billing item, which describes the configurations related to the billing item.', example='Sample configuration'),
+      regionCode?: string(name='RegionCode', description='The region code, which is the logical region code where the cloud resource is located.', example='cn-hangzhou'),
+      regionName?: string(name='RegionName', description='The region name, which indicates the region selected when the order was placed.', example='China (Hangzhou)'),
+      requireAmount?: string(name='RequireAmount', description='The payable amount (tax-inclusive), which is the actual amount the user needs to pay after various discounts, savings plan deductions, and coupon deductions are applied. When all amount fields are complete, this equals ListPrice minus SavingPlanDeductListPrice minus PromotionAmount minus CouponAmount. Use this field for expense verification. If other amount fields are missing, do not treat empty values as zero to calculate the payable amount.', example='85'),
+      resourceGroup?: string(name='ResourceGroup', description='The resource group, which is the group where cloud resources are located as configured by the user in the Resource Management console.', example='production'),
+      resourceId?: string(name='ResourceId', description='The resource ID, which is the identifier used to uniquely identify a resource in a cloud service.', example='example-bucket'),
+      resourceOwnerAccountId?: string(name='ResourceOwnerAccountId', description='The ID of the resource ownership account, which is the ID of the account that actually uses the resource and may differ from the purchasing account.', example='1234567890123456'),
+      resourceOwnerAccountName?: string(name='ResourceOwnerAccountName', description='The name of the resource ownership account.', example='owner@example.com'),
+      resourcePurchaseAccountId?: string(name='ResourcePurchaseAccountId', description='The ID of the resource purchaser account, which is the ID of the account that purchases the resource.', example='1234567890123456'),
+      resourcePurchaseAccountName?: string(name='ResourcePurchaseAccountName', description='The name of the resource purchaser account.', example='buyer@example.com'),
+      resourceTag?: string(name='ResourceTag', description='The resource tag, which is the custom tag added by the user to Alibaba Cloud resources. It is returned as a string and can be empty.', example='env prod'),
+      savingPlanDeductAmount?: string(name='SavingPlanDeductAmount', description='The savings plan deduction amount, which is the committed amount consumed by the savings plan itself. This has a different meaning from SavingPlanDeductListPrice, cannot be used interchangeably, and should not be deducted from the payable amount again.', example='0'),
+      savingPlanDeductListPrice?: string(name='SavingPlanDeductListPrice', description='The total list price deducted by the savings plan, which is the total list price of the pay-as-you-go cloud resources deducted when a savings plan is applied.', example='0'),
+      serviceEntity?: string(name='ServiceEntity', description='The service entity, which is the name of the company that provides the product or service. Alibaba Cloud sells a wide range of products, and some products may be provided by different companies.', example='Sample service entity'),
+      splitItemId?: string(name='SplitItemId', description='The split item ID, which is the code corresponding to the specific split granularity of the bill. For example, when OSS is split by bucket, this is the bucket code. This field may be empty for records that are not split.', example='example-bucket'),
+      splitItemName?: string(name='SplitItemName', description='The split item name, which is the name corresponding to the specific split granularity of the bill.', example='example-bucket'),
+      zone?: string(name='Zone', description='The zone. The display name may be returned.', example='China (Hangzhou) Zone I'),
+    }
+  ](name='Data', description='The array of split bill summary records returned in this request. This array may be empty if no matching records are found.', example='[]'),
+  maxResults?: int32(name='MaxResults', description='The maximum number of records per page used in this query.', example='20'),
+  nextToken?: string(name='NextToken', description='The token for querying the next page. If it is not empty, use it as the NextToken for the next request. If it is empty or not returned, the pagination ends. Even if the number of returned records is less than MaxResults or the current page is empty, you must continue to query as long as the token is not empty.', example='opaque-token-example'),
+  requestId?: string(name='RequestId', description='The unique identifier of the request, which is used to locate the request.', example='00000000-0000-4000-8000-000000000001'),
+}
+
+model ListSplitSummaryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSplitSummaryResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the split bill summary for a specified billing month or date. This operation supports viewing the costs of resources and split items, and filtering by product, account, financial unit, resource group, and tag.
+ *
+ * @description 1. This operation aggregates split bill records by day or month. It can be used to view the cost attribution of split resources. For products that support automatic splitting, you can view costs by attached resource, such as OSS buckets, CDN domain names, and EIPs of Internet Shared Bandwidth. For the supported scope, refer to [Split bill details](https://www.alibabacloud.com/help/en/user-center/splitting-bill).
+ * 2. The final split bill data for the current month is generated at 12:00 on the fourth day of the next month. Query results before this time are for reference only and must not be used as the final basis for reconciliation. The generation of costs for attached resources is delayed. If the data is incomplete, query again after the update.
+ * 3. Amounts, usage, and durations are returned as character strings. Use decimal numeric types to process amounts and avoid precision loss caused by binary floating-point numbers.
+ * 4. Whether a field has a value depends on the product billing method, splitting rules, and bill data. A null value or an unreturned field does not mean the value is zero. Information such as public IP, private IP, and resource names also depends on the resource information query capabilities of the product.
+ * 5. This operation uses the field terminology of the new bill version. For related concepts, refer to [Differences and field descriptions of the new bill version](https://www.alibabacloud.com/help/en/user-center/v2-version-bill-field-description). The parameter names and response structure of this operation are subject to this topic.
+ *
+ * @param tmpReq ListSplitSummaryRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSplitSummaryResponse
+ */
+async function listSplitSummaryWithOptions(tmpReq: ListSplitSummaryRequest, runtime: Util.RuntimeOptions): ListSplitSummaryResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListSplitSummaryShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.commonFilters)) {
+    request.commonFiltersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.commonFilters, 'CommonFilters', 'json');
+  }
+  if (!Util.isUnset(tmpReq.costCategoriesFilters)) {
+    request.costCategoriesFiltersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.costCategoriesFilters, 'CostCategoriesFilters', 'json');
+  }
+  if (!Util.isUnset(tmpReq.ecIdAccountIds)) {
+    request.ecIdAccountIdsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.ecIdAccountIds, 'EcIdAccountIds', 'json');
+  }
+  if (!Util.isUnset(tmpReq.period)) {
+    request.periodShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.period, 'Period', 'json');
+  }
+  if (!Util.isUnset(tmpReq.tagFilters)) {
+    request.tagFiltersShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.tagFilters, 'TagFilters', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.commonFiltersShrink)) {
+    query['CommonFilters'] = request.commonFiltersShrink;
+  }
+  if (!Util.isUnset(request.costCategoriesFiltersShrink)) {
+    query['CostCategoriesFilters'] = request.costCategoriesFiltersShrink;
+  }
+  if (!Util.isUnset(request.ecIdAccountIdsShrink)) {
+    query['EcIdAccountIds'] = request.ecIdAccountIdsShrink;
+  }
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.periodShrink)) {
+    query['Period'] = request.periodShrink;
+  }
+  if (!Util.isUnset(request.tagFiltersShrink)) {
+    query['TagFilters'] = request.tagFiltersShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListSplitSummary',
+    version = '2023-09-30',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the split bill summary for a specified billing month or date. This operation supports viewing the costs of resources and split items, and filtering by product, account, financial unit, resource group, and tag.
+ *
+ * @description 1. This operation aggregates split bill records by day or month. It can be used to view the cost attribution of split resources. For products that support automatic splitting, you can view costs by attached resource, such as OSS buckets, CDN domain names, and EIPs of Internet Shared Bandwidth. For the supported scope, refer to [Split bill details](https://www.alibabacloud.com/help/en/user-center/splitting-bill).
+ * 2. The final split bill data for the current month is generated at 12:00 on the fourth day of the next month. Query results before this time are for reference only and must not be used as the final basis for reconciliation. The generation of costs for attached resources is delayed. If the data is incomplete, query again after the update.
+ * 3. Amounts, usage, and durations are returned as character strings. Use decimal numeric types to process amounts and avoid precision loss caused by binary floating-point numbers.
+ * 4. Whether a field has a value depends on the product billing method, splitting rules, and bill data. A null value or an unreturned field does not mean the value is zero. Information such as public IP, private IP, and resource names also depends on the resource information query capabilities of the product.
+ * 5. This operation uses the field terminology of the new bill version. For related concepts, refer to [Differences and field descriptions of the new bill version](https://www.alibabacloud.com/help/en/user-center/v2-version-bill-field-description). The parameter names and response structure of this operation are subject to this topic.
+ *
+ * @param request ListSplitSummaryRequest
+ * @return ListSplitSummaryResponse
+ */
+async function listSplitSummary(request: ListSplitSummaryRequest): ListSplitSummaryResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listSplitSummaryWithOptions(request, runtime);
 }
 
 model ModifyCostCenterRequest {
@@ -4815,14 +5189,14 @@ model QueryCostCenterRequest {
 This parameter is required.', example='1'),
   ecIdAccountIds?: [ 
     {
-      accountIds?: [ long ](name='AccountIds', description='The list of accessed accounts. If this parameter is left empty, all accounts under the current entity ID are selected.'),
+      accountIds?: [ long ](name='AccountIds', description='The list of accounts to access. If this parameter is left empty, all accounts under the current enterprise entity ID are selected.'),
       ecId?: string(name='EcId', description='The ID of the enterprise entity.
 
 This parameter is required.', example='1004064243473974'),
     }
-  ](name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
-  nbid?: string(name='Nbid', description='The ID of the level-1 sales site. If this parameter is left empty, the ID of the sales site to which the current user belongs is used by default.', example='2684201000001'),
-  ownerAccountId?: long(name='OwnerAccountId', description='The ID of the owner account for the cost center.
+  ](name='EcIdAccountIds', description='The list of enterprise entities and accounts. If this parameter is left empty, the current account is queried.'),
+  nbid?: string(name='Nbid', description='The ID of the level-1 marketplace. If this parameter is left empty, the ID of the marketplace to which the current user belongs is used by default.', example='2684201000001'),
+  ownerAccountId?: long(name='OwnerAccountId', description='The ID of the owner account of the cost center.
 
 This parameter is required.', example='1314839403940987'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.
@@ -4837,9 +5211,9 @@ model QueryCostCenterShrinkRequest {
   currentPage?: int32(name='CurrentPage', description='The current page number.
 
 This parameter is required.', example='1'),
-  ecIdAccountIdsShrink?: string(name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
-  nbid?: string(name='Nbid', description='The ID of the level-1 sales site. If this parameter is left empty, the ID of the sales site to which the current user belongs is used by default.', example='2684201000001'),
-  ownerAccountId?: long(name='OwnerAccountId', description='The ID of the owner account for the cost center.
+  ecIdAccountIdsShrink?: string(name='EcIdAccountIds', description='The list of enterprise entities and accounts. If this parameter is left empty, the current account is queried.'),
+  nbid?: string(name='Nbid', description='The ID of the level-1 marketplace. If this parameter is left empty, the ID of the marketplace to which the current user belongs is used by default.', example='2684201000001'),
+  ownerAccountId?: long(name='OwnerAccountId', description='The ID of the owner account of the cost center.
 
 This parameter is required.', example='1314839403940987'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.
@@ -4856,15 +5230,15 @@ model QueryCostCenterResponseBody = {
       costCenterCode?: string(name='CostCenterCode', description='The code of the cost center.', example='15945703968#'),
       costCenterId?: long(name='CostCenterId', description='The ID of the cost center.', example='485938'),
       costCenterName?: string(name='CostCenterName', description='The name of the cost center. The name must be unique within the same account.', example='Resource group'),
-      level?: int32(name='Level', description='The node level of the cost center.', example='loose'),
-      ownerAccountId?: long(name='OwnerAccountId', description='The ID of the owner account for the cost center.', example='1314839403940987'),
+      level?: int32(name='Level', description='The level of the cost center node.', example='1'),
+      ownerAccountId?: long(name='OwnerAccountId', description='The ID of the owner account of the cost center.', example='1314839403940987'),
       parentCostCenterId?: long(name='ParentCostCenterId', description='The ID of the parent cost center.', example='-1'),
       prevCostCenterId?: long(name='PrevCostCenterId', description='The ID of the previous cost center.', example='485996'),
       priority?: int32(name='Priority', description='The priority of the cost center.', example='0'),
     }
   ](name='CostCenterDtoList', description='The data list.'),
   currentPage?: int32(name='CurrentPage', description='The current page number.', example='1'),
-  metadata?: any(name='Metadata', description='The response metadata.', example='{}'),
+  metadata?: any(name='Metadata', description='The metadata of the response structure.', example='{}'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='20'),
   requestId?: string(name='RequestId', description='Id of the request', example='79EE7556-0CFD-44EB-9CD6-B3B526E3A85F'),
   totalCount?: int32(name='TotalCount', description='The total number of records.', example='30'),
@@ -5077,27 +5451,27 @@ model QueryCostCenterRuleRequest {
   ecIdAccountIds?: [ 
     {
       accountIds?: [ long ](name='AccountIds', description='The list of accounts to access. If this parameter is left empty, all accounts under the current entity ID are selected.'),
-      ecId?: string(name='EcId', description='The enterprise entity ID.
+      ecId?: string(name='EcId', description='The ID of the enterprise entity.
 
 This parameter is required.', example='1004064243473974'),
     }
   ](name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
-  nbid?: string(name='Nbid', description='The ID of the primary marketplace. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2684201000001'),
+  nbid?: string(name='Nbid', description='The ID of the level-1 marketplace. If this parameter is left empty, the ID of the marketplace to which the current user belongs is used by default.', example='2684201000001'),
 }
 
 model QueryCostCenterRuleResponseBody = {
-  costCenterId?: long(name='CostCenterId', description='The cost center ID.', example='597745'),
+  costCenterId?: long(name='CostCenterId', description='The ID of the cost center.', example='597745'),
   filterExpression?: {
     expressionType?: string(name='ExpressionType', description='The operation type.', example='NARY'),
     filterValues?: {
       code?: string(name='Code', description='The condition filter key.', example='TAG-test-xxx-key'),
-      codeName?: string(name='CodeName', description='The condition filter key name (deprecated).', example='None'),
-      selectType?: string(name='SelectType', description='The association between the code and value.', example='IN'),
-      values?: [ string ](name='Values', description='The attribute value type corresponding to the module Code. Valid values:
+      codeName?: string(name='CodeName', description='**[Deprecated]** The name of the condition filter key.', example='None'),
+      selectType?: string(name='SelectType', description='The association between code and value.', example='IN'),
+      values?: [ string ](name='Values', description='The property value type corresponding to the module code. Valid values:
 - single_float: single value type.
 - range_float: range value type.'),
     }(name='FilterValues', description='The sub-condition filter.'),
-    operand?: any(name='Operand', description='The filter condition (deprecated).', example='None'),
+    operand?: any(name='Operand', description='**[Deprecated]** The filter condition.', example='None'),
     operands?: [ any ](name='Operands', description='The conditional expression.'),
     operatorType?: string(name='OperatorType', description='The relational expression.', example='AND'),
   }(name='FilterExpression', description='The rule expression.'),
@@ -5105,15 +5479,15 @@ model QueryCostCenterRuleResponseBody = {
   gmtModified?: string(name='GmtModified', description='The modification time.', example='Wed Oct 16 10:15:37 CST 2024'),
   id?: long(name='Id', description='The ID of the cost center automatic allocation rule.', example='32048'),
   isDeleted?: int32(name='IsDeleted', description='The deletion status. Valid values:
-* **0**: Active.
-* **1**: Inactive.', example='false'),
-  metadata?: any(name='Metadata', description='The response struct metadata.', example='{}'),
-  ownerAccountId?: long(name='OwnerAccountId', description='The owner of the cost center.', example='1977800748053695'),
+* **0**: active.
+* **1**: inactive.', example='0'),
+  metadata?: any(name='Metadata', description='The metadata of the response structure.', example='{}'),
+  ownerAccountId?: long(name='OwnerAccountId', description='The owner account of the cost center.', example='1977800748053695'),
   requestId?: string(name='RequestId', description='Id of the request', example='UUID'),
-  rootCostCenterId?: long(name='RootCostCenterId', description='The root cost center ID.', example='0'),
+  rootCostCenterId?: long(name='RootCostCenterId', description='The ID of the root cost center.', example='0'),
   status?: string(name='Status', description='The status. Valid values:
-- on: Active.
-- off: Inactive.', example='on'),
+- on: valid.
+- off: invalid.', example='on'),
 }
 
 model QueryCostCenterRuleResponse = {
@@ -5123,9 +5497,9 @@ model QueryCostCenterRuleResponse = {
 }
 
 /**
- * @summary Queries the automatic allocation rules of a cost center.
+ * @summary Queries cost center rules.
  *
- * @description Queries a parent cost center and its child cost centers.
+ * @description Queries the parent cost center and its child cost centers.
  *
  * @param request QueryCostCenterRuleRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5163,9 +5537,9 @@ async function queryCostCenterRuleWithOptions(request: QueryCostCenterRuleReques
 }
 
 /**
- * @summary Queries the automatic allocation rules of a cost center.
+ * @summary Queries cost center rules.
  *
- * @description Queries a parent cost center and its child cost centers.
+ * @description Queries the parent cost center and its child cost centers.
  *
  * @param request QueryCostCenterRuleRequest
  * @return QueryCostCenterRuleResponse
@@ -5301,16 +5675,16 @@ model QueryMonthlySlaListRequest {
   currentPage?: int32(name='CurrentPage', description='The current page number. Default value: 1.', example='1'),
   ecIdAccountIds?: [ 
     {
-      accountIds?: [ long ](name='AccountIds', description='The list of accounts to access. If this parameter is left empty, all accounts under the current entity ID are selected.'),
-      ecId?: string(name='EcId', description='The enterprise entity ID.', example='1501603440974415'),
+      accountIds?: [ long ](name='AccountIds', description='The list of account IDs to access. If this parameter is left empty, all accounts under the current entity ID are selected.'),
+      ecId?: string(name='EcId', description='The ID of the enterprise entity.', example='1501603440974415'),
     }
-  ](name='EcIdAccountIds', description='The list of enterprise entities and accounts. If this parameter is left empty, the current account is queried.'),
-  instanceIds?: [ string ](name='InstanceIds', description='Optional. The instance IDs used for filtering.', example='["instance_1","instance_2"]'),
-  months?: [ int32 ](name='Months', description='Optional. The list of months in the yyyyMM format.', example='[202602,202603]'),
-  nbid?: string(name='Nbid', description='The primary marketplace ID. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2684201000001'),
+  ](name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
+  instanceIds?: [ string ](name='InstanceIds', description='The instance IDs used for filtering.', example='["instance_1","instance_2"]'),
+  months?: [ int32 ](name='Months', description='The list of months in the yyyyMM format.', example='[202602,202603]'),
+  nbid?: string(name='Nbid', description='The ID of the primary marketplace. If this parameter is left empty, the marketplace ID of the current user is used.', example='2684201000001'),
   pageSize?: int32(name='PageSize', description='The number of entries per page. Default value: 10.', example='10'),
-  payStatuses?: [ int32 ](name='PayStatuses', description='Optional. The compensation statuses used for filtering. Valid values: 0 and 1.'),
-  productCodes?: [ string ](name='ProductCodes', description='Optional. The product codes used for filtering.', example='["ecs","oss"]'),
+  payStatuses?: [ int32 ](name='PayStatuses', description='The compensation statuses used for filtering. Valid values: 0 and 1.'),
+  productCodes?: [ string ](name='ProductCodes', description='The product codes used for filtering.', example='["ecs","oss"]'),
 }
 
 model QueryMonthlySlaListResponseBody = {
@@ -5318,23 +5692,20 @@ model QueryMonthlySlaListResponseBody = {
   data?: [ 
     {
       availableRate?: double(name='AvailableRate', description='The service availability.', example='99.9155'),
-      damagedId?: string(name='DamagedId', description='The unique identifier of the damaged record, which is used to call the applyCoupon operation for targeted claim.', example='9b7***9413'),
-      instanceId?: string(name='InstanceId', description='The instance ID.', example='OSSBAG-cn-0xl0n****003'),
+      damagedId?: string(name='DamagedId', description='The unique identifier of the damage record, which is used for targeted claims.', example='9b7***9413'),
+      instanceId?: string(name='InstanceId', description='The ID of the instance.', example='OSSBAG-cn-0xl0n****003'),
       month?: int32(name='Month', description='The month in the yyyyMM format.', example='202603'),
-      monthlyServiceCharge?: double(name='MonthlyServiceCharge', description='The monthly service charge.', example='365.00'),
+      monthlyServiceCharge?: double(name='MonthlyServiceCharge', description='The monthly service fee.', example='365.00'),
       payDescription?: string(name='PayDescription', description='The compensation description.', example='SLA compensation'),
-      payRate?: double(name='PayRate', description='The compensation ratio, in percentage (%).', example='10'),
-      payStatus?: int32(name='PayStatus', description='The compensation status. Valid values:
-- 0: not compensated.
-- 1: compensated.
-- 2: no compensation required.', example='1'),
-      productCode?: string(name='ProductCode', description='The product code.', example='oss'),
-      shouldPaySum?: double(name='ShouldPaySum', description='The compensation amount that should be paid.', example='36.5'),
+      payRate?: double(name='PayRate', description='The compensation ratio, in percentage.', example='10'),
+      payStatus?: int32(name='PayStatus', description='The compensation status. Valid values: 0: Not compensated. 1: Compensated. 2: No compensation required.', example='1'),
+      productCode?: string(name='ProductCode', description='The code of the product.', example='oss'),
+      shouldPaySum?: double(name='ShouldPaySum', description='The compensation amount to be paid.', example='36.5'),
     }
-  ](name='Data', description='The data list.'),
-  metadata?: any(name='Metadata', description='The response metadata.', example='{}'),
+  ](name='Data', description='The list of data.'),
+  metadata?: any(name='Metadata', description='The metadata of the response structure.', example='{}'),
   pageSize?: int32(name='PageSize', description='The number of entries per page.', example='10'),
-  requestId?: string(name='RequestId', description='The request ID.', example='6000EE23-274B-4E07-A697-FF2E999520A4'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='6000EE23-274B-4E07-A697-FF2E999520A4'),
   totalCount?: int32(name='TotalCount', description='The total number of records.', example='5'),
 }
 
@@ -5345,9 +5716,9 @@ model QueryMonthlySlaListResponse = {
 }
 
 /**
- * @summary Queries the SLA compensation list for a user.
+ * @summary Queries the SLA compensation list for users.
  *
- * @description Queries the SLA compensation details list for a user. Only data from the last two months is available.
+ * @description Provides the list of SLA compensation details for users, including only data from the last two months.
  *
  * @param request QueryMonthlySlaListRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -5400,9 +5771,9 @@ async function queryMonthlySlaListWithOptions(request: QueryMonthlySlaListReques
 }
 
 /**
- * @summary Queries the SLA compensation list for a user.
+ * @summary Queries the SLA compensation list for users.
  *
- * @description Queries the SLA compensation details list for a user. Only data from the last two months is available.
+ * @description Provides the list of SLA compensation details for users, including only data from the last two months.
  *
  * @param request QueryMonthlySlaListRequest
  * @return QueryMonthlySlaListResponse
@@ -5930,22 +6301,22 @@ async function setSavingPlanUserDeductRule(request: SetSavingPlanUserDeductRuleR
 }
 
 model SubmitSlaCouponApplyRequest {
-  damagedIds?: [ string ](name='DamagedIds', description='Optional. The IDs of the damaged records.'),
+  damagedIds?: [ string ](name='DamagedIds', description='The damaged record IDs.'),
   ecIdAccountIds?: [ 
     {
-      accountIds?: [ long ](name='AccountIds', description='The list of accounts to access. If this parameter is left empty, all accounts under the current entity ID are selected.'),
-      ecId?: string(name='EcId', description='The ID of the enterprise entity.', example='1501603440974415'),
+      accountIds?: [ long ](name='AccountIds', description='The list of accessed accounts. If this parameter is left empty, all accounts under the current entity ID are selected.'),
+      ecId?: string(name='EcId', description='The enterprise entity ID.', example='1501603440974415'),
     }
   ](name='EcIdAccountIds', description='The list of enterprises and accounts. If this parameter is left empty, the current account is queried.'),
   month?: int32(name='Month', description='Required. The application month in the yyyyMM format.
 
 This parameter is required.', example='202603'),
-  nbid?: string(name='Nbid', description='The ID of the primary marketplace. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2084210001'),
+  nbid?: string(name='Nbid', description='The level-1 marketplace ID. If this parameter is left empty, the marketplace ID of the current user is used by default.', example='2084210001'),
 }
 
 model SubmitSlaCouponApplyResponseBody = {
   metadata?: any(name='Metadata', description='The metadata of the response structure.', example='{}'),
-  requestId?: string(name='RequestId', description='The unique identifier of the request, which is used to mark the request and facilitate troubleshooting.', example='79EE7556-0CFD-44EB-9CD6-B3B526E3A85F'),
+  requestId?: string(name='RequestId', description='The unique identifier of the request, which is used to mark a request and facilitate troubleshooting.', example='79EE7556-0CFD-44EB-9CD6-B3B526E3A85F'),
   sumCoupon?: double(name='SumCoupon', description='The total claimed amount.', example='6.4'),
   validEndTime?: string(name='ValidEndTime', description='The end time in the EEE MMM dd HH:mm:ss z yyyy format, such as Mon Apr 27 00:00:00 CST 2026.', example='Mon Apr 27 00:00:00 CST 2026'),
   validStartTime?: string(name='ValidStartTime', description='The start time in the EEE MMM dd HH:mm:ss z yyyy format, such as Tue Oct 27 13:15:58 CST 2026.', example='Tue Oct 27 13:15:58 CST 2026'),
