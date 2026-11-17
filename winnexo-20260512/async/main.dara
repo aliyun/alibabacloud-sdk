@@ -461,26 +461,26 @@ async function closeWorkflowTodos(request: CloseWorkflowTodosRequest): CloseWork
 }
 
 model ConvertDirectConversationToWorkRequest {
-  sessionId: string(name='sessionId', description='源会话 ID；首次调用建立转换，后续使用同一 ID 查询或继续原转换
+  sessionId: string(name='sessionId', description='The source direct session ID.
 
 This parameter is required.', example='exampleSourceSessionId', minLength=1, position='Body'),
-  tenantId?: string(name='tenantId', description='租户 ID，公共参数，缺省时使用调用方默认租户；仍需通过源会话归属及权限校验', example='10000', position='Query'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000', position='Query'),
 }
 
 model ConvertDirectConversationToWorkResponseBody = {
-  code?: string(name='code', description='业务状态码：成功为 200，失败沿现有 OpenAPI/POP 错误合同返回；转换是否整体完成须同时检查 status', example='200'),
-  conversionId?: string(name='conversionId', description='转换 ID，查询及恢复过程中保持不变', example='exampleConversionId'),
-  convertedRounds?: int32(name='convertedRounds', description='固定快照中转换的完整 direct 问答轮数，不受发送接口 directMaxHistoryRounds 限制', example='2'),
-  historyScope?: string(name='historyScope', description='转换历史范围，固定为 direct；不包含普通 work 历史', example='direct'),
-  message?: string(name='message', description='错误描述，成功时为空', example='success'),
-  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
-  retryable?: boolean(name='retryable', description='是否允许继续原转换；false 表示不另起执行，仍允许用同一源 sessionId 查询。重试或继续始终复用同一转换、目标及快照', example='false'),
-  sourceEpoch?: long(name='sourceEpoch', description='冻结快照对应的源 direct 历史 epoch', example='0'),
-  sourceSessionId?: string(name='sourceSessionId', description='源会话 ID，与请求 sessionId 一致', example='exampleSourceSessionId'),
-  status?: string(name='status', description='转换状态：processing 表示处理中；succeeded 表示模型导入、目标登记、展示投影及两侧就绪均完成。失败按 OpenAPI/POP 错误合同处理，不能仅凭 HTTP 200 判断转换成功', example='succeeded'),
-  targetSessionId?: string(name='targetSessionId', description='新的 work 目标会话 ID，与源 ID 不同；processing 时可能返回预分配 ID，仅 succeeded 后可使用；重复查询或恢复复用原目标', example='exampleTargetSessionId'),
-  throughSequence?: long(name='throughSequence', description='冻结快照包含的最后一个 direct 轮次序号；源会话后续轮次不自动加入目标', example='2'),
-  workMode?: string(name='workMode', description='目标会话的工作模式，固定为 work', example='work'),
+  code?: string(name='code', description='The response status code.', example='200'),
+  conversionId?: string(name='conversionId', description='The session conversion record ID.', example='exampleConversionId'),
+  convertedRounds?: int32(name='convertedRounds', description='The number of converted conversation turns.', example='2'),
+  historyScope?: string(name='historyScope', description='The scope of the converted historical messages.', example='direct'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  retryable?: boolean(name='retryable', description='Specifies whether retries are supported.', example='false'),
+  sourceEpoch?: long(name='sourceEpoch', description='The source session version identifier.', example='0'),
+  sourceSessionId?: string(name='sourceSessionId', description='The source session ID.', example='exampleSourceSessionId'),
+  status?: string(name='status', description='The conversion status.', example='succeeded'),
+  targetSessionId?: string(name='targetSessionId', description='The target work session ID.', example='exampleTargetSessionId'),
+  throughSequence?: long(name='throughSequence', description='The cutoff message sequence number for the conversion.', example='2'),
+  workMode?: string(name='workMode', description='The work session mode.', example='work'),
 }
 
 model ConvertDirectConversationToWorkResponse = {
@@ -490,7 +490,7 @@ model ConvertDirectConversationToWorkResponse = {
 }
 
 /**
-  * @description 将源会话当前有效、已完成的 direct 模型历史冻结并复制为新的 work 会话，源会话保留。混合会话仅转换 direct 历史，不补入普通 work 历史或只有展示记录的旧历史；转换范围不受 directMaxHistoryRounds 限制。转换本身不发起聊天或运行 Skill。对同一源会话重复调用用于查询或继续同一转换，最多产生一个成功目标，成功后始终返回原目标，源后续消息不自动同步。仅 status=succeeded 表示目标已可使用；processing 时继续使用同一源 sessionId 查询，不能向尚未就绪的目标发送消息、Fork 或分享。源正在生成时返回 SourceBusy，无有效模型历史时返回 NoConvertibleHistory，已成功的目标被删除或历史不可恢复时返回 ConvertedTargetUnavailable，不重建目标。仅允许本人可操作且具备 work 权限的普通会话，拒绝 group_shared、task_follow_up、skill_follow_up、skill_output_backfill 等受限来源；后台查看权不授予转换权。
+  * @description Freezes the currently valid and completed direct model history of the source session and performs replication into a new work session, while retaining the source session. For hybrid sessions, only the direct history is transformed, and ordinary work history or old history containing only display records is not included. The transform scope is not limited by directMaxHistoryRounds. The transform itself does not initiate a chat or run a skill. To query or continue the same transform, invoke the operation repeatedly for the same source session, producing at most one successful target. Upon success, the original target is always returned, and no automatic synchronization applies to subsequent messages in the source session. Only status=succeeded indicates that the target is ready for use. When the status is processing, continue querying with the same source sessionId. You cannot send messages to, fork, or share a target that is not yet ready. SourceBusy is returned if the source session is currently generating content. NoConvertibleHistory is returned if there is no valid model history. ConvertedTargetUnavailable is returned if a previously successful target is deleted or its history is unrecoverable, and the target is not rebuilt. Only ordinary sessions that the user can operate and that have work permissions are allowed. Access control rules deny restricted sources such as group_shared, task_follow_up, skill_follow_up, and skill_output_backfill. Background view permissions do not grant transform rights.
   * @param request  the request parameters of ConvertDirectConversationToWork  ConvertDirectConversationToWorkRequest
   * @return ConvertDirectConversationToWorkResponse
  */
@@ -2347,35 +2347,34 @@ async function createPersonalVoiceMeeting(request: CreatePersonalVoiceMeetingReq
 }
 
 model CreateScheduledTaskRequest {
-  collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the collaboration group to which the task belongs, such as cg_101. If this parameter is passed, a group space task is created, and the caller must be a valid group member. If this parameter is empty, a personal task is created.', example='exampleCollaborationGroupId', position='Body'),
+  collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the associated collaboration group (such as cg_101). If this parameter is passed, a group space task is created, and the caller must be a valid group member. If this parameter is empty, a personal task is created.', example='exampleCollaborationGroupId', position='Body'),
   description?: [ 
     {
       content?: string(name='content', description='The streaming output message.', example='Sample content'),
       enabled?: boolean(name='enabled', description='Specifies whether the throttling rule is enabled. A value of true indicates that the rule is enabled, and a value of false indicates that the rule is disabled.', example='true'),
-      name?: string(name='name', description='The name.', example='SampleName.pdf'),
+      name?: string(name='name', description='The name.', example='Sample name.pdf'),
       objectId?: string(name='objectId', description='The object ID. Pass the project task ID.
 
-- For internal enterprise applications, call the [Create a project task](https://open.dingtalk.com/document/orgapp-server/create-a-project-task) API operation to obtain the taskId.
-
-- For third-party enterprise applications, call the [Create a project task](https://open.dingtalk.com/document/isvapp-server/create-a-project-task) API operation to obtain the taskId.', example='exampleObjectId'),
+- For internal enterprise applications, call the [Create a project task](https://open.dingtalk.com/document/orgapp-server/create-a-project-task) API to obtain the taskId.
+- For third-party enterprise applications, call the [Create a project task](https://open.dingtalk.com/document/isvapp-server/create-a-project-task) API to obtain the taskId.', example='exampleObjectId'),
       objectType?: string(name='objectType', description='The object type. Set the value to task, which indicates a project task.', example='string_value'),
       skillCode?: string(name='skillCode', description='The skill code. This parameter has a value when type is set to skill.', example='string_value'),
-      type?: string(name='type', description='The HTTP API type. Valid values: Http (standard HTTP API), Rest (RESTful API), WebSocket (WebSocket API), HttpIngress (HTTP API accessed through Ingress), LLM (large language model API), and Agent (agent API).', example='text'),
+      type?: string(name='type', description='The HTTP API type. Valid values: Http (common HTTP API), Rest (RESTful API), WebSocket (WebSocket API), HttpIngress (HTTP API accessed through Ingress), LLM (large language model API), and Agent (agent API).', example='text'),
     }
   ](name='description', description='The description of the to-do card type.', shrink='json', position='Body'),
-  digitalEmployeeName?: [ string ](name='digitalEmployeeName', description='The name of the current effective digital employee. This parameter is empty if it is not configured.', example='["pcitc-magent"]', shrink='json', position='Body'),
+  digitalEmployeeName?: [ string ](name='digitalEmployeeName', description='The name of the currently effective digital employee. This parameter is empty if it is not configured.', example='["pcitc-magent"]', shrink='json', position='Body'),
   isOpen?: boolean(name='isOpen', description='Specifies whether public access is allowed.', example='true', position='Body'),
-  model?: string(name='model', description='The large language model used by the assistant. The default value is empty, which indicates that DingTalk automatically selects the model.', example='quick', position='Body'),
+  model?: string(name='model', description='The large model used by the assistant. The default value is empty, which indicates that DingTalk automatically selects the model.', example='quick', position='Body'),
   name: string(name='name', description='The name.
 
-This parameter is required.', example='SampleName.pdf', position='Body'),
-  outputMode?: string(name='outputMode', description='输出会话模式，默认 NEW_CONVERSATION', example='NEW_CONVERSATION', position='Body'),
+This parameter is required.', example='Sample name.pdf', position='Body'),
+  outputMode?: string(name='outputMode', description='The output conversation mode. Default value: NEW_CONVERSATION.', example='NEW_CONVERSATION', position='Body'),
   segments?: [ 
     {
       content?: string(name='content', description='The card callback content.', example='Sample content'),
-      enabled?: boolean(name='enabled', description='Specifies whether the feature is enabled.', example='true'),
-      name?: string(name='name', description='The name.', example='SampleName.pdf'),
-      objectId?: string(name='objectId', description='The ID of the recommended item, which can be a **feedId** or a mini-app ID.', example='exampleObjectId'),
+      enabled?: boolean(name='enabled', description='Specifies whether to enable the feature.', example='true'),
+      name?: string(name='name', description='The name.', example='Sample name.pdf'),
+      objectId?: string(name='objectId', description='The ID of the recommended item. The value can be a **feedId** or a mini-app ID.', example='exampleObjectId'),
       objectType?: string(name='objectType', description='The saved customer type.', example='string_value'),
       skillCode?: string(name='skillCode', description='The skill code. This parameter has a value when type is set to skill.', example='string_value'),
       type?: string(name='type', description='The billing type. Currently, only fixed is supported.', example='text'),
@@ -2385,12 +2384,11 @@ This parameter is required.', example='SampleName.pdf', position='Body'),
     relatedObjects?: [ 
       {
         mentionType?: string(name='mentionType', description='The mention type, such as objects.', example='string_value'),
-        name?: string(name='name', description='The name.', example='SampleName.pdf'),
+        name?: string(name='name', description='The name.', example='Sample name.pdf'),
         objectId?: string(name='objectId', description='The object ID. Pass the project task ID.
 
-- For internal enterprise applications, call the [Create a project task](https://open.dingtalk.com/document/orgapp-server/create-a-project-task) API operation to obtain the taskId.
-
-- For third-party enterprise applications, call the [Create a project task](https://open.dingtalk.com/document/isvapp-server/create-a-project-task) API operation to obtain the taskId.', example='exampleObjectId'),
+- For internal enterprise applications, call the [Create a project task](https://open.dingtalk.com/document/orgapp-server/create-a-project-task) API to obtain the taskId.
+- For third-party enterprise applications, call the [Create a project task](https://open.dingtalk.com/document/isvapp-server/create-a-project-task) API to obtain the taskId.', example='exampleObjectId'),
         objectType?: string(name='objectType', description='The relationship type. Valid values:
 - crm_customer: Enterprise customer.
 - crm_customer_personal: Individual customer.', example='string_value'),
@@ -2405,14 +2403,14 @@ This parameter is required.', example='SampleName.pdf', position='Body'),
     relatedSkills?: [ 
       {
         displayName?: string(name='displayName', description='The display name.', example='string_value'),
-        name?: string(name='name', description='The name.', example='SampleName.pdf'),
+        name?: string(name='name', description='The name.', example='Sample name.pdf'),
         skillCode?: string(name='skillCode', description='The skill code.', example='string_value'),
         sourceIds?: [ string ](name='sourceIds', description='sourceIds', example='["113424"]'),
       }
     ](name='relatedSkills', description='The associated skills.'),
     taskUnderstand?: string(name='taskUnderstand', description='The task understanding description polished by the LLM.', example='string_value'),
   }(name='taskDetail', description='The task details.', shrink='json', position='Body'),
-  tenantId?: string(name='tenantId', description='The effective tenant ID.', example='10000', position='Query'),
+  tenantId?: string(name='tenantId', description='The ID of the effective tenant.', example='10000', position='Query'),
   triggerConfig?: {
     cron?: string(name='cron', description='The periodic training information. The cron syntax is used (Minutes Hours DayofMonth Month DayofWeek). If this parameter is empty, periodic training is not performed, which is the default value. In DayofWeek, 0 indicates Sunday.', example='string_value'),
     language?: string(name='language', description='The language. Valid values:
@@ -2423,42 +2421,35 @@ This parameter is required.', example='SampleName.pdf', position='Body'),
       {
         channelType?: string(name='channelType', description='The notification method. Valid values:
 
-- **hdm_alarm_sms**: SMS.
+- **hdm_alarm_sms**: Text message.
 - **dingtalk**: DingTalk chatbot.
-- **hdm_alarm_sms_and_email**: SMS and email.
-- **hdm_alarm_sms,dingtalk**: SMS and DingTalk chatbot.', example='DINGTALK'),
+- **hdm_alarm_sms_and_email**: Text message and email.
+- **hdm_alarm_sms,dingtalk**: Text message and DingTalk chatbot.', example='DINGTALK'),
         contentScope?: string(name='contentScope', description='The scope of the push content. Default value: all_replies.', example='all_replies'),
         deliveryMethod?: string(name='deliveryMethod', description='The push method. Default value: channel_bot.', example='channel_bot'),
         enabled?: boolean(name='enabled', description='Specifies whether the credential is enabled. Valid values:
 
-- true: Enabled. 
+- true: Enabled.
 - false: Disabled.', example='true'),
         fileFormat?: string(name='fileFormat', description='The file format, such as Excel or CSV.', example='file'),
         operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee (the name of the operating object, optional).', example='string_value'),
-        receiverType?: string(name='receiverType', description='The type of the file recipient. Valid values:
+        receiverType?: string(name='receiverType', description='The type of the file receiver. Valid values:
 
 - 0: Private chat.
-
 - 1: Group chat.
-
 - 2: DingTalk Drive.
-
 - 3: Document.', example='string_value'),
       }
-    ](name='pushConfig', description='The list of task push channels. If the list is empty or no channel is enabled, no push is performed.'),
+    ](name='pushConfig', description='The list of task push channels. If this parameter is empty or no channel is enabled, no push is performed.'),
     timezone?: string(name='timezone', description='The time zone.', example='Asia/Shanghai'),
-    triggerMode?: string(name='triggerMode', description='- Trigger mode
- 
-  1: Manual trigger
-   
-  2: Scheduled trigger 
+    triggerMode?: string(name='triggerMode', description='The trigger mode. Valid values:
 
-  3: Code commit trigger
- 
-  5: Pipeline trigger
-
-  6: Webhook trigger', example='manual'),
-  }(name='triggerConfig', description='The trigger configuration of the scheduled task. The triggerMode parameter supports manual (manual trigger) and scheduled (scheduled trigger). If scheduled is used, the cron parameter must be specified. The timezone and language parameters are injected by the server, and the client does not need to pass them. The pushConfig parameter is the list of task push channels. If the list is empty or no channel is enabled, no push is performed.', shrink='json', position='Body'),
+- 1: Manual trigger.
+- 2: Scheduled trigger.
+- 3: Code commit trigger.
+- 5: Pipeline trigger.
+- 6: WEBHOOK trigger.', example='manual'),
+  }(name='triggerConfig', description='The trigger configuration of the scheduled task. triggerMode supports manual (manual trigger) and scheduled (scheduled trigger). If scheduled is used, cron must be specified. timezone and language are injected by the server, and the client does not need to pass them. pushConfig is the list of task push channels. If it is empty or no channel is enabled, no push is performed.', shrink='json', position='Body'),
   visibility?: string(name='visibility', description='The visibility scope of the group task. Valid values: PRIVATE (visible only to the creator and group owner), COLLABORATIVE (visible to specified collaboration members), and PUBLIC (visible to all group members). If this parameter is not passed for a group task, the default value is PRIVATE. This field is ignored for personal tasks.', example='PRIVATE', position='Body'),
   visibleMemberUserIds?: [ string ](name='visibleMemberUserIds', description='The list of user IDs of collaboration members. This parameter takes effect only when visibility is set to COLLABORATIVE and is ignored for other values. A maximum of 1,000 user IDs can be specified. You do not need to pass the IDs of the task creator and group creator because they are covered by the authentication layer. This field is ignored for personal tasks.', example='["1002"]', shrink='json', position='Body'),
 }
@@ -2478,13 +2469,13 @@ model CreateScheduledTaskResponse = {
 
 /**
   * @description ## Request description
-  * - This API operation is used to upload files to the enterprise knowledge base.
-  * - You must have the DEVELOPMENT_KB_MANAGE feature permission to call this API operation.
-  * - You must provide the persistent OSS URL (filePath) of the file when uploading the file.
-  * - Optional parameters include the public access URL and the original file name to enhance the completeness of the file information.
-  * - If directoryId is specified, the file is placed in the corresponding enterprise knowledge base directory. Otherwise, the file is bound to the default root directory of the current digital employee by default.
-  * - You can use sourceTags to add tags to resources for subsequent management and retrieval.
-  * - This operation starts a billing bill (UNSTRUCTURED_PARSE). Make sure that your account balance is sufficient.
+  * - This API is used to upload files to the enterprise knowledge base.
+  * - You must have the DEVELOPMENT_KB_MANAGE feature permission to call this API.
+  * - When uploading a file, you must provide the OSS persistence address of the file (filePath).
+  * - Optional parameters include the public access URL of the file and the original file name to enhance the completeness of the file information.
+  * - If directoryId is specified, the file is placed in the corresponding enterprise knowledge base directory. Otherwise, it is bound to the default root directory of the current digital employee by default.
+  * - You can add tags to resources by using sourceTags for subsequent management and retrieval.
+  * - This operation triggers a billing bill (UNSTRUCTURED_PARSE). Make sure your account balance is sufficient.
   * @param request  the request parameters of CreateScheduledTask  CreateScheduledTaskRequest
   * @return CreateScheduledTaskResponse
  */
@@ -4350,42 +4341,42 @@ async function getScheduledTaskExecutionDetail(request: GetScheduledTaskExecutio
 }
 
 model GetScheduledTaskExecutionRecordsRequest {
-  collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the collaboration group to which the task belongs, such as cg_101. If you specify this parameter, a group space task is created, and the caller must be a valid group member. If you leave this parameter empty, a personal task is created.', example='1112', position='Query'),
-  initiatorUserId?: string(name='initiatorUserId', description='The business status code. A value of 200 indicates success. A failure is indicated by a backend error code, such as ERR.* or InvalidParameter.*.', example='5', position='Query'),
+  collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the collaboration group to which the task belongs, such as cg_101. If you specify this parameter, a group workspace task is created, and the caller must be a valid group member. If you leave this parameter empty, a personal task is created.', example='1112', position='Query'),
+  initiatorUserId?: string(name='initiatorUserId', description='The business status code. A value of 200 indicates success. A failure returns a backend error code, such as ERR.* or InvalidParameter.*.', example='5', position='Query'),
   page?: int32(name='page', description='The page number. Default value: 1. Minimum value: 1. Maximum value: 200.', example='1', position='Query'),
   pageSize?: int32(name='pageSize', description='The number of records per page.', example='10', position='Query'),
-  status?: string(name='status', description='The initiator filter based on the platform user ID. The scope is the executor of the record. For manual execution, it is the user who triggers the task. For automatic execution, it is the task creator. To view only the tasks that you initiated, specify the current user ID.', example='failed', position='Query'),
-  taskId?: string(name='taskId', description='The execution status filter in lowercase. Valid values: pending (queued), running (running), success (successful), failed (failed), timeout (timed out), and cancelled (cancelled). If you do not specify this parameter, no filtering is applied. If you specify this parameter, no future plan items are generated.', example='exampleTaskId', position='Query'),
-  tenantId?: string(name='tenantId', description='The ID of the active tenant.', example='10000', position='Query'),
+  status?: string(name='status', description='The initiator filter based on the platform user ID. The caliber is the executor of the record. For manual execution, it is the trigger user. For automatic execution, it is the task creator. To view only the tasks initiated by yourself, pass the current user ID.', example='failed', position='Query'),
+  taskId?: string(name='taskId', description='The execution status filter in lowercase. Valid values: pending (queued), running (running), success (successful), failed (failed), timeout (timed out), and cancelled (cancelled). If you do not specify this parameter, no filtering is applied. If you specify this parameter, future planned items are no longer generated.', example='exampleTaskId', position='Query'),
+  tenantId?: string(name='tenantId', description='The effective tenant ID.', example='10000', position='Query'),
 }
 
 model GetScheduledTaskExecutionRecordsResponseBody = {
   code?: string(name='code', description='The status code.', example='200'),
-  hasMore?: boolean(name='hasMore', description='Indicates whether more data exists.', example='true'),
-  message?: string(name='message', description='The description of the status code.', example='The current zone list is illegal.'),
+  hasMore?: boolean(name='hasMore', description='Specifies whether more data exists.', example='true'),
+  message?: string(name='message', description='The status code description.', example='The current zone list is illegal.'),
   page?: int32(name='page', description='The page number, starting from 1.', example='1'),
-  pageSize?: int32(name='pageSize', description='The ID of the collaboration group, such as cg_101. If you specify this parameter, the data is returned by group dimension, and the caller must be a valid group member. If you do not specify this parameter, the data is returned by personal dimension, excluding group tasks.', example='20'),
+  pageSize?: int32(name='pageSize', description='The collaboration group ID, such as cg_101. If you specify this parameter, the results are returned by group dimension, and the caller must be a valid group member. If you do not specify this parameter, the results are returned by personal dimension, excluding group tasks.', example='20'),
   requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   tasks?: [ 
     {
       collaborationGroupId?: string(name='collaborationGroupId', description='The pre-filter for a single task. If you do not specify this parameter, the execution records of all visible tasks are returned.', example='exampleCollaborationGroupId'),
       cronExpression?: string(name='cronExpression', description='The cron expression.', example='string_value'),
       description?: string(name='description', description='The description of the to-do card type.', example='Sample description'),
-      isOpen?: boolean(name='isOpen', description='Indicates whether public access is enabled.', example='true'),
+      isOpen?: boolean(name='isOpen', description='Specifies whether public access is enabled.', example='true'),
       model?: string(name='model', description='The execution model tier. Valid values: flagship (flagship), standard (standard), and quick (lightweight).', example='standard'),
-      name?: string(name='name', description='The name.', example='Sample name.pdf'),
+      name?: string(name='name', description='The name.', example='SampleName.pdf'),
       taskId?: string(name='taskId', description='The task ID.', example='exampleTaskId'),
       timeline?: [ 
         {
           actualTime?: string(name='actualTime', description='The actual working hours in hours.', example='2023-10-01T12:00:00Z'),
-          conversationId?: string(name='conversationId', description='本次任务执行使用的真实会话 ID', example='exampleConversationId'),
+          conversationId?: string(name='conversationId', description='The actual conversation ID used for this task execution.', example='exampleConversationId'),
           displayName?: string(name='displayName', description='The name of the schedule location.', example='string_value'),
           errorMessage?: string(name='errorMessage', description='The error message.', example='string_value'),
           executionId?: string(name='executionId', description='The execution record ID.', example='exampleExecutionId'),
           isExpired?: boolean(name='isExpired', description='The time zone.', example='false'),
-          messageId?: string(name='messageId', description='本次任务执行生成的结果消息 ID', example='exampleMessageId'),
-          outputContent?: string(name='outputContent', description='The execution output content (history records only).', example='string_value'),
-          scheduledTime?: string(name='scheduledTime', description='The timed scheduling time.', example='2023-10-01T12:00:00Z'),
+          messageId?: string(name='messageId', description='The result message ID generated by this task execution.', example='exampleMessageId'),
+          outputContent?: string(name='outputContent', description='The execution output content (historical records only).', example='string_value'),
+          scheduledTime?: string(name='scheduledTime', description='The scheduled time.', example='2023-10-01T12:00:00Z'),
           status?: string(name='status', description='The final status of the message.', example='READY'),
         }
       ](name='timeline', description='The timeline.'),
@@ -4393,8 +4384,8 @@ model GetScheduledTaskExecutionRecordsResponseBody = {
 
 > Default value: UTC+8.', example='Asia/Shanghai'),
       triggerType?: string(name='triggerType', description='The trigger type. Valid values:
-- Manual: manual execution.
-- Cron: scheduled trigger.', example='string_value'),
+- Manual: Manual execution.
+- Cron: Scheduled trigger.', example='string_value'),
     }
   ](name='tasks', description='The task list.'),
   total?: long(name='total', description='The total number of tasks.', example='1'),
@@ -4408,12 +4399,12 @@ model GetScheduledTaskExecutionRecordsResponse = {
 
 /**
   * @description ## Request description
-  * - This API operation uploads files to the enterprise knowledge base.
-  * - You must have the `DEVELOPMENT_KB_MANAGE` feature permission to call this API operation.
-  * - When uploading a file, you must provide the OSS persistence address (`filePath`) of the file.
-  * - Optional parameters include the public access URL and original file name of the file to enhance the completeness of the file information.
-  * - If `directoryId` is specified, the file is placed in the corresponding enterprise knowledge base directory. Otherwise, the file is bound to the default root directory of the current digital employee.
-  * - You can use `sourceTags` to add tags to resources for subsequent management and retrieval.
+  * - This operation uploads files to the enterprise knowledge base.
+  * - You must have the DEVELOPMENT_KB_MANAGE feature permission to call this API operation.
+  * - You must provide the OSS persistence address (filePath) of the file when uploading the file.
+  * - Optional parameters include the public access URL and original file name to improve the completeness of the file information.
+  * - If you specify directoryId, the file is placed in the corresponding enterprise knowledge base directory. Otherwise, the file is bound to the default root directory of the current digital employee.
+  * - You can use sourceTags to add tags to resources for subsequent management and retrieval.
   * - This operation generates a bill (UNSTRUCTURED_PARSE). Make sure that your account balance is sufficient.
   * @param request  the request parameters of GetScheduledTaskExecutionRecords  GetScheduledTaskExecutionRecordsRequest
   * @return GetScheduledTaskExecutionRecordsResponse
@@ -6937,18 +6928,18 @@ async function listOperatingObjectFavorites(request: ListOperatingObjectFavorite
 }
 
 model ListOutputFilesRequest {
-  bizId?: string(name='bizId', description='The business ID used for exact filtering. The length is 1 to 128 characters. This value is derived from file registration or the businessId of associated workflow instances.', example='REQ-20261012-001', position='Body'),
-  collaborationGroupId?: string(name='collaborationGroupId', description='The collaboration workspace ID. The length is 1 to 64 characters. If this parameter is not provided, the personal outputs of the current user are queried. If provided, the real-time permissions of workspace members and source resources are verified.', example='cg_123e4567-e89b-42d3-a456-426614174001', position='Body'),
-  itemType?: string(name='itemType', description='The output item type: ppt, html, document, picture, slides, video, audio, email, or others.', example='document', position='Body'),
-  keyword?: string(name='keyword', description='The keyword used to match the output title or detail name.', example='Quarterly operations', position='Body'),
-  operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee. Filters results by name.', example='Business Analysis Assistant', position='Body'),
+  bizId?: string(name='bizId', description='The business ID used for exact filtering. The length is 1 to 128 characters. This ID is derived from file registrations or the businessId of associated workflow instances.', example='REQ-20261012-001', position='Body'),
+  collaborationGroupId?: string(name='collaborationGroupId', description='The ID of the collaboration workspace. The length is 1 to 64 characters. This parameter is optional. If not specified, the personal outputs of the current user are queried. If specified, the real-time permissions of the workspace members and source resources are verified.', example='cg_123e4567-e89b-42d3-a456-426614174001', position='Body'),
+  itemType?: string(name='itemType', description='The output detail type. Valid values: ppt, html, document, picture, slides, video, audio, email, and others.', example='document', position='Body'),
+  keyword?: string(name='keyword', description='The keyword used to match the output title or detail name.', example='Quarterly business', position='Body'),
+  operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee (operating object). Filters results by name.', example='Business Analysis Assistant', position='Body'),
   page?: long(name='page', description='The page number. Pages start from 1. Default value: 1.', example='1', position='Body'),
-  pageSize?: long(name='pageSize', description='The number of items per page. Valid values: 1 to 100. Default value: 20.', example='20', position='Body'),
+  pageSize?: long(name='pageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 20.', example='20', position='Body'),
   sessionId?: string(name='sessionId', description='The session ID used for exact filtering. The length is 1 to 128 characters. This parameter applies to regular sessions, skill sessions, and the executionId of task executions.', example='session_123e4567-e89b-42d3-a456-426614174008', position='Body'),
   sharedOnly?: boolean(name='sharedOnly', description='Specifies whether to display only the outputs and output details that have sharing enabled.', example='False', position='Body'),
-  tags?: [ string ](name='tags', description='The tags used for exact filtering. All specified tags must match simultaneously. You can specify up to 20 tags. Each tag must be a non-empty string of 1 to 128 characters. Tags are derived from file registration or the variables.tags of associated instances.', shrink='json', position='Body'),
-  taskExecutionId?: string(name='taskExecutionId', description='按本次执行 ID 精确筛选产出', example='exampleExecutionId', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If omitted, the default tenant of the caller is used. The identity and tenant permissions are determined by the gateway and backend authentication.', example='10000', position='Query'),
+  tags?: [ string ](name='tags', description='The tags used for exact filtering. All specified tags must match simultaneously. You can specify up to 20 tags. Each tag must be a non-empty string of 1 to 128 characters. Tags are derived from file registrations or the variables.tags of associated instances.', shrink='json', position='Body'),
+  taskExecutionId?: string(name='taskExecutionId', description='The ID of the current execution used to exactly filter outputs.', example='exampleExecutionId', position='Body'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used. The identity and tenant permissions are determined by the gateway and backend authentication.', example='10000', position='Query'),
 }
 
 model ListOutputFilesResponseBody = {
@@ -6959,7 +6950,7 @@ model ListOutputFilesResponseBody = {
       gmtCreate?: string(name='gmtCreate', description='The creation time of the output or detail. The backend datetime value is serialized into an ISO 8601 string, and the time zone information is returned with the original value.', example='2026-10-12T03:10:00+00:00'),
       gmtModified?: string(name='gmtModified', description='The update time of the output or detail. The backend datetime value is serialized into an ISO 8601 string, and the time zone information is returned with the original value.', example='2026-10-12T03:12:00+00:00'),
       name?: string(name='name', description='The output name.', example='Quarterly Business Analysis Report.pdf'),
-      operatingObjectName?: string(name='operatingObjectName', description='The name of the digital worker (operating object).', example='Business Analysis Assistant'),
+      operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee (operating object).', example='Business Analysis Assistant'),
       outputId?: string(name='outputId', description='The output ID.', example='output_123e4567-e89b-42d3-a456-426614174009'),
       outputItems?: [ 
         {
@@ -6969,13 +6960,13 @@ model ListOutputFilesResponseBody = {
             contentType?: string(name='contentType', description='The content type, such as MARKDOWN, JSONML, or HTML.', example='MARKDOWN'),
             recipients?: [ string ](name='recipients', description='The list of recipients.', example='["reader@example.com"]'),
             subject?: string(name='subject', description='The email subject.', example='Quarterly Business Analysis Report'),
-          }(name='emailInfo', description='The email information. This field is available only when the item type is email.'),
+          }(name='emailInfo', description='The email information. This field is present when the item type is email.'),
           fileInfo?: {
-            description?: string(name='description', description='The file description.', example='Analysis report on quarterly revenue, costs, and trends'),
+            description?: string(name='description', description='The file description.', example='Quarterly revenue, cost, and trend analysis report'),
             name?: string(name='name', description='The file name.', example='Quarterly Business Analysis Report.pdf'),
-            path?: string(name='path', description='The file download link. For versioned files, it is bound to the published version and content revision at the time of query. The link has a validity period. If it expires, query the list again to obtain a new link.', example='https://winnexo.agentone.console.aliyun.com/api/v1/output-preview/demo_download_ticket/download'),
+            path?: string(name='path', description='The file download URL. For versioned files, it is bound to the published version and content revision at the time of query. The URL has a time-to-live (TTL). If it expires, query the list again to obtain a new URL.', example='https://winnexo.agentone.console.aliyun.com/api/v1/output-preview/demo_download_ticket/download'),
             type?: string(name='type', description='The file type, such as .pdf or .md.', example='.pdf'),
-          }(name='fileInfo', description='The file information. This field is available only when the item type is file.'),
+          }(name='fileInfo', description='The file information. This field is present when the item type is file.'),
           gmtCreate?: string(name='gmtCreate', description='The creation time of the output or detail. The backend datetime value is serialized into an ISO 8601 string, and the time zone information is returned with the original value.', example='2026-10-12T03:10:00+00:00'),
           gmtModified?: string(name='gmtModified', description='The update time of the output or detail. The backend datetime value is serialized into an ISO 8601 string, and the time zone information is returned with the original value.', example='2026-10-12T03:12:00+00:00'),
           itemName?: string(name='itemName', description='The output name.', example='Quarterly Business Analysis Report.pdf'),
@@ -6983,8 +6974,8 @@ model ListOutputFilesResponseBody = {
           itemTypeDisplayName?: string(name='itemTypeDisplayName', description='The localized display name of the output detail type.', example='Document'),
           messageId?: string(name='messageId', description='The message ID.', example='msg_123e4567-e89b-42d3-a456-426614174012'),
           outputItemId?: string(name='outputItemId', description='The output detail ID.', example='item_123e4567-e89b-42d3-a456-426614174010'),
-          shareEnabled?: boolean(name='shareEnabled', description='Indicates whether sharing is enabled.', example='true'),
-          shareToken?: string(name='shareToken', description='The share token. This field is present when sharing is enabled and can be used to access the public share preview API.', example='demo_public_preview_token'),
+          shareEnabled?: boolean(name='shareEnabled', description='Specifies whether sharing is enabled.', example='true'),
+          shareToken?: string(name='shareToken', description='The share token, which is present when sharing is enabled and can be used to access the public share preview API.', example='demo_public_preview_token'),
           skillOutputId?: string(name='skillOutputId', description='The skill output ID.', example='skillout_123e4567-e89b-42d3-a456-426614174011'),
           slidesInfo?: {
             completedSlides?: long(name='completedSlides', description='The number of completed slides.', example='8'),
@@ -7016,10 +7007,10 @@ model ListOutputFilesResponse = {
 
 /**
   * @description If collaborationGroupId is not provided, queries the personal outputs of the current caller. If provided, queries the outputs of the specified collaboration workspace and verifies the real-time access permissions of the current workspace members and source resources. The caller identity and tenant permissions are determined by the authentication context.
-  * The sessionId parameter requires an exact match for regular sessions, skill sessions, or node execution sessions. The tags parameter requires all labels to match simultaneously. The bizId parameter requires an exact match for the business ID of file registration or associated workflow instances. The new conditions are combined with the existing operatingObjectName, itemType, keyword, and sharedOnly conditions using the AND operator, and are executed before counting and paging.
-  * Tags and business IDs are derived from file registration or workflow instance associations. Unregistered tags or business IDs are not inferred from titles. Pagination defaults to page 1 with 20 items per page, up to a maximum of 100 items, sorted in descending order by update time. The response structure remains compatible with the original API operation.
-  * For versioned files, the latest published version is returned by default without expanding historical versions. This API operation does not currently support querying specific versions. Pagination and the total count are still based on primary output records, deduplicated by outputId, and are not counted by the number of files or historical versions.
-  * For versioned files, fileInfo.path is a time-sensitive download link attached to the published version and content revisions selected during the query. Downloads do not perform automatic switchover to other versions published later. Invoke this API operation again to obtain a new link after the current link expires. Historical files that have not yet formed a published version may not return download information.
+  * The sessionId parameter requires an exact match for a regular session, skill session, or node execution session. The tags parameter requires all specified labels to match simultaneously. The bizId parameter requires an exact match for the business ID of a file registration or an associated workflow instance. The new conditions are combined with the existing operatingObjectName, itemType, keyword, and sharedOnly conditions using the AND operator, and are executed before counting and paging.
+  * Tags and business IDs are derived from file registrations or workflow instance associations. Unregistered tags or business IDs are not inferred from titles. Pagination defaults to page 1 with 20 entries per page, up to a maximum of 100 entries, sorted in descending order by update time. The response structure remains compatible with the original API operation.
+  * For versioned files, the latest published version is returned by default without expanding historical versions. This API operation does not currently support querying specific versions. Pagination and the total count are still based on the primary output records, deduplicated by outputId, and are not counted by the number of files or historical versions.
+  * For versioned files, fileInfo.path is a time-sensitive download link attached to the published version and content revisions selected during the query. Downloads do not trigger an automatic switchover to other versions published later. Invoke this API operation again to obtain a new link after the current one expires. Historical files that have not yet formed a published version may not return download information.
   * @param request  the request parameters of ListOutputFiles  ListOutputFilesRequest
   * @return ListOutputFilesResponse
  */
@@ -10576,60 +10567,60 @@ This parameter is required.', example='Sample content', minLength=1, position='B
   contentType?: string(name='contentType', description='The message type. Valid values: Text and Markdown.', example='Text', position='Body'),
   contextItems?: [ 
     {
-      annotation?: string(name='annotation', description='用户对引用内容的批注', example='请核对华东区数据'),
+      annotation?: string(name='annotation', description='The user\\\\"s annotation on the referenced content.', example='Please verify the data for the East China region'),
       annotationFiles?: [ 
         {
-          fileName?: string(name='fileName', description='文件名称', example='补充说明.pdf'),
-          filePublicUrl?: string(name='filePublicUrl', description='文件公开访问地址', example='https://example.com/public/file'),
-          fileRecordId?: string(name='fileRecordId', description='文件记录 ID', example='exampleFileRecordId'),
-          fileUrl?: string(name='fileUrl', description='文件内部访问地址', example='https://example.com/file'),
+          fileName?: string(name='fileName', description='The file name.', example='SupplementaryNotes.pdf'),
+          filePublicUrl?: string(name='filePublicUrl', description='The public access URL of the file.', example='https://example.com/public/file'),
+          fileRecordId?: string(name='fileRecordId', description='The file record ID.', example='exampleFileRecordId'),
+          fileUrl?: string(name='fileUrl', description='The internal access URL of the file.', example='https://example.com/file'),
         }
-      ](name='annotationFiles', description='批注关联的文件列表', example='[]'),
-      content?: string(name='content', description='被引用内容正文', example='本月销售收入'),
-      fileId?: string(name='fileId', description='被引用文件 ID', example='exampleFileId'),
-      fileName?: string(name='fileName', description='被引用文件名称', example='销售数据.xlsx'),
-      fileType?: string(name='fileType', description='被引用文件类型', example='xlsx'),
-      messageId?: string(name='messageId', description='被引用消息 ID', example='exampleMessageId'),
-      senderName?: string(name='senderName', description='消息发送者名称', example='销售助手'),
-      type?: string(name='type', description='上下文条目类型', example='message_annotation'),
+      ](name='annotationFiles', description='The list of files associated with the annotation.', example='[]'),
+      content?: string(name='content', description='The body of the referenced content.', example='Sales revenue for this month'),
+      fileId?: string(name='fileId', description='The ID of the referenced file.', example='exampleFileId'),
+      fileName?: string(name='fileName', description='The name of the referenced file.', example='SalesData.xlsx'),
+      fileType?: string(name='fileType', description='The type of the referenced file.', example='xlsx'),
+      messageId?: string(name='messageId', description='The ID of the referenced message.', example='exampleMessageId'),
+      senderName?: string(name='senderName', description='The name of the message sender.', example='Sales Assistant'),
+      type?: string(name='type', description='The context entry type.', example='message_annotation'),
     }
-  ](name='contextItems', description='作为本轮上下文引用的消息或文件条目', example='[]', shrink='json', position='Body'),
-  digitalEmployeeName?: [ string ](name='digitalEmployeeName', description='The list of digital employee names. For compatibility with the legacy format, a single string can also be passed.', example='string_value', shrink='json', position='Body'),
-  directChat?: boolean(name='directChat', description='Specifies whether to enable direct connection mode. If set to true, regular scenario routing is skipped and the direct conversation scenario is used.', example='false', position='Body'),
-  directMaxHistoryRounds?: any(name='directMaxHistoryRounds', description='本轮携带的最近完整 direct 问答轮数，不含本轮输入。仅 workMode=direct 或 directChat=true 时生效。有效值为 0–100 的 JSON 整数，省略时由后端按 0 处理，不携带历史但仍保存当前轮。null、布尔值、字符串、小数及越界值按原 direct 路径处理，网关保留原始值供后端判定。work/ask 忽略此字段。该参数不限制转换为 work 时的历史范围', example='1', position='Body'),
-  enableWebSearch?: boolean(name='enableWebSearch', description='Specifies whether to enable web search. Default value: false. In the task execution scenario where taskExecution is passed, the task configuration prevails.', example='false', position='Body'),
+  ](name='contextItems', description='The message or file entries referenced as context for the current turn.', example='[]', shrink='json', position='Body'),
+  digitalEmployeeName?: [ string ](name='digitalEmployeeName', description='The list of digital employee names. For backward compatibility, a single string can also be passed.', example='["pcitc-magent"]', shrink='json', position='Body'),
+  directChat?: boolean(name='directChat', description='Specifies whether to enable direct connection mode. If set to true, regular scenario routing is skipped and the direct conversation scenario is entered directly.', example='false', position='Body'),
+  directMaxHistoryRounds?: any(name='directMaxHistoryRounds', description='The number of recent complete direct Q&A rounds carried in the current turn, excluding the current input. This parameter takes effect only when workMode is set to direct or directChat is set to true. Valid values are JSON integers from 0 to 100. If omitted, the backend processes it as 0, carrying no history but still saving the current round. Null, Boolean, string, decimal, and out-of-bounds values are processed through the original direct path, and the gateway retains the original values for backend determination. This field is ignored in work and ask modes. This parameter does not limit the history range when switching to the work mode.', example='1', position='Body'),
+  enableWebSearch?: boolean(name='enableWebSearch', description='Specifies whether to enable web search. Default value: false. In task execution scenarios where taskExecution is passed, the task configuration prevails.', example='false', position='Body'),
   files?: [ 
     {
-      fileId: string(name='fileId', description='The file ID, which is returned by the uploadChatFile operation.
+      fileId: string(name='fileId', description='The file ID, which is returned by uploadChatFile.
 
 This parameter is required.', example='exampleFileId'),
       type?: string(name='type', description='The file type.', example='text'),
     }
-  ](name='files', description='The list of file references. Each item is an object, and the fileId parameter is required. The fileId is returned by the uploadChatFile operation.', shrink='json', position='Body'),
-  locale?: string(name='locale', description='本轮语言，可选 zh-CN、en-US，用于接口错误文案并透传给 CodeAgent；省略时沿用当前语言行为，不修改用户设置', example='en-US', position='Body'),
+  ](name='files', description='The list of file references. Each item is an object, and fileId is required, which is returned by uploadChatFile.', shrink='json', position='Body'),
+  locale?: string(name='locale', description='The language for the current turn. Valid values: zh-CN and en-US. This parameter is used for API error messages and passed through to CodeAgent. If omitted, the current language behavior is retained and user settings are not modified.', example='en-US', position='Body'),
   model?: string(name='model', description='The abstract model tier. Valid values: quick, standard, and flagship. If not specified, standard is used for new sessions, and the current tier is retained for existing sessions.', example='quick', position='Body'),
-  reuseLastSession?: boolean(name='reuseLastSession', description='Specifies whether to reuse the most recent session under the digital employee when sessionId is not specified. This is typically used in CLI scenarios. Default value: false, which means a new session is created.', example='false', position='Body'),
+  reuseLastSession?: boolean(name='reuseLastSession', description='Specifies whether to reuse the most recent session under the digital employee when sessionId is not provided, which applies to CLI scenarios. Default value: false, which means a new session is created.', example='false', position='Body'),
   segments?: [ 
     {
-      content?: string(name='content', description='片段展示内容', example='旧会话'),
-      mentionType?: string(name='mentionType', description='提及对象类别', example='conversations'),
-      name?: string(name='name', description='被引用对象名称', example='旧会话'),
-      objectId?: string(name='objectId', description='被引用对象 ID', example='exampleObjectId'),
-      objectType?: string(name='objectType', description='被引用对象类型', example='conversation'),
-      sessionType?: string(name='sessionType', description='会话类型', example='personal'),
-      type?: string(name='type', description='片段类型', example='mention'),
+      content?: string(name='content', description='The display content of the segment.', example='Old session'),
+      mentionType?: string(name='mentionType', description='The category of the mentioned object.', example='conversations'),
+      name?: string(name='name', description='The name of the referenced object.', example='Old session'),
+      objectId?: string(name='objectId', description='The ID of the referenced object.', example='exampleObjectId'),
+      objectType?: string(name='objectType', description='The referenced object type.', example='conversation'),
+      sessionType?: string(name='sessionType', description='The session type.', example='personal'),
+      type?: string(name='type', description='The segment type.', example='mention'),
     }
-  ](name='segments', description='消息中的结构化片段，例如会话或对象提及', example='[]', shrink='json', position='Body'),
+  ](name='segments', description='The structured segments in the message, such as session or object mentions.', example='[]', shrink='json', position='Body'),
   sessionId?: string(name='sessionId', description='The session ID. If not specified, a new session is created.', example='exampleSessionId', position='Body'),
-  stream?: boolean(name='stream', description='Specifies whether to use streaming generation. This operation always generates backend content in streaming mode and writes it to the message stream. The value of this parameter does not change the response structure.', example='true', position='Body'),
+  stream?: boolean(name='stream', description='Specifies whether to use streaming generation. This API always generates background content in streaming mode and writes it to the message stream. The value does not change the response structure.', example='true', position='Body'),
   taskExecution?: {
     billingId?: string(name='billingId', description='The billing ID.', example='exampleBillingId'),
     enableWebSearch?: boolean(name='enableWebSearch', description='Specifies whether to enable web search.', example='true'),
     executionId: string(name='executionId', description='The execution record ID.
 
 This parameter is required.', example='exampleExecutionId'),
-    operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee.', example='string_value'),
-    skillCodes?: [ string ](name='skillCodes', description='The list of associated skill codes.', example='string_value'),
+    operatingObjectName?: string(name='operatingObjectName', description='The digital employee name.', example='string_value'),
+    skillCodes?: [ string ](name='skillCodes', description='The list of associated skill codes.', example='["code"]'),
     taskId: string(name='taskId', description='The task ID.
 
 This parameter is required.', example='exampleTaskId'),
@@ -10637,20 +10628,24 @@ This parameter is required.', example='exampleTaskId'),
     taskUnderstand?: string(name='taskUnderstand', description='The task understanding content.', example='string_value'),
     tenantId?: string(name='tenantId', description='The ID of the tenant to which the task belongs.', example='10000'),
     userId?: string(name='userId', description='The ID of the user to which the task belongs.', example='exampleUserId'),
-  }(name='taskExecution', description='The task execution metadata returned by the executeScheduledTask operation. If passed, the request is processed through the task execution pipeline.', shrink='json', position='Body'),
+  }(name='taskExecution', description='The task execution metadata returned by executeScheduledTask. If passed, the request is processed through the task execution pipeline.', shrink='json', position='Body'),
   tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
-  workMode?: string(name='workMode', description='The session work mode. Valid values: ask (quick Q&A, which trims tools, skills, and connectors for single-turn direct answers), work (deep work, default), and direct (direct connection mode at the request level, which does not start a sandbox and prevents context pollution, equivalent to directChat=true). The ask and work modes are session-level. The mode is fixed when a new session is created and inherited by default in subsequent chats. If the explicitly passed value is inconsistent with the session mode, a parameter error is returned. To switch modes, create a new session or fork the current one. If ask is passed in multi-digital-employee or task execution scenarios, it takes effect as work. This parameter is ignored when directChat is set to true.', example='work', position='Body'),
+  workMode?: string(name='workMode', description='The session work mode. Valid values:
+- ask: Quick Q&A mode. Trims tools, skills, and connectors for single-turn direct answers.
+- work: Deep work mode. This is the default value.
+- direct: Direct connection mode at the request level. Does not start a sandbox and prevents context pollution. Equivalent to setting directChat to true.
+The ask and work modes are session-level. Once selected during session creation, the mode is fixed and inherited by default in subsequent chats. If the explicitly passed value conflicts with the session mode, a parameter error is returned. To switch modes, create a new session or fork the current one. In scenarios with multiple digital employees or task execution, passing ask takes effect as work. This parameter is ignored when directChat is set to true.', example='work', position='Body'),
 }
 
 model SendAsyncChatMessageResponseBody = {
   code?: string(name='code', description='The business status code. A value of 200 indicates success. A failure returns a backend error code, such as ERR.* or InvalidParameter.*.', example='200'),
-  message?: string(name='message', description='The error description. This parameter is empty when the request is successful.', example='successful'),
-  messageId?: string(name='messageId', description='The assistant message ID, which is used to subscribe to the generation results by subsequently calling the streamChatMessage operation.', example='3cf84d92-f273-4bb7-ab3c-52646d25ec30'),
+  message?: string(name='message', description='The error description. This field is empty when the request is successful.', example='successful'),
+  messageId?: string(name='messageId', description='The assistant message ID, which is used to subsequently call streamChatMessage to subscribe to the generation results.', example='3cf84d92-f273-4bb7-ab3c-52646d25ec30'),
   requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
   sessionCreated?: boolean(name='sessionCreated', description='Indicates whether a new session was created in this call.', example='true'),
-  sessionId?: string(name='sessionId', description='The session ID. This value is the same as the input parameter when continuing a session, and is generated by the server when a new session is created.', example='bd772dcc-afab-44ad-9fb8-bca716726201'),
+  sessionId?: string(name='sessionId', description='The session ID. This value is the same as the input parameter when continuing a session, and is generated by the server when creating a new session.', example='bd772dcc-afab-44ad-9fb8-bca716726201'),
   userMessageId?: string(name='userMessageId', description='The user message ID.', example='60756cc6-8c53-4d1f-8db8-b8c09b81a5cb'),
-  workMode?: string(name='workMode', description='The session work mode that actually takes effect in the current turn. Valid values: ask (quick Q&A), work (deep work), and direct (direct connection mode at the request level). If ask is passed in multi-digital-employee or task execution scenarios, it takes effect as work.', example='work'),
+  workMode?: string(name='workMode', description='The actual session work mode that takes effect in the current turn. Valid values: ask for quick Q&A, work for deep work, and direct for direct connection mode at the request level. In multi-digital-employee or task execution scenarios, passing ask takes effect as work.', example='work'),
 }
 
 model SendAsyncChatMessageResponse = {
@@ -10676,27 +10671,27 @@ This parameter is required.', example='Sample content', minLength=1, position='B
   contentType?: string(name='contentType', description='The message type. Valid values: Text and Markdown.', example='Text', position='Body'),
   contextItems?: [ 
     {
-      annotation?: string(name='annotation', description='用户对引用内容的批注', example='请核对华东区数据'),
+      annotation?: string(name='annotation', description='The user annotation for the referenced content.', example='Please verify the data for the East China region'),
       annotationFiles?: [ 
         {
-          fileName?: string(name='fileName', description='文件名称', example='补充说明.pdf'),
-          filePublicUrl?: string(name='filePublicUrl', description='文件公开访问地址', example='https://example.com/public/file'),
-          fileRecordId?: string(name='fileRecordId', description='文件记录 ID', example='exampleFileRecordId'),
-          fileUrl?: string(name='fileUrl', description='文件内部访问地址', example='https://example.com/file'),
+          fileName?: string(name='fileName', description='The file name.', example='Supplementary notes.pdf'),
+          filePublicUrl?: string(name='filePublicUrl', description='The public access URL of the file.', example='https://example.com/public/file'),
+          fileRecordId?: string(name='fileRecordId', description='The file record ID.', example='exampleFileRecordId'),
+          fileUrl?: string(name='fileUrl', description='The internal access URL of the file.', example='https://example.com/file'),
         }
-      ](name='annotationFiles', description='批注关联的文件列表', example='[]'),
-      content?: string(name='content', description='被引用内容正文', example='本月销售收入'),
-      fileId?: string(name='fileId', description='被引用文件 ID', example='exampleFileId'),
-      fileName?: string(name='fileName', description='被引用文件名称', example='销售数据.xlsx'),
-      fileType?: string(name='fileType', description='被引用文件类型', example='xlsx'),
-      messageId?: string(name='messageId', description='被引用消息 ID', example='exampleMessageId'),
-      senderName?: string(name='senderName', description='消息发送者名称', example='销售助手'),
-      type?: string(name='type', description='上下文条目类型', example='message_annotation'),
+      ](name='annotationFiles', description='The list of files associated with the annotation.', example='[]'),
+      content?: string(name='content', description='The body of the referenced content.', example='Sales revenue for this month'),
+      fileId?: string(name='fileId', description='The ID of the referenced file.', example='exampleFileId'),
+      fileName?: string(name='fileName', description='The name of the referenced file.', example='Sales data.xlsx'),
+      fileType?: string(name='fileType', description='The type of the referenced file.', example='xlsx'),
+      messageId?: string(name='messageId', description='The ID of the referenced message.', example='exampleMessageId'),
+      senderName?: string(name='senderName', description='The name of the message sender.', example='Sales Assistant'),
+      type?: string(name='type', description='The context entry type.', example='message_annotation'),
     }
-  ](name='contextItems', description='作为本轮上下文引用的消息或文件条目', example='[]', shrink='json', position='Body'),
+  ](name='contextItems', description='The message or file entries referenced as context for the current turn.', example='[]', shrink='json', position='Body'),
   digitalEmployeeName?: [ string ](name='digitalEmployeeName', description='The list of digital employee names. For compatibility with the legacy format, a single string can be passed.', example='string_value', shrink='json', position='Body'),
-  directChat?: boolean(name='directChat', description='Specifies whether to enable the direct connection mode. If this parameter is set to true, the regular scenario routing is skipped and the direct connection conversation scenario is directly entered.', example='false', position='Body'),
-  directMaxHistoryRounds?: any(name='directMaxHistoryRounds', description='本轮携带的最近完整 direct 问答轮数，不含本轮输入。仅 workMode=direct 或 directChat=true 时生效。有效值为 0–100 的 JSON 整数，省略时由后端按 0 处理，不携带历史但仍保存当前轮。null、布尔值、字符串、小数及越界值按原 direct 路径处理，网关保留原始值供后端判定。work/ask 忽略此字段。该参数不限制转换为 work 时的历史范围', example='1', position='Body'),
+  directChat?: boolean(name='directChat', description='Specifies whether to enable direct connection mode. If set to true, regular scenario routing is skipped and the direct conversation scenario is entered directly.', example='false', position='Body'),
+  directMaxHistoryRounds?: any(name='directMaxHistoryRounds', description='The number of recent complete direct Q&A rounds carried in the current turn, excluding the input of the current turn. This parameter takes effect only when workMode is set to direct or directChat is set to true. Valid values: JSON integers from 0 to 100. If omitted, the backend processes it as 0, carrying no history but still saving the current turn. Null, Boolean, string, decimal, and out-of-bounds values are processed through the original direct path, and the gateway retains the original values for backend determination. This field is ignored in work and ask modes. This parameter does not limit the history range when converted to the work mode.', example='1', position='Body'),
   enableWebSearch?: boolean(name='enableWebSearch', description='Specifies whether to enable web search. Default value: false. In the task execution scenario where taskExecution is passed, the task configuration prevails.', example='false', position='Body'),
   files?: [ 
     {
@@ -10706,29 +10701,29 @@ This parameter is required.', example='exampleFileId'),
       type?: string(name='type', description='The element type. Valid values: text, web_search, mention, and skill.', example='text'),
     }
   ](name='files', description='The list of file references. Each item is an object, and the fileId parameter is required, which is returned by uploadChatFile.', shrink='json', position='Body'),
-  locale?: string(name='locale', description='本轮语言，可选 zh-CN、en-US，用于接口错误文案并透传给 CodeAgent；省略时沿用当前语言行为，不修改用户设置', example='en-US', position='Body'),
-  model?: string(name='model', description='The abstract model tier. Valid values: quick, standard, and flagship. If this parameter is not specified, standard is used for new sessions, and the current tier is used for existing sessions.', example='quick', position='Body'),
+  locale?: string(name='locale', description='The language for the current turn. Valid values: zh-CN and en-US. This parameter is used for API error messages and passed through to CodeAgent. If omitted, the current language behavior is retained and user settings are not modified.', example='en-US', position='Body'),
+  model?: string(name='model', description='The abstract model tier. Valid values: quick, standard, and flagship. If omitted, standard is used for new sessions, and the current tier is retained for existing sessions.', example='quick', position='Body'),
   reuseLastSession?: boolean(name='reuseLastSession', description='Specifies whether to reuse the most recent session under the digital employee when sessionId is not passed, which applies to CLI scenarios. Default value: false, which indicates that a new session is created.', example='false', position='Body'),
   segments?: [ 
     {
-      content?: string(name='content', description='片段展示内容', example='旧会话'),
-      mentionType?: string(name='mentionType', description='提及对象类别', example='conversations'),
-      name?: string(name='name', description='被引用对象名称', example='旧会话'),
-      objectId?: string(name='objectId', description='被引用对象 ID', example='exampleObjectId'),
-      objectType?: string(name='objectType', description='被引用对象类型', example='conversation'),
-      sessionType?: string(name='sessionType', description='会话类型', example='personal'),
-      type?: string(name='type', description='片段类型', example='mention'),
+      content?: string(name='content', description='The display content of the segment.', example='Previous session'),
+      mentionType?: string(name='mentionType', description='The category of the mentioned object.', example='conversations'),
+      name?: string(name='name', description='The name of the referenced object.', example='Previous session'),
+      objectId?: string(name='objectId', description='The ID of the referenced object.', example='exampleObjectId'),
+      objectType?: string(name='objectType', description='The object type of the referenced object.', example='conversation'),
+      sessionType?: string(name='sessionType', description='The session type.', example='personal'),
+      type?: string(name='type', description='The segment type.', example='mention'),
     }
-  ](name='segments', description='消息中的结构化片段，例如会话或对象提及', example='[]', shrink='json', position='Body'),
+  ](name='segments', description='The structured segments in the message, such as session or object mentions.', example='[]', shrink='json', position='Body'),
   sessionId?: string(name='sessionId', description='The session ID.', example='exampleSessionId', position='Body'),
-  stream?: boolean(name='stream', description='Specifies whether to enable streaming output.', example='true', position='Body'),
+  stream?: boolean(name='stream', description='Specifies whether streaming output is enabled.', example='true', position='Body'),
   taskExecution?: {
     billingId?: string(name='billingId', description='The billing ID.', example='exampleBillingId'),
     enableWebSearch?: boolean(name='enableWebSearch', description='Specifies whether to enable web search.', example='true'),
     executionId: string(name='executionId', description='The execution record ID.
 
 This parameter is required.', example='exampleExecutionId'),
-    operatingObjectName?: string(name='operatingObjectName', description='The name of the digital employee.', example='string_value'),
+    operatingObjectName?: string(name='operatingObjectName', description='The digital employee name.', example='string_value'),
     skillCodes?: [ string ](name='skillCodes', description='The list of associated skill codes.', example='string_value'),
     taskId: string(name='taskId', description='The task ID.
 
@@ -10737,19 +10732,19 @@ This parameter is required.', example='exampleTaskId'),
     taskUnderstand?: string(name='taskUnderstand', description='The task understanding content.', example='string_value'),
     tenantId?: string(name='tenantId', description='The ID of the tenant to which the task belongs.', example='10000'),
     userId?: string(name='userId', description='The ID of the user to which the task belongs.', example='exampleUserId'),
-  }(name='taskExecution', description='The task execution metadata returned by executeScheduledTask. If this parameter is passed, the request is processed according to the task execution link.', shrink='json', position='Body'),
+  }(name='taskExecution', description='The task execution metadata returned by executeScheduledTask. If passed, the request is processed through the task execution pipeline.', shrink='json', position='Body'),
   tenantId?: string(name='tenantId', description='The effective tenant ID.', example='10000', position='Query'),
-  workMode?: string(name='workMode', description='The session work mode. Valid values: ask (quick Q&A, which trims tools, skills, and connectors for single-turn direct answers), work (deep work, which is the default value), and direct (direct connection mode at the request level, which does not start the sandbox and prevents context pollution, equivalent to directChat=true). The ask and work modes are at the session level. The mode is fixed when a new session is created. Subsequent chats inherit the session mode by default. If the explicitly passed value is inconsistent with the session mode, a parameter error is returned. To switch the mode, create a new session or fork the session. If ask is passed in the multi-digital employee or task execution scenario, it takes effect as work. If directChat is set to true, this parameter is ignored.', example='work', position='Body'),
+  workMode?: string(name='workMode', description='The session work mode. Valid values: ask (quick Q&A, which trims tools, skills, and connectors for single-turn direct answers), work (deep work, which is the default), and direct (direct connection mode at the request level, which does not start a sandbox and prevents context pollution, equivalent to directChat=true). The ask and work modes are session-level. The mode is fixed when a new session is created. Subsequent chats inherit the session mode by default. If the explicitly passed value is inconsistent with the session mode, a parameter error is returned. To switch modes, create a new session or fork the session. If ask is passed in multi-digital employee or task execution scenarios, it takes effect as work. This parameter is ignored when directChat is set to true.', example='work', position='Body'),
 }
 
 model SendChatMessageResponseBody = {
   code?: string(name='code', description='The error code.', example='200', deprecated='true'),
-  content?: string(name='content', description='The streaming response content.', example='yes，i\\\\"m ready'),
-  data?: any(name='data', description='The Server-Sent Events (SSE) event stream payload. If the request is successful, the response is the raw frame of text/event-stream, which must be consumed frame by frame in a streaming manner.', example='{}'),
+  content?: string(name='content', description='The streamed content.', example='yes，i\\\\"m ready'),
+  data?: any(name='data', description='The Server-Sent Events (SSE) event stream payload. Upon success, the response consists of raw text/event-stream frames, which must be consumed frame by frame in a streaming manner.', example='{}'),
   message?: string(name='message', description='The status code description.', example='successful', deprecated='true'),
   requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D', deprecated='true'),
   type?: string(name='type', description='The event type.', example='think'),
-  workMode?: string(name='workMode', description='The session work mode. Valid values: ask (quick Q&A, which trims tools, skills, and connectors for single-turn direct answers), work (deep work, which is the default value), and direct (direct connection mode at the request level, which does not start the sandbox and prevents context pollution, equivalent to directChat=true). The ask and work modes are at the session level. The mode is fixed when a new session is created. Subsequent chats inherit the session mode by default. If the explicitly passed value is inconsistent with the session mode, a parameter error is returned. To switch the mode, create a new session or fork the session. If ask is passed in the multi-digital employee or task execution scenario, it takes effect as work. If directChat is set to true, this parameter is ignored.', example='work'),
+  workMode?: string(name='workMode', description='The session work mode. Valid values: ask (quick Q&A, which trims tools, skills, and connectors for single-turn direct answers), work (deep work, which is the default), and direct (direct connection mode at the request level, which does not start a sandbox and prevents context pollution, equivalent to directChat=true). The ask and work modes are session-level. The mode is fixed when a new session is created. Subsequent chats inherit the session mode by default. If the explicitly passed value is inconsistent with the session mode, a parameter error is returned. To switch modes, create a new session or fork the session. If ask is passed in multi-digital employee or task execution scenarios, it takes effect as work. This parameter is ignored when directChat is set to true.', example='work'),
 }
 
 model SendChatMessageResponse = {
@@ -10760,11 +10755,11 @@ model SendChatMessageResponse = {
 
 /**
   * @description ## Request description
-  * - This API is used to upload a file to My Resources of a specified digital employee.
-  * - The source_type is fixed to FILE, the scope is fixed to PERSONAL, and the platform is fixed to LOCAL.
-  * - The file must be provided with an OSS persistence address (filePath). Other information, such as the public access URL and original file name, is optional.
-  * - If the destination folder ID (directoryId) is not specified, the file is automatically attached to the default root folder of the current digital employee. If it is specified, ensure that the folder belongs to the personal folder of the invoker.
-  * - Multiple methods to authenticate (such as AK, BearerToken, and APP) are supported for security authentication.
+  * - This API operation uploads a file to the My Resources section of a specified digital employee.
+  * - The source_type parameter is fixed to FILE, the scope parameter is fixed to PERSONAL, and the platform parameter is fixed to LOCAL.
+  * - You must provide an OSS persistence address (filePath) for the file. Other information, such as the public access URL and the original file name, is optional.
+  * - If you do not specify a target folder ID (directoryId), the file is automatically attached to the default root folder of the current digital employee. If you specify a folder ID, make sure that the folder belongs to the personal folder of the user who invokes the API.
+  * - You can authenticate through multiple methods (such as AK, BearerToken, and APP) for security authentication.
   * - The operation type is write, and operation logs are recorded for subsequent auditing.
   * @param request  the request parameters of SendChatMessage  SendChatMessageRequest
   * @return SendChatMessageResponse
@@ -11711,8 +11706,8 @@ async function updateMemoryAutoExtractionSwitch(request: UpdateMemoryAutoExtract
 model UpdateScheduledTaskRequest {
   description?: [ 
     {
-      content?: string(name='content', description='The text content. Required when type is set to text.', example='Sample content'),
-      enabled?: boolean(name='enabled', description='The feature switch. Optional when type is set to web_search.', example='true'),
+      content?: string(name='content', description='The text content. This parameter is required when type is set to text.', example='Sample content'),
+      enabled?: boolean(name='enabled', description='Specifies whether the feature is enabled. This parameter is optional when type is set to web_search.', example='true'),
       name?: string(name='name', description='The file name.', example='SampleName.pdf'),
       objectId?: string(name='objectId', description='The object ID. This parameter has a value when type is set to mention.', example='exampleObjectId'),
       objectType?: string(name='objectType', description='The object type, such as customer. This parameter has a value when type is set to mention.', example='string_value'),
@@ -11721,16 +11716,16 @@ model UpdateScheduledTaskRequest {
 
 This parameter is required.', example='text'),
     }
-  ](name='description', description='The description information.', shrink='json', position='Body'),
-  digitalEmployeeName?: [ string ](name='digitalEmployeeName', description='The list of digital human names.', example='string_value', shrink='json', position='Body'),
-  isOpen?: boolean(name='isOpen', description='Specifies whether the task is publicly accessible.', example='true', position='Body'),
-  model?: string(name='model', description='The execution model tier. If not specified, the model tier is not updated.', example='quick', position='Body'),
+  ](name='description', description='The description.', shrink='json', position='Body'),
+  digitalEmployeeName?: [ string ](name='digitalEmployeeName', description='The list of digital employee names.', example='["test"]', shrink='json', position='Body'),
+  isOpen?: boolean(name='isOpen', description='Specifies whether public access is enabled.', example='true', position='Body'),
+  model?: string(name='model', description='The execution model tier. If this parameter is not specified, the model tier is not updated.', example='quick', position='Body'),
   name?: string(name='name', description='The file name.', example='SampleName.pdf', position='Body'),
-  outputMode?: string(name='outputMode', description='输出会话模式，省略时保留当前配置', example='SAME_CONVERSATION', position='Body'),
+  outputMode?: string(name='outputMode', description='The output conversation mode. If this parameter is omitted, the current configuration is retained.', example='SAME_CONVERSATION', position='Body'),
   segments?: [ 
     {
-      content?: string(name='content', description='The text content. Required when type is set to text.', example='Sample content'),
-      enabled?: boolean(name='enabled', description='The feature switch. Optional when type is set to web_search.', example='true'),
+      content?: string(name='content', description='The text content. This parameter is required when type is set to text.', example='Sample content'),
+      enabled?: boolean(name='enabled', description='Specifies whether the feature is enabled. This parameter is optional when type is set to web_search.', example='true'),
       name?: string(name='name', description='The file name.', example='SampleName.pdf'),
       objectId?: string(name='objectId', description='The object ID. This parameter has a value when type is set to mention.', example='exampleObjectId'),
       objectType?: string(name='objectType', description='The object type, such as customer. This parameter has a value when type is set to mention.', example='string_value'),
@@ -11745,13 +11740,13 @@ This parameter is required.', example='text'),
       {
         mentionType?: string(name='mentionType', description='The mention type, such as objects.', example='string_value'),
         name?: string(name='name', description='The file name.', example='SampleName.pdf'),
-        objectId?: string(name='objectId', description='The object ID. This parameter has a value when an object is mentioned using @.', example='exampleObjectId'),
+        objectId?: string(name='objectId', description='The object ID. This parameter has a value when the object is specified by using the @ symbol.', example='exampleObjectId'),
         objectType?: string(name='objectType', description='The object type, such as customer or company.', example='string_value'),
       }
     ](name='relatedObjects', description='The related objects.'),
     relatedSemantics?: [ 
       {
-        attributes?: string(name='attributes', description='The semantic attributes (JSON string) used for filtering during semantic retrieval.', example='{"level": "VIP"}'),
+        attributes?: string(name='attributes', description='The semantic attributes in JSON string format. This parameter is used for filtering during semantic retrieval.', example='{"level": "VIP"}'),
         entity?: string(name='entity', description='The semantic entity name, such as customer or opportunity.', example='customer'),
       }
     ](name='relatedSemantics', description='The related semantics.'),
@@ -11760,44 +11755,44 @@ This parameter is required.', example='text'),
         displayName?: string(name='displayName', description='The display name of the skill.', example='string_value'),
         name?: string(name='name', description='The file name.', example='SampleName.pdf'),
         skillCode?: string(name='skillCode', description='The skill code.', example='string_value'),
-        sourceIds?: [ string ](name='sourceIds', description='sourceIds', example='string_value'),
+        sourceIds?: [ string ](name='sourceIds', description='sourceIds', example='["sourceIds"]'),
       }
     ](name='relatedSkills', description='The related skills.'),
-    taskUnderstand?: string(name='taskUnderstand', description='The task understanding description polished by the LLM.', example='string_value'),
+    taskUnderstand?: string(name='taskUnderstand', description='The task understanding description refined by the large language model (LLM).', example='string_value'),
   }(name='taskDetail', description='The task details.', shrink='json', position='Body'),
   taskId: string(name='taskId', description='The task ID.
 
 This parameter is required.', example='exampleTaskId', position='Body'),
-  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If not specified, the default tenant of the caller is used.', example='10000', position='Query'),
+  tenantId?: string(name='tenantId', description='The tenant ID. This is a common parameter. If this parameter is not specified, the default tenant of the caller is used.', example='10000', position='Query'),
   triggerConfig?: {
-    cron?: string(name='cron', description='The cron expression. Required when trigger_mode is set to scheduled. Example: \\\\"00 09 * * *\\\\".', example='string_value'),
-    language?: string(name='language', description='The language, such as zh-CN or en-US. Automatically injected by the server.', example='zh-CN'),
+    cron?: string(name='cron', description='The cron expression. This parameter is required when trigger_mode is set to scheduled. Example: 00 09 * * *.', example='string_value'),
+    language?: string(name='language', description='The language, such as zh-CN or en-US. This parameter is automatically injected by the server.', example='zh-CN'),
     pushConfig?: [ 
       {
-        channelType?: string(name='channelType', description='The push channel type.', example='DINGTALK'),
-        contentScope?: string(name='contentScope', description='The scope of push content. Default value: all_replies.', example='all_replies'),
-        deliveryMethod?: string(name='deliveryMethod', description='The push method. Default value: channel_bot.', example='channel_bot'),
-        enabled?: boolean(name='enabled', description='Specifies whether to push to this channel. Default value: false.', example='true'),
-        fileFormat?: string(name='fileFormat', description='The format for pushing output files. Default value: file.', example='file'),
-        operatingObjectName?: string(name='operatingObjectName', description='The digital human to which the sending bot belongs. This parameter is required and cannot be empty.', example='string_value'),
-        receiverType?: string(name='receiverType', description='The receiver type. Currently only self is supported.', example='string_value'),
+        channelType?: string(name='channelType', description='The push channel.', example='DINGTALK'),
+        contentScope?: string(name='contentScope', description='The scope of the push content. Default value: all_replies.', example='all_replies'),
+        deliveryMethod?: string(name='deliveryMethod', description='The delivery method. Default value: channel_bot.', example='channel_bot'),
+        enabled?: boolean(name='enabled', description='Specifies whether to push notifications to the channel. Default value: false.', example='true'),
+        fileFormat?: string(name='fileFormat', description='The push format for output files. Default value: file.', example='file'),
+        operatingObjectName?: string(name='operatingObjectName', description='The digital employee to which the sending bot belongs. This parameter is required and cannot be empty.', example='string_value'),
+        receiverType?: string(name='receiverType', description='The recipient. Only self is supported.', example='string_value'),
       }
-    ](name='pushConfig', description='The list of push channels for the task. No push notifications are sent if the list is empty or no channel is enabled.'),
-    timezone?: string(name='timezone', description='The time zone, such as Asia/Shanghai. Automatically injected by the server.', example='Asia/Shanghai'),
+    ](name='pushConfig', description='The list of task push channels. If the list is empty or no channel is enabled, no push notification is sent.'),
+    timezone?: string(name='timezone', description='The time zone, such as Asia/Shanghai. This parameter is automatically injected by the server.', example='Asia/Shanghai'),
     triggerMode: string(name='triggerMode', description='The trigger mode. Valid values: manual and scheduled.
 
 This parameter is required.', example='manual'),
-  }(name='triggerConfig', description='The trigger configuration. The configuration varies depending on the trigger type.', shrink='json', position='Body'),
-  visibility?: string(name='visibility', description='The visibility scope for group tasks. Valid values: PRIVATE (visible only to the creator and group owner), COLLABORATIVE (visible to specified collaborators), and PUBLIC (visible to all group members). If not specified, the visibility is not updated. This parameter is ignored for personal tasks.', example='COLLABORATIVE', position='Body'),
-  visibleMemberUserIds?: [ string ](name='visibleMemberUserIds', description='The full replacement list of collaborator member user IDs. This parameter takes effect only when visibility is set to COLLABORATIVE. The list is cleared when switching away from the COLLABORATIVE tier. A maximum of 1000 members are supported. If not specified, the member list is not updated. The task creator and group creator do not need to be included because they are covered by the authentication layer. This parameter is ignored for personal tasks.', example='string_value', shrink='json', position='Body'),
+  }(name='triggerConfig', description='The trigger configuration. The configuration varies based on the trigger type.', shrink='json', position='Body'),
+  visibility?: string(name='visibility', description='The visibility scope adjustment for group tasks. Valid values: PRIVATE (visible only to the creator and group owner), COLLABORATIVE (visible to specified collaborators), and PUBLIC (visible to all group members). If this parameter is not specified, the visibility scope is not updated. This field is ignored for personal tasks.', example='COLLABORATIVE', position='Body'),
+  visibleMemberUserIds?: [ string ](name='visibleMemberUserIds', description='The full replacement list of collaborators. This parameter takes effect only when visibility is set to COLLABORATIVE. When the visibility is changed from COLLABORATIVE to another value, the list is cleared. A maximum of 1,000 members are supported. If this parameter is not specified, the members are not updated. You do not need to specify the task creator and group creator because they are covered by the authentication layer. This field is ignored for personal tasks.', example='["10001"]', shrink='json', position='Body'),
 }
 
 model UpdateScheduledTaskResponseBody = {
-  code?: string(name='code', description='The business status code. A value of 200 indicates success. A failure returns a backend error code (ERR.* or InvalidParameter.*).', example='200'),
-  message?: string(name='message', description='The error description. Empty when the request is successful.', example='ok'),
-  requestId?: string(name='requestId', description='The request trace ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
-  taskId?: string(name='taskId', description='The task ID (echoed back).', example='exampleTaskId'),
-  updated?: boolean(name='updated', description='Indicates whether an actual update was made.', example='true'),
+  code?: string(name='code', description='The business status code. A value of 200 indicates success. A value of a backend error code such as ERR.* or InvalidParameter.* indicates failure.', example='200'),
+  message?: string(name='message', description='The error message. This parameter is empty when the request is successful.', example='ok'),
+  requestId?: string(name='requestId', description='The request tracking ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  taskId?: string(name='taskId', description='The task ID.', example='exampleTaskId'),
+  updated?: boolean(name='updated', description='Specifies whether an actual update is performed.', example='true'),
 }
 
 model UpdateScheduledTaskResponse = {
@@ -12303,21 +12298,21 @@ async function updateWorkflowTemplate(request: UpdateWorkflowTemplateRequest): U
 }
 
 model UploadChatFileByBase64Request {
-  contentType?: string(name='contentType', description='文件 MIME 类型（可选，不传时按 application/octet-stream 处理）', example='application/pdf', position='Body'),
-  fileContentBase64: string(name='fileContentBase64', description='标准 Base64 文件内容，不含 data URI 前缀
+  contentType?: string(name='contentType', description='The MIME type of the file.', example='application/pdf', position='Body'),
+  fileContentBase64: string(name='fileContentBase64', description='The Base64-encoded string of the file content.
 
 This parameter is required.', example='YWJj', position='Body'),
-  fileName: string(name='fileName', description='原始文件名（含后缀）
+  fileName: string(name='fileName', description='The file name.
 
 This parameter is required.', example='report.pdf', position='Body'),
-  tenantId?: string(name='tenantId', description='租户ID，公共参数，缺省时使用调用方默认租户', example='10000', position='Query'),
+  tenantId?: string(name='tenantId', description='The tenant ID.', example='10000', position='Query'),
 }
 
 model UploadChatFileByBase64ResponseBody = {
-  code?: string(name='code', description='业务状态码：成功为 200，失败为后端错误码（ERR.* / InvalidParameter.*）', example='200'),
-  fileRecordId?: string(name='fileRecordId', description='文件记录 ID', example='exampleFileRecordId'),
-  message?: string(name='message', description='错误描述，成功时为空', example='success'),
-  requestId?: string(name='requestId', description='请求追踪 ID', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
+  code?: string(name='code', description='The response status code.', example='200'),
+  fileRecordId?: string(name='fileRecordId', description='The file record ID.', example='exampleFileRecordId'),
+  message?: string(name='message', description='The response message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID.', example='019FF406-1B10-0065-A97D-2D1920C2A03D'),
 }
 
 model UploadChatFileByBase64Response = {
@@ -12327,7 +12322,7 @@ model UploadChatFileByBase64Response = {
 }
 
 /**
-  * @description 使用标准 Base64 提交本地附件（应用侧解码上限 50 MiB），返回会话文件记录 ID。
+  * @description Submits a local attachment by using standard Base64 encoding (the maximum decoding limit on the application side is 50 MiB) and returns the session file record ID.
   * @param request  the request parameters of UploadChatFileByBase64  UploadChatFileByBase64Request
   * @return UploadChatFileByBase64Response
  */
