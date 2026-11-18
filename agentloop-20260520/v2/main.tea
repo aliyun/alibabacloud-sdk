@@ -5914,36 +5914,50 @@ async function runPipeline(agentSpace: string, pipelineName: string, request: Ru
 }
 
 model SearchContextRequest {
-  filter?: map[string]any(name='filter', description='The structured filter conditions. The key is the field name, and the value is the expected match value.', example='{"userId":"alice"}'),
+  filter?: map[string]any(name='filter', description='The structured filter conditions. The experience store supports scene. When __agentloopControl.mode is set to direct, hybrid, or agentic, multi-strategy recall with auditing is used, and you can pass source, callId, application, fields, channels, and budget simultaneously. The management plane can additionally pass contentStatus=all, active, candidate, gray, or deprecated to perform content retrieval, which includes disabled or unreviewed content and is not affected by store-level runtime switches. The API key runtime entry prohibits contentStatus and retains the original governance thresholds. The maximum value of timeoutMs is 60000. If mode is not passed, the existing semantics of fields, channels, minQualityScore, expansion, and debug are retained. When query is *, you can use includeCandidates, cursor, and offset to browse experiences (management plane only).', example='{"scene":"incident-recovery","__agentloopControl":{"fields":["when_to_use","summary"],"channels":["vector","fulltext"],"minQualityScore":0.6,"expansion":false,"debug":true}}'),
   formatted?: boolean(name='formatted', description='Specifies whether to apply structured formatting to the returned results.', example='true'),
-  includeInactive?: boolean(name='includeInactive', description='Specifies whether to include memories with sourceState=inactive. Default value: false.', example='false'),
-  limit?: int32(name='limit', description='The maximum number of returned results based on the top-N similarity.', example='10'),
+  includeInactive?: boolean(name='includeInactive', description='Specifies whether to include memories with sourceState set to inactive. Default value: false.', example='false'),
+  limit?: int32(name='limit', description='The maximum number of returned results (Top-N similarity).', example='10'),
   query?: string(name='query', description='The retrieval query text. Natural language is supported.
 
-This parameter is required.', example='Recent user preferences'),
-  retrievalOption?: string(name='retrievalOption', description='The retrieval options used to control the retrieval strategy.', example='semantic'),
+This parameter is required.', example='Recent user preference settings'),
+  retrievalOption?: string(name='retrievalOption', description='The retrieval options. The experience store supports normal and reranker (deterministic reranking). The memory store uses its own retrieval strategy. For real-time recall in the experience store, the limit ranges from 1 to 20.', example='normal'),
   scope?: {
     agentId?: string(name='agentId', description='The ID of the agent.', example='sales-copilot'),
     appId?: string(name='appId', description='The ID of the application.', example='crm-service'),
     runId?: string(name='runId', description='The ID of the run.', example='run-001'),
     userId?: string(name='userId', description='The ID of the user.', example='u-10001'),
-  }(name='scope', description='The recall scope. If a field with the same name exists in the filter, a 400 ScopeFilterConflict error is returned.'),
-  strategyIds?: [ string ](name='strategyIds', description='Filters results by extraction strategy IDs. Multiple IDs in the list are evaluated with an OR logic. If this parameter is not specified, all strategies are recalled. An empty list returns a 400 error. Valid IDs with no matches return empty results. Historical removed strategy IDs are supported.', example='["preferences","profile"]'),
-  threshold?: double(name='threshold', description='The similarity threshold. Results with a similarity score below this value are filtered out. Valid values: 0 to 1.', example='0.5'),
+  }(name='scope', description='The recall scope. If this field conflicts with a field of the same name in filter, a 400 ScopeFilterConflict error is returned.'),
+  strategyIds?: [ string ](name='strategyIds', description='Filters results by extraction strategy IDs. The conditions in the list are combined by using the OR operator. If this parameter is not passed, all strategies are recalled. An empty list returns a 400 error. If the format is valid but no matching IDs are found, an empty result is returned. Historical removed strategy IDs are supported.', example='["preferences","profile"]'),
+  threshold?: double(name='threshold', description='The similarity threshold. Results with a score lower than this value are filtered out. Valid values: 0 to 1.', example='0.5'),
 }
 
 model SearchContextResponseBody = {
   auditStatus?: string(name='auditStatus', description='The audit write status. Valid values: ok and degraded.', example='ok'),
-  callId?: string(name='callId', description='The call ID for the multi-strategy recall of the experience store.', example='550e8400-e29b-41d4-a716-446655440000'),
-  diagnostics?: map[string]any(name='diagnostics', description='The diagnostics information for the current experience recall, including duration, model call volume, and filtering. The actual diagnostics items are determined by the running mode.'),
-  mode?: string(name='mode', description='The actual experience recall mode used for the current request. Valid values: direct, agentic, and hybrid.', example='agentic'),
-  recallEventId?: string(name='recallEventId', description='The ID of the recall event. You can use this ID to call the GetContextStoreRecall operation to view audit details.', example='0190f1c2-7d3e-7a1b-9c4d-2e5f6a7b8c9d'),
-  relevance?: [  map[string]any ](name='relevance', description='The list of relevance judgment results for candidate experiences.'),
-  requestId?: string(name='requestId', description='The ID of the request. You can use this ID to locate the request for troubleshooting.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
-  results?: [ map[string]any ](name='results', description='The list of retrieval results, sorted by similarity in descending order.'),
-  rewrittenQueries?: [ string ](name='rewrittenQueries', description='The list of rewritten queries generated based on the original retrieval query. The original query is not included.'),
+  callId?: string(name='callId', description='The call ID for multi-strategy recall in the experience store.', example='550e8400-e29b-41d4-a716-446655440000'),
+  diagnostics?: map[string]any(name='diagnostics', description='The diagnostics information for the current experience recall, including duration, model call volume, and filtering. The actual diagnostics items are determined by the running mode.', example='{
+	"durationMs": 386.5,
+	"modelCalls": 2,
+	"relevanceValidation": "semantic",
+	"candidateCount": 1,
+	"filtering": {
+		"model_not_relevant": 0
+	}
+}'),
+  mode?: string(name='mode', description='The experience recall mode actually used for the current request. Valid values: direct, agentic, and hybrid.', example='agentic'),
+  recallEventId?: string(name='recallEventId', description='The ID of the recall event. You can use this ID to call GetContextStoreRecall to view audit details.', example='0190f1c2-7d3e-7a1b-9c4d-2e5f6a7b8c9d'),
+  relevance?: [  map[string]any ](name='relevance', description='The list of relevance judgment results for candidate experiences.', example='[
+  {
+    "contextId": "a:1",
+    "judgment": "relevant",
+    "reason": "This experience explains how to skip tasks with unchanged inputs, which is relevant to the search query."
+  }
+]'),
+  requestId?: string(name='requestId', description='The ID of the request. You can use this ID to locate the request when troubleshooting issues.', example='9ACFB10A-1B2C-3D4E-5F6G-7H8I9J0K1L2M'),
+  results?: [ map[string]any ](name='results', description='The list of retrieval results, sorted by similarity in descending order. Each item contains contextId, context, metadata, score, rank, revision, strategyVersion, and strategyId.', example='[{"contextId":"01a1cf08-c368-7c83******","strategyId":"default","context":"The assistant recommends steamed seafood because it is fresh and not spicy, which aligns with the user\\\\"s preference for seafood and constraint against spicy food.","metadata":{"contextType":"memory","memoryType":"long","userId":"test_user_002","agentId":"95273000000000","appId":"mm_480d961******","runId":"jr-80ded1d6******","strategyId":"default","category":"recommendation","kind":"state","sourceKind":"api","sourceId":"addctx:75395808-cb81-54cd******","revision":1,"reviewStatus":"unreviewed","sourceState":"active","factKey":"assistant:recommendation:dish******","sessionId":"test_session_001"},"score":0.6617179,"rank":1,"revision":1,"strategyVersion":1}]'),
+  rewrittenQueries?: [ string ](name='rewrittenQueries', description='The list of rewritten queries generated based on the original retrieval query. The original query is not included.', example='["How to avoid repeatedly executing unchanged inputs"]'),
   status?: string(name='status', description='The processing status of the current experience recall call. Valid values: success, degraded, failed, and error.', example='success'),
-  strategyVersion?: string(name='strategyVersion', description='The strategy implementation version used for the current experience recall. This is used for auditing and result tracing.', example='experience-recall-20261031-v5'),
+  strategyVersion?: string(name='strategyVersion', description='The implementation version of the strategy used for the current experience recall. This is used for auditing and result tracing.', example='experience-recall-20261031-v5'),
 }
 
 model SearchContextResponse = {
