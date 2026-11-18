@@ -2,6 +2,7 @@
  *
  */
 import Util;
+import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -11,6 +12,9 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
+  @productId = 'Ada';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = 'regional';
   
   checkConfig(config);
@@ -28,29 +32,109 @@ function getEndpoint(productId: string, regionId: string, endpointRule: string, 
   return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
 }
 
+model CancelAgentSessionRequest {
+  id?: string(name='Id', description='The correlation identifier for this call, which is echoed in the response. This parameter does not provide idempotence guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set this parameter to `2.0`.', example='2.0'),
+  params?: any(name='Params', description='The business parameter object. For nested fields, refer to the supplementary description of request parameters.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef","_meta":{"promptId":"prompt-example-001"}}'),
+}
+
+model CancelAgentSessionShrinkRequest {
+  id?: string(name='Id', description='The correlation identifier for this call, which is echoed in the response. This parameter does not provide idempotence guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set this parameter to `2.0`.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The business parameter object. For nested fields, refer to the supplementary description of request parameters.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef","_meta":{"promptId":"prompt-example-001"}}'),
+}
+
+model CancelAgentSessionResponseBody = {
+  jsonRpcResponse?: any(name='JsonRpcResponse', description='The response object. The business result is located in `result`.', example='{"jsonrpc":"2.0","id":"request-001","result":{"sessionId":"0123456789abcdef0123456789abcdef","removed":true}}'),
+  requestId?: string(name='RequestId', description='The server-side request ID, which is used to troubleshoot this call.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. Determine the desired state of the execution based on the description of this operation.', example='true'),
+}
+
+model CancelAgentSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CancelAgentSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary Stops a session execution or cancels a specified turn.
+ *
+ * @description If `Params._meta.promptId` is provided, only that turn is canceled. If omitted, the current execution of the session is canceled. To avoid affecting other turns, use the actual `promptId` obtained from the response stream instead of the request `Id`. A cancellation receipt does not mean the turn has ended, nor does it revoke external operations that have already occurred. After calling this operation, continue reading the original response stream or resume reading through `LoadAgentSession` to confirm the desired state of the target turn. Disconnecting the stream connection cannot replace a cancellation request.
+ *
+ * @param tmpReq CancelAgentSessionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CancelAgentSessionResponse
+ */
+async function cancelAgentSessionWithOptions(tmpReq: CancelAgentSessionRequest, runtime: Util.RuntimeOptions): CancelAgentSessionResponse {
+  Util.validateModel(tmpReq);
+  var request = new CancelAgentSessionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    body['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    body['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CancelAgentSession',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Stops a session execution or cancels a specified turn.
+ *
+ * @description If `Params._meta.promptId` is provided, only that turn is canceled. If omitted, the current execution of the session is canceled. To avoid affecting other turns, use the actual `promptId` obtained from the response stream instead of the request `Id`. A cancellation receipt does not mean the turn has ended, nor does it revoke external operations that have already occurred. After calling this operation, continue reading the original response stream or resume reading through `LoadAgentSession` to confirm the desired state of the target turn. Disconnecting the stream connection cannot replace a cancellation request.
+ *
+ * @param request CancelAgentSessionRequest
+ * @return CancelAgentSessionResponse
+ */
+async function cancelAgentSession(request: CancelAgentSessionRequest): CancelAgentSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return cancelAgentSessionWithOptions(request, runtime);
+}
+
 model CreateAgentRequest {
-  description?: string(name='Description', description='The description of the Agent.', example='Analyzes code changes and generates CR review comments'),
-  displayName?: string(name='DisplayName', description='The display name of the Agent.', example='CR Code Review Agent'),
-  knowledgeBases?: any(name='KnowledgeBases', description='The knowledge base reference list, which contains at most one element.', example='[{"name":"code-review-guidelines"}]'),
-  name?: string(name='Name', description='The Agent name, which is also the unique identifier that cannot be modified after creation.
+  description?: string(name='Description', description='The description of the agent.', example='Analyze code changes and generate code review comments'),
+  displayName?: string(name='DisplayName', description='The display name of the agent.', example='Code review agent'),
+  knowledgeBases?: any(name='KnowledgeBases', description='The list of knowledge base references, which can contain at most one element.', example='[{"name":"code-review-guidelines"}]'),
+  name?: string(name='Name', description='The name of the agent, which is also the unique identifier that cannot be modified after creation.
 
 This parameter is required.', example='code-review-agent'),
-  skills?: any(name='Skills', description='The Skill reference list. For specific fields, see "Supplementary description of request parameters".', example='[{"name":"code-review"}]'),
-  systemPrompt?: string(name='SystemPrompt', description='The system prompt.', example='Check the correctness, security, and maintainability of code changes in the CR, and provide review comments by severity'),
-  tools?: any(name='Tools', description='The reference list of MCP Server and Connector names. The same array supports both types of entries. Each entry specifies one type of reference. If items is omitted for an MCP Server, all public tools are included. Previously specified items retain their original values.', example='[{"mcpServerName":"code-repository-mcp"},{"connectorName":"code-review-data"}]'),
-  visibility?: string(name='Visibility', description='The visibility scope of the Agent. Valid values:
-- user
-- tenant
-
-Default value: user.', example='user'),
+  skills?: any(name='Skills', description='The list of skill references. For specific fields, refer to the supplementary description of request parameters.', example='[{"name":"code-review"}]'),
+  systemPrompt?: string(name='SystemPrompt', description='The system prompt.', example='Check the correctness, security, and maintainability of code changes in the code review, and provide review comments based on severity'),
+  tools?: any(name='Tools', description='The list of references to MCP server and connector names. The same array supports both types of entries. Specify only one type of reference for each entry. For MCP, omitting items indicates all public tools, and historically specified items retain their original values.', example='[{"mcpServerName":"code-repository-mcp"},{"connectorName":"code-review-data"}]'),
+  visibility?: string(name='Visibility', description='The visibility scope of the agent. Valid values: user and tenant. Default value: user.', example='user'),
 }
 
 model CreateAgentResponseBody = {
-  agentId?: string(name='AgentId', description='The Agent ID generated by the service.', example='agent_00000000000000000000000000000001'),
-  name?: string(name='Name', description='The name of the created Agent.', example='code-review-agent'),
+  agentId?: string(name='AgentId', description='The agent ID generated by the service.', example='agent_00000000000000000000000000000001'),
+  name?: string(name='Name', description='The name of the created agent.', example='code-review-agent'),
   requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  success?: boolean(name='Success', description='Indicates whether the Agent is created. A successful response always returns `true`. An error response is returned upon failure.', example='true'),
-  updatedAt?: long(name='UpdatedAt', description='The last update time, in UNIX millisecond timestamp.', example='1788332400000'),
+  success?: boolean(name='Success', description='Indicates whether the agent was created successfully. A success response always returns true. An error response is returned upon failure.', example='true'),
+  updatedAt?: long(name='UpdatedAt', description='The last update time, which is a UNIX timestamp in milliseconds.', example='1788332400000'),
 }
 
 model CreateAgentResponse = {
@@ -60,10 +144,10 @@ model CreateAgentResponse = {
 }
 
 /**
- * @summary Creates an Agent.
+ * @summary Creates an agent.
  *
- * @description - `Name` is the unique identifier of the Agent within the current tenant. It can contain only letters, digits, underscores, and hyphens, and must be 1 to 128 characters in length. The name cannot be modified after creation.
- * - Each Agent can be associated with only one knowledge base.
+ * @description - Name is the unique identifier of the agent within the current tenant. It can contain only letters, digits, underscores, and hyphens, and must be 1 to 128 characters in length. It cannot be modified after creation.
+ * - Each agent can be bound to only one knowledge base.
  *
  * @param request CreateAgentRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -114,10 +198,10 @@ async function createAgentWithOptions(request: CreateAgentRequest, runtime: Util
 }
 
 /**
- * @summary Creates an Agent.
+ * @summary Creates an agent.
  *
- * @description - `Name` is the unique identifier of the Agent within the current tenant. It can contain only letters, digits, underscores, and hyphens, and must be 1 to 128 characters in length. The name cannot be modified after creation.
- * - Each Agent can be associated with only one knowledge base.
+ * @description - Name is the unique identifier of the agent within the current tenant. It can contain only letters, digits, underscores, and hyphens, and must be 1 to 128 characters in length. It cannot be modified after creation.
+ * - Each agent can be bound to only one knowledge base.
  *
  * @param request CreateAgentRequest
  * @return CreateAgentResponse
@@ -127,30 +211,111 @@ async function createAgent(request: CreateAgentRequest): CreateAgentResponse {
   return createAgentWithOptions(request, runtime);
 }
 
+model CreateAgentSessionRequest {
+  id?: string(name='Id', description='The correlation identifier for this call. It is echoed in the response and does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set the value to `2.0`.', example='2.0'),
+  params?: any(name='Params', description='The business parameter object. For nested fields, see the supplementary description of request parameters.
+
+This parameter is required.', example='{"clientToken":"create-review-001","_meta":{"agent":{"agentName":"review-agent-demo"},"initialConfigOptions":{"approvalMode":"default"}}}'),
+}
+
+model CreateAgentSessionShrinkRequest {
+  id?: string(name='Id', description='The correlation identifier for this call. It is echoed in the response and does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set the value to `2.0`.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The business parameter object. For nested fields, see the supplementary description of request parameters.
+
+This parameter is required.', example='{"clientToken":"create-review-001","_meta":{"agent":{"agentName":"review-agent-demo"},"initialConfigOptions":{"approvalMode":"default"}}}'),
+}
+
+model CreateAgentSessionResponseBody = {
+  jsonRpcResponse?: any(name='JsonRpcResponse', description='The response object. The business result is located in `result`.', example='{"jsonrpc":"2.0","id":"request-001","result":{"sessionId":"0123456789abcdef0123456789abcdef","attached":false}}'),
+  requestId?: string(name='RequestId', description='The server-side request ID. It is used to troubleshoot this call.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. Determine the final execution state based on the description of this operation.', example='true'),
+}
+
+model CreateAgentSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateAgentSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a text session for a specified agent and obtains the session ID required for subsequent calls.
+ *
+ * @description Before calling this operation, obtain the name of an agent accessible to the current identity. After the session is created, save `JsonRpcResponse.result.sessionId` and use it as `Params.sessionId` for subsequent operations such as `PromptAgentSession` and `LoadAgentSession`.
+ * You can set the approval mode during creation. If omitted, the mode defaults to `default`. The availability of `yolo` depends on the target agent. If it is not supported, an error is returned. This mode does not change the caller\\"s permissions or replace business Q&A. To retry the same creation request, reuse the same `clientToken` and the same business parameters.
+ *
+ * @param tmpReq CreateAgentSessionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateAgentSessionResponse
+ */
+async function createAgentSessionWithOptions(tmpReq: CreateAgentSessionRequest, runtime: Util.RuntimeOptions): CreateAgentSessionResponse {
+  Util.validateModel(tmpReq);
+  var request = new CreateAgentSessionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    body['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    body['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'CreateAgentSession',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a text session for a specified agent and obtains the session ID required for subsequent calls.
+ *
+ * @description Before calling this operation, obtain the name of an agent accessible to the current identity. After the session is created, save `JsonRpcResponse.result.sessionId` and use it as `Params.sessionId` for subsequent operations such as `PromptAgentSession` and `LoadAgentSession`.
+ * You can set the approval mode during creation. If omitted, the mode defaults to `default`. The availability of `yolo` depends on the target agent. If it is not supported, an error is returned. This mode does not change the caller\\"s permissions or replace business Q&A. To retry the same creation request, reuse the same `clientToken` and the same business parameters.
+ *
+ * @param request CreateAgentSessionRequest
+ * @return CreateAgentSessionResponse
+ */
+async function createAgentSession(request: CreateAgentSessionRequest): CreateAgentSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return createAgentSessionWithOptions(request, runtime);
+}
+
 model CreateSkillRequest {
-  description?: string(name='Description', description='The description of the Skill.
+  description?: string(name='Description', description='The description of the skill.
 
 This parameter is required.', example='A Skill for reviewing code quality, security risks, and coding standards.'),
-  metadata?: any(name='Metadata', description='The Skill metadata in JSON object format. Exactly one content source must be provided. For more information about the fields, see "Request parameter description".
+  metadata?: any(name='Metadata', description='The metadata of the skill, in JSON object format. One and only one content source must be provided. For specific fields, refer to the supplementary description of request parameters.
 
 This parameter is required.', example='{"skillMd":"# Code Review\\\\nCheck code quality, security risks, and coding standards."}'),
-  name?: string(name='Name', description='The unique identifier of the Skill. Only letters, digits, underscores, and hyphens are supported. The value can be up to 64 characters in length.
+  name?: string(name='Name', description='The unique identifier of the skill. Only letters, digits, underscores, and hyphens are supported. The length cannot exceed 64 characters.
 
 This parameter is required.', example='code-review'),
-  visibility?: string(name='Visibility', description='The visibility of the Skill. Valid values:
-
-- user
-- tenant
-
-Default value: user.', example='user'),
+  visibility?: string(name='Visibility', description='The visibility of the skill. Valid values: `user` and `tenant`. Default value: `user`.', example='user'),
 }
 
 model CreateSkillResponseBody = {
-  name?: string(name='Name', description='The unique identifier of the Skill.', example='code-review'),
+  name?: string(name='Name', description='The unique identifier of the skill.', example='code-review'),
   requestId?: string(name='RequestId', description='The request ID, which is used to locate and troubleshoot the request.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  skillId?: string(name='SkillId', description='Skill ID。', example='skill_example123'),
-  success?: boolean(name='Success', description='Indicates whether the Skill and its body or bundle are fully created and readable. A value of true is returned upon success. Business failures are returned as error responses.', example='true'),
-  updatedAt?: long(name='UpdatedAt', description='The time when the Skill was last updated after creation. The value is a UNIX timestamp in milliseconds.', example='1760000100000'),
+  skillId?: string(name='SkillId', description='The skill ID.', example='skill_example123'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. true is returned when the skill and its body or bundle are fully created and readable. Business failures are returned in error responses.', example='true'),
+  updatedAt?: long(name='UpdatedAt', description='The update time after the skill is created. The value is a UNIX timestamp in milliseconds.', example='1760000100000'),
 }
 
 model CreateSkillResponse = {
@@ -160,20 +325,20 @@ model CreateSkillResponse = {
 }
 
 /**
- * @summary Creates a Skill.
+ * @summary Creates a skill.
  *
  * @description - Creation rules:
- *   - `Name` must be unique within the current tenant and cannot share a name with an official Skill.
- *   - `Description` and `Metadata` are required. `Metadata` must contain exactly one valid content source. Different sources cannot be mixed.
- *   - After the Skill is created, you can modify it by calling `UpdateSkill`.
+ *   - `Name` must be unique within the current tenant and cannot be the same as an official skill.
+ *   - `Description` and `Metadata` are required. `Metadata` must contain one and only one valid content source. Different sources cannot be mixed.
+ *   - After the skill is created, you can modify it by calling `UpdateSkill`.
  * - Content sources:
- *   - `skillMd`: Directly provide the Markdown body without a YAML header. Specify the name and description by using `Name` and `Description`.
- *   - `transitId`: Upload and confirm a ZIP file through Transit. Call the operations in the following order:
- *     1. Call `CreateTransitUploadPolicy` with `FileShowName` to obtain `TransitId`, `FilePath`, and `PolicyInfo`.
- *     2. Upload the ZIP file to object storage by using `PolicyInfo` and `FilePath`.
- *     3. Call `ConfirmTransitUpload` with `TransitId`. Proceed with creation only when the response returns `Confirmed=true`.
+ *   - `skillMd`: Directly enter the Markdown body. No YAML front matter is required. Use `Name` and `Description` for the name and description.
+ *   - `transitId`: Upload and confirm a ZIP file through Transit. The call sequence is as follows:
+ *     1. Call `CreateTransitUploadPolicy` and pass in `FileShowName` to obtain `TransitId`, `FilePath`, and `PolicyInfo`.
+ *     2. Use `PolicyInfo` and `FilePath` to upload the ZIP file to Object Storage Service (OSS).
+ *     3. Call `ConfirmTransitUpload` and pass in `TransitId`. Proceed with creation only if `Confirmed=true` is returned.
  *     4. Call `CreateSkill` and pass the confirmed `TransitId` in `Metadata.transitId`.
- *   - `bundleUrl`: Provide a public HTTPS direct link to a ZIP file. The platform downloads the file and saves it as an Artifact. The original URL is not persisted or returned in responses.
+ *   - `bundleUrl`: Pass in a public HTTPS ZIP direct link. The platform downloads the file and saves it as an artifact. The original URL is not saved or echoed.
  *
  * @param request CreateSkillRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -212,20 +377,20 @@ async function createSkillWithOptions(request: CreateSkillRequest, runtime: Util
 }
 
 /**
- * @summary Creates a Skill.
+ * @summary Creates a skill.
  *
  * @description - Creation rules:
- *   - `Name` must be unique within the current tenant and cannot share a name with an official Skill.
- *   - `Description` and `Metadata` are required. `Metadata` must contain exactly one valid content source. Different sources cannot be mixed.
- *   - After the Skill is created, you can modify it by calling `UpdateSkill`.
+ *   - `Name` must be unique within the current tenant and cannot be the same as an official skill.
+ *   - `Description` and `Metadata` are required. `Metadata` must contain one and only one valid content source. Different sources cannot be mixed.
+ *   - After the skill is created, you can modify it by calling `UpdateSkill`.
  * - Content sources:
- *   - `skillMd`: Directly provide the Markdown body without a YAML header. Specify the name and description by using `Name` and `Description`.
- *   - `transitId`: Upload and confirm a ZIP file through Transit. Call the operations in the following order:
- *     1. Call `CreateTransitUploadPolicy` with `FileShowName` to obtain `TransitId`, `FilePath`, and `PolicyInfo`.
- *     2. Upload the ZIP file to object storage by using `PolicyInfo` and `FilePath`.
- *     3. Call `ConfirmTransitUpload` with `TransitId`. Proceed with creation only when the response returns `Confirmed=true`.
+ *   - `skillMd`: Directly enter the Markdown body. No YAML front matter is required. Use `Name` and `Description` for the name and description.
+ *   - `transitId`: Upload and confirm a ZIP file through Transit. The call sequence is as follows:
+ *     1. Call `CreateTransitUploadPolicy` and pass in `FileShowName` to obtain `TransitId`, `FilePath`, and `PolicyInfo`.
+ *     2. Use `PolicyInfo` and `FilePath` to upload the ZIP file to Object Storage Service (OSS).
+ *     3. Call `ConfirmTransitUpload` and pass in `TransitId`. Proceed with creation only if `Confirmed=true` is returned.
  *     4. Call `CreateSkill` and pass the confirmed `TransitId` in `Metadata.transitId`.
- *   - `bundleUrl`: Provide a public HTTPS direct link to a ZIP file. The platform downloads the file and saves it as an Artifact. The original URL is not persisted or returned in responses.
+ *   - `bundleUrl`: Pass in a public HTTPS ZIP direct link. The platform downloads the file and saves it as an artifact. The original URL is not saved or echoed.
  *
  * @param request CreateSkillRequest
  * @return CreateSkillResponse
@@ -236,27 +401,27 @@ async function createSkill(request: CreateSkillRequest): CreateSkillResponse {
 }
 
 model CreateTransitUploadPolicyRequest {
-  expireMs?: long(name='ExpireMs', description='The validity period of the upload policy and the Transit record, in milliseconds. Valid values: 1000 to 604800000. The value is rounded down to the nearest whole second. If `ExpireMs` is omitted or a `null` placeholder is passed through the gateway\\\\"s canonical field, the default validity period is `604800000` milliseconds (7 days).', example='604800000'),
-  fileShowName?: string(name='FileShowName', description='The display name of the file. The value must be 1 to 512 characters in length. The object key is generated by the server and is not guaranteed to contain the original file name.
+  expireMs?: long(name='ExpireMs', description='The validity period of the upload policy and the transit record, in milliseconds. Valid values: 1000 to 604800000. The value is rounded down to the nearest whole second. If ExpireMs is omitted or a null placeholder for the canonical field is passed by the gateway, the default validity period is 604800000 milliseconds (7 days).', example='604800000'),
+  fileShowName?: string(name='FileShowName', description='The display name of the file. The name must be 1 to 512 characters in length. The object key is generated by the server and is not guaranteed to contain the original file name.
 
 This parameter is required.', example='code-review.zip'),
-  network?: string(name='Network', description='The network type of the upload address. Valid values: `public` and `internal`. Default value: `public`.', example='public'),
-  pathPrefix?: string(name='PathPrefix', description='The path prefix used for object key isolation. This prefix has no Artifact business directory semantics. Default value: `default`.', example='skill-bundle'),
+  network?: string(name='Network', description='The network type of the upload address. Valid values: public and internal. Default value: public.', example='public'),
+  pathPrefix?: string(name='PathPrefix', description='The path prefix used for object key isolation. It does not have the semantics of an artifact business directory. The default value is default.', example='skill-bundle'),
 }
 
 model CreateTransitUploadPolicyResponseBody = {
-  filePath?: string(name='FilePath', description='The object storage key, which is also the `key` field in the PostObject form.', example='skill-bundle/tenant-demo/user-demo/20260904120000_0123456789abcdef0123456789abcdef.zip'),
+  filePath?: string(name='FilePath', description='The object storage key, which is also the key in the PostObject form.', example='skill-bundle/tenant-demo/user-demo/20260904120000_0123456789abcdef0123456789abcdef.zip'),
   policyInfo?: {
-    accessId?: string(name='AccessId', description='The `OSSAccessKeyId` field in the PostObject form. Protect this value together with the entire `PolicyInfo`.', example='<REDACTED>'),
-    dir?: string(name='Dir', description='The object storage key. The value is the same as the top-level `FilePath`.', example='skill-bundle/tenant-demo/user-demo/20260904120000_0123456789abcdef0123456789abcdef.zip'),
-    host?: string(name='Host', description='The target URL to which the client sends the PostObject request.', example='https://upload.example.invalid'),
-    policy?: string(name='Policy', description='The Base64-encoded PostObject upload policy. Protect this value together with the entire `PolicyInfo`.', example='<REDACTED>'),
-    securityToken?: string(name='SecurityToken', description='The `x-oss-security-token` field in the PostObject form when STS credentials are used. This field may be empty when STS is not used. This field contains sensitive authorization information.', example='<REDACTED>'),
-    signature?: string(name='Signature', description='The signature field in the PostObject form. This field contains sensitive authorization information.', example='<REDACTED>'),
-  }(name='PolicyInfo', description='The upload policy object. For the complete list of subfields, see the following table.'),
-  requestId?: string(name='RequestId', description='The request ID, used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  success?: boolean(name='Success', description='Indicates whether the upload policy is generated. A successful response always returns `true`. An error response is returned upon failure.', example='true'),
-  transitId?: string(name='TransitId', description='The ID of the newly created Transit record, used for subsequent queries and storage operations.', example='transit_0123456789abcdef0123456789abcdef'),
+    accessId?: string(name='AccessId', description='The OSSAccessKeyId in the PostObject form. This field must be properly protected along with the entire PolicyInfo.', example='<REDACTED>'),
+    dir?: string(name='Dir', description='The object storage key. The value is the same as the top-level FilePath.', example='skill-bundle/tenant-demo/user-demo/20260904120000_0123456789abcdef0123456789abcdef.zip'),
+    host?: string(name='Host', description='The destination URL for the client to execute the PostObject request.', example='https://upload.example.invalid'),
+    policy?: string(name='Policy', description='The Base64-encoded PostObject upload policy. This field must be properly protected along with the entire PolicyInfo.', example='<REDACTED>'),
+    securityToken?: string(name='SecurityToken', description='The x-oss-security-token in the PostObject form when Security Token Service (STS) credentials are used. This field may be empty if STS is not used. This field contains sensitive authorization information.', example='<REDACTED>'),
+    signature?: string(name='Signature', description='The signature of the PostObject form. This field contains sensitive authorization information.', example='<REDACTED>'),
+  }(name='PolicyInfo', description='The upload policy object. For more information about the complete sub-fields, see the following table.'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  success?: boolean(name='Success', description='Indicates whether the upload policy is successfully generated. A success response always returns true. An error response is returned upon failure.', example='true'),
+  transitId?: string(name='TransitId', description='The ID of the newly created transit record, which can be used for subsequent queries and storage.', example='transit_0123456789abcdef0123456789abcdef'),
 }
 
 model CreateTransitUploadPolicyResponse = {
@@ -266,13 +431,13 @@ model CreateTransitUploadPolicyResponse = {
 }
 
 /**
- * @summary Generates a credential for direct file upload. The caller can use the returned upload policy to upload a file directly to object storage.
+ * @summary Generates credentials for direct file upload. Callers can use the returned upload policy to upload files directly to object storage.
  *
- * @description - `Network` can be set to `public` or `internal` to generate a public or same-region internal upload address. Default value: `public`.
+ * @description - The Network parameter can be set to public or internal to generate a public network or same-region internal network upload address, respectively. The default value is public.
  * - The maximum size of a single file is 50 MiB.
- * - `PolicyInfo` contains short-term upload authorization information intended only for the current file upload. Do not log it, persist it long-term, or forward it to other users.
- * - `ExpireMs` controls the validity period of the upload policy and the Transit record, in milliseconds. It is not an absolute timestamp. The default and maximum value is `604800000` (7 days), and the minimum value is `1000` (1 second). The validity period is rounded down to the nearest whole second. For example, 1500 milliseconds takes effect as 1 second.
- * - Call `GetTransitMeta` and read `ExpireAt` to obtain the expiration time of the Transit record. Confirming the upload or querying the record does not extend the validity period.
+ * - PolicyInfo contains short-term upload authorization information and is only used for the current file upload. Do not log, permanently store, or forward it to other users.
+ * - ExpireMs specifies the validity period of the upload policy and the transit record in milliseconds, not an absolute timestamp. The default and maximum values are both 604800000 (7 days), and the minimum value is 1000 (1 second). The validity period is rounded down to the nearest whole second. For example, 1500 milliseconds takes effect as 1 second.
+ * - You can call GetTransitMeta to read ExpireAt and obtain the expiration time of the transit record. Confirming the upload and querying the record do not extend its validity period.
  *
  * @param request CreateTransitUploadPolicyRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -311,13 +476,13 @@ async function createTransitUploadPolicyWithOptions(request: CreateTransitUpload
 }
 
 /**
- * @summary Generates a credential for direct file upload. The caller can use the returned upload policy to upload a file directly to object storage.
+ * @summary Generates credentials for direct file upload. Callers can use the returned upload policy to upload files directly to object storage.
  *
- * @description - `Network` can be set to `public` or `internal` to generate a public or same-region internal upload address. Default value: `public`.
+ * @description - The Network parameter can be set to public or internal to generate a public network or same-region internal network upload address, respectively. The default value is public.
  * - The maximum size of a single file is 50 MiB.
- * - `PolicyInfo` contains short-term upload authorization information intended only for the current file upload. Do not log it, persist it long-term, or forward it to other users.
- * - `ExpireMs` controls the validity period of the upload policy and the Transit record, in milliseconds. It is not an absolute timestamp. The default and maximum value is `604800000` (7 days), and the minimum value is `1000` (1 second). The validity period is rounded down to the nearest whole second. For example, 1500 milliseconds takes effect as 1 second.
- * - Call `GetTransitMeta` and read `ExpireAt` to obtain the expiration time of the Transit record. Confirming the upload or querying the record does not extend the validity period.
+ * - PolicyInfo contains short-term upload authorization information and is only used for the current file upload. Do not log, permanently store, or forward it to other users.
+ * - ExpireMs specifies the validity period of the upload policy and the transit record in milliseconds, not an absolute timestamp. The default and maximum values are both 604800000 (7 days), and the minimum value is 1000 (1 second). The validity period is rounded down to the nearest whole second. For example, 1500 milliseconds takes effect as 1 second.
+ * - You can call GetTransitMeta to read ExpireAt and obtain the expiration time of the transit record. Confirming the upload and querying the record do not extend its validity period.
  *
  * @param request CreateTransitUploadPolicyRequest
  * @return CreateTransitUploadPolicyResponse
@@ -328,14 +493,14 @@ async function createTransitUploadPolicy(request: CreateTransitUploadPolicyReque
 }
 
 model DeleteAgentRequest {
-  name?: string(name='Name', description='The name of the Agent to delete.
+  name?: string(name='Name', description='The name of the agent to be deleted.
 
 This parameter is required.', example='code-review-agent'),
 }
 
 model DeleteAgentResponseBody = {
-  requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  success?: boolean(name='Success', description='Indicates whether the Agent is deleted. The value `true` is returned for a successful response. An error response is returned for a failed request.', example='true'),
+  requestId?: string(name='RequestId', description='The request ID used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  success?: boolean(name='Success', description='Indicates whether the agent was successfully deleted. A successful response always returns `true`. If the operation fails, an error response is returned.', example='true'),
 }
 
 model DeleteAgentResponse = {
@@ -345,10 +510,10 @@ model DeleteAgentResponse = {
 }
 
 /**
- * @summary Deletes a specified Agent.
+ * @summary Deletes a specified agent.
  *
- * @description - Creators can delete Agents that they created.
- * - After deletion, the Agent can no longer be queried, updated, or run.
+ * @description - Creators can delete the agents they created.
+ * - After deletion, the agent can no longer be queried, updated, or run.
  *
  * @param request DeleteAgentRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -378,10 +543,10 @@ async function deleteAgentWithOptions(request: DeleteAgentRequest, runtime: Util
 }
 
 /**
- * @summary Deletes a specified Agent.
+ * @summary Deletes a specified agent.
  *
- * @description - Creators can delete Agents that they created.
- * - After deletion, the Agent can no longer be queried, updated, or run.
+ * @description - Creators can delete the agents they created.
+ * - After deletion, the agent can no longer be queried, updated, or run.
  *
  * @param request DeleteAgentRequest
  * @return DeleteAgentResponse
@@ -391,15 +556,101 @@ async function deleteAgent(request: DeleteAgentRequest): DeleteAgentResponse {
   return deleteAgentWithOptions(request, runtime);
 }
 
+model DeleteAgentSessionRequest {
+  id?: string(name='Id', description='The correlation identifier for this call, which is echoed in the response. This parameter does not provide idempotence guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set this parameter to `2.0`.', example='2.0'),
+  params?: any(name='Params', description='The business parameter object. For nested fields, refer to the supplementary description of request parameters.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef"}'),
+}
+
+model DeleteAgentSessionShrinkRequest {
+  id?: string(name='Id', description='The correlation identifier for this call, which is echoed in the response. This parameter does not provide idempotence guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set this parameter to `2.0`.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The business parameter object. For nested fields, refer to the supplementary description of request parameters.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef"}'),
+}
+
+model DeleteAgentSessionResponseBody = {
+  jsonRpcResponse?: any(name='JsonRpcResponse', description='The response object. The business result is located in `result`.', example='{"jsonrpc":"2.0","id":"request-001","result":{"sessionId":"0123456789abcdef0123456789abcdef"}}'),
+  requestId?: string(name='RequestId', description='The server-side request ID, which is used to troubleshoot this call.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. Determine the final execution state based on the description of this operation.', example='true'),
+}
+
+model DeleteAgentSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteAgentSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes an idle session that is no longer needed.
+ *
+ * @description A session cannot be directly deleted while it is being executed or waiting for interaction. You must first call `CancelAgentSession` and continue reading the original response stream, or resume reading through `LoadAgentSession`. Delete the session only after confirming that the target turn has ended.
+ * A successful deletion indicates that the session deletion operation is complete, but it does not mean that external operations that have already occurred are rolled back. Deleting a session does not delete the associated agent or assistant.
+ *
+ * @param tmpReq DeleteAgentSessionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteAgentSessionResponse
+ */
+async function deleteAgentSessionWithOptions(tmpReq: DeleteAgentSessionRequest, runtime: Util.RuntimeOptions): DeleteAgentSessionResponse {
+  Util.validateModel(tmpReq);
+  var request = new DeleteAgentSessionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    body['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    body['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteAgentSession',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes an idle session that is no longer needed.
+ *
+ * @description A session cannot be directly deleted while it is being executed or waiting for interaction. You must first call `CancelAgentSession` and continue reading the original response stream, or resume reading through `LoadAgentSession`. Delete the session only after confirming that the target turn has ended.
+ * A successful deletion indicates that the session deletion operation is complete, but it does not mean that external operations that have already occurred are rolled back. Deleting a session does not delete the associated agent or assistant.
+ *
+ * @param request DeleteAgentSessionRequest
+ * @return DeleteAgentSessionResponse
+ */
+async function deleteAgentSession(request: DeleteAgentSessionRequest): DeleteAgentSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteAgentSessionWithOptions(request, runtime);
+}
+
 model DeleteSkillRequest {
-  name?: string(name='Name', description='The name of the Skill to delete.
+  name?: string(name='Name', description='The name of the skill to delete.
 
 This parameter is required.', example='code-review'),
 }
 
 model DeleteSkillResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  success?: boolean(name='Success', description='Returns `true` when both the logical deletion of the Skill and the optional logical archiving of the Artifact are complete.', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. Returns `true` when the logical deletion of the skill and the optional logical archiving of artifacts are complete.', example='true'),
 }
 
 model DeleteSkillResponse = {
@@ -409,14 +660,14 @@ model DeleteSkillResponse = {
 }
 
 /**
- * @summary Soft-deletes a Skill that the current caller has permission to modify.
+ * @summary Soft-deletes a skill that the current caller has permission to modify.
  *
  * @description - Deletion permissions:
- *   - You can only delete custom Skills that the current caller has permission to modify.
- *   - The caller must be the Skill creator or the tenant root account that has permission to manage the tenant-level Skill. Official Skills cannot be deleted.
+ *   - You can delete only custom skills that you have permission to modify.
+ *   - You must be the creator of the skill or the root account of the tenant that has permission to manage the tenant-level skill. Official skills cannot be deleted.
  * - Deletion results:
- *   - Deletion uses soft delete. After successful deletion, `GetSkill` and `ListSkills` no longer return the Skill, and you can create a new Skill with the same name.
- *   - Recovery is not supported. You cannot delete a Skill that has already been deleted or does not exist.
+ *   - This operation performs a soft delete. After the skill is deleted, the `GetSkill` and `ListSkills` operations no longer return the skill, and you can create a new skill with the same name.
+ *   - Recovery is not supported. You cannot delete a skill multiple times or delete a non-existent skill.
  *
  * @param request DeleteSkillRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -446,14 +697,14 @@ async function deleteSkillWithOptions(request: DeleteSkillRequest, runtime: Util
 }
 
 /**
- * @summary Soft-deletes a Skill that the current caller has permission to modify.
+ * @summary Soft-deletes a skill that the current caller has permission to modify.
  *
  * @description - Deletion permissions:
- *   - You can only delete custom Skills that the current caller has permission to modify.
- *   - The caller must be the Skill creator or the tenant root account that has permission to manage the tenant-level Skill. Official Skills cannot be deleted.
+ *   - You can delete only custom skills that you have permission to modify.
+ *   - You must be the creator of the skill or the root account of the tenant that has permission to manage the tenant-level skill. Official skills cannot be deleted.
  * - Deletion results:
- *   - Deletion uses soft delete. After successful deletion, `GetSkill` and `ListSkills` no longer return the Skill, and you can create a new Skill with the same name.
- *   - Recovery is not supported. You cannot delete a Skill that has already been deleted or does not exist.
+ *   - This operation performs a soft delete. After the skill is deleted, the `GetSkill` and `ListSkills` operations no longer return the skill, and you can create a new skill with the same name.
+ *   - Recovery is not supported. You cannot delete a skill multiple times or delete a non-existent skill.
  *
  * @param request DeleteSkillRequest
  * @return DeleteSkillResponse
@@ -470,24 +721,24 @@ This parameter is required.', example='code-review-agent'),
 }
 
 model GetAgentResponseBody = {
-  agentId?: string(name='AgentId', description='Agent ID。', example='agent_00000000000000000000000000000001'),
+  agentId?: string(name='AgentId', description='The agent ID.', example='agent_00000000000000000000000000000001'),
   agentVersion?: long(name='AgentVersion', description='The current configuration revision number.', example='2'),
-  canDelete?: boolean(name='CanDelete', description='Indicates whether the current identity can delete the agent.', example='true'),
-  canModify?: boolean(name='CanModify', description='Indicates whether the current identity can modify the agent.', example='true'),
+  canDelete?: boolean(name='CanDelete', description='Specifies whether the current identity can delete the agent.', example='true'),
+  canModify?: boolean(name='CanModify', description='Specifies whether the current identity can modify the agent.', example='true'),
   createdAt?: long(name='CreatedAt', description='The creation time. The value is a UNIX timestamp in milliseconds.', example='1788332400000'),
   description?: string(name='Description', description='The description of the agent. This field may not be returned if it is not configured.', example='Analyzes code changes and generates CR review comments'),
-  displayName?: string(name='DisplayName', description='The display name of the agent. This field may not be returned if it is not configured.', example='CR Code Review Agent'),
+  displayName?: string(name='DisplayName', description='The display name of the agent. This field may not be returned if it is not configured.', example='CR code review agent'),
   knowledgeBases?: any(name='KnowledgeBases', description='The list of knowledge base references. The list contains at most one element.', example='[{"name":"code-review-guidelines"}]'),
-  metadata?: any(name='Metadata', description='The display metadata of the agent. For specific fields, see "Supplementary description of response elements".', example='{"iconUrl":"https://example.com/icons/code-review-agent.png"}'),
-  model?: any(name='Model', description='The saved model configuration. This field is returned only for official agents. The value supports an object array and is compatible with legacy single objects and strings. An empty array returns [ \\\\]. Object arrays preserve the original order, duplicate names, and object fields.', example='[{"name":"base","default":true},{"name":"base"},{"name":"base","settings":{"thinking":false,"topK":5}}]'),
+  metadata?: any(name='Metadata', description='The display metadata of the agent. For specific fields, see the supplementary description of response parameters.', example='{"iconUrl":"https://example.com/icons/code-review-agent.png"}'),
+  model?: any(name='Model', description='The saved model configuration. This information is returned only for official agents. Object arrays are supported, and historical single objects and strings are compatible. An empty array returns [ \\\\]. Object arrays retain the original order, duplicate names, and object fields.', example='[{"name":"base","default":true},{"name":"base"},{"name":"base","settings":{"thinking":false,"topK":5}}]'),
   name?: string(name='Name', description='The name of the agent.', example='code-review-agent'),
-  official?: boolean(name='Official', description='Indicates whether the agent is an official agent provided by the platform.', example='false'),
-  requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  skills?: any(name='Skills', description='The list of skill references. For specific fields, see "Supplementary description of response elements".', example='[{"name":"code-review"}]'),
+  official?: boolean(name='Official', description='Specifies whether the agent is an official agent provided by the platform.', example='false'),
+  requestId?: string(name='RequestId', description='The request ID. It is used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  skills?: any(name='Skills', description='The list of skill references. For specific fields, see the supplementary description of response parameters.', example='[{"name":"code-review"}]'),
   status?: string(name='Status', description='The status of the agent. The default status of a newly created agent is `draft`.', example='draft'),
-  systemPrompt?: string(name='SystemPrompt', description='The system prompt. This field may not be returned if it is not configured.', example='Check the correctness, security, and maintainability of code changes in the CR, and provide review comments by severity'),
-  tools?: any(name='Tools', description='The list of MCP Server and Connector name references. For element fields, see the following section.', example='[{"mcpServerName":"code-repository-mcp"},{"connectorName":"code-review-data"}]'),
-  updatedAt?: long(name='UpdatedAt', description='The most recent update time. The value is a UNIX timestamp in milliseconds.', example='1788332700000'),
+  systemPrompt?: string(name='SystemPrompt', description='The system prompt. This field may not be returned if it is not configured.', example='Please check the correctness, security, and maintainability of the code changes in the CR, and provide review comments based on severity'),
+  tools?: any(name='Tools', description='The list of MCP server and connector name references. For element fields, see the following sections.', example='[{"mcpServerName":"code-repository-mcp"},{"connectorName":"code-review-data"}]'),
+  updatedAt?: long(name='UpdatedAt', description='The last update time. The value is a UNIX timestamp in milliseconds.', example='1788332700000'),
   visibility?: string(name='Visibility', description='The visibility scope of the agent. Valid values: `user` and `tenant`.', example='user'),
 }
 
@@ -498,9 +749,9 @@ model GetAgentResponse = {
 }
 
 /**
- * @summary Queries an agent visible to the current identity by name.
+ * @summary Queries agents visible to the current identity by name.
  *
- * @description - You can retrieve agents that you created, agents visible within the current tenant, and official agents provided by the platform.
+ * @description - You can retrieve agents created by yourself, agents visible within the current tenant, and official agents provided by the platform.
  *
  * @param request GetAgentRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -530,9 +781,9 @@ async function getAgentWithOptions(request: GetAgentRequest, runtime: Util.Runti
 }
 
 /**
- * @summary Queries an agent visible to the current identity by name.
+ * @summary Queries agents visible to the current identity by name.
  *
- * @description - You can retrieve agents that you created, agents visible within the current tenant, and official agents provided by the platform.
+ * @description - You can retrieve agents created by yourself, agents visible within the current tenant, and official agents provided by the platform.
  *
  * @param request GetAgentRequest
  * @return GetAgentResponse
@@ -542,30 +793,202 @@ async function getAgent(request: GetAgentRequest): GetAgentResponse {
   return getAgentWithOptions(request, runtime);
 }
 
+model GetAgentSessionRequest {
+  id?: string(name='Id', description='The correlation identifier for this call, which is echoed in the response. It does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set this parameter to `2.0`.', example='2.0'),
+  params?: any(name='Params', description='The business parameter object. For nested fields, refer to the supplementary description of request parameters.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef"}'),
+}
+
+model GetAgentSessionShrinkRequest {
+  id?: string(name='Id', description='The correlation identifier for this call, which is echoed in the response. It does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set this parameter to `2.0`.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The business parameter object. For nested fields, refer to the supplementary description of request parameters.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef"}'),
+}
+
+model GetAgentSessionResponseBody = {
+  jsonRpcResponse?: any(name='JsonRpcResponse', description='The response object. The business result is located in `result`.', example='{"jsonrpc":"2.0","id":"request-001","result":{"sessionId":"0123456789abcdef0123456789abcdef","title":"Code review","displayName":"Code review","agentName":"review-agent-demo","createdAtMs":1793232000000,"lastMessageAtMs":1793232060000}}'),
+  requestId?: string(name='RequestId', description='The server-side request ID, which is used to troubleshoot this call.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+}
+
+model GetAgentSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAgentSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries session details such as the title, associated agent, and core timestamps based on the session ID.
+ *
+ * @description For `Params.sessionId`, use the session ID returned by `CreateAgentSession` or `ListAgentSessions`. The business result is located in `JsonRpcResponse.result`, which is of type `any`. The fields within the object retain their actual casing.
+ * This operation provides a session summary and does not return the complete message history, pending interactions, or the final state of real-time turns. For history and disconnection recovery, use `LoadAgentSession`. For approvals and Q&A, read from the streaming notifications of `PromptAgentSession` or `LoadAgentSession`.
+ *
+ * @param tmpReq GetAgentSessionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAgentSessionResponse
+ */
+async function getAgentSessionWithOptions(tmpReq: GetAgentSessionRequest, runtime: Util.RuntimeOptions): GetAgentSessionResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentSessionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    query['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    query['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentSession',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries session details such as the title, associated agent, and core timestamps based on the session ID.
+ *
+ * @description For `Params.sessionId`, use the session ID returned by `CreateAgentSession` or `ListAgentSessions`. The business result is located in `JsonRpcResponse.result`, which is of type `any`. The fields within the object retain their actual casing.
+ * This operation provides a session summary and does not return the complete message history, pending interactions, or the final state of real-time turns. For history and disconnection recovery, use `LoadAgentSession`. For approvals and Q&A, read from the streaming notifications of `PromptAgentSession` or `LoadAgentSession`.
+ *
+ * @param request GetAgentSessionRequest
+ * @return GetAgentSessionResponse
+ */
+async function getAgentSession(request: GetAgentSessionRequest): GetAgentSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentSessionWithOptions(request, runtime);
+}
+
+model GetAgentSessionModelRequest {
+  id?: string(name='Id', description='The client request identifier, which is echoed in the response. It is used to associate this call and does not have idempotent semantics.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set the value to `2.0`.', example='2.0'),
+  params?: any(name='Params', description='The defined business parameter structure. For core nested fields, see the supplementary description.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef"}'),
+}
+
+model GetAgentSessionModelShrinkRequest {
+  id?: string(name='Id', description='The client request identifier, which is echoed in the response. It is used to associate this call and does not have idempotent semantics.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set the value to `2.0`.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The defined business parameter structure. For core nested fields, see the supplementary description.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef"}'),
+}
+
+model GetAgentSessionModelResponseBody = {
+  jsonRpcResponse?: any(name='JsonRpcResponse', description='The defined JSON-RPC response structure. For core nested fields, see the supplementary description.', example='{"jsonrpc":"2.0","id":"request-001","result":{"modelId":"text-model-example","thinkingLevel":"off","thinkingLevels":["off","low","medium","high"]}}'),
+  requestId?: string(name='RequestId', description='The ID of the request, which is used for troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+}
+
+model GetAgentSessionModelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetAgentSessionModelResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the model and thinking level configurations currently used by the session.
+ *
+ * @description - Use the `sessionId` returned by CreateAgentSession to query the configurations. This operation does not send messages or replay session history.
+ * - Read the current model from `JsonRpcResponse.result.modelId`. To modify it, call SetAgentSessionModel.
+ * - The thinking level is an optional advanced configuration. The supported levels and current values are subject to the actual response of this operation, which may vary across different agents, models, and sessions.
+ *
+ * @param tmpReq GetAgentSessionModelRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetAgentSessionModelResponse
+ */
+async function getAgentSessionModelWithOptions(tmpReq: GetAgentSessionModelRequest, runtime: Util.RuntimeOptions): GetAgentSessionModelResponse {
+  Util.validateModel(tmpReq);
+  var request = new GetAgentSessionModelShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var query = {};
+  if (!Util.isUnset(request.id)) {
+    query['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    query['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    query['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'GetAgentSessionModel',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the model and thinking level configurations currently used by the session.
+ *
+ * @description - Use the `sessionId` returned by CreateAgentSession to query the configurations. This operation does not send messages or replay session history.
+ * - Read the current model from `JsonRpcResponse.result.modelId`. To modify it, call SetAgentSessionModel.
+ * - The thinking level is an optional advanced configuration. The supported levels and current values are subject to the actual response of this operation, which may vary across different agents, models, and sessions.
+ *
+ * @param request GetAgentSessionModelRequest
+ * @return GetAgentSessionModelResponse
+ */
+async function getAgentSessionModel(request: GetAgentSessionModelRequest): GetAgentSessionModelResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getAgentSessionModelWithOptions(request, runtime);
+}
+
 model GetSkillRequest {
-  name?: string(name='Name', description='The Skill name.
+  name?: string(name='Name', description='The name of the skill.
 
 This parameter is required.', example='code-review'),
   network?: string(name='Network', description='The network type of the download URL. Valid values: public and internal. If omitted, no download URL is generated.', example='public'),
-  skillVersion?: long(name='SkillVersion', description='The release history version number to query. If omitted, the current Skill main record is returned.', example='2'),
+  skillVersion?: long(name='SkillVersion', description='Specifies the published historical version number to query. If omitted, the current primary record of the skill is returned.', example='2'),
 }
 
 model GetSkillResponseBody = {
-  canDelete?: boolean(name='CanDelete', description='Indicates whether the current caller can delete the Skill.', example='true'),
-  canModify?: boolean(name='CanModify', description='Indicates whether the current caller can modify the Skill.', example='true'),
-  createdAt?: long(name='CreatedAt', description='The creation time of the Skill, in Unix millisecond timestamp.', example='1760000000000'),
-  description?: string(name='Description', description='The description in the current Skill main record.', example='A Skill for performing code review and risk alerts'),
-  downloadUrl?: string(name='DownloadUrl', description='The bundle download URL. Returned when a network type is specified, an accessible Artifact exists, and pre-signing succeeds.', example='https://example.com/artifacts/code-review-v2.zip?signature=example'),
-  downloadUrlNetwork?: string(name='DownloadUrlNetwork', description='The network type used to generate the download URL.', example='public'),
-  iconUrl?: string(name='IconUrl', description='The Skill icon URL, sourced from the iconUrl in the metadata. This field may be empty if no icon is configured.', example='https://example.com/icons/code-review.png'),
-  metadata?: any(name='Metadata', description='The Skill metadata, mapped to the metadata field in the backend response.', example='{"skillMd":"# Code Review\\\\nCheck code quality.","artifactId":"artifact_example003"}'),
-  name?: string(name='Name', description='The Skill name.', example='code-review'),
-  official?: boolean(name='Official', description='Indicates whether the Skill is an official Skill.', example='false'),
-  requestId?: string(name='RequestId', description='The request ID, used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  skillId?: string(name='SkillId', description='Skill ID。', example='skill_example123'),
-  status?: string(name='Status', description='The current Skill status. Common values are DRAFT and PUBLISHED.', example='PUBLISHED'),
-  updatedAt?: long(name='UpdatedAt', description='The update time of the Skill, in Unix millisecond timestamp.', example='1760000300000'),
-  visibility?: string(name='Visibility', description='The visibility of the current Skill. Common values are user and tenant.', example='user'),
+  canDelete?: boolean(name='CanDelete', description='Indicates whether the current caller can delete the skill.', example='true'),
+  canModify?: boolean(name='CanModify', description='Indicates whether the current caller can modify the skill.', example='true'),
+  createdAt?: long(name='CreatedAt', description='The creation time of the skill. The value is a UNIX timestamp in milliseconds.', example='1760000000000'),
+  description?: string(name='Description', description='The description in the current primary record of the skill.', example='A skill for performing code review and risk alerts'),
+  downloadUrl?: string(name='DownloadUrl', description='The download URL of the bundle. This field is returned when the network is specified, an accessible artifact exists, and presigning is successful.', example='https://example.com/artifacts/code-review-v2.zip?signature=example'),
+  downloadUrlNetwork?: string(name='DownloadUrlNetwork', description='The network type actually used to generate the download URL.', example='public'),
+  iconUrl?: string(name='IconUrl', description='The URL of the skill icon, which is derived from the iconUrl in the metadata. This field may be empty if no icon is configured.', example='https://example.com/icons/code-review.png'),
+  metadata?: any(name='Metadata', description='The metadata of the skill, which is mapped to the metadata field in the backend response.', example='{"skillMd":"# Code Review\\\\nCheck code quality.","artifactId":"artifact_example003"}'),
+  name?: string(name='Name', description='The name of the skill.', example='code-review'),
+  official?: boolean(name='Official', description='Indicates whether the skill is an official skill.', example='false'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  skillId?: string(name='SkillId', description='The skill ID.', example='skill_example123'),
+  status?: string(name='Status', description='The current status of the skill. Common values are DRAFT and PUBLISHED.', example='PUBLISHED'),
+  updatedAt?: long(name='UpdatedAt', description='The update time of the skill. The value is a UNIX timestamp in milliseconds.', example='1760000300000'),
+  visibility?: string(name='Visibility', description='The visibility of the current skill. Common values are user and tenant.', example='user'),
 }
 
 model GetSkillResponse = {
@@ -575,17 +998,17 @@ model GetSkillResponse = {
 }
 
 /**
- * @summary Queries a Skill by name that is visible to the current caller.
+ * @summary Queries the skills visible to the current caller by name.
  *
  * @description - Query target:
  *   - Queries by `Name`. Querying by `SkillId` is not supported.
- *   - Returns the Skill with the matching name that is visible to the current caller under the current tenant first. If no visible record exists, queries the official Skill with the same name.
- *   - If `SkillVersion` is omitted, the current Skill is returned. This parameter is omitted by default.
+ *   - Prioritizes returning skills with the same name that are visible to the caller under the current tenant. If no visible records are found, it queries official skills with the same name.
+ *   - If `SkillVersion` is omitted, the current skill is returned. This parameter is omitted by default.
  * - Download URL:
  *   - `Network` supports `public` and `internal`. If omitted, no download URL is generated.
- *   - If the Skill has an accessible Artifact, a temporary `DownloadUrl` and the corresponding `DownloadUrlNetwork` are returned.
- *   - If the Artifact does not exist, is inaccessible, or the URL generation fails, the Skill query still succeeds, but download URL-related fields may not be returned.
- *   - The original `bundleUrl` used during creation is not stored and is not returned by this operation.
+ *   - If the skill has an accessible artifact, a temporary `DownloadUrl` and the corresponding `DownloadUrlNetwork` are returned.
+ *   - If the artifact does not exist, access is denied, or URL generation fails, the skill query still succeeds, but the download URL-related fields may not be returned.
+ *   - The original `bundleUrl` used during creation is not saved and will not be echoed back through this API.
  *
  * @param request GetSkillRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -621,17 +1044,17 @@ async function getSkillWithOptions(request: GetSkillRequest, runtime: Util.Runti
 }
 
 /**
- * @summary Queries a Skill by name that is visible to the current caller.
+ * @summary Queries the skills visible to the current caller by name.
  *
  * @description - Query target:
  *   - Queries by `Name`. Querying by `SkillId` is not supported.
- *   - Returns the Skill with the matching name that is visible to the current caller under the current tenant first. If no visible record exists, queries the official Skill with the same name.
- *   - If `SkillVersion` is omitted, the current Skill is returned. This parameter is omitted by default.
+ *   - Prioritizes returning skills with the same name that are visible to the caller under the current tenant. If no visible records are found, it queries official skills with the same name.
+ *   - If `SkillVersion` is omitted, the current skill is returned. This parameter is omitted by default.
  * - Download URL:
  *   - `Network` supports `public` and `internal`. If omitted, no download URL is generated.
- *   - If the Skill has an accessible Artifact, a temporary `DownloadUrl` and the corresponding `DownloadUrlNetwork` are returned.
- *   - If the Artifact does not exist, is inaccessible, or the URL generation fails, the Skill query still succeeds, but download URL-related fields may not be returned.
- *   - The original `bundleUrl` used during creation is not stored and is not returned by this operation.
+ *   - If the skill has an accessible artifact, a temporary `DownloadUrl` and the corresponding `DownloadUrlNetwork` are returned.
+ *   - If the artifact does not exist, access is denied, or URL generation fails, the skill query still succeeds, but the download URL-related fields may not be returned.
+ *   - The original `bundleUrl` used during creation is not saved and will not be echoed back through this API.
  *
  * @param request GetSkillRequest
  * @return GetSkillResponse
@@ -642,22 +1065,20 @@ async function getSkill(request: GetSkillRequest): GetSkillResponse {
 }
 
 model GetTransitMetaRequest {
-  expireMs?: long(name='ExpireMs', description='The validity period of the temporary download URL, in milliseconds. The value must be an integer greater than or equal to 1000 and is rounded down to the nearest whole second. If `ExpireMs` is not specified, the default validity period is `900000` milliseconds (15 minutes). A download URL is generated only when `Network` is specified.', example='900000'),
-  filePath?: string(name='FilePath', description='The opaque object path returned by `CreateTransitUploadPolicy`. Specify at least one of this parameter and `TransitId`.', example='skill-bundle/tenant-demo/user-demo/20260904120000_code-review.zip'),
-  network?: string(name='Network', description='The network type for the download URL. Valid values: `public` and `internal`. If this parameter is not specified, no download URL is generated.', example='public'),
-  transitId?: string(name='TransitId', description='The Transit ID. Specify at least one of this parameter and `FilePath`. If both are specified, this parameter takes precedence.', example='transit_0123456789abcdef0123456789abcdef'),
+  expireMs?: long(name='ExpireMs', description='The validity period of the temporary download URL generated for the current request, in milliseconds. The value must be an integer no less than 1000 and is rounded down to the nearest second. If ExpireMs is omitted, the default validity period is 900000 milliseconds, which indicates 15 minutes. A download URL is generated only when Network is specified.', example='900000'),
+  filePath?: string(name='FilePath', description='The opaque object path returned by CreateTransitUploadPolicy. Specify at least one of FilePath and TransitId.', example='skill-bundle/tenant-demo/user-demo/20260904120000_code-review.zip'),
+  network?: string(name='Network', description='The network type used for the download URL. Valid values: public and internal. If this parameter is omitted, no download URL is generated.', example='public'),
+  transitId?: string(name='TransitId', description='The transit ID. Specify at least one of TransitId and FilePath. If both are provided, TransitId takes precedence.', example='transit_0123456789abcdef0123456789abcdef'),
 }
 
 model GetTransitMetaResponseBody = {
-  downloadUrl?: string(name='DownloadUrl', description='The temporary download URL. If `Network` is not specified, `null` is returned. If the file is not yet available, the URL may not be accessible. Do not write this URL to logs, persist it for long-term use, or share it with unauthorized users.', example='https://download.example.invalid/code-review.zip?signature=<REDACTED>'),
-  expireAt?: long(name='ExpireAt', description='The expiration time of the Transit record, expressed as a UTC UNIX timestamp in milliseconds (the number of milliseconds elapsed since 1970-01-01 00:00:00 UTC). You can compare this value directly with the current UNIX timestamp in milliseconds without adding or subtracting 8 hours. Do not use the record after this time.', example='1787734800000'),
-  filePath?: string(name='FilePath', description='The opaque object path of the file. Do not parse or manually construct this value.', example='skill-bundle/tenant-demo/user-demo/20260904120000_code-review.zip'),
+  downloadUrl?: string(name='DownloadUrl', description='The temporary download URL. If Network is not specified, null is returned. If the file is not yet available, the URL may be unavailable. Do not write this URL to logs, store it for a long time, or forward it to unrelated users.', example='https://download.example.invalid/code-review.zip?signature=<REDACTED>'),
+  expireAt?: long(name='ExpireAt', description='The expiration time of the transit record. The value is a UTC UNIX timestamp in milliseconds, which indicates the number of milliseconds that have elapsed since 00:00:00 UTC on January 1, 1970. You can directly compare it with the current UNIX timestamp in milliseconds without adding or subtracting 8 hours. Do not continue to use the record after this time.', example='1787734800000'),
+  filePath?: string(name='FilePath', description='The opaque object path corresponding to the file. Callers must not parse or construct this value.', example='skill-bundle/tenant-demo/user-demo/20260904120000_code-review.zip'),
   requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  size?: long(name='Size', description='The file size in bytes. `null` may be returned if no available file has been detected.', example='4096'),
-  status?: string(name='Status', description='The Transit file status. Valid values:
-- PENDING: The file is not yet available. You can query again later.
-- SUCCESS: The file is available.', example='SUCCESS'),
-  transitId?: string(name='TransitId', description='Transit ID。', example='transit_0123456789abcdef0123456789abcdef'),
+  size?: long(name='Size', description='The file size in bytes. If no available file is detected, null may be returned.', example='4096'),
+  status?: string(name='Status', description='The status of the transit file. A value of PENDING indicates that the file is not yet available and the caller can query again later. A value of SUCCESS indicates that the file is available.', example='SUCCESS'),
+  transitId?: string(name='TransitId', description='The transit ID.', example='transit_0123456789abcdef0123456789abcdef'),
 }
 
 model GetTransitMetaResponse = {
@@ -667,14 +1088,14 @@ model GetTransitMetaResponse = {
 }
 
 /**
- * @summary Queries the metadata of a Transit file, including the upload status, file size, and expiration time, and optionally generates a temporary download URL.
+ * @summary Queries the metadata of a transit file, such as the upload status, file size, and expiration time, and retrieves a temporary download URL on demand.
  *
- * @description - Specify at least one of `TransitId` and `FilePath`. If both are specified, `TransitId` takes precedence.
- * - Use the `TransitId` returned by `CreateTransitUploadPolicy` to query the file. `TransitId` is a temporary capability identifier used during the file upload process. Do not share it with unauthorized users.
- * - `FilePath` is an opaque object path returned by `CreateTransitUploadPolicy`. Use it as-is. Do not parse, modify, or construct it manually.
- * - When you query by `FilePath`, an error is returned if the record does not exist or is not accessible to the caller.
- * - `ExpireMs` specifies the validity period of the download URL in milliseconds. Default value: `900000` (15 minutes). The validity period is rounded down to the nearest whole second. For example, 1500 milliseconds is rounded down to 1 second.
- * - `ExpireAt` is the expiration time of the Transit record, not the expiration time of the download URL. Querying, generating a download URL, and confirming the upload do not extend the record validity period.
+ * @description - Specify at least one of TransitId and FilePath. If both are provided, TransitId takes precedence.
+ * - Use the TransitId returned by CreateTransitUploadPolicy. TransitId is a temporary capability identifier in the file upload process. Do not forward it to unrelated users.
+ * - FilePath is the opaque object path returned by CreateTransitUploadPolicy. Callers must use it as is. Do not parse, modify, or concatenate it.
+ * - When you query by FilePath, an error is returned if the record does not exist or is inaccessible to the current caller.
+ * - ExpireMs specifies the validity period of the download URL in milliseconds. The default value is 900000, which indicates 15 minutes. The validity period is rounded down to the nearest second. For example, 1500 milliseconds takes effect as 1 second.
+ * - ExpireAt is the expiration time of the transit record, not the expiration time of the download URL. Querying, generating a download URL, and confirming the upload do not extend the validity period of the record.
  *
  * @param request GetTransitMetaRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -713,14 +1134,14 @@ async function getTransitMetaWithOptions(request: GetTransitMetaRequest, runtime
 }
 
 /**
- * @summary Queries the metadata of a Transit file, including the upload status, file size, and expiration time, and optionally generates a temporary download URL.
+ * @summary Queries the metadata of a transit file, such as the upload status, file size, and expiration time, and retrieves a temporary download URL on demand.
  *
- * @description - Specify at least one of `TransitId` and `FilePath`. If both are specified, `TransitId` takes precedence.
- * - Use the `TransitId` returned by `CreateTransitUploadPolicy` to query the file. `TransitId` is a temporary capability identifier used during the file upload process. Do not share it with unauthorized users.
- * - `FilePath` is an opaque object path returned by `CreateTransitUploadPolicy`. Use it as-is. Do not parse, modify, or construct it manually.
- * - When you query by `FilePath`, an error is returned if the record does not exist or is not accessible to the caller.
- * - `ExpireMs` specifies the validity period of the download URL in milliseconds. Default value: `900000` (15 minutes). The validity period is rounded down to the nearest whole second. For example, 1500 milliseconds is rounded down to 1 second.
- * - `ExpireAt` is the expiration time of the Transit record, not the expiration time of the download URL. Querying, generating a download URL, and confirming the upload do not extend the record validity period.
+ * @description - Specify at least one of TransitId and FilePath. If both are provided, TransitId takes precedence.
+ * - Use the TransitId returned by CreateTransitUploadPolicy. TransitId is a temporary capability identifier in the file upload process. Do not forward it to unrelated users.
+ * - FilePath is the opaque object path returned by CreateTransitUploadPolicy. Callers must use it as is. Do not parse, modify, or concatenate it.
+ * - When you query by FilePath, an error is returned if the record does not exist or is inaccessible to the current caller.
+ * - ExpireMs specifies the validity period of the download URL in milliseconds. The default value is 900000, which indicates 15 minutes. The validity period is rounded down to the nearest second. For example, 1500 milliseconds takes effect as 1 second.
+ * - ExpireAt is the expiration time of the transit record, not the expiration time of the download URL. Querying, generating a download URL, and confirming the upload do not extend the validity period of the record.
  *
  * @param request GetTransitMetaRequest
  * @return GetTransitMetaResponse
@@ -730,25 +1151,191 @@ async function getTransitMeta(request: GetTransitMetaRequest): GetTransitMetaRes
   return getTransitMetaWithOptions(request, runtime);
 }
 
+model GetWorkflowGlobalEnvRequest {
+}
+
+model GetWorkflowGlobalEnvResponseBody = {
+  content?: string(name='Content', description='The configuration content.
+
+This parameter is required.', example='MODE=demo'),
+  exists?: boolean(name='Exists', description='Indicates whether the configuration is saved.
+
+This parameter is required.'),
+  requestId?: string(name='RequestId', description='The request ID.
+
+This parameter is required.', example='01A0677A-49CB-1605-AC3A-26761045B614'),
+  size?: long(name='Size', description='The number of UTF-8 bytes in the configuration content.
+
+This parameter is required.', example='9'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.
+
+This parameter is required.'),
+  updatedAt?: long(name='UpdatedAt', description='The timestamp of the last modification in milliseconds.', example='1700000000000'),
+}
+
+model GetWorkflowGlobalEnvResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetWorkflowGlobalEnvResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the global workflow configurations.
+ *
+ * @description Queries the global workflow configurations for a tenant and a region. The content is sensitive information. In addition to the permissions required for this operation, the ada:DownloadFile permission is also required.
+ *
+ * @param request GetWorkflowGlobalEnvRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetWorkflowGlobalEnvResponse
+ */
+async function getWorkflowGlobalEnvWithOptions(request: GetWorkflowGlobalEnvRequest, runtime: Util.RuntimeOptions): GetWorkflowGlobalEnvResponse {
+  Util.validateModel(request);
+  var req = new OpenApi.OpenApiRequest{};
+  var params = new OpenApi.Params{
+    action = 'GetWorkflowGlobalEnv',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the global workflow configurations.
+ *
+ * @description Queries the global workflow configurations for a tenant and a region. The content is sensitive information. In addition to the permissions required for this operation, the ada:DownloadFile permission is also required.
+ *
+ * @param request GetWorkflowGlobalEnvRequest
+ * @return GetWorkflowGlobalEnvResponse
+ */
+async function getWorkflowGlobalEnv(request: GetWorkflowGlobalEnvRequest): GetWorkflowGlobalEnvResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return getWorkflowGlobalEnvWithOptions(request, runtime);
+}
+
+model ListAgentSessionsRequest {
+  id?: string(name='Id', description='The correlation identifier for this call. This identifier is echoed in the response and does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set this parameter to 2.0.', example='2.0'),
+  params?: {
+    agentName?: string(name='AgentName', description='Optional. Filters sessions by agent name. The maximum length is 64 characters.', example='review-agent-demo'),
+    maxResults?: int32(name='MaxResults', description='The maximum number of entries per page. Valid values: 1 to 100. Default value: 50. Keep the page size and filter conditions consistent for subsequent pages.', example='20'),
+    nextToken?: string(name='NextToken', description='The NextToken returned from the previous page. Do not pass this parameter on the first page. In the first phase, the default uses a native opaque cursor. Keep the same filter conditions and pass the token back as is.', example='next-token-example'),
+  }(name='Params', description='The business parameter object. The public fields are only AgentName, MaxResults, and NextToken.
+
+This parameter is required.', example='{"AgentName":"review-agent-demo","MaxResults":20}'),
+}
+
+model ListAgentSessionsShrinkRequest {
+  id?: string(name='Id', description='The correlation identifier for this call. This identifier is echoed in the response and does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC protocol version. Set this parameter to 2.0.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The business parameter object. The public fields are only AgentName, MaxResults, and NextToken.
+
+This parameter is required.', example='{"AgentName":"review-agent-demo","MaxResults":20}'),
+}
+
+model ListAgentSessionsResponseBody = {
+  jsonRpcResponse?: {
+    id?: string(name='Id', description='The Id from the request, echoed as is.', example='request-001'),
+    jsonrpc?: string(name='Jsonrpc', description='The fixed value 2.0.', example='2.0'),
+    result?: {
+      maxResults?: int32(name='MaxResults', description='The effective page size for the current page.', example='20'),
+      nextToken?: string(name='NextToken', description='The credential for querying the next page. Pass this value as is to Params.NextToken. Pagination ends when this value is not returned or is empty.', example='next-token-example'),
+      sessionList?: any(name='SessionList', description='The array of session summaries for the current page. If no matching records are found, an empty array [] is returned. The type is any. The fields of array elements retain the original backend names. For the structure, see the supplementary description of response parameters.', example='[{"sessionId":"0123456789abcdef0123456789abcdef","title":"Code review","agentName":"review-agent-demo","createdAt":1793232000000,"updatedAt":1793232060000}]'),
+    }(name='Result', description='The paginated result.', example='{"MaxResults":20,"NextToken":"next-token-example","SessionList":[{"sessionId":"0123456789abcdef0123456789abcdef"}]}'),
+  }(name='JsonRpcResponse', description='The JSON-RPC response object. The business result is located in Result.', example='{"Jsonrpc":"2.0","Id":"request-001","Result":{"MaxResults":20,"NextToken":"next-token-example","SessionList":[{"sessionId":"0123456789abcdef0123456789abcdef","title":"Code review","agentName":"review-agent-demo","createdAt":1793232000000,"updatedAt":1793232060000}]}}'),
+  requestId?: string(name='RequestId', description='The server-side request ID used to troubleshoot this call.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+}
+
+model ListAgentSessionsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListAgentSessionsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the session summary by paging for the caller to select or resume existing sessions.
+ *
+ * @description You can filter sessions by agent name. Omit Params.NextToken on the first page. When querying subsequent pages, keep the filter conditions and page size unchanged, and pass the JsonRpcResponse.Result.NextToken returned from the previous page as is to Params.NextToken. Pagination ends when the token is not returned or is empty.
+ * The list returns session summaries such as session ID, title, and time, but does not provide the final state of turn execution. After selecting a session, you can use GetAgentSession to query details or LoadAgentSession to load history.
+ * Params in the request, and JsonRpcResponse and Result in the response are explicit objects. The pagination field MaxResults is of type integer<int32>, and NextToken is of type string. SessionList retains the any type. For session summary fields, see the supplementary description.
+ *
+ * @param tmpReq ListAgentSessionsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListAgentSessionsResponse
+ */
+async function listAgentSessionsWithOptions(tmpReq: ListAgentSessionsRequest, runtime: Util.RuntimeOptions): ListAgentSessionsResponse {
+  Util.validateModel(tmpReq);
+  var request = new ListAgentSessionsShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    body['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    body['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListAgentSessions',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the session summary by paging for the caller to select or resume existing sessions.
+ *
+ * @description You can filter sessions by agent name. Omit Params.NextToken on the first page. When querying subsequent pages, keep the filter conditions and page size unchanged, and pass the JsonRpcResponse.Result.NextToken returned from the previous page as is to Params.NextToken. Pagination ends when the token is not returned or is empty.
+ * The list returns session summaries such as session ID, title, and time, but does not provide the final state of turn execution. After selecting a session, you can use GetAgentSession to query details or LoadAgentSession to load history.
+ * Params in the request, and JsonRpcResponse and Result in the response are explicit objects. The pagination field MaxResults is of type integer<int32>, and NextToken is of type string. SessionList retains the any type. For session summary fields, see the supplementary description.
+ *
+ * @param request ListAgentSessionsRequest
+ * @return ListAgentSessionsResponse
+ */
+async function listAgentSessions(request: ListAgentSessionsRequest): ListAgentSessionsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listAgentSessionsWithOptions(request, runtime);
+}
+
 model ListAgentsRequest {
   creatorId?: string(name='CreatorId', description='Filters agents by the exact creator ID.', example='example-user'),
   maxResults?: int32(name='MaxResults', description='The number of entries per page for cursor-based pagination. Valid values: 1 to 100. Default value: 20.', example='20'),
-  nextToken?: string(name='NextToken', description='The next page token returned in the previous response.', example='eyJwYWdlIjoyfQ.example'),
+  nextToken?: string(name='NextToken', description='The next token returned in the previous response.', example='eyJwYWdlIjoyfQ.example'),
   pageNumber?: long(name='PageNumber', description='The page number for page number-based pagination. Minimum value: 1. Default value: 1.', example='1'),
   pageSize?: long(name='PageSize', description='The number of entries per page for page number-based pagination. Valid values: 1 to 100. Default value: 20.', example='20'),
-  q?: string(name='Q', description='The search keyword. Matches the name, display name, or description.', example='code review'),
-  requiredRuntime?: string(name='RequiredRuntime', description='Filters agents by runtime label.', example='qwen'),
-  scope?: string(name='Scope', description='The query scope. Valid values: `SYSTEM` and `CUSTOM`.', example='CUSTOM'),
-  visibility?: string(name='Visibility', description='Filters agents by visibility scope. Valid values: `user` and `tenant`.', example='user'),
+  q?: string(name='Q', description='The search keyword used to match the name, display name, or description.', example='Code review'),
+  requiredRuntime?: string(name='RequiredRuntime', description='Filters agents by the runtime tag.', example='qwen'),
+  scope?: string(name='Scope', description='The query scope. Valid values: SYSTEM and CUSTOM.', example='CUSTOM'),
+  visibility?: string(name='Visibility', description='Filters agents by visibility scope. Valid values: user and tenant.', example='user'),
 }
 
 model ListAgentsResponseBody = {
-  agents?: [ any ](name='Agents', description='The list of agent summaries. For field details, see "Supplementary description of response parameters".'),
-  maxResults?: int32(name='MaxResults', description='The actual cursor-based pagination size used.', example='20'),
-  nextToken?: string(name='NextToken', description='The next page token. An empty string is returned if there is no next page.', example='eyJwYWdlIjoyfQ.example'),
+  agents?: [ any ](name='Agents', description='The list of agent summaries. For field details of each element, see the supplementary description of response parameters.'),
+  maxResults?: int32(name='MaxResults', description='The actual page size used for cursor-based pagination.', example='20'),
+  nextToken?: string(name='NextToken', description='The next token. An empty string is returned if there are no more pages.', example='eyJwYWdlIjoyfQ.example'),
   pageNumber?: long(name='PageNumber', description='The current page number.', example='1'),
   pageSize?: long(name='PageSize', description='The current page size for page number-based pagination.', example='20'),
-  requestId?: string(name='RequestId', description='The request ID, used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
   total?: long(name='Total', description='The total number of agents that match the filter conditions.', example='1'),
 }
 
@@ -759,11 +1346,11 @@ model ListAgentsResponse = {
 }
 
 /**
- * @summary Queries agents visible to the current identity by paging.
+ * @summary Queries the agents visible to the current identity by using paging.
  *
- * @description - By default, returns official platform agents and tenant agents visible to the current identity.
- * - Set `Scope=SYSTEM` to query only official agents, or `Scope=CUSTOM` to query only custom agents.
- * - Both cursor-based pagination and page number-based pagination are supported. When using cursor-based pagination, pass the `NextToken` value from the previous response to the next request, and keep the caller identity, filter conditions, and `MaxResults` unchanged.
+ * @description - By default, the API returns the official agents provided by the platform and the tenant agents visible to the current identity.
+ * - If Scope is set to SYSTEM, only official agents are queried. If Scope is set to CUSTOM, only custom agents are queried.
+ * - Supports both cursor-based pagination and page number-based pagination. When using cursor-based pagination, pass the NextToken value exactly as returned in the next request, and keep the calling identity, filter conditions, and MaxResults unchanged.
  *
  * @param request ListAgentsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -817,11 +1404,11 @@ async function listAgentsWithOptions(request: ListAgentsRequest, runtime: Util.R
 }
 
 /**
- * @summary Queries agents visible to the current identity by paging.
+ * @summary Queries the agents visible to the current identity by using paging.
  *
- * @description - By default, returns official platform agents and tenant agents visible to the current identity.
- * - Set `Scope=SYSTEM` to query only official agents, or `Scope=CUSTOM` to query only custom agents.
- * - Both cursor-based pagination and page number-based pagination are supported. When using cursor-based pagination, pass the `NextToken` value from the previous response to the next request, and keep the caller identity, filter conditions, and `MaxResults` unchanged.
+ * @description - By default, the API returns the official agents provided by the platform and the tenant agents visible to the current identity.
+ * - If Scope is set to SYSTEM, only official agents are queried. If Scope is set to CUSTOM, only custom agents are queried.
+ * - Supports both cursor-based pagination and page number-based pagination. When using cursor-based pagination, pass the NextToken value exactly as returned in the next request, and keep the calling identity, filter conditions, and MaxResults unchanged.
  *
  * @param request ListAgentsRequest
  * @return ListAgentsResponse
@@ -831,25 +1418,126 @@ async function listAgents(request: ListAgentsRequest): ListAgentsResponse {
   return listAgentsWithOptions(request, runtime);
 }
 
+model ListModelsRequest {
+  maxResults?: int32(name='MaxResults', description='The maximum number of models to return per page. Valid values: 1 to 100. Explicitly specify this parameter.', example='20'),
+  modelType?: string(name='ModelType', description='Set to `text` for text sessions. If omitted, all visible models are queried.', example='text'),
+  nextToken?: string(name='NextToken', description='The pagination token returned from the previous page. Omit this parameter for the first page.', example='next-token-example'),
+  pageNumber?: long(name='PageNumber', description='The legacy pagination parameter for compatibility. The page number starts from 1. Use MaxResults and NextToken instead. Do not mix the two sets of pagination parameters.', example='1'),
+  pageSize?: long(name='PageSize', description='The legacy pagination parameter for compatibility. The number of entries per page. Valid values: 1 to 100. Use MaxResults and NextToken instead. Do not mix the two sets of pagination parameters.', example='20'),
+}
+
+model ListModelsResponseBody = {
+  maxResults?: int32(name='MaxResults', description='The maximum number of results used for this pagination. If not paginated, it is the total number of results. It is not the actual number of entries returned on this page.', example='20'),
+  models?: [ 
+    {
+      capabilities?: {
+        inputModalities?: [ string ](name='InputModalities', description='The supported input modalities. For text sessions, select a model that includes text.', example='["text"]'),
+      }(name='Capabilities', description='The model capabilities structure.', example='{"InputModalities":["text"]}'),
+      contextWindow?: long(name='ContextWindow', description='**[Deprecated]** The legacy compatibility field. It is no longer returned. Do not use it as a dependency for integration.', example='32768', deprecated=true),
+      created?: long(name='Created', description='The time when the model was created. It is a UNIX timestamp in seconds.', example='1793491200'),
+      creditsCoefficient?: string(name='CreditsCoefficient', description='The credit coefficient of the model, returned as a decimal string. Not returned if not configured.', example='2.5'),
+      displayName?: string(name='DisplayName', description='The display name of the model. Do not pass it as the model identifier.', example='Sample text model'),
+      id?: string(name='Id', description='The model identifier. Used as Params.modelId for SetAgentSessionModel. Use the actual returned value.', example='text-model-example'),
+      maxContextWindow?: long(name='MaxContextWindow', description='**[Deprecated]** The legacy compatibility field. It is no longer returned. Do not use it as a dependency for integration.', example='131072', deprecated=true),
+      object?: string(name='Object', description='The object type. Fixed to model.', example='model'),
+      ownedBy?: string(name='OwnedBy', description='The identifier of the model provider.', example='provider-example'),
+      supportsThinking?: int32(name='SupportsThinking', description='**[Deprecated]** The legacy compatibility field. It is no longer returned. Use ThinkingLevels instead.', example='1', deprecated=true),
+      thinkingLevel?: string(name='ThinkingLevel', description='The default thinking level in the model catalog. It does not represent the current value of the session. Query the current value by using GetAgentSessionModel.', example='off'),
+      thinkingLevels?: [ string ](name='ThinkingLevels', description='The thinking levels supported by the model. An empty array does not mean all levels are supported. The target session still needs to be verified.', example='["off","low","medium","high"]'),
+      thinkingMode?: int32(name='ThinkingMode', description='**[Deprecated]** The legacy compatibility field. It is no longer returned. Use ThinkingLevel instead.', example='0', deprecated=true),
+    }
+  ](name='Models', description='The array of model structures. For nested fields, refer to the supplementary description of response parameters.', example='[{"Id":"text-model-example","Object":"model","Created":1793491200,"OwnedBy":"provider-example","DisplayName":"Sample text model","Capabilities":{"InputModalities":["text"]},"CreditsCoefficient":"2.5","ThinkingLevels":["off","low","medium","high"],"ThinkingLevel":"off"}]'),
+  nextToken?: string(name='NextToken', description='The token for the next page. An empty value indicates that there is no next page.', example='next-token-example'),
+  requestId?: string(name='RequestId', description='The ID of the request. It is used for troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  total?: long(name='Total', description='The total number of models that meet the filter conditions.', example='1'),
+}
+
+model ListModelsResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListModelsResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the text models visible to the current caller for selection when setting a session model.
+ *
+ * @description - For text sessions, pass `ModelType=text` and use `MaxResults` and `NextToken` for paging. Obtain the model identifier from `Models[].Id` and pass it as `Params.modelId` to SetAgentSessionModel.
+ * - Visibility in the model catalog does not mean the target session supports the model. After setting the model, refer to the return value of SetAgentSessionModel or the query result of GetAgentSessionModel.
+ * - `ThinkingLevels` and `ThinkingLevel` are used for optional thinking level configurations and do not affect the integration flow for selecting a model only.
+ *
+ * @param request ListModelsRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListModelsResponse
+ */
+async function listModelsWithOptions(request: ListModelsRequest, runtime: Util.RuntimeOptions): ListModelsResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.modelType)) {
+    query['ModelType'] = request.modelType;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.pageNumber)) {
+    query['PageNumber'] = request.pageNumber;
+  }
+  if (!Util.isUnset(request.pageSize)) {
+    query['PageSize'] = request.pageSize;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'ListModels',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the text models visible to the current caller for selection when setting a session model.
+ *
+ * @description - For text sessions, pass `ModelType=text` and use `MaxResults` and `NextToken` for paging. Obtain the model identifier from `Models[].Id` and pass it as `Params.modelId` to SetAgentSessionModel.
+ * - Visibility in the model catalog does not mean the target session supports the model. After setting the model, refer to the return value of SetAgentSessionModel or the query result of GetAgentSessionModel.
+ * - `ThinkingLevels` and `ThinkingLevel` are used for optional thinking level configurations and do not affect the integration flow for selecting a model only.
+ *
+ * @param request ListModelsRequest
+ * @return ListModelsResponse
+ */
+async function listModels(request: ListModelsRequest): ListModelsResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return listModelsWithOptions(request, runtime);
+}
+
 model ListSkillsRequest {
-  creatorId?: string(name='CreatorId', description='Filters Skills by creator ID.', example='example-user'),
-  maxResults?: int32(name='MaxResults', description='The number of entries per page for cursor-based pagination. Valid values: 1 to 100. Default value: `20`. If explicitly specified, cursor-based pagination takes precedence.', example='20'),
-  nextToken?: string(name='NextToken', description='The token returned by the server for the next page. Do not pass this parameter for the first query. For subsequent queries, use the value returned in the previous response.', example='eyJzIjoiZDc3ZGRhYmE3MDMwYWM1NCIsInAiOjJ9.vkKVySx9G26993sTNLZqwGSmgciRsrRm2SgsjOMJoCQ'),
-  pageNumber?: long(name='PageNumber', description='The page number for compatible page-number-based pagination. Pages start from 1. Default value: `1`.', example='1'),
-  pageSize?: long(name='PageSize', description='The number of entries per page for compatible page-number-based pagination. Valid values: 1 to 100. Default value: `20`.', example='20'),
-  q?: string(name='Q', description='Performs a fuzzy match on the Skill name or description.', example='review'),
-  scope?: string(name='Scope', description='The query scope for Skills. Valid values: `SYSTEM` and `CUSTOM`. If omitted, both official and custom Skills are queried.', example='CUSTOM'),
-  visibility?: string(name='Visibility', description='Filters Skills by visibility. Common values are `user` and `tenant`.', example='user'),
+  creatorId?: string(name='CreatorId', description='Filters skills by the creator ID.', example='example-user'),
+  maxResults?: int32(name='MaxResults', description='The number of entries per page for cursor-based pagination. Valid values: 1 to 100. Default value: `20`. If this parameter is explicitly specified, cursor-based pagination takes precedence.', example='20'),
+  nextToken?: string(name='NextToken', description='The next token returned by the server. Do not specify this parameter for the first query. For subsequent queries, use the value from the previous response.', example='eyJzIjoiZDc3ZGRhYmE3MDMwYWM1NCIsInAiOjJ9.vkKVySx9G26993sTNLZqwGSmgciRsrRm2SgsjOMJoCQ'),
+  pageNumber?: long(name='PageNumber', description='The compatible page number parameter for page number-based pagination. Pages start from 1. Default value: `1`.', example='1'),
+  pageSize?: long(name='PageSize', description='The compatible number of entries per page for page number-based pagination. Valid values: 1 to 100. Default value: `20`.', example='20'),
+  q?: string(name='Q', description='Performs a fuzzy match on the skill name or description.', example='review'),
+  scope?: string(name='Scope', description='The query scope for skills. Valid values: `SYSTEM` and `CUSTOM`. If this parameter is omitted, both official and custom skills are queried.', example='CUSTOM'),
+  visibility?: string(name='Visibility', description='Filters skills by visibility. Common values are `user` and `tenant`.', example='user'),
 }
 
 model ListSkillsResponseBody = {
-  maxResults?: int32(name='MaxResults', description='The number of entries per page for the current cursor-based pagination.', example='20'),
-  nextToken?: string(name='NextToken', description='The token for the next page. An empty string is returned if there is no next page.', example='""'),
-  pageNumber?: long(name='PageNumber', description='The current page number for compatible page-number-based pagination.', example='1'),
-  pageSize?: long(name='PageSize', description='The number of entries per page for compatible page-number-based pagination.', example='20'),
+  maxResults?: int32(name='MaxResults', description='The current number of entries per page for cursor-based pagination.', example='20'),
+  nextToken?: string(name='NextToken', description='The next token. An empty string is returned if there are no more pages.', example='""'),
+  pageNumber?: long(name='PageNumber', description='The current compatible page number.', example='1'),
+  pageSize?: long(name='PageSize', description='The current compatible number of entries per page.', example='20'),
   requestId?: string(name='RequestId', description='The request ID.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  skills?: [ any ](name='Skills', description='The list of Skill summaries. The current public contract does not define a fixed structure for list items. For common fields, see "Supplementary description of response elements".', example='[{"skillId":"skill_example123","name":"code-review","official":false,"description":"A Skill for performing code reviews","iconUrl":"https://example.com/icons/code-review.png","visibility":"user","status":"PUBLISHED","publishedVersion":2,"creatorId":"example-user","createdAt":1760000000000,"canModify":true,"canDelete":true}]'),
-  total?: long(name='Total', description='The total number of Skills that match the current visibility and filter conditions.', example='1'),
+  skills?: [ any ](name='Skills', description='The list of skill summaries. The structure of list items is not fixed in the current public contract. For common fields, refer to the supplementary description of response parameters.', example='[{"skillId":"skill_example123","name":"code-review","official":false,"description":"Skill for code review","iconUrl":"https://example.com/icons/code-review.png","visibility":"user","status":"PUBLISHED","publishedVersion":2,"creatorId":"example-user","createdAt":1760000000000,"canModify":true,"canDelete":true}]'),
+  total?: long(name='Total', description='The total number of skills that meet the current visibility and filter conditions.', example='1'),
 }
 
 model ListSkillsResponse = {
@@ -859,18 +1547,18 @@ model ListSkillsResponse = {
 }
 
 /**
- * @summary Queries Skills visible to the current caller by paging.
+ * @summary Performs a paging query for skills visible to the current invoker.
  *
- * @description - Query and filtering: 
- *     - Set `Scope=SYSTEM` to query only official Skills, or `Scope=CUSTOM` to query only custom Skills. If omitted, both official and custom Skills are queried.
- *     - Custom Skills with `user` visibility are visible only to the creator. Skills with `tenant` visibility are visible to the current tenant.
- *     - Filtering by `CreatorId`, `Q`, and `Visibility` is supported. `Q` performs a fuzzy match on the Skill name or description.
+ * @description - Query and filter: 
+ *     - `Scope=SYSTEM` queries only official skills, and `Scope=CUSTOM` queries only custom skills. If omitted, both are queried.
+ *     - Custom skills with `user` visibility are visible only to the creator, while skills with `tenant` visibility are visible to the current tenant.
+ *     - Supports filtering by `CreatorId`, `Q`, and `Visibility`. `Q` performs a fuzzy match on the skill name or description.
  *     - Results are sorted by update time in descending order by default.
  * - Pagination: 
- *     - For cursor-based pagination, use `MaxResults` and `NextToken`. Do not pass `NextToken` for the first query. For subsequent pages, use the token returned in the previous response. When using `NextToken` for subsequent pages, `CreatorId`, `Q`, `Visibility`, `Scope`, and `MaxResults` must remain the same as the previous page. If you change the query conditions, start over from the first page.
- *     - For page-number-based pagination, use `PageNumber` and `PageSize`. If `MaxResults` is explicitly specified, cursor-based pagination takes precedence. If `NextToken` is specified, `PageNumber` is ignored.
- * - Response content: 
- *     - This operation returns only Skill summaries and does not generate Bundle download URLs. To obtain download URLs, call `GetSkill` and specify `Network`.
+ *     - Cursor-based pagination uses `MaxResults` and `NextToken`. Do not pass `NextToken` for the first query. For subsequent pages, use the token from the previous response. When using `NextToken` for subsequent pages, `CreatorId`, `Q`, `Visibility`, `Scope`, and `MaxResults` must remain the same as the previous page. If you modify the query conditions, you must restart the query from the first page.
+ *     - Page number-based pagination uses `PageNumber` and `PageSize`. If `MaxResults` is explicitly passed, cursor-based pagination takes precedence. If `NextToken` is passed, `PageNumber` is ignored.
+ * - Returned content: 
+ *     - This operation returns only skill summaries and does not generate bundle download URLs. To obtain a download URL, call `GetSkill` and specify `Network`.
  *
  * @param request ListSkillsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -921,18 +1609,18 @@ async function listSkillsWithOptions(request: ListSkillsRequest, runtime: Util.R
 }
 
 /**
- * @summary Queries Skills visible to the current caller by paging.
+ * @summary Performs a paging query for skills visible to the current invoker.
  *
- * @description - Query and filtering: 
- *     - Set `Scope=SYSTEM` to query only official Skills, or `Scope=CUSTOM` to query only custom Skills. If omitted, both official and custom Skills are queried.
- *     - Custom Skills with `user` visibility are visible only to the creator. Skills with `tenant` visibility are visible to the current tenant.
- *     - Filtering by `CreatorId`, `Q`, and `Visibility` is supported. `Q` performs a fuzzy match on the Skill name or description.
+ * @description - Query and filter: 
+ *     - `Scope=SYSTEM` queries only official skills, and `Scope=CUSTOM` queries only custom skills. If omitted, both are queried.
+ *     - Custom skills with `user` visibility are visible only to the creator, while skills with `tenant` visibility are visible to the current tenant.
+ *     - Supports filtering by `CreatorId`, `Q`, and `Visibility`. `Q` performs a fuzzy match on the skill name or description.
  *     - Results are sorted by update time in descending order by default.
  * - Pagination: 
- *     - For cursor-based pagination, use `MaxResults` and `NextToken`. Do not pass `NextToken` for the first query. For subsequent pages, use the token returned in the previous response. When using `NextToken` for subsequent pages, `CreatorId`, `Q`, `Visibility`, `Scope`, and `MaxResults` must remain the same as the previous page. If you change the query conditions, start over from the first page.
- *     - For page-number-based pagination, use `PageNumber` and `PageSize`. If `MaxResults` is explicitly specified, cursor-based pagination takes precedence. If `NextToken` is specified, `PageNumber` is ignored.
- * - Response content: 
- *     - This operation returns only Skill summaries and does not generate Bundle download URLs. To obtain download URLs, call `GetSkill` and specify `Network`.
+ *     - Cursor-based pagination uses `MaxResults` and `NextToken`. Do not pass `NextToken` for the first query. For subsequent pages, use the token from the previous response. When using `NextToken` for subsequent pages, `CreatorId`, `Q`, `Visibility`, `Scope`, and `MaxResults` must remain the same as the previous page. If you modify the query conditions, you must restart the query from the first page.
+ *     - Page number-based pagination uses `PageNumber` and `PageSize`. If `MaxResults` is explicitly passed, cursor-based pagination takes precedence. If `NextToken` is passed, `PageNumber` is ignored.
+ * - Returned content: 
+ *     - This operation returns only skill summaries and does not generate bundle download URLs. To obtain a download URL, call `GetSkill` and specify `Network`.
  *
  * @param request ListSkillsRequest
  * @return ListSkillsResponse
@@ -942,30 +1630,459 @@ async function listSkills(request: ListSkillsRequest): ListSkillsResponse {
   return listSkillsWithOptions(request, runtime);
 }
 
+model LoadAgentSessionRequest {
+  id?: string(name='Id', description='The client call identifier used to associate the current response. It does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set this parameter to `2.0`.', example='2.0'),
+  params?: any(name='Params', description='The business parameter structure. For core nested fields, see the supplementary description.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef"}'),
+}
+
+model LoadAgentSessionShrinkRequest {
+  id?: string(name='Id', description='The client call identifier used to associate the current response. It does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set this parameter to `2.0`.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The business parameter structure. For core nested fields, see the supplementary description.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef"}'),
+}
+
+model LoadAgentSessionResponseBody = {
+  error?: any(name='Error', description='The `Error` field in the frame. It is an in-stream error and is actually an object.', example='{"code":-32603,"errorCode":"CLI_STREAM_FAILED","message":"The response stream was interrupted."}'),
+  id?: string(name='Id', description='The `Id` field in the frame, used to associate the request. Notification frames may not contain this field.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The `Jsonrpc` field in the frame. The value is `2.0`.', example='2.0'),
+  method?: string(name='Method', description='The `Method` field in the frame, used to distinguish notification categories.', example='session/update'),
+  params?: any(name='Params', description='The `Params` field in the frame. It is the notification payload and is actually an object.', example='{"sessionId":"0123456789abcdef0123456789abcdef","update":{"sessionUpdate":"agent_message_chunk","content":{"type":"text","text":"Hello"}}}'),
+  requestId?: string(name='RequestId', description='The request diagnostic identifier. It is not guaranteed to be included in every frame. You should also retain the diagnostic information in the response headers.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  result?: any(name='Result', description='The `Result` field in the frame. It is the normal result and is actually an object.', example='{"stopReason":"end_turn"}'),
+}
+
+model LoadAgentSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: LoadAgentSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary Loads session history, receives subsequent output, or resumes Server-Sent Events (SSE) from a saved read position.
+ *
+ * @description - A standard load requires only the session ID. It returns the configuration, history, and output to be continuously received. The response is SSE, not a standard JSON message list.
+ * - When resuming from a stream interruption, pass back the actually received cursor, event epoch, and turn ID. History and incremental data may be returned simultaneously. Existing pages should be rebuilt or deduplicated based on the confirmed cursor. Do not directly append all returned data.
+ * - During the load process, you may receive pending approvals or questions again. Use the interaction notification that is still valid for this session to call ReplyAgentSession.
+ * - For an idle session, `stopReason=end_turn` may only indicate the end of the current load. It cannot be used to determine the success of a previously interrupted turn. You must associate it with the actual desired state of the target turn. If it cannot be determined, keep the result for verification.
+ *
+ * @param tmpReq LoadAgentSessionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return LoadAgentSessionResponse
+ */
+async function loadAgentSessionWithOptions(tmpReq: LoadAgentSessionRequest, runtime: Util.RuntimeOptions): LoadAgentSessionResponse {
+  Util.validateModel(tmpReq);
+  var request = new LoadAgentSessionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    body['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    body['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'LoadAgentSession',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Loads session history, receives subsequent output, or resumes Server-Sent Events (SSE) from a saved read position.
+ *
+ * @description - A standard load requires only the session ID. It returns the configuration, history, and output to be continuously received. The response is SSE, not a standard JSON message list.
+ * - When resuming from a stream interruption, pass back the actually received cursor, event epoch, and turn ID. History and incremental data may be returned simultaneously. Existing pages should be rebuilt or deduplicated based on the confirmed cursor. Do not directly append all returned data.
+ * - During the load process, you may receive pending approvals or questions again. Use the interaction notification that is still valid for this session to call ReplyAgentSession.
+ * - For an idle session, `stopReason=end_turn` may only indicate the end of the current load. It cannot be used to determine the success of a previously interrupted turn. You must associate it with the actual desired state of the target turn. If it cannot be determined, keep the result for verification.
+ *
+ * @param request LoadAgentSessionRequest
+ * @return LoadAgentSessionResponse
+ */
+async function loadAgentSession(request: LoadAgentSessionRequest): LoadAgentSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return loadAgentSessionWithOptions(request, runtime);
+}
+
+model PromptAgentSessionRequest {
+  id?: string(name='Id', description='The client call identifier used to associate the current response. This parameter does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set this parameter to 2.0.', example='2.0'),
+  params?: any(name='Params', description='The structure of the business parameters. For core nested fields, refer to the supplementary instructions.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef","prompt":[{"type":"text","text":"Explain the issue of accessing the first item when a Python list is empty, and provide modification suggestions."}]}'),
+}
+
+model PromptAgentSessionShrinkRequest {
+  id?: string(name='Id', description='The client call identifier used to associate the current response. This parameter does not provide idempotency guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set this parameter to 2.0.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The structure of the business parameters. For core nested fields, refer to the supplementary instructions.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef","prompt":[{"type":"text","text":"Explain the issue of accessing the first item when a Python list is empty, and provide modification suggestions."}]}'),
+}
+
+model PromptAgentSessionResponseBody = {
+  error?: any(name='Error', description='The Error field in the frame. This is an in-stream error, which is an object.', example='{"code":-32603,"errorCode":"CLI_STREAM_FAILED","message":"The response stream was interrupted."}'),
+  id?: string(name='Id', description='The Id field in the frame, used to associate the request. Notification frames may not contain this field.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The Jsonrpc field in the frame. The value is 2.0.', example='2.0'),
+  method?: string(name='Method', description='The Method field in the frame, used to distinguish notification categories.', example='session/update'),
+  params?: any(name='Params', description='The Params field in the frame. This is the notification payload, which is an object.', example='{"sessionId":"0123456789abcdef0123456789abcdef","update":{"sessionUpdate":"agent_message_chunk","content":{"type":"text","text":"You should first check whether the list is empty."}},"_meta":{"offset":12,"eventEpoch":"epoch-example","promptId":"prompt-example"}}'),
+  requestId?: string(name='RequestId', description='The request diagnostic identifier. This identifier is not guaranteed to be included in every frame. You should also retain the diagnostic information in the response headers.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  result?: any(name='Result', description='The Result field in the frame. This is the normal result, which is an object.', example='{"stopReason":"end_turn"}'),
+}
+
+model PromptAgentSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PromptAgentSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary Sends text to an existing session and continuously receives agent output over Server-Sent Events (SSE).
+ *
+ * @description - Pass the session ID returned by CreateAgentSession to Params.sessionId and place the user text in Params.prompt.
+ * - When an execution or pending interaction is already in progress, the default call path rejects new prompts. After receiving an approval or Q&A notification, submit your choice or answer through ReplyAgentSession before continuing to read the original stream.
+ * - A connection interruption does not cancel the execution. If the result is unknown, call LoadAgentSession to resume reading. Submitting duplicate prompts may generate new messages, and duplicate Id values are not deduplicated.
+ *
+ * @param tmpReq PromptAgentSessionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PromptAgentSessionResponse
+ */
+async function promptAgentSessionWithOptions(tmpReq: PromptAgentSessionRequest, runtime: Util.RuntimeOptions): PromptAgentSessionResponse {
+  Util.validateModel(tmpReq);
+  var request = new PromptAgentSessionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    body['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    body['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'PromptAgentSession',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Sends text to an existing session and continuously receives agent output over Server-Sent Events (SSE).
+ *
+ * @description - Pass the session ID returned by CreateAgentSession to Params.sessionId and place the user text in Params.prompt.
+ * - When an execution or pending interaction is already in progress, the default call path rejects new prompts. After receiving an approval or Q&A notification, submit your choice or answer through ReplyAgentSession before continuing to read the original stream.
+ * - A connection interruption does not cancel the execution. If the result is unknown, call LoadAgentSession to resume reading. Submitting duplicate prompts may generate new messages, and duplicate Id values are not deduplicated.
+ *
+ * @param request PromptAgentSessionRequest
+ * @return PromptAgentSessionResponse
+ */
+async function promptAgentSession(request: PromptAgentSessionRequest): PromptAgentSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return promptAgentSessionWithOptions(request, runtime);
+}
+
+model ReplyAgentSessionRequest {
+  id?: string(name='Id', description='The client call identifier used to associate the current response. This parameter does not provide idempotence guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set this parameter to `2.0`.', example='2.0'),
+  params?: any(name='Params', description='The business parameter structure. For core nested fields, see the supplementary description.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef","permissionRequestId":"permission-example","outcome":{"outcome":"selected","optionId":"allow_once"}}'),
+}
+
+model ReplyAgentSessionShrinkRequest {
+  id?: string(name='Id', description='The client call identifier used to associate the current response. This parameter does not provide idempotence guarantees.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set this parameter to `2.0`.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The business parameter structure. For core nested fields, see the supplementary description.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef","permissionRequestId":"permission-example","outcome":{"outcome":"selected","optionId":"allow_once"}}'),
+}
+
+model ReplyAgentSessionResponseBody = {
+  jsonRpcResponse?: any(name='JsonRpcResponse', description='The JSON-RPC response. For core embedded fields, see the supplementary description.', example='{"jsonrpc":"2.0","id":"request-001","result":{"accepted":true}}'),
+  requestId?: string(name='RequestId', description='The ID of the current request, used for troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  success?: boolean(name='Success', description='Indicates whether the current API call is successful. This parameter cannot replace the business acceptance result.', example='true'),
+}
+
+model ReplyAgentSessionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ReplyAgentSessionResponseBody(name='body'),
+}
+
+/**
+ * @summary Submits the approval choice or question answer for the current pending interaction.
+ *
+ * @description - Read `data.sessionId`, `data.requestId`, and `data.options` from the `permission_request` notification of PromptAgentSession or LoadAgentSession. This operation uses the interaction ID, not the tool invocation ID or the server-side RequestId.
+ * - When selecting an action, use the `optionId` actually provided in the notification. For Q&A scenarios, you must also write the question key and answer text into `answers`. Do not pass this field for regular tool approvals.
+ * - `accepted=true` only indicates that the reply has been accepted. Subsequent output is still read through Prompt/Load. `false` indicates that the reply is not adopted this time. You should reload the current interaction and not automatically change to approve other requests.
+ *
+ * @param tmpReq ReplyAgentSessionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ReplyAgentSessionResponse
+ */
+async function replyAgentSessionWithOptions(tmpReq: ReplyAgentSessionRequest, runtime: Util.RuntimeOptions): ReplyAgentSessionResponse {
+  Util.validateModel(tmpReq);
+  var request = new ReplyAgentSessionShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    body['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    body['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'ReplyAgentSession',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Submits the approval choice or question answer for the current pending interaction.
+ *
+ * @description - Read `data.sessionId`, `data.requestId`, and `data.options` from the `permission_request` notification of PromptAgentSession or LoadAgentSession. This operation uses the interaction ID, not the tool invocation ID or the server-side RequestId.
+ * - When selecting an action, use the `optionId` actually provided in the notification. For Q&A scenarios, you must also write the question key and answer text into `answers`. Do not pass this field for regular tool approvals.
+ * - `accepted=true` only indicates that the reply has been accepted. Subsequent output is still read through Prompt/Load. `false` indicates that the reply is not adopted this time. You should reload the current interaction and not automatically change to approve other requests.
+ *
+ * @param request ReplyAgentSessionRequest
+ * @return ReplyAgentSessionResponse
+ */
+async function replyAgentSession(request: ReplyAgentSessionRequest): ReplyAgentSessionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return replyAgentSessionWithOptions(request, runtime);
+}
+
+model SaveWorkflowGlobalEnvRequest {
+  content?: string(name='Content', description='The configuration content.
+
+This parameter is required.', example='MODE=demo'),
+}
+
+model SaveWorkflowGlobalEnvResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.
+
+This parameter is required.', example='01A0677A-49CB-1605-AC3A-26761045B614'),
+  size?: long(name='Size', description='The number of UTF-8 bytes in the configuration content.
+
+This parameter is required.', example='9'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.
+
+This parameter is required.'),
+}
+
+model SaveWorkflowGlobalEnvResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SaveWorkflowGlobalEnvResponseBody(name='body'),
+}
+
+/**
+ * @summary Saves the global workflow configuration.
+ *
+ * @description Saves or queries the global workflow configuration by tenant and region. The content is sensitive information.
+ *
+ * @param request SaveWorkflowGlobalEnvRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SaveWorkflowGlobalEnvResponse
+ */
+async function saveWorkflowGlobalEnvWithOptions(request: SaveWorkflowGlobalEnvRequest, runtime: Util.RuntimeOptions): SaveWorkflowGlobalEnvResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.content)) {
+    body['Content'] = request.content;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SaveWorkflowGlobalEnv',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Saves the global workflow configuration.
+ *
+ * @description Saves or queries the global workflow configuration by tenant and region. The content is sensitive information.
+ *
+ * @param request SaveWorkflowGlobalEnvRequest
+ * @return SaveWorkflowGlobalEnvResponse
+ */
+async function saveWorkflowGlobalEnv(request: SaveWorkflowGlobalEnvRequest): SaveWorkflowGlobalEnvResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return saveWorkflowGlobalEnvWithOptions(request, runtime);
+}
+
+model SetAgentSessionModelRequest {
+  id?: string(name='Id', description='The client request identifier, which is echoed in the response. It is used to associate this call and does not have idempotent semantics.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set this parameter to 2.0.', example='2.0'),
+  params?: any(name='Params', description='The defined business parameter structure. For more information about the core nested fields, see the supplementary description.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef","modelId":"text-model-example"}'),
+}
+
+model SetAgentSessionModelShrinkRequest {
+  id?: string(name='Id', description='The client request identifier, which is echoed in the response. It is used to associate this call and does not have idempotent semantics.', example='request-001'),
+  jsonrpc?: string(name='Jsonrpc', description='The JSON-RPC version. Set this parameter to 2.0.', example='2.0'),
+  paramsShrink?: string(name='Params', description='The defined business parameter structure. For more information about the core nested fields, see the supplementary description.
+
+This parameter is required.', example='{"sessionId":"0123456789abcdef0123456789abcdef","modelId":"text-model-example"}'),
+}
+
+model SetAgentSessionModelResponseBody = {
+  jsonRpcResponse?: any(name='JsonRpcResponse', description='The defined JSON-RPC response structure. For more information about the core nested fields, see the supplementary description.', example='{"jsonrpc":"2.0","id":"request-001","result":{"modelId":"text-model-example","thinkingLevel":"off","thinkingLevels":["off","low","medium","high"]}}'),
+  requestId?: string(name='RequestId', description='The ID of the current request, which is used for troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  success?: boolean(name='Success', description='Indicates whether the setting is successful. The value is true if the setting is successful. Read the actual model and thinking level from the business result.', example='true'),
+}
+
+model SetAgentSessionModelResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: SetAgentSessionModelResponseBody(name='body'),
+}
+
+/**
+ * @summary Sets the model used by a session and optionally configures the thinking level.
+ *
+ * @description - Pass the `sessionId` returned by CreateAgentSession and the `Models[].Id` returned by ListModels as `Params.sessionId` and `Params.modelId`, respectively. The visibility of a model in the model catalog does not mean that the target session supports the model. The final validation is performed by the target session.
+ * - `modelId` is required. When you only modify the model, you can omit `thinkingLevel`. For more information about how to configure the thinking level, see the supplementary description of request parameters.
+ * - This operation only modifies the target session and does not modify the global default model of the agent or account. The session may deny configuration modifications during execution, and switching during runtime is not guaranteed to be supported.
+ * - The model and thinking level settings are applied step by step. If the call fails, the model may have already been changed, and an overall rollback is not guaranteed. You should call GetAgentSessionModel to query the current configuration before deciding on subsequent operations. After a successful call, you can read the actual effective values from the returned result.
+ *
+ * @param tmpReq SetAgentSessionModelRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return SetAgentSessionModelResponse
+ */
+async function setAgentSessionModelWithOptions(tmpReq: SetAgentSessionModelRequest, runtime: Util.RuntimeOptions): SetAgentSessionModelResponse {
+  Util.validateModel(tmpReq);
+  var request = new SetAgentSessionModelShrinkRequest{};
+  OpenApiUtil.convert(tmpReq, request);
+  if (!Util.isUnset(tmpReq.params)) {
+    request.paramsShrink = OpenApiUtil.arrayToStringWithSpecifiedStyle(tmpReq.params, 'Params', 'json');
+  }
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.id)) {
+    body['Id'] = request.id;
+  }
+  if (!Util.isUnset(request.jsonrpc)) {
+    body['Jsonrpc'] = request.jsonrpc;
+  }
+  if (!Util.isUnset(request.paramsShrink)) {
+    body['Params'] = request.paramsShrink;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'SetAgentSessionModel',
+    version = '2026-07-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Sets the model used by a session and optionally configures the thinking level.
+ *
+ * @description - Pass the `sessionId` returned by CreateAgentSession and the `Models[].Id` returned by ListModels as `Params.sessionId` and `Params.modelId`, respectively. The visibility of a model in the model catalog does not mean that the target session supports the model. The final validation is performed by the target session.
+ * - `modelId` is required. When you only modify the model, you can omit `thinkingLevel`. For more information about how to configure the thinking level, see the supplementary description of request parameters.
+ * - This operation only modifies the target session and does not modify the global default model of the agent or account. The session may deny configuration modifications during execution, and switching during runtime is not guaranteed to be supported.
+ * - The model and thinking level settings are applied step by step. If the call fails, the model may have already been changed, and an overall rollback is not guaranteed. You should call GetAgentSessionModel to query the current configuration before deciding on subsequent operations. After a successful call, you can read the actual effective values from the returned result.
+ *
+ * @param request SetAgentSessionModelRequest
+ * @return SetAgentSessionModelResponse
+ */
+async function setAgentSessionModel(request: SetAgentSessionModelRequest): SetAgentSessionModelResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return setAgentSessionModelWithOptions(request, runtime);
+}
+
 model UpdateAgentRequest {
-  description?: string(name='Description', description='The new description. If not specified, the existing value is retained.', example='Analyzes CR code changes and checks for correctness, security, and maintainability'),
-  displayName?: string(name='DisplayName', description='The new display name. If not specified, the existing value is retained.', example='CR Code and Security Review Agent'),
-  expectedVersion?: long(name='ExpectedVersion', description='The expected current configuration revision number. This parameter is omitted by default. For concurrency protection, pass in the `AgentVersion` returned by the most recent `GetAgent` call.', example='2'),
-  knowledgeBases?: any(name='KnowledgeBases', description='The list of knowledge base bindings, which contains at most one element. If not specified, the existing value is retained. A non-empty array replaces the entire value. Passing `[ ]` removes all bindings.', example='[{"name":"code-review-guidelines"}]'),
-  name?: string(name='Name', description='The name of the Agent to update.
+  description?: string(name='Description', description='The new description. If this parameter is not passed, the original value is retained.', example='Analyze CR code changes and check for correctness, security, and maintainability'),
+  displayName?: string(name='DisplayName', description='The new display name. If this parameter is not passed, the original value is retained.', example='CR Code and Security Review Agent'),
+  expectedVersion?: long(name='ExpectedVersion', description='The expected current configuration revision number. This parameter is omitted by default. Pass the `AgentVersion` returned by the most recent `GetAgent` call when concurrency protection is required.', example='2'),
+  knowledgeBases?: any(name='KnowledgeBases', description='The list of knowledge base bindings, which can contain at most one element. If this parameter is not passed, the original value is retained. If a non-empty array is passed, it replaces the original value entirely. If `[ ]` is passed, all bindings are removed.', example='[{"name":"code-review-guidelines"}]'),
+  name?: string(name='Name', description='The name of the agent to be updated.
 
 This parameter is required.', example='code-review-agent'),
-  skills?: any(name='Skills', description='The list of Skill references. If not specified, the existing value is retained. A non-empty array replaces the entire value. Passing `[ ]` removes all bindings.', example='[{"name":"code-review"}]'),
-  systemPrompt?: string(name='SystemPrompt', description='The new system prompt. If not specified, the existing value is retained.', example='Check the CR for code defects, security risks, and compatibility issues, and provide actionable suggestions for fixes'),
-  tools?: any(name='Tools', description='The list of MCP Server and Connector name references. The same array supports both types of entries. Each entry specifies one type of reference. If items is omitted for an MCP entry, all public tools are included. Previously specified items retain their existing values.', example='[{"mcpServerName":"code-repository-mcp"},{"connectorName":"code-review-data"}]'),
-  visibility?: string(name='Visibility', description='The new visibility scope. Valid values:
-- user
-- tenant
-
-If not specified, the existing value is retained.', example='tenant'),
+  skills?: any(name='Skills', description='The list of skill references. If this parameter is not passed, the original value is retained. If a non-empty array is passed, it replaces the original value entirely. If `[ ]` is passed, all bindings are removed.', example='[{"name":"code-review"}]'),
+  systemPrompt?: string(name='SystemPrompt', description='The new system prompt. If this parameter is not passed, the original value is retained.', example='Check for code defects, security risks, and compatibility issues in the CR, and provide actionable modification suggestions'),
+  tools?: any(name='Tools', description='The list of MCP server and connector name references. The same array supports the coexistence of both types of entries. Specify only one type of reference for each entry. For MCP, omitting items indicates all public tools, and historically specified items retain their original values.', example='[{"mcpServerName":"code-repository-mcp"},{"connectorName":"code-review-data"}]'),
+  visibility?: string(name='Visibility', description='The new visibility scope. Valid values: `user` and `tenant`. If this parameter is not passed, the original value is retained.', example='tenant'),
 }
 
 model UpdateAgentResponseBody = {
-  agentId?: string(name='AgentId', description='Agent ID。', example='agent_00000000000000000000000000000001'),
-  name?: string(name='Name', description='The Agent name.', example='code-review-agent'),
-  requestId?: string(name='RequestId', description='The request ID, used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  success?: boolean(name='Success', description='Indicates whether the Agent was successfully updated. A successful response always returns `true`. A failure returns an error response.', example='true'),
-  updatedAt?: long(name='UpdatedAt', description='The most recent update time, as a UNIX timestamp in milliseconds.', example='1788332700000'),
+  agentId?: string(name='AgentId', description='The agent ID.', example='agent_00000000000000000000000000000001'),
+  name?: string(name='Name', description='The name of the agent.', example='code-review-agent'),
+  requestId?: string(name='RequestId', description='The request ID, which is used for Tracing Analysis and troubleshooting.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
+  success?: boolean(name='Success', description='Indicates whether the agent was successfully updated. A success response always returns `true`. An error response is returned upon failure.', example='true'),
+  updatedAt?: long(name='UpdatedAt', description='The time of the most recent update. The value is a UNIX timestamp in milliseconds.', example='1788332700000'),
 }
 
 model UpdateAgentResponse = {
@@ -975,11 +2092,11 @@ model UpdateAgentResponse = {
 }
 
 /**
- * @summary Updates the configuration of an Agent.
+ * @summary Updates the configuration of an agent.
  *
- * @description - `Name` is used only to locate the Agent and cannot be modified after creation.
- * - Each Agent can be bindded to only one knowledge base.
- * - `Tools` is updated according to the rules below. If `Skills` or `KnowledgeBases` is not specified, the existing value is retained. A non-empty array replaces the entire value. An empty array removes the corresponding binddings. Other optional fields retain their existing values if not specified.
+ * @description - `Name` is used only to locate the agent and cannot be modified after creation.
+ * - Each agent can be bound to only one knowledge base.
+ * - `Tools` is updated according to the rules below. If `Skills` or `KnowledgeBases` is not passed, the original value is retained. If a non-empty array is passed, it replaces the original value entirely. If an empty array is passed, the corresponding binding is removed. Other optional fields retain their original values if not passed.
  *
  * @param request UpdateAgentRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1035,11 +2152,11 @@ async function updateAgentWithOptions(request: UpdateAgentRequest, runtime: Util
 }
 
 /**
- * @summary Updates the configuration of an Agent.
+ * @summary Updates the configuration of an agent.
  *
- * @description - `Name` is used only to locate the Agent and cannot be modified after creation.
- * - Each Agent can be bindded to only one knowledge base.
- * - `Tools` is updated according to the rules below. If `Skills` or `KnowledgeBases` is not specified, the existing value is retained. A non-empty array replaces the entire value. An empty array removes the corresponding binddings. Other optional fields retain their existing values if not specified.
+ * @description - `Name` is used only to locate the agent and cannot be modified after creation.
+ * - Each agent can be bound to only one knowledge base.
+ * - `Tools` is updated according to the rules below. If `Skills` or `KnowledgeBases` is not passed, the original value is retained. If a non-empty array is passed, it replaces the original value entirely. If an empty array is passed, the corresponding binding is removed. Other optional fields retain their original values if not passed.
  *
  * @param request UpdateAgentRequest
  * @return UpdateAgentResponse
@@ -1050,21 +2167,21 @@ async function updateAgent(request: UpdateAgentRequest): UpdateAgentResponse {
 }
 
 model UpdateSkillRequest {
-  description?: string(name='Description', description='The updated description of the Skill.', example='A Skill for performing code reviews, security checks, and risk alerts'),
+  description?: string(name='Description', description='The updated description of the skill.', example='A skill used to perform code review, security checks, and risk alerts'),
   expectedVersion?: long(name='ExpectedVersion', description='The expected version number.', example='2'),
-  metadata?: any(name='Metadata', description='The updated Skill metadata. The JSON object is replaced as a whole. The content supports exactly one of Transit ID, bundleUrl, or skillMd.', example='{"transitId":"transit_example456"}'),
-  name?: string(name='Name', description='The name of the Skill to update. This parameter is used only to locate the Skill and cannot be used to modify the name.
+  metadata?: any(name='Metadata', description='The updated metadata of the skill. The JSON object is replaced as a whole. The content supports one of the following: Transit ID, bundleUrl, or skillMd.', example='{"transitId":"transit_example456"}'),
+  name?: string(name='Name', description='The name of the skill to be updated. This parameter is used only to locate the skill and cannot be used to modify the name.
 
 This parameter is required.', example='code-review'),
   visibility?: string(name='Visibility', description='The updated visibility. Valid values: `user` and `tenant`.', example='tenant'),
 }
 
 model UpdateSkillResponseBody = {
-  name?: string(name='Name', description='The Skill name.', example='code-review'),
+  name?: string(name='Name', description='The name of the skill.', example='code-review'),
   requestId?: string(name='RequestId', description='The request ID.', example='0A1B2C3D-4E5F-6789-ABCD-EF0123456789'),
-  skillId?: string(name='SkillId', description='Skill ID。', example='skill_example123'),
-  success?: boolean(name='Success', description='Returns `true` when the Skill update and optional bundle replacement have been fully committed and confirmed by read-back.', example='true'),
-  updatedAt?: long(name='UpdatedAt', description='The time when the Skill was updated, in UNIX millisecond timestamp.', example='1760000200000'),
+  skillId?: string(name='SkillId', description='The skill ID.', example='skill_example123'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. A value of `true` is returned when the skill update and optional bundle replacement are fully submitted and confirmed by read-back.', example='true'),
+  updatedAt?: long(name='UpdatedAt', description='The time when the skill was updated. The value is a UNIX timestamp in milliseconds.', example='1760000200000'),
 }
 
 model UpdateSkillResponse = {
@@ -1074,18 +2191,18 @@ model UpdateSkillResponse = {
 }
 
 /**
- * @summary Updates a Skill.
+ * @summary Updates a skill.
  *
  * @description - Update rules:
- *   - `Name` is used only to locate the Skill and cannot be modified.
- *   - The caller must be the Skill creator or the tenant root account that has permissions to manage the tenant-level Skill.
+ *   - `Name` is used only to locate the skill and cannot be modified.
+ *   - The caller must be the creator of the skill or the root account of the tenant that has permissions to manage the tenant-level skill.
  * - Replacement rules:
- *   - `Description` and `Visibility` retain their original values when omitted. Passing `null` is treated the same as omitting the field and cannot be used to clear the original value.
- *   - `Metadata` is replaced as a whole, not merged incrementally. Omitting `Metadata` preserves the original content. When provided, any old fields not included in the new object are deleted.
- *   - When modifying only `Description` or `Visibility`, do not pass `Metadata` or an empty object `{}`. An empty object replaces the entire original Metadata with an empty value.
- * - Content source:
- *   - When replacing the body or bundle, specify exactly one of `skillMd`, `transitId`, or `bundleUrl`.
- *   - For field formats, the Transit upload confirmation process, and `bundleUrl` restrictions of the three sources, refer to CreateSkill. Pass the selected source in `UpdateSkill.Metadata`.
+ *   - If `Description` and `Visibility` are omitted, their original values are retained. Passing `null` is treated as omission and cannot be used to clear the original values.
+ *   - `Metadata` is replaced as a whole, not merged incrementally. If `Metadata` is omitted, the original content is retained. If it is passed, old fields not included in the new object are deleted.
+ *   - When modifying only `Description` or `Visibility`, do not pass `Metadata` or an empty object `{}`. An empty object replaces the original metadata with an empty object.
+ * - Content sources:
+ *   - When replacing the body or bundle, you must choose one and only one of `skillMd`, `transitId`, or `bundleUrl`.
+ *   - For the field formats of the three sources, the Transit upload confirmation process, and the `bundleUrl` restrictions, refer to CreateSkill. Pass the selected source in `UpdateSkill.Metadata`.
  *
  * @param request UpdateSkillRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -1129,18 +2246,18 @@ async function updateSkillWithOptions(request: UpdateSkillRequest, runtime: Util
 }
 
 /**
- * @summary Updates a Skill.
+ * @summary Updates a skill.
  *
  * @description - Update rules:
- *   - `Name` is used only to locate the Skill and cannot be modified.
- *   - The caller must be the Skill creator or the tenant root account that has permissions to manage the tenant-level Skill.
+ *   - `Name` is used only to locate the skill and cannot be modified.
+ *   - The caller must be the creator of the skill or the root account of the tenant that has permissions to manage the tenant-level skill.
  * - Replacement rules:
- *   - `Description` and `Visibility` retain their original values when omitted. Passing `null` is treated the same as omitting the field and cannot be used to clear the original value.
- *   - `Metadata` is replaced as a whole, not merged incrementally. Omitting `Metadata` preserves the original content. When provided, any old fields not included in the new object are deleted.
- *   - When modifying only `Description` or `Visibility`, do not pass `Metadata` or an empty object `{}`. An empty object replaces the entire original Metadata with an empty value.
- * - Content source:
- *   - When replacing the body or bundle, specify exactly one of `skillMd`, `transitId`, or `bundleUrl`.
- *   - For field formats, the Transit upload confirmation process, and `bundleUrl` restrictions of the three sources, refer to CreateSkill. Pass the selected source in `UpdateSkill.Metadata`.
+ *   - If `Description` and `Visibility` are omitted, their original values are retained. Passing `null` is treated as omission and cannot be used to clear the original values.
+ *   - `Metadata` is replaced as a whole, not merged incrementally. If `Metadata` is omitted, the original content is retained. If it is passed, old fields not included in the new object are deleted.
+ *   - When modifying only `Description` or `Visibility`, do not pass `Metadata` or an empty object `{}`. An empty object replaces the original metadata with an empty object.
+ * - Content sources:
+ *   - When replacing the body or bundle, you must choose one and only one of `skillMd`, `transitId`, or `bundleUrl`.
+ *   - For the field formats of the three sources, the Transit upload confirmation process, and the `bundleUrl` restrictions, refer to CreateSkill. Pass the selected source in `UpdateSkill.Metadata`.
  *
  * @param request UpdateSkillRequest
  * @return UpdateSkillResponse
