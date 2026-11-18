@@ -2711,6 +2711,7 @@ model CreateDriveRequest {
   driveName?: string(name='DriveName', description='The name of the user-level storage resource.', example='test01', position='Query'),
   externalDomainId?: string(name='ExternalDomainId', description='The external storage resource ID.
 > You can obtain this ID by calling the DescribeDrives operation.', example='1234****', position='Query'),
+  platforms?: [ string ](name='Platforms', description='The list of image platforms for which to initialize VHDs, such as WINDOWS_SERVER_2025. This parameter applies to UPM binding scenarios such as workspaces, desktop pools, and cloud application delivery groups. If you specify this parameter, the VHDs are initialized based on the specified platforms. If you do not specify this parameter, the original platform derivation rules for each scenario are used.', example='["WINDOWS_11","WINDOWS_SERVER_2025"]', position='Query'),
   profileRoaming?: boolean(name='ProfileRoaming', description='> **[Deprecated]**', example='-', position='Query'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
   resourceType?: string(name='ResourceType', description='The storage resource type.', example='NAS', position='Query'),
@@ -2743,7 +2744,7 @@ model CreateDriveResponseBody = {
   }(name='Drive', description='The user-level storage resource.'),
   message?: string(name='Message', description='The response message.', example='successful'),
   requestId?: string(name='RequestId', description='The request ID.', example='B7AA****'),
-  success?: boolean(name='Success', description='Indicates whether the request was successful.', example='true'),
+  success?: boolean(name='Success', description='Indicates whether the request is successful.', example='true'),
 }
 
 model CreateDriveResponse = {
@@ -3874,7 +3875,7 @@ async function deleteCloudDriveGroups(request: DeleteCloudDriveGroupsRequest): D
 }
 
 model DeleteCloudDriveServicesRequest {
-  cdsId: [ string ](name='CdsId', description='The list of Wuying cloud disk IDs.
+  cdsId: [ string ](name='CdsId', description='The IDs of the Wuying cloud disks.
 
 This parameter is required.', position='Query'),
   regionId: string(name='RegionId', description='The region ID.
@@ -4088,7 +4089,10 @@ async function deleteDirectories(request: DeleteDirectoriesRequest): DeleteDirec
 }
 
 model DeleteDriveRequest {
+  domainId?: string(name='DomainId', description='The instance ID.', example='dom-aaaa****', position='Query'),
   driveId?: string(name='DriveId', description='The ID of the user-level storage resource.', example='dri-aaaa****', position='Query'),
+  endUserId?: string(name='EndUserId', description='The ID of the end user. This parameter is used when locating the UPM drive by using DomainId or OfficeSiteId.', example='abc****', position='Query'),
+  officeSiteId?: string(name='OfficeSiteId', description='The ID of the workspace.', example='cn-hangzhou+dir-467671****', position='Query'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou', position='Query'),
 }
 
@@ -7908,15 +7912,14 @@ async function describeModificationPrice(request: DescribeModificationPriceReque
 }
 
 model DescribeNASFileSystemsRequest {
-  fileSystemId?: [ string ](name='FileSystemId', description='The IDs of the NAS file systems.', example='04f314****', position='Query'),
+  fileSystemId?: [ string ](name='FileSystemId', description='The list of NAS file system IDs.', position='Query'),
   matchCompatibleProfile?: boolean(name='MatchCompatibleProfile', description='Specifies whether to include only NAS file systems that support UPM in the query results.', example='false', position='Query'),
-  maxResults?: int32(name='MaxResults', description='The number of entries to return per page in a paging query.    
-
-- Maximum value: 100.    
+  maxResults?: int32(name='MaxResults', description='The number of entries to return on each page in a paging query.
+- Maximum value: 100.
 - Default value: 10.', example='10', minimum=0, maximum=500, position='Query'),
-  nextToken?: string(name='NextToken', description='The pagination token. Set the value to the NextToken value returned from the last API call.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
-  officeSiteId?: string(name='OfficeSiteId', description='The ID of the office network.', example='cn-hangzhou+dir-363353****', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](~~DescribeRegions~~) operation to query the list of regions supported by WUYING Workspace.
+  nextToken?: string(name='NextToken', description='The query token. The value is the NextToken parameter value returned by the previous API call.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
+  officeSiteId?: string(name='OfficeSiteId', description='The office network ID.', example='cn-hangzhou+dir-363353****', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call [DescribeRegions](~~DescribeRegions~~) to query the list of regions supported by WUYING Workspace.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
 }
@@ -7924,19 +7927,18 @@ This parameter is required.', example='cn-hangzhou', position='Query'),
 model DescribeNASFileSystemsResponseBody = {
   fileSystems?: [ 
     {
-      allowOperateUserDrive?: boolean(name='AllowOperateUserDrive', description='Indicates whether operations on user directories are supported, such as adding users and deleting data.', example='false'),
+      allowOperateUserDrive?: boolean(name='AllowOperateUserDrive', description='Specifies whether operations on the user directory are supported, such as adding users and deleting data.', example='false'),
       appInstanceGroups?: [ 
         {
-          appInstanceGroupId?: string(name='AppInstanceGroupId', description='The ID of the delivery group.', example='aig-0bz55ibznu9p7****'),
-          appInstanceGroupName?: string(name='AppInstanceGroupName', description='The name of the delivery group.', example='DemoDeliveryGroup'),
+          appInstanceGroupId?: string(name='AppInstanceGroupId', description='The delivery group ID.', example='aig-0bz55ibznu9p7****'),
+          appInstanceGroupName?: string(name='AppInstanceGroupName', description='The delivery group name.', example='DemoDeliveryGroup'),
         }
       ](name='AppInstanceGroups', description='The list of cloud application delivery groups bound to the NAS file system that supports UPM.'),
       bandwidth?: long(name='Bandwidth', description='The bandwidth.', example='720'),
       capacity?: long(name='Capacity', description='The total capacity of the NAS file system. Unit: GiB.
-
-- If the storage type is Capacity, the capacity is fixed at 10 PiB, which is 10485760 GiB.
-- If the storage type is Performance, the capacity is fixed at 1 PiB, which is 1048576 GiB.', example='10485760'),
-      createTime?: string(name='CreateTime', description='The time when the NAS file system was created. The time follows the ISO 8601 standard in the UTC time zone.', example='2021-05-10T11:39Z'),
+- If the storage type is Capacity, the capacity is fixed at 10 PiB, which is 10,485,760 GiB.
+- If the storage type is Performance, the capacity is fixed at 1 PiB, which is 1,048,576 GiB.', example='10485760'),
+      createTime?: string(name='CreateTime', description='The creation time of the NAS file system. The time is displayed in ISO 8601 format in UTC.', example='2021-05-10T11:39Z'),
       description?: string(name='Description', description='The description of the NAS file system.', example='testDescription'),
       desktopGroups?: [ 
         {
@@ -7944,37 +7946,36 @@ model DescribeNASFileSystemsResponseBody = {
           desktopGroupName?: string(name='DesktopGroupName', description='The name of the shared cloud desktop.', example='test_dg'),
         }
       ](name='DesktopGroups', description='The list of shared cloud desktops bound to the NAS file system that supports UPM.'),
-      encryptionEnabled?: boolean(name='EncryptionEnabled', description='Indicates whether disk encryption is enabled.', example='false'),
-      fileSystemId?: string(name='FileSystemId', description='The ID of the NAS file system.', example='04f314****'),
+      encryptionEnabled?: boolean(name='EncryptionEnabled', description='Specifies whether disk encryption is enabled.', example='false'),
+      fileSystemId?: string(name='FileSystemId', description='The NAS file system ID.', example='04f314****'),
       fileSystemName?: string(name='FileSystemName', description='The name of the NAS file system.', example='testNAS'),
       fileSystemStatus?: string(name='FileSystemStatus', description='The status of the NAS file system.', example='Running'),
-      fileSystemType?: string(name='FileSystemType', description='The type of the NAS file system. Currently, only the general-purpose type is supported, which is `standard`.', example='standard'),
-      meteredSize?: long(name='MeteredSize', description='The used capacity of the NAS file system. Unit: Byte.', example='0'),
+      fileSystemType?: string(name='FileSystemType', description='The type of the NAS file system. Only the standard type is supported.', example='standard'),
+      meteredSize?: long(name='MeteredSize', description='The used capacity of the NAS file system. Unit: bytes.', example='0'),
       mountTargetDomain?: string(name='MountTargetDomain', description='The domain name of the mount target.', example='04f314****-at***.cn-hangzhou.nas.aliyuncs.com'),
-      mountTargetStatus?: string(name='MountTargetStatus', description='The status of the mount target.', example='Active'),
-      officeSiteId?: string(name='OfficeSiteId', description='**[Deprecated]** The ID of the office network.', example='cn-hangzhou+dir-363353****'),
-      officeSiteName?: string(name='OfficeSiteName', description='**[Deprecated]** The name of the office network.', example='test'),
+      mountTargetStatus?: string(name='MountTargetStatus', description='The mount target status.', example='Active'),
+      officeSiteId?: string(name='OfficeSiteId', description='The office network ID. **[Deprecated]**', example='cn-hangzhou+dir-363353****'),
+      officeSiteName?: string(name='OfficeSiteName', description='The office network name. **[Deprecated]**', example='test'),
       officeSites?: [ 
         {
-          officeSiteId?: string(name='OfficeSiteId', description='The ID of the office network.', example='cn-hangzhou+dir-363353****'),
-          officeSiteName?: string(name='OfficeSiteName', description='The name of the office network.', example='DemoOfficeNetwork'),
+          officeSiteId?: string(name='OfficeSiteId', description='The office network ID.', example='cn-hangzhou+dir-363353****'),
+          officeSiteName?: string(name='OfficeSiteName', description='The office network name.', example='DemoOfficeNetwork'),
         }
       ](name='OfficeSites', description='The list of office networks.'),
       productType?: string(name='ProductType', description='The product type of the NAS file system.', example='CloudDesktop'),
-      profileCompatible?: boolean(name='ProfileCompatible', description='Indicates whether the User Profile Management (UPM) feature is supported.', example='false'),
+      profileCompatible?: boolean(name='ProfileCompatible', description='Specifies whether the User Profile Management (UPM) feature is supported.', example='false'),
       protocolType?: string(name='ProtocolType', description='The protocol type of the file system. Valid values:
-
-- NFS: NFS protocol
-- SMB: SMB protocol', example='SMB'),
+- NFS: NFS protocol.
+- SMB: SMB protocol.', example='SMB'),
       regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
       scene?: string(name='Scene', description='The storage mode of the NAS file system.', example='Upm'),
       sizeQuota?: long(name='SizeQuota', description='The capacity quota of the NAS file system.', example='0'),
       storageType?: string(name='StorageType', description='The storage type of the NAS file system.', example='Capacity'),
-      supportAcl?: boolean(name='SupportAcl', description='Indicates whether the SMB ACL feature is supported.', example='false'),
+      supportAcl?: boolean(name='SupportAcl', description='Specifies whether the SMB ACL feature is supported.', example='false'),
       zoneId?: string(name='ZoneId', description='The zone.', example='cn-hangzhou-f'),
     }
-  ](name='FileSystems', description='The NAS file system information.'),
-  nextToken?: string(name='NextToken', description='The pagination token for the next query. An empty NextToken indicates that no more results are available.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  ](name='FileSystems', description='The collection of NAS file system information.'),
+  nextToken?: string(name='NextToken', description='The token for the next query. An empty value indicates that no subsequent results are available.', example='caeba0bbb2be03f84eb48b699f0a4883'),
   requestId?: string(name='RequestId', description='The request ID.', example='269BDB16-2CD8-4865-84BD-11C40BC21DB0'),
 }
 
@@ -8166,121 +8167,122 @@ async function describeOfficeSiteBridgeInfo(request: DescribeOfficeSiteBridgeInf
 
 model DescribeOfficeSitesRequest {
   accountType?: string(name='AccountType', description='The account type.', example='SIMPLE', position='Query'),
-  maxResults?: int32(name='MaxResults', description='The number of entries per page for a paginated query.    
+  maxResults?: int32(name='MaxResults', description='The number of entries to return per page in a paging query.    
 
 - Maximum value: 100.    
 - Default value: 10.', example='10', minimum=0, maximum=500, position='Query'),
-  nextToken?: string(name='NextToken', description='The token for the next query.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
-  officeSiteId?: [ string ](name='OfficeSiteId', description='The office network ID. You can specify 1 to 100 IDs.', example='cn-hangzhou+dir-363353****', position='Query'),
+  nextToken?: string(name='NextToken', description='The token that is used to start the next query.', example='caeba0bbb2be03f84eb48b699f0a4883', position='Query'),
+  officeSiteId?: [ string ](name='OfficeSiteId', description='The ID of the office network. You can specify 1 to 100 IDs.', position='Query'),
   officeSiteType?: string(name='OfficeSiteType', description='The account system type of the office network.', example='SIMPLE', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call [DescribeRegions](https://help.aliyun.com/document_detail/196646.html) to query the regions supported by Elastic Desktop Service.
+  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/196646.html) operation to query the list of regions supported by Wuying Workspace.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
-  securityProtection?: string(name='SecurityProtection', description='The security protection configuration of the office network.', example='SASE', position='Query'),
-  status?: string(name='Status', description='The office network status.', example='REGISTERED', position='Query'),
-  vpcId?: string(name='VpcId', description='The VPC ID of the office network for shared cloud computers.
+  securityProtection?: string(name='SecurityProtection', description='The network security protection settings of the office network.', example='SASE', position='Query'),
+  status?: string(name='Status', description='The status of the office network.', example='REGISTERED', position='Query'),
+  vpcId?: string(name='VpcId', description='The ID of the VPC where the office network of the shared cloud desktop resides.
 
-> This parameter is not yet available for use.', example='vpc-uf6w8u60n8xbkg5el****', position='Query'),
+> This parameter is not available.', example='vpc-uf6w8u60n8xbkg5el****', position='Query'),
 }
 
 model DescribeOfficeSitesResponseBody = {
-  nextToken?: string(name='NextToken', description='The token for the next query. If NextToken is empty, no more results exist.', example='caeba0bbb2be03f84eb48b699f0a4883'),
+  nextToken?: string(name='NextToken', description='The token used to start the next query. An empty NextToken indicates that no further results are available.', example='caeba0bbb2be03f84eb48b699f0a4883'),
   officeSites?: [ 
     {
       ADConnectors?: [ 
         {
-          ADConnectorAddress?: string(name='ADConnectorAddress', description='The connection address of the AD Connector.', example='172.24.*.*'),
-          connectorStatus?: string(name='ConnectorStatus', description='The status of the AD Connector.', example='RUNNING'),
-          networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the elastic network interface (ENI) attached to the AD Connector.', example='eni-bp1i4wx78lgosrj6****'),
-          specification?: string(name='Specification', description='The specification of the AD Connector.', example='1'),
-          trustKey?: string(name='TrustKey', description='The trust password specified when configuring the AD trust relationship.', example='password123***'),
-          vSwitchId?: string(name='VSwitchId', description='The vSwitch ID of the network where the AD Connector resides.', example='vsw-bp19ocz3erfx15uon****'),
+          ADConnectorAddress?: string(name='ADConnectorAddress', description='The endpoint of the AD connector.', example='172.24.*.*'),
+          connectorStatus?: string(name='ConnectorStatus', description='The status of the AD connector.', example='RUNNING'),
+          networkInterfaceId?: string(name='NetworkInterfaceId', description='The ID of the network interface attached to the AD connector.', example='eni-bp1i4wx78lgosrj6****'),
+          specification?: string(name='Specification', description='The specifications of the AD connector.', example='1'),
+          trustKey?: string(name='TrustKey', description='The trust password configured for the AD trust relationship.', example='password123***'),
+          vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch to which the AD connector is connected.', example='vsw-bp19ocz3erfx15uon****'),
         }
-      ](name='ADConnectors', description='The collection of AD Connector information.'),
-      acceleratorId?: string(name='AcceleratorId', description='The ID of the Global Accelerator (GA) instance.', example='ga-bp1astu3yrplkzoo2****'),
-      accessAttribute?: string(name='AccessAttribute', description='The access attribute of the office network (workspace).', example='Private'),
+      ](name='ADConnectors', description='The AD connector information.'),
+      acceleratorId?: string(name='AcceleratorId', description='The instance ID of the Alibaba Cloud Global Accelerator (GA).', example='ga-bp1astu3yrplkzoo2****'),
+      accessAttribute?: string(name='AccessAttribute', description='The access attributes of the office network (workspace).', example='Private'),
       accountType?: string(name='AccountType', description='The account type.', example='SIMPLE'),
       adHostname?: string(name='AdHostname', description='The hostname of the domain controller. The hostname must comply with Windows host naming conventions.', example='beijing-ad01'),
-      authorityHost?: string(name='AuthorityHost', description='The authority URL of the identity authentication service.', example='https://login.microsoftonline.com'),
+      authorityHost?: string(name='AuthorityHost', description='The authority address of the identity authentication service.', example='https://login.microsoftonline.com'),
       backupDCHostname?: string(name='BackupDCHostname', description='The hostname of the backup domain controller.', example='beijing-ad02'),
       backupDns?: string(name='BackupDns', description='The DNS address of the backup domain controller.', example='172.24.XX.XX'),
-      bandwidth?: int32(name='Bandwidth', description='The peak public bandwidth. Valid values: 0 to 1000 Mbps.    
-If the value is empty or 0, Internet access is not enabled.', example='10'),
+      bandwidth?: int32(name='Bandwidth', description='The peak Internet bandwidth. Valid values: 0 to 1000 Mbps. If this parameter is empty or set to 0, Internet access is not enabled.', example='10'),
       basicInternetType?: string(name='BasicInternetType', description='The basic bandwidth type.', example='basic_plus'),
       cenAttachStatus?: string(name='CenAttachStatus', description='The status of the CEN instance.', example='attached'),
       cenId?: string(name='CenId', description='The Cloud Enterprise Network (CEN) instance ID.', example='cen-3gwy16dojz1m65****'),
-      cidrBlock?: string(name='CidrBlock', description='The IPv4 CIDR block of the office network VPC.', example='47.100.XX.XX'),
-      clientId?: string(name='ClientId', description='The client ID registered with the identity provider application.', example='a2c8f7e4-1b3d-4c5e-9f0a-6d7b8c9e****'),
-      clientSecret?: string(name='ClientSecret', description='The client secret registered with the identity provider application.', example='sct-9f3e2d1c****'),
-      cloudBoxOfficeSite?: boolean(name='CloudBoxOfficeSite', description='Indicates whether the office network is a CloudBox office network.', example='true'),
-      creationTime?: string(name='CreationTime', description='The time when the office network was created. The time is in the ISO 8601 standard format (UTC).', example='2021-05-06T05:58Z'),
+      cidrBlock?: string(name='CidrBlock', description='The IPv4 CIDR block of the VPC for the office network.', example='47.100.XX.XX'),
+      clientId?: string(name='ClientId', description='The client ID registered for the identity provider application.', example='a2c8f7e4-1b3d-4c5e-9f0a-6d7b8c9e****'),
+      clientSecret?: string(name='ClientSecret', description='The client secret registered for the identity provider application.', example='sct-9f3e2d1c****'),
+      cloudBoxOfficeSite?: boolean(name='CloudBoxOfficeSite', description='Specifies whether the office network is a CloudBox office network.', example='true'),
+      creationTime?: string(name='CreationTime', description='The time when the office network was created. The time is displayed in UTC and follows the ISO 8601 standard.', example='2021-05-06T05:58Z'),
       customAccessPoint?: string(name='CustomAccessPoint', description='The custom access gateway address.', example='gw-****.com'),
       customDnsAddress?: [ string ](name='CustomDnsAddress', description='The array of custom DNS addresses.'),
-      customSecurityGroupId?: string(name='CustomSecurityGroupId', description='The security group ID.', example='sg-bp1ce64o4g9mdf5u****'),
-      desktopAccessType?: string(name='DesktopAccessType', description='The access method allowed for connecting to cloud computers.
+      customSecurityGroupId?: string(name='CustomSecurityGroupId', description='The ID of the security group.', example='sg-bp1ce64o4g9mdf5u****'),
+      desktopAccessType?: string(name='DesktopAccessType', description='The allowed connection methods for cloud desktops.
 
-> The VPC connection method depends on the Alibaba Cloud PrivateLink service, which is free of charge. When this parameter is set to `VPC` or `Any`, the system automatically activates the PrivateLink service for you.', example='INTERNET'),
-      desktopCount?: long(name='DesktopCount', description='The number of cloud computers that have been created.', example='1'),
-      desktopVpcEndpoint?: string(name='DesktopVpcEndpoint', description='The endpoint used for VPC connections to cloud computers.', example='http://ep-bp1s2vmbj55r5rzc****.epsrv-bp1pcfhpwvlpny01****.cn-hangzhou.privatelink.aliyuncs.com'),
-      dnsAddress?: [ string ](name='DnsAddress', description='The array of DNS addresses corresponding to the AD domain.'),
+> The VPC connection method relies on Alibaba Cloud PrivateLink, which is provided free of charge. If you set this parameter to `VPC` or `Any`, the system automatically activates PrivateLink.', example='INTERNET'),
+      desktopCount?: long(name='DesktopCount', description='The number of cloud computers created.', example='1'),
+      desktopVpcEndpoint?: string(name='DesktopVpcEndpoint', description='The endpoint used to connect to cloud desktops from a VPC.', example='http://ep-bp1s2vmbj55r5rzc****.epsrv-bp1pcfhpwvlpny01****.cn-hangzhou.privatelink.aliyuncs.com'),
+      dnsAddress?: [ string ](name='DnsAddress', description='The array of DNS addresses for the AD domain.'),
       dnsUserName?: string(name='DnsUserName', description='The DNS username.', example='testDnsUserName'),
       domainName?: string(name='DomainName', description='The domain name of the enterprise AD.', example='example.com'),
       domainPassword?: string(name='DomainPassword', description='The password of the domain administrator.', example='testPassword'),
       domainUserName?: string(name='DomainUserName', description='The username of the domain administrator.', example='Administrator'),
       eid?: string(name='Eid', description='The enterprise ID (EID).', example='e-1234abcd****'),
-      enableAdminAccess?: boolean(name='EnableAdminAccess', description='Indicates whether local administrator permissions are granted to users of cloud computers.', example='true'),
-      enableCrossDesktopAccess?: boolean(name='EnableCrossDesktopAccess', description='Indicates whether cross-cloud-computer access within the office network is enabled. After this feature is enabled, cloud computers within the same office network can access each other over the network.', example='false'),
-      enableInternetAccess?: boolean(name='EnableInternetAccess', description='Indicates whether public network access is enabled.', example='false'),
-      enableServiceRoute?: boolean(name='EnableServiceRoute', description='Indicates whether cloud service route access control is enabled.', example='false'),
-      envType?: string(name='EnvType', description='The environment type. This parameter is not publicly available.', example='Private'),
-      fileSystemIds?: [ string ](name='FileSystemIds', description='The array of NAS file system IDs.'),
-      isLdap?: boolean(name='IsLdap', description='Indicates whether the directory is an LDAP directory.'),
-      ldapUrl?: string(name='LdapUrl', description='The access URL of the LDAP service.', example='ldap://192.168.0.10:389'),
+      enableAdminAccess?: boolean(name='EnableAdminAccess', description='Specifies whether to grant local administrator permissions to users of cloud desktops.', example='true'),
+      enableCrossDesktopAccess?: boolean(name='EnableCrossDesktopAccess', description='Specifies whether to enable network connectivity between cloud desktops in the office network. After you enable this feature, cloud desktops in the same office network can access each other.', example='false'),
+      enableInternetAccess?: boolean(name='EnableInternetAccess', description='Specifies whether the public network access feature is enabled.', example='false'),
+      enableServiceRoute?: boolean(name='EnableServiceRoute', description='Specifies whether access control for cloud service routing is enabled.', example='false'),
+      envType?: string(name='EnvType', description='The environment type. This field is not publicly available.', example='Private'),
+      fileSystemIds?: [ string ](name='FileSystemIds', description='The NAS file system IDs.'),
+      isLdap?: boolean(name='IsLdap', description='Specifies whether the directory is an LDAP directory.'),
+      ldapUrl?: string(name='LdapUrl', description='The access address of the LDAP service.', example='ldap://192.168.0.10:389'),
       logs?: [ 
         {
           level?: string(name='Level', description='The log level.', example='INFO'),
-          message?: string(name='Message', description='The detailed log information.', example='code:success | message:Create Connector complete'),
+          message?: string(name='Message', description='The detailed log message.', example='code:success | message:Create Connector complete'),
           step?: string(name='Step', description='The step associated with the log entry.', example='CREATE_CONNECTOR'),
-          timeStamp?: string(name='TimeStamp', description='The time when the log was generated. The time is in the ISO 8601 standard format (UTC).', example='2021-05-12T09:42Z'),
+          timeStamp?: string(name='TimeStamp', description='The time when the log was generated. The time is displayed in UTC and follows the ISO 8601 standard.', example='2021-05-12T09:42Z'),
         }
       ](name='Logs', description='The registration log information.'),
-      mfaEnabled?: boolean(name='MfaEnabled', description='Indicates whether multi-factor authentication (MFA) is enabled.', example='false'),
-      name?: string(name='Name', description='The name of the office network. The name is unique within a region.', example='R&D_Office_Network'),
-      needVerifyLoginRisk?: boolean(name='NeedVerifyLoginRisk', description='Applicable only to convenience account office networks. Indicates whether secondary verification is required during logon. If logon secondary verification is enabled, the system checks whether the logon account has security risks when a convenience user logs on to the client. If a risk is detected, the system sends a verification code to the email address associated with the account. The convenience user can log on to the client only after passing the verification code check.', example='false'),
-      needVerifyZeroDevice?: boolean(name='NeedVerifyZeroDevice', description='Indicates whether trusted device verification is enabled.', example='true'),
-      networkPackageId?: string(name='NetworkPackageId', description='The Internet access package ID.', example='np-amtp8e8q1o9e4****'),
-      nmVersion?: string(name='NmVersion', description='The network version. The new version supports products such as Wuying Cloud Application.', example='NM'),
-      officeSiteId?: string(name='OfficeSiteId', description='The office network ID.', example='cn-hangzhou+dir-363353****'),
+      mfaEnabled?: boolean(name='MfaEnabled', description='Specifies whether to enable multi-factor authentication (MFA).', example='false'),
+      name?: string(name='Name', description='The name of the office network. The name must be unique within a region.', example='R&D Department Office Network'),
+      needVerifyLoginRisk?: boolean(name='NeedVerifyLoginRisk', description='Specifies whether secondary authentication is required during logon. This parameter applies only to convenience account office networks. If secondary authentication is enabled, the system checks for security risks when a convenience user logs on to the client. If a risk is detected, the system sends a verification code to the mailbox associated with the account. The user must authenticate with the verification code to log on to the client.', example='false'),
+      needVerifyZeroDevice?: boolean(name='NeedVerifyZeroDevice', description='Specifies whether trusted device verification is enabled.', example='true'),
+      networkPackageId?: string(name='NetworkPackageId', description='The ID of the Internet access package.', example='np-amtp8e8q1o9e4****'),
+      nmVersion?: string(name='NmVersion', description='The network version. The new version supports products such as WUYING Cloud Application.', example='NM'),
+      officeSiteId?: string(name='OfficeSiteId', description='The ID of the office network.', example='cn-hangzhou+dir-363353****'),
       officeSiteType?: string(name='OfficeSiteType', description='The account system type of the office network.', example='AD_CONNECTOR'),
       ouName?: string(name='OuName', description='The organizational unit (OU) in the AD domain.', example='example.com/Domain Controllers'),
       protocolType?: string(name='ProtocolType', description='The protocol type.', example='ASP'),
       rdsLicenseAddress?: string(name='RdsLicenseAddress', description='The IP address of the RDS license.', example='47.100.XX.XX'),
-      rdsLicenseDomainName?: string(name='RdsLicenseDomainName', description='The domain name where the RDS license resides.', example='example.com'),
+      rdsLicenseDomainName?: string(name='RdsLicenseDomainName', description='The domain name where the RDS license is located.', example='example.com'),
       rdsLicenseStatus?: string(name='RdsLicenseStatus', description='The status of the RDS license.', example='2'),
       resourceAmounts?: [ 
         {
-          amount?: long(name='amount', description='The number of resources.', example='1'),
+          amount?: long(name='amount', description='The resource count.', example='1'),
           resourceType?: string(name='resourceType', description='The resource type.', example='desktop'),
         }
-      ](name='ResourceAmounts', description='The list of resource quantities.'),
+      ](name='ResourceAmounts', description='The list of resource counts.'),
       securityProtection?: string(name='SecurityProtection', description='The security protection configuration of the office network.', example='SASE'),
-      ssoEnabled?: boolean(name='SsoEnabled', description='Indicates whether Single Sign-On (SSO) is enabled.', example='false'),
+      ssoEnabled?: boolean(name='SsoEnabled', description='Specifies whether to enable single sign-on (SSO).', example='false'),
       ssoType?: string(name='SsoType', description='The SSO type.', example='SAML'),
-      status?: string(name='Status', description='The office network status.', example='REGISTERED'),
+      status?: string(name='Status', description='The status of the office network.', example='REGISTERED'),
       subDnsAddress?: [ string ](name='SubDnsAddress', description='The array of DNS addresses for the AD subdomain.'),
-      subDomainName?: string(name='SubDomainName', description='The username of the AD subdomain DNS.', example='testSubDnsUserName'),
+      subDomainName?: string(name='SubDomainName', description='The username for the DNS of the AD subdomain.', example='testSubDnsUserName'),
       subnetMode?: string(name='SubnetMode', description='The subnet mode of the office network.', example='0'),
       tenantId?: string(name='TenantId', description='The tenant ID of the identity provider.', example='72f988bf-86f1-41af-91ab-2d7cd011****'),
-      totalEdsCount?: long(name='TotalEdsCount', description='The number of cloud computers.', example='0'),
-      totalEdsCountForGroup?: long(name='TotalEdsCountForGroup', description='The number of cloud computers in shared cloud computer pools.', example='0'),
-      totalResourceAmount?: long(name='TotalResourceAmount', description='The total number of network interface controllers (NICs).', example='1'),
-      trustPassword?: string(name='TrustPassword', description='> This parameter is not yet available.', example='To be hidden.'),
-      vSwitchIds?: [ string ](name='VSwitchIds', description='The array of vSwitch IDs.'),
+      totalEdsCount?: long(name='TotalEdsCount', description='The total number of cloud computers.', example='0'),
+      totalEdsCountForGroup?: long(name='TotalEdsCountForGroup', description='The number of cloud computers in a shared cloud computer.', example='0'),
+      totalResourceAmount?: long(name='TotalResourceAmount', description='The total number of network interfaces.', example='1'),
+      trustPassword?: string(name='TrustPassword', description='> This parameter is not available.', example='To be hidden.'),
+      upmDomainId?: string(name='UpmDomainId', description='The logical UPM domain ID bound to the workspace.', example='dom-abc****'),
+      upmStatus?: string(name='UpmStatus', description='The UPM status of the workspace. Valid values: UNBOUND, BINDING, BOUND, UNBINDING, and FAILED.', example='BUND'),
+      vSwitchIds?: [ string ](name='VSwitchIds', description='The vSwitch IDs.'),
       vpcId?: string(name='VpcId', description='The VPC ID of the secure office network.', example='vpc-uf6tz5k67puge5jn8****'),
       vpcType?: string(name='VpcType', description='The usage type of the VPC.', example='Basic'),
       vplVersion?: string(name='VplVersion', description='The version of the workspace network component (VPL).', example='2.0.0'),
     }
-  ](name='OfficeSites', description='The collection of office network information.'),
+  ](name='OfficeSites', description='The office network information.'),
   requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
   totalCount?: int32(name='TotalCount', description='The total number of query results.', example='20'),
 }
@@ -11256,6 +11258,48 @@ async function hibernateDesktops(request: HibernateDesktopsRequest): HibernateDe
   return @handler.do('RPC', 'HibernateDesktops', 'POST', '/', 'json', false, 'json', request);
 }
 
+model ImportDriveRequest {
+  domainId: string(name='DomainId', description='The target UPM domain ID. For workspace scenarios, use the UpmDomainId instead of the NAS file system ID.
+
+This parameter is required.', example='dom-aaaa****', position='Query'),
+  endUserId: string(name='EndUserId', description='The target ECD end user ID. The caller account is obtained from the authentication context.
+
+This parameter is required.', example='user01', position='Query'),
+  forceUpdate?: boolean(name='ForceUpdate', description='Specifies whether to force an update. Default value: false. If the file already exists and this parameter is set to false, the request fails. If this parameter is set to true, the original DriveId is reused for the update.', example='false', position='Query'),
+  mountUrl?: string(name='MountUrl', description='The relative path of the cloud application UPM. It must be the same as the path specified during upload authorization. For cloud desktops, do not pass this parameter or pass an empty value.', example='appv1/ab****', position='Query'),
+  platform: string(name='Platform', description='The target platform. Valid values: WINDOWS_10, WINDOWS_11, WINDOWS_SERVER_2019, WINDOWS_SERVER_2022, and WINDOWS_SERVER_2025.
+
+This parameter is required.', example='WINDOWS_SERVER_2025', position='Query'),
+  regionId: string(name='RegionId', description='The region of the target UPM.
+
+This parameter is required.', example='cn-hangzhou', position='Query'),
+}
+
+model ImportDriveResponseBody = {
+  code?: string(name='Code', description='The modification result. A value of `success` indicates success. Otherwise, an error message is returned.', example='Response code. 200 indicates success'),
+  driveId?: string(name='DriveId', description='The newly created or reused target drive ID. A success response only indicates that the import task has been accepted.', example='dri-aaaa****'),
+  message?: string(name='Message', description='The response message.', example='Response message'),
+  requestId?: string(name='RequestId', description='The request ID.', example='A87DBB05-653A-5E4B-B72B-5F4A1E07****'),
+  success?: boolean(name='Success', description='Indicates whether the operation is successful. Valid values:
+- true: Successful.
+- false: Failed.', example='true'),
+}
+
+model ImportDriveResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ImportDriveResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ImportDrive  ImportDriveRequest
+  * @return ImportDriveResponse
+ */
+async function importDrive(request: ImportDriveRequest): ImportDriveResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'ImportDrive', 'POST', '/', 'json', false, 'json', request);
+}
+
 model ListCdsFilesRequest {
   cdsId: string(name='CdsId', description='The enterprise cloud drive ID.
 
@@ -13942,26 +13986,27 @@ async function modifyOfficeSiteAccelerator(request: ModifyOfficeSiteAcceleratorR
 }
 
 model ModifyOfficeSiteAttributeRequest {
-  authorityHost?: string(name='AuthorityHost', description='The Authority URL of the identity authentication service.', example='https://login.microsoftonline.com', position='Query'),
-  clientId?: string(name='ClientId', description='The client ID registered with the identity provider application.', example='a2c8f7e4-1b3d-4c5e-9f0a-6d7b8c9e****', position='Query'),
-  clientSecret?: string(name='ClientSecret', description='The client secret registered with the identity provider application.', example='sct-9f3e2d1c****', position='Query'),
-  desktopAccessType?: string(name='DesktopAccessType', description='The access method allowed when connecting to cloud computers.
+  authorityHost?: string(name='AuthorityHost', description='The authority URL of the identity authentication service.', example='https://login.microsoftonline.com', position='Query'),
+  clientId?: string(name='ClientId', description='The client ID registered for the identity provider application.', example='a2c8f7e4-1b3d-4c5e-9f0a-6d7b8c9e****', position='Query'),
+  clientSecret?: string(name='ClientSecret', description='The client secret registered for the identity provider application.', example='sct-9f3e2d1c****', position='Query'),
+  desktopAccessType?: string(name='DesktopAccessType', description='The access method allowed when connecting to cloud desktops.
 
-> The VPC connection method depends on the Alibaba Cloud PrivateLink service, which is free of charge. If this parameter is set to `VPC` or `Any`, the system automatically activates the PrivateLink service for you.', example='INTERNET', position='Query'),
+> The VPC connection method relies on the Alibaba Cloud PrivateLink service, which is free of charge. If you set this parameter to `VPC` or `Any`, the system automatically activates the PrivateLink service for you.', example='INTERNET', position='Query'),
   domainName?: string(name='DomainName', description='The domain name of the enterprise AD.', example='domain.local', position='Query'),
-  enableAdminAccess?: boolean(name='EnableAdminAccess', description='Specifies whether to grant local administrator permissions to cloud computer users.', example='false', position='Query'),
-  needVerifyLoginRisk?: boolean(name='NeedVerifyLoginRisk', description='This parameter applies only to convenience account-based office networks. Specifies whether secondary authentication is required during logon. If logon secondary authentication is enabled, the system checks whether the logon account has security risks when a convenience user logs on to the client. If a risk is detected, the system sends a verification code to the email address associated with the account. The convenience user can log on to the client only after passing the verification code check.', example='false', position='Query'),
-  needVerifyZeroDevice?: boolean(name='NeedVerifyZeroDevice', description='This parameter applies only to convenience account-based office networks. Specifies whether to enable device verification. For AD-based office networks, this parameter is empty.', example='false', position='Query'),
+  enableAdminAccess?: boolean(name='EnableAdminAccess', description='Specifies whether to grant local administrator permissions to users of cloud desktops.', example='false', position='Query'),
+  enableUpm?: boolean(name='EnableUpm', description='Specifies whether to enable User Profile Management (UPM). Currently, you can only set this parameter to false to unbind UPM from the workspace. To enable UPM, call the CreateAndBindNasFileSystem operation.', example='false', position='Query'),
+  needVerifyLoginRisk?: boolean(name='NeedVerifyLoginRisk', description='Applies only to office networks with convenience accounts. Specifies whether secondary authentication is required during logon. If secondary authentication is enabled, the system checks for security risks when a convenience user logs on to the client. If risks are detected, the system sends a verification code to the email address associated with the account. The convenience user can log on to the client only after entering the correct verification code.', example='false', position='Query'),
+  needVerifyZeroDevice?: boolean(name='NeedVerifyZeroDevice', description='Applies only to office networks with convenience accounts. Specifies whether to enable device verification. For AD office networks, this parameter is left empty.', example='false', position='Query'),
   officeSiteId: string(name='OfficeSiteId', description='The office network ID.
 
 This parameter is required.', example='cn-hangzhou+dir-882398****', position='Query'),
-  officeSiteName?: string(name='OfficeSiteName', description='The office network name. The name must be 2 to 255 characters in length. It must start with a letter or a Chinese character and cannot start with `http://` or `https://`. It can contain digits, colons (:), underscores (_), or hyphens (-).    
-Default value: empty.', example='R&D_Office_Network', position='Query'),
-  regionId: string(name='RegionId', description='The region ID. You can call [DescribeRegions](https://help.aliyun.com/document_detail/196646.html) to query the regions supported by Elastic Desktop Service.
+  officeSiteName?: string(name='OfficeSiteName', description='The name of the office network. The name must be 2 to 255 characters in length, and can contain letters and Chinese characters. It must start with a letter or a Chinese character, and cannot start with `http://` or `https://`. It can contain digits, colons (:), underscores (_), and hyphens (-).    
+Default value: empty.', example='R&D Department Office Network', position='Query'),
+  regionId: string(name='RegionId', description='The region ID. You can call the [DescribeRegions](https://help.aliyun.com/document_detail/196646.html) operation to query the regions supported by Wuying Workspace.
 
 This parameter is required.', example='cn-hangzhou', position='Query'),
   tenantId?: string(name='TenantId', description='The tenant ID of the identity provider.', example='72f988bf-86f1-41af-91ab-2d7cd011****', position='Query'),
-  vSwitchId?: [ string ](name='VSwitchId', description='The vSwitch ID. Only one vSwitch is supported.', position='Query'),
+  vSwitchId?: [ string ](name='VSwitchId', description='The vSwitch ID. Currently, you can configure only one vSwitch.', position='Query'),
 }
 
 model ModifyOfficeSiteAttributeResponseBody = {
