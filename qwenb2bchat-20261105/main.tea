@@ -1,0 +1,467 @@
+/**
+ *
+ */
+import Util;
+import GatewayClient;
+import OpenApi;
+import OpenApiUtil;
+import EndpointUtil;
+
+extends OpenApi;
+
+
+init(config: OpenApi.Config){
+  super(config);
+  @productId = 'QwenB2BChat';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
+  @endpointRule = 'regional';
+  
+  checkConfig(config);
+  @endpoint = getEndpoint('qwenb2bchat', @regionId, @endpointRule, @network, @suffix, @endpointMap, @endpoint);
+}
+
+function getEndpoint(productId: string, regionId: string, endpointRule: string, network: string, suffix: string, endpointMap: map[string]string, endpoint: string) throws: string{
+  if (!Util.empty(endpoint)) {
+    return endpoint;
+  }
+  
+  if (!Util.isUnset(endpointMap) && !Util.empty(endpointMap[regionId])) {
+    return endpointMap[regionId];
+  }
+  return EndpointUtil.getEndpointRules(productId, regionId, endpointRule, network, suffix);
+}
+
+model ChatHeaders {
+  commonHeaders?: map[string]string,
+  accept?: string(name='Accept', description='The response media types accepted by the client.', example='application/json'),
+  xDashScopeSSE?: string(name='X-DashScope-SSE', description='The compatible SSE selector header.', example='enable'),
+  xGWAccess?: string(name='X-GW-Access', description='The AccessKey ID for the business gateway.
+
+This parameter is required.', example='example-gateway-access'),
+  xGWNonce?: string(name='X-GW-Nonce', description='The random string used for each call.
+
+This parameter is required.', example='c093adf9-287a-4684-982a-1aea5a248c2e'),
+  xGWProtocol?: string(name='X-GW-Protocol', description='The field naming protocol. Set to aliyun-roa to use lower camel case fields, or omit to use the legacy protocol. This header does not participate in HMAC signing.', example='aliyun-roa'),
+  xGWSignature?: string(name='X-GW-Signature', description='The lowercase hexadecimal HMAC-SHA256 signature calculated based on the actual request bytes.
+
+This parameter is required.', example='0000000000000000000000000000000000000000000000000000000000000000'),
+  xGWTimestamp?: string(name='X-GW-Timestamp', description='The current Unix millisecond timestamp.
+
+This parameter is required.', example='1794787200000'),
+  xRequestId?: string(name='X-Request-Id', description='The business request ID, which must be exactly the same as communication.requestId.
+
+This parameter is required.', example='req-example-001'),
+}
+
+model ChatRequest {
+  communication?: {
+    appId?: string(name='appId', description='The application ID provided based on the gateway credential identity configuration.', example='example-app'),
+    appScene?: string(name='appScene', description='The optional business scene marker.', example='travel'),
+    historyOwner?: string(name='historyOwner', description='The owner of the session history, which must be consistent with the first call of the session.
+
+This parameter is required.', example='CLIENT'),
+    requestId?: string(name='requestId', description='The business request ID of the customer.
+
+This parameter is required.', example='req-example-001'),
+    sessionId?: string(name='sessionId', description='The session ID of the customer, which is reused for continued chats.
+
+This parameter is required.', example='session-example-001'),
+    userInfo?: {
+      deviceId?: string(name='deviceId', description='The terminal device identifier provided by the customer.', example='device-example-001'),
+      userId?: string(name='userId', description='The business user identifier within the customer application, provided based on the user binding or delegation configuration of the business gateway credentials.', example='example-user-001'),
+      userIp?: string(name='userIp', description='The IP address of the business user provided by the customer.', example='192.0.2.10'),
+      userName?: string(name='userName', description='The username of the business user provided by the customer.', example='示例用户'),
+    }(name='userInfo', description='The business user and device information provided by the customer. Identity fields are passed based on the configuration of the business gateway credentials.'),
+  }(name='communication', description='The correlation ID, session, and application identity information for the current request.
+
+This parameter is required.'),
+  data?: {
+    messages?: [ 
+      {
+        content?: any(name='content', description='The text or an array of supported multimodal content blocks.
+
+This parameter is required.', example='请介绍杭州西湖。'),
+        role?: string(name='role', description='The sender of the message. user indicates the business user, and assistant indicates the assistant.
+
+This parameter is required.', example='user'),
+      }
+    ](name='messages', description='The list of messages arranged in conversational order. When history is managed by the client, it can include the session history provided by the client.
+
+This parameter is required.'),
+  }(name='data', description='The business data that carries the messages for the current request.
+
+This parameter is required.'),
+  params?: {
+    deepthink?: string(name='deepthink', description='The deep thinking switch.', example='true'),
+    directAgent?: string(name='directAgent', description='The agent selector for the current turn.', example='study_qa'),
+    enableTextImageMixed?: boolean(name='enableTextImageMixed', description='The mixed text and image output switch.', example='true'),
+    maxTokens?: int32(name='maxTokens', description='The maximum number of output tokens for the model.', example='512'),
+    outputAudio?: boolean(name='outputAudio', description='The HTTP audio output switch.'),
+    responseStreaming?: boolean(name='responseStreaming', description='Specifies whether to use Server-Sent Events (SSE) for conversation responses.'),
+    temperature?: float(name='temperature', description='The model sampling temperature.', example='0.7'),
+    topP?: float(name='topP', description='The nucleus sampling probability for the model.', example='0.8'),
+  }(name='params', description='An optional extensible JSON object. responseStreaming is an optional boolean value. A value of false returns a complete JSON response, and a value of true returns a Server-Sent Events (SSE) response.'),
+}
+
+model ChatResponseBody = {
+  audioFrames?: [ 
+    {
+      code?: string(name='code', description='The error code.', example='DOWNSTREAM_ERROR'),
+      data?: string(name='data', description='The encoded audio data.', example='SUQz'),
+      last?: boolean(name='last', description='Indicates whether the frame is the last audio frame.'),
+      message?: string(name='message', description='The error description.', example='Speech synthesis is currently unavailable'),
+      requestId?: string(name='requestId', description='The business request correlation ID.', example='req-example-001'),
+      type?: string(name='type', description='The type of the audio or error frame.', example='audio'),
+    }
+  ](name='audioFrames', description='The optional list of audio frames in the response. This list can be empty or omitted when no audio is present.'),
+  communication?: {
+    requestId?: string(name='requestId', description='The business request ID, if present.', example='req-example-001'),
+    responseId?: long(name='responseId', description='The identifier of the business response frame.', example='1'),
+    sessionId?: string(name='sessionId', description='The customer session ID.', example='session-example-001'),
+  }(name='communication', description='The information used to associate the response frame with the original business request and session.'),
+  data?: {
+    debug?: any(name='debug', description='The optional debug information included in the business response.', example='{"intentLabel":"image_search"}'),
+    extraInfo?: {
+      inputResources?: [ 
+        {
+          contentIndex?: int32(name='contentIndex', description='The position of the original content block.', example='1'),
+          fileName?: string(name='fileName', description='The file name of the transferred and stored resource.', example='cat.png'),
+          resourceId?: string(name='resourceId', description='The ID of the transferred and stored resource.', example='ws_example_001'),
+          type?: string(name='type', description='The type of the transferred and stored resource.', example='image'),
+          url?: string(name='url', description='The URL of the transferred and stored resource.', example='https://cdn.example.com/uploads/cat.png'),
+        }
+      ](name='inputResources', description='The transfer and storage results of the input resources for the current round.'),
+    }(name='extraInfo', description='The business extended information, which may include inputResources.'),
+    messages?: [ 
+      {
+        content?: any(name='content', description='The text or content of the corresponding message type.', example='Image as follows [(image_waterfall_1)]'),
+        metaData?: {
+          barTitle?: string(name='barTitle', description='The display title of the process module.', example='Issue analysis'),
+          content?: any(name='content', description='The complete content snapshot of the process module.', example='{"body":"Analyzing the issue","status":"processing"}'),
+          multiLoad?: [ 
+            {
+              content?: any(name='content', description='The card content.', example='{"list":[{"imageUrl":"https://images.example.com/cat.png"}]}'),
+              sourceSeq?: string(name='sourceSeq', description='The card reference identifier.', example='image_waterfall_1'),
+              type?: string(name='type', description='The card type.', example='image_waterfall'),
+            }
+          ](name='multiLoad', description='The list of structured content associated with the body, such as image-text cards, returned by message type.'),
+          sourceSeq?: string(name='sourceSeq', description='The process module identifier within the current request.', example='thinking-1'),
+          type?: string(name='type', description='The process module type.', example='bar_thinking'),
+        }(name='metaData', description='The extended metadata associated with the message.'),
+        mimeType?: string(name='mimeType', description='The message type.', example='multi_load/iframe'),
+        status?: string(name='status', description='The business message status.', example='complete'),
+      }
+    ](name='messages', description='The list of messages returned in the business response or the current streaming response frame.'),
+  }(name='data', description='The business data returned in the response, including messages and optional extended information.'),
+  error?: {
+    code?: any(name='code', description='The business error code used by the client to identify the failure type.', example='INVALID_REQUEST'),
+    message?: string(name='message', description='The descriptive text of the business error.', example='Invalid request parameters'),
+    requestId?: string(name='requestId', description='The business request correlation ID of the failed call, used for troubleshooting.', example='req-example-001'),
+  }(name='error', description='The error details returned when a business call fails.'),
+  errorCode?: any(name='errorCode', description='The business status code.', example='0'),
+  errorMsg?: string(name='errorMsg', description='The business status description.', example='success'),
+  requestId?: string(name='requestId', description='The optional business request correlation ID. For the POP request ID, see x-acs-request-id.', example='req-example-001'),
+}
+
+model ChatResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ChatResponseBody(name='body'),
+}
+
+/**
+ * @summary Sends text or multimodal messages to initiate conversations with web search capabilities, supporting deep thinking, session history management, and both complete JSON and Server-Sent Events (SSE) streaming responses. Specific agent and media capabilities are subject to the activated scope.
+ *
+ * @param request ChatRequest
+ * @param headers ChatHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ChatResponse
+ */
+async function chatWithOptions(request: ChatRequest, headers: ChatHeaders, runtime: Util.RuntimeOptions): ChatResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.communication)) {
+    body['communication'] = request.communication;
+  }
+  if (!Util.isUnset(request.data)) {
+    body['data'] = request.data;
+  }
+  if (!Util.isUnset(request.params)) {
+    body['params'] = request.params;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.accept)) {
+    realHeaders['Accept'] = Util.toJSONString(headers.accept);
+  }
+  if (!Util.isUnset(headers.xDashScopeSSE)) {
+    realHeaders['X-DashScope-SSE'] = Util.toJSONString(headers.xDashScopeSSE);
+  }
+  if (!Util.isUnset(headers.xGWAccess)) {
+    realHeaders['X-GW-Access'] = Util.toJSONString(headers.xGWAccess);
+  }
+  if (!Util.isUnset(headers.xGWNonce)) {
+    realHeaders['X-GW-Nonce'] = Util.toJSONString(headers.xGWNonce);
+  }
+  if (!Util.isUnset(headers.xGWProtocol)) {
+    realHeaders['X-GW-Protocol'] = Util.toJSONString(headers.xGWProtocol);
+  }
+  if (!Util.isUnset(headers.xGWSignature)) {
+    realHeaders['X-GW-Signature'] = Util.toJSONString(headers.xGWSignature);
+  }
+  if (!Util.isUnset(headers.xGWTimestamp)) {
+    realHeaders['X-GW-Timestamp'] = Util.toJSONString(headers.xGWTimestamp);
+  }
+  if (!Util.isUnset(headers.xRequestId)) {
+    realHeaders['X-Request-Id'] = Util.toJSONString(headers.xRequestId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'Chat',
+    version = '2026-11-05',
+    protocol = 'HTTPS',
+    pathname = `/v1/api/chat`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Sends text or multimodal messages to initiate conversations with web search capabilities, supporting deep thinking, session history management, and both complete JSON and Server-Sent Events (SSE) streaming responses. Specific agent and media capabilities are subject to the activated scope.
+ *
+ * @param request ChatRequest
+ * @return ChatResponse
+ */
+async function chat(request: ChatRequest): ChatResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new ChatHeaders{};
+  return chatWithOptions(request, headers, runtime);
+}
+
+model OpenServiceHeaders {
+  commonHeaders?: map[string]string,
+  xGWAccess?: string(name='X-GW-Access', description='The access key ID of the business gateway credential, used to identify the calling tenant and its credential.
+
+This parameter is required.', example='example-gateway-access'),
+  xGWNonce?: string(name='X-GW-Nonce', description='The random string that participates in the business signature, regenerated for each request.
+
+This parameter is required.', example='c093adf9-287a-4684-982a-1aea5a248c2e'),
+  xGWSignature?: string(name='X-GW-Signature', description='The HMAC-SHA256 signature calculated based on the actual HTTP method, path, canonicalized query string, request body SHA-256 digest, timestamp, and random string, passed as a 64-character lowercase hexadecimal string.
+
+This parameter is required.', example='0000000000000000000000000000000000000000000000000000000000000000'),
+  xGWTimestamp?: string(name='X-GW-Timestamp', description='The current Unix timestamp that participates in the business signature, in milliseconds, represented as a numeric string.
+
+This parameter is required.', example='1794787200000'),
+  xRequestId?: string(name='X-Request-Id', description='The business request ID generated by the customer for the current validation or service activation call, used to correlate call records.
+
+This parameter is required.', example='req-example-001'),
+}
+
+model OpenServiceRequest {
+  communication?: {
+    userInfo?: {
+      userId?: string(name='user_id', description='The customer business user ID.
+
+This parameter is required.', example='example-user-001'),
+    }(name='user_info', description='The object that carries the customer business user identifier.
+
+This parameter is required.'),
+  }(name='communication', description='The business user identity. Provided according to the identity configuration bound to the gateway credential.'),
+  openBenefits?: boolean(name='openBenefits', description='Specifies whether to actually activate benefits. true enters the activation process, and false only validates the call and returns TEST_OK.
+
+This parameter is required.', example='false'),
+}
+
+model OpenServiceResponseBody = {
+  error?: {
+    code?: string(name='code', description='The error code recognizable by programs.
+
+This parameter is required.', example='INVALID_REQUEST'),
+    message?: string(name='message', description='The error description.
+
+This parameter is required.', example='invalid request'),
+    requestId?: string(name='request_id', description='The correlation ID of the current call.
+
+This parameter is required.', example='open-service-001'),
+  }(name='error', description='The details of a non-2xx error response, which are mutually exclusive with the status, orderId, and spInstanceId of a normal response.'),
+  orderId?: string(name='orderId', description='The order ID associated with the service activation process. Returned when an order exists.', example='order-example-001'),
+  spInstanceId?: string(name='spInstanceId', description='The service instance ID returned after successful activation and settlement.', example='sp-example-001'),
+  status?: string(name='status', description='The test or activation result. TEST_OK indicates that the call validation succeeded.', example='TEST_OK'),
+}
+
+model OpenServiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: OpenServiceResponseBody(name='body'),
+}
+
+/**
+ * @summary Validates the service activation API or initiates service activation for the current account, and returns the current activation status along with the available order or instance ID.
+ *
+ * @param request OpenServiceRequest
+ * @param headers OpenServiceHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return OpenServiceResponse
+ */
+async function openServiceWithOptions(request: OpenServiceRequest, headers: OpenServiceHeaders, runtime: Util.RuntimeOptions): OpenServiceResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.communication)) {
+    body['communication'] = request.communication;
+  }
+  if (!Util.isUnset(request.openBenefits)) {
+    body['openBenefits'] = request.openBenefits;
+  }
+
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xGWAccess)) {
+    realHeaders['X-GW-Access'] = Util.toJSONString(headers.xGWAccess);
+  }
+  if (!Util.isUnset(headers.xGWNonce)) {
+    realHeaders['X-GW-Nonce'] = Util.toJSONString(headers.xGWNonce);
+  }
+  if (!Util.isUnset(headers.xGWSignature)) {
+    realHeaders['X-GW-Signature'] = Util.toJSONString(headers.xGWSignature);
+  }
+  if (!Util.isUnset(headers.xGWTimestamp)) {
+    realHeaders['X-GW-Timestamp'] = Util.toJSONString(headers.xGWTimestamp);
+  }
+  if (!Util.isUnset(headers.xRequestId)) {
+    realHeaders['X-Request-Id'] = Util.toJSONString(headers.xRequestId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'OpenService',
+    version = '2026-11-05',
+    protocol = 'HTTPS',
+    pathname = `/v1/api/openService`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Validates the service activation API or initiates service activation for the current account, and returns the current activation status along with the available order or instance ID.
+ *
+ * @param request OpenServiceRequest
+ * @return OpenServiceResponse
+ */
+async function openService(request: OpenServiceRequest): OpenServiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new OpenServiceHeaders{};
+  return openServiceWithOptions(request, headers, runtime);
+}
+
+model StreamVoiceHeaders {
+  commonHeaders?: map[string]string,
+  xGWAccess?: string(name='X-GW-Access', description='业务网关 Access Key ID
+
+This parameter is required.', example='example-gateway-access'),
+  xGWNonce?: string(name='X-GW-Nonce', description='每次调用使用的随机串
+
+This parameter is required.', example='c093adf9-287a-4684-982a-1aea5a248c2e'),
+  xGWProtocol?: string(name='X-GW-Protocol', description='小驼峰回源协议固定传 aliyun-roa，省略时为旧协议；不参与 HMAC 签名', example='aliyun-roa'),
+  xGWSignature?: string(name='X-GW-Signature', description='按实际请求字节计算的 HMAC-SHA256 小写十六进制签名
+
+This parameter is required.', example='0000000000000000000000000000000000000000000000000000000000000000'),
+  xGWTimestamp?: string(name='X-GW-Timestamp', description='当前 Unix 毫秒时间戳
+
+This parameter is required.', example='1794787200000'),
+  xRequestId?: string(name='X-Request-Id', description='可选的 WebSocket 握手关联号，每轮业务 ID 使用 run-task 帧中的 communication.requestId', example='ws-example-001'),
+}
+
+model StreamVoiceRequest {
+}
+
+model StreamVoiceResponseBody = {
+  requestId?: string(name='RequestId', description='Id of the request', example='A3677B53-C3AE-5F04-953E-AA332CABB87B'),
+}
+
+model StreamVoiceResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: StreamVoiceResponseBody(name='body'),
+}
+
+/**
+ * @summary Uploads audio and receives recognized text, agent responses, and synthesized audio over a WebSocket connection. Supports image and text auxiliary input, recognition context, and conversation history. The operation description covers the complete handshake, control frames, audio frames, return events, and error handling protocols.
+ *
+ * @param request StreamVoiceRequest
+ * @param headers StreamVoiceHeaders
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return StreamVoiceResponse
+ */
+async function streamVoiceWithOptions(request: StreamVoiceRequest, headers: StreamVoiceHeaders, runtime: Util.RuntimeOptions): StreamVoiceResponse {
+  Util.validateModel(request);
+  var realHeaders : map[string]string = {};
+  if (!Util.isUnset(headers.commonHeaders)) {
+    realHeaders = headers.commonHeaders;
+  }
+  if (!Util.isUnset(headers.xGWAccess)) {
+    realHeaders['X-GW-Access'] = Util.toJSONString(headers.xGWAccess);
+  }
+  if (!Util.isUnset(headers.xGWNonce)) {
+    realHeaders['X-GW-Nonce'] = Util.toJSONString(headers.xGWNonce);
+  }
+  if (!Util.isUnset(headers.xGWProtocol)) {
+    realHeaders['X-GW-Protocol'] = Util.toJSONString(headers.xGWProtocol);
+  }
+  if (!Util.isUnset(headers.xGWSignature)) {
+    realHeaders['X-GW-Signature'] = Util.toJSONString(headers.xGWSignature);
+  }
+  if (!Util.isUnset(headers.xGWTimestamp)) {
+    realHeaders['X-GW-Timestamp'] = Util.toJSONString(headers.xGWTimestamp);
+  }
+  if (!Util.isUnset(headers.xRequestId)) {
+    realHeaders['X-Request-Id'] = Util.toJSONString(headers.xRequestId);
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    headers = realHeaders,
+  };
+  var params = new OpenApi.Params{
+    action = 'StreamVoice',
+    version = '2026-11-05',
+    protocol = 'HTTPS',
+    pathname = `/v1/api/voice`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Uploads audio and receives recognized text, agent responses, and synthesized audio over a WebSocket connection. Supports image and text auxiliary input, recognition context, and conversation history. The operation description covers the complete handshake, control frames, audio frames, return events, and error handling protocols.
+ *
+ * @param request StreamVoiceRequest
+ * @return StreamVoiceResponse
+ */
+async function streamVoice(request: StreamVoiceRequest): StreamVoiceResponse {
+  var runtime = new Util.RuntimeOptions{};
+  var headers = new StreamVoiceHeaders{};
+  return streamVoiceWithOptions(request, headers, runtime);
+}
+

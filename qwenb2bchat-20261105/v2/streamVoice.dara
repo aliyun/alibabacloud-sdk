@@ -1,0 +1,164 @@
+@clientName("websocket")
+
+model VoiceCommand {
+  communication?: {
+    requestId?: string(name='requestId', description='run-task 必填，本轮客户业务请求 ID，匹配 [A-Za-z0-9._:-]{1,128}。不能使用 gw-ingress- 保留前缀。下一轮需新建连接并使用独立 ID；finish-audio/cancel-task 沿用当前轮次且不另传 communication。与可选握手 X-Request-Id 不同。', example='voice-request-001'),
+    sessionId?: string(name='sessionId', description='每个 run-task 必填。客户会话 ID，匹配 [A-Za-z0-9._-]{1,128}，同一会话续聊时复用；用于会话历史关联，不是订单号或业务请求 ID。', example='voice-session-001'),
+    appId?: string(name='appId', description='每个 run-task 必填的业务应用 ID，不从握手 query 读取。须符合业务网关凭据的应用绑定或委托配置；每条连接只接受一个 run-task；下一轮需新建连接，即使复用 sessionId 也要提供本字段。非空，最多 256 个 UTF-16 代码单元，无首尾空白、控制字符或非法 Unicode。', example='your-app'),
+    historyOwner?: string(name='historyOwner', description='每个 run-task 必填，区分大小写，只能是 CLIENT 或 GATEWAY，无默认值。须与该会话首次调用一致。CLIENT 历史放在 payload.input.history；GATEWAY 由服务端托管，不接受客户提交非空历史。', example='GATEWAY'),
+    userId?: string(name='userId', description='可选，无默认用户。省略时匿名，不启用用户记忆；即使凭据绑定固定用户也不要求必须传入。若显式传入，须符合固定绑定；必须为非空字符串，最多 256 个 UTF-16 代码单元，无首尾空白、控制字符或非法 Unicode。不能为 null。', example='customer-user-001'),
+  }(name='communication', description='本轮语音交互的请求关联号、会话及应用和用户身份信息。', example='{"appId":"your-app","requestId":"voice-request-001","sessionId":"voice-session-001","historyOwner":"GATEWAY"}'),
+  data?: {
+    messages?: [ 
+      {
+        role?: string(name='role', description='本轮消息的角色，传 user。CLIENT 托管的历史消息放在 payload.input.history。', example='user'),
+        content?: any(name='content', description='本轮 user 消息的内容，为非空文本或所接入 Agent 支持的内容块数组；文本/图片块格式沿用 Chat。音频不放入此字段，另发 WSS 二进制帧。', example='请结合我的语音回答。'),
+      }
+    ](name='messages', description='run-task 可选，省略或空数组表示没有附加图文消息。传入时只包含本轮一条 user 消息，历史放入 payload.input.history；不要重复提交音频转写。', example='[{"role":"user","content":"请结合我的语音回答。"}]'),
+  }(name='data', description='run-task 可选对象，无默认值；传入时只支持 messages，不能为 null。供 Agent 使用的业务输入，语音音频另通过二进制帧上传。', example='{"messages":[{"role":"user","content":"请结合我的语音回答。"}]}'),
+  params?: {
+    directAgent?: string(name='directAgent', description='可选的本轮 Agent 选择器；省略使用租户默认路由，显式值须在已授权 Agent 范围内。无统一公开枚举，请使用接入方提供的 Agent 名称。', example='<已授权的Agent名称>'),
+    deepthink?: string(name='deepthink', description='可选的 Agent 参数，无统一网关默认值。支持本参数的 Agent 使用字符串 true 开启，具体值和默认行为依所接入 Agent 契约；不要误写为控制帧顶层字段。', example='true'),
+  }(name='params', description='run-task 可选对象，省略为无客户扩展；显式传入不能为 null。支持 directAgent、deepthink 及已接入 Agent 的扩展，字段和值类型依 Agent 契约；语音参数放在 payload.parameters。本接口不支持通过 enableTextImageMixed 启用图文混排，传 true 不生效；历史托管方放在 communication.historyOwner。', example='{"deepthink":"true"}'),
+  header?: {
+    action?: string(name='action', description='所有控制帧必填，无默认值；区分大小写，只接受 run-task、finish-audio、cancel-task。run-task 启动一轮交互；finish-audio 表示上行音频发送结束；cancel-task 取消当前轮次。没有 continue-task 或 finish-task；Ping/Pong 使用 WebSocket 原生控制帧。
+
+This parameter is required.', example='run-task'),
+  }(name='header', description='控制帧头，包含客户端要执行的语音交互动作。
+
+This parameter is required.', example='{"action":"run-task"}'),
+  payload?: {
+    taskGroup?: string(name='taskGroup', description='run-task 必填字符串，固定为 audio，区分大小写，无默认值。', example='audio'),
+    task?: string(name='task', description='run-task 必填字符串，固定为 voice，区分大小写，无默认值。', example='voice'),
+    retryOf?: string(name='retryOf', description='可选的保留字段，字符串格式为 [A-Za-z0-9._:-]{1,128}。当前不支持引用先前请求重试；即使值符合格式，也返回 RETRY_EXPIRED，不会重试音频或继续之前的任务。正常调用请省略，不要用于自动续传。', example='previous-voice-request-001'),
+    parameters?: {
+      asr?: {
+        format?: string(name='format', description='ASR 必填字符串，无默认值；支持 pcm、wav 或 opus，具体值须符合租户许可。音频实际编码须与声明一致，不能用文件后缀代替编码。', example='pcm'),
+        sampleRate?: integer(name='sampleRate', description='ASR 必填整数，单位 Hz，无默认值；须为租户许可的采样率并与实际音频一致，例如 16000。', example='16000'),
+        languageHints?: [ string ](name='languageHints', description='可选字符串数组，无默认提示；最多 4 项，每项非空白、最多 16 个 UTF-16 代码单元。用于辅助识别，非业务用户身份。', example='["zh"]'),
+      }(name='asr', description='普通 run-task 必填对象；format 和 sampleRate 必填且无默认值，languageHints 可选。上传与这些参数匹配的音频二进制帧，不使用 Base64 JSON 音频字段。', example='{"format":"pcm","sampleRate":16000}'),
+      tts?: {
+        format?: string(name='format', description='可选字符串，只支持 mp3 或 pcm；省略或 null 时为 mp3。客户端按该格式解码随后返回的二进制音频。', example='mp3'),
+        sampleRate?: integer(name='sampleRate', description='可选整数，单位 Hz；默认 22050，可选 8000、16000、22050、24000、44100、48000。客户端按本轮格式及采样率解码音频。', example='22050'),
+        voice?: string(name='voice', description='可选字符串，须为租户许可的音色；省略或 null 时使用租户默认音色。没有跨租户固定的默认音色名称。', example='<租户已许可的音色>'),
+        volume?: integer(name='volume', description='可选整数，范围 [0,100]，默认 50；不是小数比例。', example='50'),
+        rate?: float(name='rate', description='可选数值，范围 [0.5,2.0]，默认 1.0，表示语速倍率。', example='1.0'),
+      }(name='tts', description='可选对象，可省略或传 null，使用默认合成设置。默认 format=mp3、sampleRate=22050、volume=50、rate=1.0，voice 使用租户默认音色；显式字段仍须符合租户许可。', example='{"format":"mp3","sampleRate":22050,"volume":50,"rate":1.0}'),
+    }(name='parameters', description='普通 run-task 必填对象，只包含 asr 和可选 tts。asr 无默认值；tts 可省略或 null，使用默认合成设置。', example='{"asr":{"format":"pcm","sampleRate":16000}}'),
+    input?: {
+      context?: [ 
+        {
+          role?: string(name='role', description='上下文条目必填字符串，只接受 user 或 assistant，区分大小写；assistant 必须紧跟同一轮 user。
+
+This parameter is required.', example='user'),
+          content?: [ 
+            {
+              type?: string(name='type', description='上下文内容块必填字符串；user 消息固定 input_text，assistant 消息固定 text。
+
+This parameter is required.', example='input_text'),
+              text?: string(name='text', description='上下文内容块必填的非空文本，用于辅助识别；计入该条消息合计 400 个 UTF-16 代码单元限制。
+
+This parameter is required.', example='千问语音对话'),
+            }
+          ](name='content', description='上下文条目必填的非空数组，同一条消息的各文本块按顺序合并后用于识别。
+
+This parameter is required.', example='[{"type":"input_text","text":"千问语音对话"}]'),
+        }
+      ](name='context', description='可选数组，省略为无 ASR 上下文。最多 10 条，user/assistant 各最多 5 条，assistant 必须紧跟 user。每条 content 文本块顺序合并后最多 400 个 UTF-16 代码单元。', example='[{"role":"user","content":[{"type":"input_text","text":"千问语音对话"}]}]'),
+      history?: [ 
+        {
+          role?: string(name='role', description='历史条目必填字符串，只接受 user 或 assistant，按 user、assistant 成对交替并以 assistant 结束。
+
+This parameter is required.', example='user'),
+          content?: any(name='content', description='历史条目必填，为非空字符串或非空内容块数组。user 历史支持文本/图片，assistant 历史只接受文本；内容块格式沿用 Chat。
+
+This parameter is required.', example='你好'),
+        }
+      ](name='history', description='CLIENT 模式可选历史数组，省略或空数组为无历史；仅含此前完整 user/assistant 对，交替并以 assistant 结束，不含本轮问题。GATEWAY 模式不能提交非空历史。本轮附加图文放 data.messages，音频走二进制帧。', example='[{"role":"user","content":"你好"},{"role":"assistant","content":"你好，有什么可以帮助你？"}]'),
+    }(name='input', description='可选对象，可省略或 null；只包含 context 和 history。context 辅助 ASR，history 是 Agent 业务历史，两者用途不同。', example='{"context":[{"role":"user","content":[{"type":"input_text","text":"千问语音对话"}]}]}'),
+  }(name='payload', description='run-task 必须提供 taskGroup=audio、task=voice 和 parameters.asr（除兼容保留的 retryOf 分支，该分支当前不可用）。finish-audio/cancel-task 的 payload 可省略、为 null 或空对象。', example='{"taskGroup":"audio","task":"voice","parameters":{"asr":{"format":"pcm","sampleRate":16000}}}'),
+}
+
+model VoiceInputAudio {
+}
+
+model VoiceEvent {
+  header?: {
+    event?: string(name='event', description='必填事件类型，只可能为 task-started、result-generated、heartbeat、task-finished、task-failed。整轮完成以 task-finished 为准，不以 Agent complete 或单个 TTS 事件代替。', example='task-started'),
+    errorCode?: string(name='errorCode', description='task-failed 时返回的语音阶段错误码，字符串；例如 INVALID_REQUEST、ASR_FAILED、AGENT_FAILED、TTS_FAILED，其他准入/协议错误见接口说明。若同时存在 Agent 业务错误，另看顶层 error.code，分别处理两层错误。', example='INVALID_REQUEST'),
+    errorMessage?: string(name='errorMessage', description='task-failed 时返回的可读失败说明；非失败事件省略，不依赖固定文案做程序判断。', example='invalid request'),
+  }(name='header', description='服务端事件头，包含事件类型及适用时的错误信息。', example='{"event":"task-started"}'),
+  communication?: {
+    requestId?: string(name='requestId', description='对应当前 run-task 的 communication.requestId，用于轮次关联；无法解析出合法请求号时，整个 communication 可省略。不能用音频帧或事件数量替代关联号。', example='voice-request-001'),
+  }(name='communication', description='服务端事件与当前语音交互的关联信息。', example='{"requestId":"voice-request-001"}'),
+  payload?: {
+    stage?: string(name='stage', description='条件返回；task-started 时为 asr，task-failed 时为 request/asr/agent/tts。result-generated 的阶段在 payload.output.stage 中。', example='asr'),
+    retryable?: boolean(name='retryable', description='仅 task-failed 返回的布尔值；表示是否适合新建一轮重试，不表示可以重放原签名或使用不可用的 retryOf。其他事件无默认值。', example='false'),
+    output?: {
+      stage?: string(name='stage', description='result-generated 的输出阶段，asr=语音识别、agent=Agent 回答、tts=语音合成。字段可用性取决于该阶段及 type。', example='asr'),
+      type?: string(name='type', description='按阶段解释：Agent 完整帧=response、兼容状态进度=progress；TTS 为 sentence-begin/sentence-synthesis/sentence-end。ASR/兼容文字按 text/final 等字段解析；不要假设所有事件都返回全部 output 字段。', example='response'),
+      event?: string(name='event', description='仅 Agent type=response 返回，message 或 complete。complete 仅表示 Agent 流结束，可能仍需等待 TTS 音频；整轮结束以 task-finished 为准。', example='message'),
+      text?: string(name='text', description='asr 阶段为最终转写。Agent 兼容终稿使用累计完整回答。', example='你好'),
+      delta?: string(name='delta', description='仅兼容增量事件返回，使用完整 response 的客户端可以忽略本字段。', example='你好'),
+      final?: boolean(name='final', description='ASR 最终转写及兼容 Agent 终稿为 true，兼容 Agent 文字增量为 false。', example='true'),
+      messages?: [ any ](name='messages', description='type=progress 时返回状态栏消息批次，不拼接到正式回答。结构与 response.data.messages 中的状态栏消息一致。', example='[{"mimeType":"bar/progress","status":"processing","content":"正在处理"}]'),
+      response?: {
+        requestId?: string(name='requestId', description='用于关联此 Agent 响应的业务请求。', example='voice-request-001'),
+        communication?: {
+          requestId?: string(name='requestId', description='Agent 业务响应关联号。', example='voice-request-001'),
+          sessionId?: string(name='sessionId', description='当前 Agent 响应所属的客户会话。', example='voice-session-001'),
+          appId?: string(name='appId', description='当前响应所属的业务应用。', example='your-app'),
+          responseId?: long(name='responseId', description='该值不代表网关发送帧的顺序。', example='1'),
+        }(name='communication', description='与外层语音帧的 communication 独立，来自对应 Chat 响应。', example='{"requestId":"voice-request-001","sessionId":"voice-session-001","appId":"your-app","responseId":1}'),
+        data?: {
+          messages?: [ 
+            {
+              mimeType?: string(name='mimeType', description='例如 multi_load/iframe、bar/progress。', example='multi_load/iframe'),
+              status?: string(name='status', description='例如 processing、complete，不代表整轮完成。', example='complete'),
+              content?: any(name='content', description='文本或结构化内容，格式由 mimeType 决定。', example='你好'),
+              metaData?: {
+                sourceSeq?: string(name='sourceSeq', description='用于匹配正文中的卡片挂载标记，或区分状态栏模块。', example='card-001'),
+                type?: string(name='type', description='由 Agent 提供，例如 bar_thinking 或 bar_tool。', example='bar_thinking'),
+                barTitle?: string(name='barTitle', description='Agent 返回时可用于展示。', example='思考中'),
+                content?: any(name='content', description='格式取决于 metaData.type。', example='正在整理回答'),
+                multiLoad?: [ 
+                  {
+                    type?: string(name='type', description='按类型选择卡片展示组件。', example='example-card'),
+                    sourceSeq?: string(name='sourceSeq', description='与正文中的卡片引用关联。相同标识代表同一卡片。', example='card-001'),
+                    content?: any(name='content', description='可选，结构随卡片类型变化。图文卡片可含资源列表。', example='{}'),
+                  }
+                ](name='multiLoad', description='卡片结构随类型变化，按关联标识挂载。', example='[{"type":"example-card","sourceSeq":"card-001","content":{}}]'),
+              }(name='metaData', description='结构随消息类型变化，可含卡片、状态栏过程信息及关联标识。', example='{"sourceSeq":"card-001","type":"bar_thinking","barTitle":"思考中"}'),
+            }
+          ](name='messages', description='文字、卡片和状态栏消息按 mimeType 处理。', example='[{"mimeType":"multi_load/iframe","status":"complete","content":"你好"}]'),
+          debug?: any(name='debug', description='可选的调试信息，仅在 Agent 响应提供时出现，结构由所用 Agent 的公开约定确定。不保证存在或固定结构，不能作为正文或整轮完成的判断依据。', example='{}'),
+          extraInfo?: {
+            inputResources?: [ 
+              {
+                contentIndex?: int32(name='contentIndex', description='以本轮原始 content 数组的顺序计数，从零开始，文本项也计数。', example='1'),
+                type?: string(name='type', description='用于区分本轮输入资源的类型。', example='image'),
+                resourceId?: string(name='resourceId', description='资源服务返回的标识。', example='resource-example-001'),
+                url?: string(name='url', description='资源处理成功时返回的文件 URL。', example='https://example.com/image.png'),
+                fileName?: string(name='fileName', description='可选的资源文件名。', example='image.png'),
+              }
+            ](name='inputResources', description='仅在 Agent 返回资源处理结果时出现。', example='[{"contentIndex":1,"type":"image","resourceId":"resource-example-001","url":"https://example.com/image.png","fileName":"image.png"}]'),
+          }(name='extraInfo', description='可含 inputResources 等资源处理结果。', example='{"inputResources":[]}'),
+        }(name='data', description='可携带正文快照、图文卡片、过程消息和业务扩展。', example='{"messages":[{"mimeType":"multi_load/iframe","status":"complete","content":"你好"}]}'),
+        errorCode?: any(name='errorCode', description='该 Agent 响应中的业务状态。', example='0'),
+        errorMsg?: string(name='errorMsg', description='与 errorCode 对应的说明。'),
+      }(name='response', description='仅 Agent type=response 时返回，与 Chat 流式帧一致的响应对象。complete 可携带最终正文，也可以为 {}；还可包含所用 Agent 的公开业务扩展。按字段说明读取正文、消息和错误信息。', example='{"communication":{"requestId":"voice-request-001","sessionId":"voice-session-001","appId":"your-app","responseId":1},"data":{"messages":[{"mimeType":"multi_load/iframe","status":"complete","content":"你好，有什么可以帮助你？"}]},"errorCode":0,"errorMsg":""}'),
+      sentence?: {
+        index?: int32(name='index', description='TTS 句子事件返回的整数索引，同一句的多个事件共用该值，用于关联随后音频；不能作为整轮完成标记。', example='0'),
+        text?: string(name='text', description='仅 TTS sentence-begin 返回的待合成文本；sentence-synthesis/sentence-end 不保证存在。', example='你好'),
+      }(name='sentence', description='仅 TTS 句子事件返回的关联对象；同一句 index 一致。sentence-synthesis 后紧跟该句的一帧二进制音频，按本轮 TTS format/sampleRate 解码；句子 text 仅在 sentence-begin 返回。', example='{"index":0,"text":"你好"}'),
+    }(name='output', description='仅 result-generated 返回；按 stage/type 识别具体结构。Agent 完整响应和兼容进度可能同时出现；使用 response 作为回答主数据，避免与 text/delta/messages 重复拼接。', example='{"stage":"asr","text":"你好","final":true}'),
+  }(name='payload', description='事件数据，按 header.event 区分。task-started 有 stage；result-generated 有 output；task-failed 有 stage/retryable；heartbeat 和 task-finished 的 payload 为 {}。字段未出现不等于其值为 0 或 false。', example='{"stage":"asr"}'),
+  error?: {
+    code?: any(name='code', description='业务错误码，可为字符串或数值，具体类型由所用 Agent 的公开接口约定确定。它与 header.errorCode 的语音阶段错误码含义不同，应分别处理。', example='INVALID_REQUEST'),
+    message?: string(name='message', description='公开业务错误说明，可读文本；不要依赖固定全文做程序判断。', example='invalid request'),
+    requestId?: string(name='requestId', description='失败调用的业务请求关联号，用于排查；不是握手平台 RequestId、订单号或实例 ID。', example='voice-request-001'),
+  }(name='error', description='可选的业务错误详情。发生业务失败时可返回，与 header 中的语音阶段错误信息配合处理；成功事件省略。', example='{"code":"INVALID_REQUEST","message":"invalid request","requestId":"voice-request-001"}'),
+}
+
+model VoiceOutputAudio {
+}
