@@ -23,8 +23,6 @@ init(configuration: ClientConfiguration){
   @version = '2021-02-18';
   @endpointRule = 'regional';
   @endpointMap = {
-    'cn-shanghai' = 'appstream-center.cn-shanghai.aliyuncs.com',
-    'ap-southeast-1' = 'appstream-center.ap-southeast-1.aliyuncs.com',
   };
 }
 
@@ -32,15 +30,58 @@ function close(): void {
   @handler.close();
 }
 
+model CreateThirdAppAccessTokenRequest {
+  authorizerId: string(name='AuthorizerId', description='The WyId of the authorized user. The user must belong to the current calling account. This parameter is not the username.
+
+This parameter is required.', example='f1e2d3c4b5a6****', position='Body'),
+  businessChannel?: string(name='BusinessChannel', description='The business channel. Valid values: Enterprise and Business. The value is case-insensitive. If omitted, the default value is Enterprise. If an empty string or other values are explicitly passed, a parameter error is returned. This parameter does not replace user identity verification.', example='Enterprise', position='Body'),
+  expiration?: int32(name='Expiration', description='The validity period of the token, in seconds. Valid values: 1 to 15552000. If omitted, the default value is 15552000, which equals 180 days. Permanent validity is not supported, and 0 cannot be passed.', example='900', minimum=1, maximum=15552000, position='Body'),
+  resource?: {
+    resourceId?: string(name='ResourceId', description='The ID of the target cloud desktop. You must provide a non-empty value when you call this operation. Asterisks (*) are not allowed. The cloud desktop must be authorized to the user specified by AuthorizerId.', example='ecd-7a8b9c0d****'),
+    resourceType?: string(name='ResourceType', description='The resource type. This parameter is required when you call this operation. Set the value to DESKTOP, which indicates a cloud desktop. The value is case-insensitive.', example='DESKTOP'),
+  }(name='Resource', description='The target single cloud desktop resource. You must provide this object along with ResourceType and ResourceId when you call this operation. Pass this parameter as a JSON object and specify only one cloud desktop. Wildcards or authorization for all cloud desktops are not supported.', shrink='json', position='Body'),
+}
+
+model CreateThirdAppAccessTokenResponseBody = {
+  accessToken?: string(name='AccessToken', description='The time-limited static access token created for the specified user and single cloud desktop. This is a sensitive credential. Do not log or expose the full value.', example='taatv1.v2****'),
+  expiresAt?: long(name='ExpiresAt', description='The absolute expiration time of the token, in UNIX milliseconds. This parameter is not empty when the call is successful. GetLatestThirdAppAccessToken returns the original expiration time without extending it.', example='1795450500000'),
+  requestId?: string(name='RequestId', description='The unique identifier of the request, which can be used to locate and troubleshoot issues.', example='6DAB2D15-7345-4C33-9D77-48A1A756B9E1'),
+}
+
+model CreateThirdAppAccessTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateThirdAppAccessTokenResponseBody(name='body'),
+}
+
+/**
+  * @description When you call this operation, you must provide Resource and specify both ResourceType and ResourceId. Only a single cloud desktop is supported. You cannot omit Resource to authorize or query all cloud desktops.
+  * AuthorizerId is the WyId of the user and cannot be replaced by a username. BusinessChannel supports Enterprise and Business. If omitted, the default value is Enterprise.
+  * Before creation, the user must belong to the current calling account and have access permissions for the target cloud desktop. This operation only creates an access token. It does not create a user or add an authorization relationship between the user and the cloud desktop. Each successful call creates a new time-limited token. To obtain an existing token, call GetLatestThirdAppAccessToken and pass the same AuthorizerId and Resource.
+  * The unit of Expiration is seconds. Valid values: 1 to 15552000. If omitted, the default value is 15552000, which equals 180 days. Permanent validity is not supported. Keep the returned AccessToken secure and avoid displaying the full token in logs or public content.
+  * @param request  the request parameters of CreateThirdAppAccessToken  CreateThirdAppAccessTokenRequest
+  * @return CreateThirdAppAccessTokenResponse
+ */
+async function createThirdAppAccessToken(request: CreateThirdAppAccessTokenRequest): CreateThirdAppAccessTokenResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'CreateThirdAppAccessToken', 'POST', '/', 'json', true, 'form', request);
+}
+
 model ExpireLoginTokenRequest {
-  endUserId: string(name='EndUserId', description='This parameter is required.', example='testuser', position='Body'),
-  loginToken: string(name='LoginToken', description='This parameter is required.', example='v185fdd7f6d39fa7861981639366085772e150a390a5bb7b43c4e62440d94fc392b945770e1596cebe90085ce0af4d****', position='Body'),
-  officeSiteId?: string(name='OfficeSiteId', example='cn-beijing+dir-172301****', position='Body'),
-  sessionId: string(name='SessionId', description='This parameter is required.', example='a863f4c3-2f1d-4971-8cf7-e2b92ae9****', position='Body'),
+  endUserId: string(name='EndUserId', description='The logon username.
+
+This parameter is required.', example='testuser', position='Body'),
+  loginToken: string(name='LoginToken', description='The logon token.
+
+This parameter is required.', example='v185fdd7f6d39fa7861981639366085772e150a390a5bb7b43c4e62440d94fc392b945770e1596cebe90085ce0af4d****', position='Body'),
+  officeSiteId?: string(name='OfficeSiteId', description='The ID of the workspace. This parameter is required if you log on through a workspace, and can be left empty if you log on through an organization ID.', example='cn-beijing+dir-172301****', position='Body'),
+  sessionId: string(name='SessionId', description='The ID of the logon session.
+
+This parameter is required.', example='a863f4c3-2f1d-4971-8cf7-e2b92ae9****', position='Body'),
 }
 
 model ExpireLoginTokenResponseBody = {
-  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model ExpireLoginTokenResponse = {
@@ -59,29 +100,47 @@ async function expireLoginToken(request: ExpireLoginTokenRequest): ExpireLoginTo
 }
 
 model GetAuthCodeRequest {
-  accountType?: string(name='AccountType', position='Body'),
-  adDomain?: string(name='AdDomain', position='Body'),
-  adPassword?: string(name='AdPassword', position='Body'),
-  autoCreateUser?: boolean(name='AutoCreateUser', position='Body'),
-  endUserId?: string(name='EndUserId', example='alice', position='Body'),
-  externalUserId?: string(name='ExternalUserId', example='alice', position='Body'),
-  policy?: string(name='Policy', example='{
+  accountType?: string(name='AccountType', description='The account type. Valid values: ad (enterprise AD account) and simple (convenience account).', example='simple', position='Body'),
+  adDomain?: string(name='AdDomain', description='The Active Directory domain name. This parameter is required when the account type is ad.', example='ad.example.com', position='Body'),
+  adPassword?: string(name='AdPassword', description='The password of the enterprise AD account.', example='Qa****7!Z9', position='Body'),
+  autoCreateUser?: boolean(name='AutoCreateUser', description='Specifies whether to synchronously create an EndUserId based on ExternalUserId. This parameter takes effect only when EndUserId is left empty.', example='false', position='Body'),
+  endUserId?: string(name='EndUserId', description='The username of the Wuying convenience account. The username must be unique within an Alibaba Cloud account. This parameter and ExternalUserId cannot be left empty at the same time.', example='alice', position='Body'),
+  externalUserId?: string(name='ExternalUserId', description='The external user ID. This ID is customized by the caller and must be unique within an Alibaba Cloud account. This parameter and ExternalUserId cannot be left empty at the same time.', example='alice', position='Body'),
+  policy?: string(name='Policy', description='The access policy that restricts the access permissions of the authorization code. If this parameter is left empty, no restrictions are applied.
+
+Syntax:
+
+```json
+{
+      "Version": "1",
+      "Resource": {
+            "Type": "<resource type>",
+            "Id": "<resource ID>"
+      }
+}
+```
+
+Valid values for <resource type>:
+
+- AppInstanceGroup: app instance group. You can call the ListAppInstanceGroup operation to obtain the ID.
+- AppInstance: app instance. This is a dedicated field.
+- App: application. You can call the ListAppInstanceGroup operation to obtain the ID.', example='{
       "Version": "1",
       "Resource": {
             "Type": "AppInstanceGroup",
             "Id": "aig-9ciijz60n4xsv****"
       }
 }', position='Body'),
-  tokenType?: string(name='TokenType', position='Query'),
+  tokenType?: string(name='TokenType', description='The token type. Valid values: LoginToken (logon token) and StsToken (temporary identity credential).', example='StsToken', position='Query'),
 }
 
 model GetAuthCodeResponseBody = {
   authModel?: {
-    authCode?: string(name='AuthCode', example='acv2ZEq2TNSqOlX+DvyetHGRT08iPhbWg/os1W4HojpBxkMQZkAnbKSfz/wNvS0E149IQZ5TogvBUE8ghCSVV+QBnv48Y+sn4z9fY5ywZA1peI5s4TplQI0TADBhPZXEIzMOdmbNsDGGlGcKOAq8ixd1Epzdu9XfvRzdLOO6o3zQwTZxXsjOgGBW8JTcgCP9W9iYiIjHIdZ2VCAnmMzuyVkyED8gymEevH10QoclyH/O3s8Yq6VF34gMXihDQeiI8PyiAZrW0JWXSWpdy3n4yGtAqMAgv46FzTA+XJ6C********'),
-    endUserId?: string(name='EndUserId', example='alice'),
-    expireTime?: string(name='ExpireTime', example='2015-01-23T12:33:18Z'),
-  }(name='AuthModel'),
-  requestId?: string(name='RequestId', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
+    authCode?: string(name='AuthCode', description='The authorization code. The authorization code is valid for 3 minutes and can be used only once regardless of whether the verification succeeds or fails. If multiple authorization codes are generated for a user, only the last generated one is valid.', example='acv2ZEq2TNSqOlX+DvyetHGRT08iPhbWg/os1W4HojpBxkMQZkAnbKSfz/wNvS0E149IQZ5TogvBUE8ghCSVV+QBnv48Y+sn4z9fY5ywZA1peI5s4TplQI0TADBhPZXEIzMOdmbNsDGGlGcKOAq8ixd1Epzdu9XfvRzdLOO6o3zQwTZxXsjOgGBW8JTcgCP9W9iYiIjHIdZ2VCAnmMzuyVkyED8gymEevH10QoclyH/O3s8Yq6VF34gMXihDQeiI8PyiAZrW0JWXSWpdy3n4yGtAqMAgv46FzTA+XJ6C********'),
+    endUserId?: string(name='EndUserId', description='The username of the Wuying convenience account.', example='alice'),
+    expireTime?: string(name='ExpireTime', description='The expiration time of the authorization code. The time is displayed in UTC and follows the ISO 8601 standard.', example='2015-01-23T12:33:18Z'),
+  }(name='AuthModel', description='The authorization code information.'),
+  requestId?: string(name='RequestId', description='The request ID.', example='1CBAFFAB-B697-4049-A9B1-67E1FC5F****'),
 }
 
 model GetAuthCodeResponse = {
@@ -91,6 +150,7 @@ model GetAuthCodeResponse = {
 }
 
 /**
+  * @description Retrieves an authorization code that contains user identity and permission information, which can be used to invoke cloud applications in integration scenarios.
   * @param request  the request parameters of GetAuthCode  GetAuthCodeRequest
   * @return GetAuthCodeResponse
  */
@@ -99,20 +159,59 @@ async function getAuthCode(request: GetAuthCodeRequest): GetAuthCodeResponse {
   return @handler.do('RPC', 'GetAuthCode', 'POST', '/', 'json', true, 'form', request);
 }
 
+model GetLatestThirdAppAccessTokenRequest {
+  authorizerId: string(name='AuthorizerId', description='The WyId of the user used when the token was created. It must correspond to the current account and the target cloud desktop, and cannot be replaced by a username.
+
+This parameter is required.', example='f1e2d3c4b5a6****', position='Body'),
+  businessChannel?: string(name='BusinessChannel', description='The business channel. Valid values: Enterprise and Business. The value is case-insensitive. If omitted, the default value is Enterprise. If an empty string or other value is explicitly passed, a parameter error is returned. This parameter does not replace user identity verification.', example='Enterprise', position='Body'),
+  resource?: {
+    resourceId?: string(name='ResourceId', description='The ID of the cloud desktop specified when the token was created. You must provide a non-empty value that is consistent with the value used during creation. Asterisks (*) are not allowed.', example='ecd-7a8b9c0d****'),
+    resourceType?: string(name='ResourceType', description='The resource type. This parameter is required. Valid value: DESKTOP, which indicates a cloud desktop. The value is case-insensitive.', example='DESKTOP'),
+  }(name='Resource', description='The target single cloud desktop resource. You must provide this object along with ResourceType and ResourceId when calling this operation. Pass it as a JSON object to specify only one cloud desktop. Wildcards or authorization for all cloud desktops are not supported.', shrink='json', position='Body'),
+}
+
+model GetLatestThirdAppAccessTokenResponseBody = {
+  accessToken?: string(name='AccessToken', description='The current valid static access token for the specified user and single cloud desktop. The original saved token is returned, and the query does not renew the token. This is a sensitive credential. Do not log or expose the full value.', example='taatv1.v2****'),
+  expiresAt?: long(name='ExpiresAt', description='The absolute expiration time of the token, represented as a Unix timestamp in milliseconds. This parameter is not empty when the call is successful. GetLatestThirdAppAccessToken returns the original expiration time and does not renew the token.', example='1795450500000'),
+  requestId?: string(name='RequestId', description='The unique identifier of the request, which can be used to locate and troubleshoot issues.', example='6DAB2D15-7345-4C33-9D77-48A1A756B9E1'),
+}
+
+model GetLatestThirdAppAccessTokenResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetLatestThirdAppAccessTokenResponseBody(name='body'),
+}
+
+/**
+  * @description You must provide Resource and specify both ResourceType and ResourceId when calling this operation. Only a single cloud desktop is supported. You cannot omit Resource to authorize or query all cloud desktops.
+  * AuthorizerId is the WyId of the user and cannot be replaced by a username. BusinessChannel supports Enterprise and Business. If omitted, the default value is Enterprise.
+  * The AuthorizerId and Resource in the query conditions must be consistent with those used when the token was created. This operation only returns the current valid token for the current account, user, and cloud desktop. It does not create a new token, renew the token, or restore or roll back to a historical token. If no valid token is found, the token has expired, or the corresponding cache has been cleared, AccessToken.NotFound is returned. To obtain a new token, call CreateThirdAppAccessToken.
+  * Keep the returned AccessToken secure and avoid displaying the full token in logs or public content.
+  * @param request  the request parameters of GetLatestThirdAppAccessToken  GetLatestThirdAppAccessTokenRequest
+  * @return GetLatestThirdAppAccessTokenResponse
+ */
+async function getLatestThirdAppAccessToken(request: GetLatestThirdAppAccessTokenRequest): GetLatestThirdAppAccessTokenResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RPC', 'GetLatestThirdAppAccessToken', 'POST', '/', 'json', true, 'form', request);
+}
+
 model GetStsTokenRequest {
-  endUserId?: string(name='EndUserId', example='Alex', position='Body'),
-  expiration?: long(name='Expiration', example='600', position='Body'),
-  externalId?: string(name='ExternalId', example='Alex', position='Body'),
+  endUserId?: string(name='EndUserId', description='The Wuying username.
+
+
+> Either the Wuying username or the external ID is required.', example='Alex', position='Body'),
+  expiration?: long(name='Expiration', description='The expiration time in seconds. The maximum validity period is two days.', example='600', position='Body'),
+  externalId?: string(name='ExternalId', description='The external user ID.', example='Alex', position='Body'),
 }
 
 model GetStsTokenResponseBody = {
-  requestId?: string(name='RequestId', example='CCF92035-6231-5ABB-930E-1E003C32****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='CCF92035-6231-5ABB-930E-1E003C32****'),
   stsTokenModel?: {
-    aliUid?: long(name='AliUid', example='105552640689****'),
-    sessionId?: string(name='SessionId', example='be4be09e-cd00-4b4c-add7-11b4d8****'),
-    stsToken?: string(name='StsToken', example='sts****'),
-    tenantId?: long(name='TenantId', example='105552640689****'),
-  }(name='StsTokenModel'),
+    aliUid?: long(name='AliUid', description='The tenant ID (Alibaba Cloud account UID).', example='105552640689****'),
+    sessionId?: string(name='SessionId', description='The session ID.', example='be4be09e-cd00-4b4c-add7-11b4d8****'),
+    stsToken?: string(name='StsToken', description='The temporary identity credential.', example='sts****'),
+    tenantId?: long(name='TenantId', description='The tenant ID (Alibaba Cloud account UID).', example='105552640689****'),
+  }(name='StsTokenModel', description='The token details.'),
 }
 
 model GetStsTokenResponse = {
