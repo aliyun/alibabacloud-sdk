@@ -2,6 +2,7 @@
  *
  */
 import Util;
+import GatewayClient;
 import OpenApi;
 import OpenApiUtil;
 import EndpointUtil;
@@ -11,6 +12,9 @@ extends OpenApi;
 
 init(config: OpenApi.Config){
   super(config);
+  @productId = 'marketing_event';
+  var gatewayClient = new GatewayClient();
+  @spi = gatewayClient;
   @endpointRule = '';
   
   checkConfig(config);
@@ -660,7 +664,8 @@ async function findGuestTicketRecord(request: FindGuestTicketRecordRequest): Fin
 
 model MosCheckInRequest {
   activityId?: string(name='ActivityId', example='INTL1234'),
-  extParam?: string(name='ExtParam', example='{}'),
+  checkinPoint?: string(name='CheckinPoint', example='{}'),
+  extParam?: string(name='ExtParam'),
   qrCode?: string(name='QrCode', example='abc12345'),
 }
 
@@ -691,6 +696,9 @@ async function mosCheckInWithOptions(request: MosCheckInRequest, runtime: Util.R
   var body : map[string]any = {};
   if (!Util.isUnset(request.activityId)) {
     body['ActivityId'] = request.activityId;
+  }
+  if (!Util.isUnset(request.checkinPoint)) {
+    body['CheckinPoint'] = request.checkinPoint;
   }
   if (!Util.isUnset(request.extParam)) {
     body['ExtParam'] = request.extParam;
@@ -724,6 +732,89 @@ async function mosCheckInWithOptions(request: MosCheckInRequest, runtime: Util.R
 async function mosCheckIn(request: MosCheckInRequest): MosCheckInResponse {
   var runtime = new Util.RuntimeOptions{};
   return mosCheckInWithOptions(request, runtime);
+}
+
+model MosQueryRegistrationInfoRequest {
+  activityId?: string(name='ActivityId'),
+  checkinStatus?: string(name='CheckinStatus'),
+  keyword?: string(name='Keyword'),
+  page?: string(name='Page'),
+  pageSize?: string(name='PageSize'),
+  qrCode?: string(name='QrCode'),
+}
+
+model MosQueryRegistrationInfoResponseBody = {
+  accessDeniedDetail?: string(name='AccessDeniedDetail'),
+  code?: string(name='Code'),
+  data?: {
+    list?: [ 
+      {
+        activityId?: string(name='ActivityId'),
+        channelName?: string(name='ChannelName'),
+        checkinStatus?: string(name='CheckinStatus'),
+        id?: long(name='Id'),
+        qrCode?: string(name='QrCode'),
+        tagInfos?: [ 
+          {
+            tagCode?: string(name='TagCode'),
+            tagName?: string(name='TagName'),
+          }
+        ](name='TagInfos'),
+        userCompany?: string(name='UserCompany'),
+        userEmail?: string(name='UserEmail'),
+        userName?: string(name='UserName'),
+        userPhone?: string(name='UserPhone'),
+      }
+    ](name='List'),
+    total?: long(name='Total'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model MosQueryRegistrationInfoResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: MosQueryRegistrationInfoResponseBody(name='body'),
+}
+
+/**
+ * @summary MOS活动报名查询
+ *
+ * @param request MosQueryRegistrationInfoRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return MosQueryRegistrationInfoResponse
+ */
+async function mosQueryRegistrationInfoWithOptions(request: MosQueryRegistrationInfoRequest, runtime: Util.RuntimeOptions): MosQueryRegistrationInfoResponse {
+  Util.validateModel(request);
+  var query = OpenApiUtil.query(Util.toMap(request));
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'MosQueryRegistrationInfo',
+    version = '2021-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'GET',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary MOS活动报名查询
+ *
+ * @param request MosQueryRegistrationInfoRequest
+ * @return MosQueryRegistrationInfoResponse
+ */
+async function mosQueryRegistrationInfo(request: MosQueryRegistrationInfoRequest): MosQueryRegistrationInfoResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return mosQueryRegistrationInfoWithOptions(request, runtime);
 }
 
 model QueryAllActivityInfoRequest {
@@ -760,6 +851,8 @@ model QueryAllActivityInfoResponse = {
 }
 
 /**
+ * @summary 通过活动id查询所有审核通过的报名信息
+ *
  * @param request QueryAllActivityInfoRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return QueryAllActivityInfoResponse
@@ -785,6 +878,8 @@ async function queryAllActivityInfoWithOptions(request: QueryAllActivityInfoRequ
 }
 
 /**
+ * @summary 通过活动id查询所有审核通过的报名信息
+ *
  * @param request QueryAllActivityInfoRequest
  * @return QueryAllActivityInfoResponse
  */
@@ -1249,6 +1344,8 @@ model QuerySingleActivityInfoResponse = {
 }
 
 /**
+ * @summary 通过活动id, 参会人名称等查询单个审核通过的报名信息
+ *
  * @param request QuerySingleActivityInfoRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return QuerySingleActivityInfoResponse
@@ -1274,6 +1371,8 @@ async function querySingleActivityInfoWithOptions(request: QuerySingleActivityIn
 }
 
 /**
+ * @summary 通过活动id, 参会人名称等查询单个审核通过的报名信息
+ *
  * @param request QuerySingleActivityInfoRequest
  * @return QuerySingleActivityInfoResponse
  */
@@ -1304,6 +1403,8 @@ model SyncSignInInfoResponse = {
 }
 
 /**
+ * @summary 签到处理
+ *
  * @param request SyncSignInInfoRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return SyncSignInInfoResponse
@@ -1329,6 +1430,8 @@ async function syncSignInInfoWithOptions(request: SyncSignInInfoRequest, runtime
 }
 
 /**
+ * @summary 签到处理
+ *
  * @param request SyncSignInInfoRequest
  * @return SyncSignInInfoResponse
  */
@@ -1566,5 +1669,82 @@ async function updateTicketRecordByticketCodePopWithOptions(request: UpdateTicke
 async function updateTicketRecordByticketCodePop(request: UpdateTicketRecordByticketCodePopRequest): UpdateTicketRecordByticketCodePopResponse {
   var runtime = new Util.RuntimeOptions{};
   return updateTicketRecordByticketCodePopWithOptions(request, runtime);
+}
+
+model VerifyActivityAdmissionRequest {
+  activityId?: long(name='ActivityId', description='This parameter is required.'),
+  idCardNo?: string(name='IdCardNo', description='This parameter is required.'),
+}
+
+model VerifyActivityAdmissionResponseBody = {
+  code?: string(name='Code'),
+  data?: {
+    activityId?: long(name='ActivityId'),
+    activityName?: string(name='ActivityName'),
+    address?: string(name='Address'),
+    admissionDate?: string(name='AdmissionDate'),
+    allowedDates?: [ string ](name='AllowedDates'),
+    decision?: string(name='Decision'),
+    endTime?: string(name='EndTime'),
+    maskedIdCardNo?: string(name='MaskedIdCardNo'),
+    name?: string(name='Name'),
+    registrationStatus?: int32(name='RegistrationStatus'),
+    signedIn?: boolean(name='SignedIn'),
+    signinTime?: string(name='SigninTime'),
+    startTime?: string(name='StartTime'),
+  }(name='Data'),
+  message?: string(name='Message'),
+  requestId?: string(name='RequestId'),
+  success?: boolean(name='Success'),
+}
+
+model VerifyActivityAdmissionResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: VerifyActivityAdmissionResponseBody(name='body'),
+}
+
+/**
+ * @summary 核验指定活动当天的入场权限
+ *
+ * @param request VerifyActivityAdmissionRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return VerifyActivityAdmissionResponse
+ */
+async function verifyActivityAdmissionWithOptions(request: VerifyActivityAdmissionRequest, runtime: Util.RuntimeOptions): VerifyActivityAdmissionResponse {
+  Util.validateModel(request);
+  var body : map[string]any = {};
+  if (!Util.isUnset(request.activityId)) {
+    body['ActivityId'] = request.activityId;
+  }
+  if (!Util.isUnset(request.idCardNo)) {
+    body['IdCardNo'] = request.idCardNo;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApi.Params{
+    action = 'VerifyActivityAdmission',
+    version = '2021-01-01',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary 核验指定活动当天的入场权限
+ *
+ * @param request VerifyActivityAdmissionRequest
+ * @return VerifyActivityAdmissionResponse
+ */
+async function verifyActivityAdmission(request: VerifyActivityAdmissionRequest): VerifyActivityAdmissionResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return verifyActivityAdmissionWithOptions(request, runtime);
 }
 
