@@ -21,7 +21,7 @@ init(configuration: ClientConfiguration){
   @handler = new TeaAsyncHandler(configuration);
   @product = 'QwenEduAiSuite';
   @version = '2026-11-02';
-  @endpointRule = '';
+  @endpointRule = 'regional';
   @endpointMap = {
   };
 }
@@ -34,13 +34,16 @@ model ActivateQwenEduApiRequest {
 }
 
 model ActivateQwenEduApiResponseBody = {
-  code?: string(name='code', example='OK'),
+  code?: string(name='code', description='The API status or POP error code.', example='OK'),
   data?: {
-    failMessage?: string(name='failMessage'),
-    status?: string(name='status', example='ACTIVE'),
-  }(name='data'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId'),
+    failMessage?: string(name='failMessage', description='The failure description.', example='Service activation failed. Try again later'),
+    status?: string(name='status', description='The activation status. Valid values:
+- ACTIVE: Activated.
+- ACTIVATING: Activating.
+- FAILED: Activation failed.', example='ACTIVE'),
+  }(name='data', description='The activation result. This parameter is null when an error occurs.'),
+  message?: string(name='message', description='The request error message.', example='success'),
+  requestId?: string(name='requestId', description='The POP request ID. This parameter is not returned when signature or identity verification fails.', example='5C5E3F0A-2B0E-4F7B-9C55-0E1A6A0E2F11'),
 }
 
 model ActivateQwenEduApiResponse = {
@@ -50,7 +53,13 @@ model ActivateQwenEduApiResponse = {
 }
 
 /**
-  * @description 开通千问教育API权限
+  * @description ## Request description
+  * - This operation activates the Qwen learning AI suite capability for the current Alibaba Cloud account.
+  * - You must call this operation first. You can call business API operations such as problem solving and grading only after `ACTIVE` is returned.
+  * ### Precautions
+  * - Both Alibaba Cloud accounts and RAM users can call this operation.
+  * - When a RAM user calls this operation, ensure that the RAM user has the required RAM permissions. The service is activated for the Alibaba Cloud account to which the RAM user belongs.
+  * - This operation is idempotent based on the Alibaba Cloud account ID. Repeated calls do not result in multiple activations.
   * @param request  the request parameters of ActivateQwenEduApi  ActivateQwenEduApiRequest
   * @return ActivateQwenEduApiResponse
  */
@@ -60,54 +69,57 @@ async function activateQwenEduApi(request: ActivateQwenEduApiRequest): ActivateQ
 }
 
 model CreateEduHomeworkCorrectSubmitRequest {
-  dewarp?: boolean(name='dewarp', position='Body'),
-  imageBase64?: string(name='imageBase64', position='Body'),
-  imageUrl?: string(name='imageUrl', position='Body'),
-  requestId?: string(name='requestId', position='Body'),
+  dewarp?: boolean(name='dewarp', description='Specifies whether to correct the image distortion. Default value: `true`. If you set this parameter to `false`, the image is not corrected, `dewarp_url` returns the original image, and the coordinates are based on `dewarp_url`.', position='Body'),
+  imageBase64?: string(name='imageBase64', description='The pure Base64-encoded string of the image, excluding the `data:` prefix and MIME declaration. The encoded size cannot exceed 15 MB. If both parameters are specified, `image_base64` takes precedence.', example='The pure Base64-encoded string of the image, excluding the data: prefix and MIME declaration. The encoded size cannot exceed 15 MB. If both parameters are specified, image_base64 takes precedence', position='Body'),
+  imageUrl?: string(name='imageUrl', description='The publicly accessible HTTP or HTTPS URL of the image. The server downloads the image from this URL.', example='https://example.com/homework.jpg', position='Body'),
+  requestId?: string(name='requestId', description='The request ID on the caller side. Use a UUID for reconciliation and troubleshooting. If this parameter is not specified, the server generates a request ID and returns it in the response.', example='req-20261116-0001', position='Body'),
 }
 
 model CreateEduHomeworkCorrectSubmitResponseBody = {
-  code?: string(name='code', example='OK'),
+  code?: string(name='code', description='The API status.', example='SUCCESS'),
   data?: {
-    angle?: long(name='angle'),
-    dewarpUrl?: string(name='dewarpUrl'),
+    angle?: long(name='angle', description='The clockwise rotation angle of the image, in degrees.', example='0'),
+    dewarpUrl?: string(name='dewarpUrl', description='The URL of the corrected image. If `dewarp` is set to `false`, the URL of the original image is returned.', example='https://example.com/dewarp.jpg'),
     questionResults?: [ 
       {
         answerResults?: [ 
           {
             answerPoints?: [ 
               {
-                x?: long(name='x', example='0.0'),
-                y?: long(name='y', example='0.03'),
+                x?: long(name='x', description='The X-axis coordinate value.', example='120'),
+                y?: long(name='y', description='The Y-axis coordinate value.', example='980'),
               }
-            ](name='answerPoints'),
+            ](name='answerPoints', description='The coordinate group of the user\\\\"s answering area. It generally contains four vertex coordinates arranged in the order of top-left, top-right, bottom-right, and bottom-left, formatted as `[{"x": ..., "y": ...}, ...]`.'),
             checkPoint?: {
-              x?: long(name='x', example='0.0'),
-              y?: long(name='y', example='0.90'),
-            }(name='checkPoint'),
-            checkResult?: string(name='checkResult'),
-            standardAnswer?: string(name='standardAnswer'),
-            userAnswer?: string(name='userAnswer'),
+              x?: long(name='x', description='The X-axis coordinate.', example='120'),
+              y?: long(name='y', description='The Y-axis coordinate.', example='980'),
+            }(name='checkPoint', description='The coordinates of the grading mark point, formatted as `{ "x": ..., "y": ... }`.'),
+            checkResult?: string(name='checkResult', description='The grading conclusion, such as `correct`, `wrong`, or `partial`.', example='correct'),
+            standardAnswer?: string(name='standardAnswer', description='The ground truth.', example='2'),
+            userAnswer?: string(name='userAnswer', description='The student\\\\"s answer.', example='2'),
           }
-        ](name='answerResults'),
-        finish?: boolean(name='finish', example='True'),
-        questionContent?: string(name='questionContent'),
-        questionId?: string(name='questionId'),
+        ](name='answerResults', description='The array of answering and grading results for the question.'),
+        finish?: boolean(name='finish', description='Specifies whether the task is completed:
+
+- **true**: The task is completed.
+- **false**: The task is not completed.', example='true'),
+        questionContent?: string(name='questionContent', description='The text content of the question.', example='1 + 1 = ?'),
+        questionId?: string(name='questionId', description='The question ID.', example='q-001'),
         questionPoints?: [[ 
           {
-            x?: long(name='x', example='0.0'),
-            y?: long(name='y', example='0.0'),
+            x?: long(name='x', description='The X-axis coordinate value.', example='120'),
+            y?: long(name='y', description='The Y-axis coordinate value.', example='980'),
           }
-        ]        ](name='questionPoints'),
-        questionType?: string(name='questionType'),
-        solution?: string(name='solution', example='已处理：接口耗时已恢复低于阈值（09:53后分钟平均约1.8s～3.3s）'),
+        ]        ](name='questionPoints', description='The coordinate group of the question area. It generally contains four vertex coordinates arranged in the order of top-left, top-right, bottom-right, and bottom-left.', example='Formatted as `[[{"x": 0, "y": 0}, ...]]`'),
+        questionType?: string(name='questionType', description='The question type.', example='choice'),
+        solution?: string(name='solution', description='The question analysis and solution.', example='The question analysis and solution'),
       }
-    ](name='questionResults'),
-    status?: string(name='status', example='OK'),
-    taskId?: string(name='taskId'),
-  }(name='data'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId'),
+    ](name='questionResults', description='The array of question recognition and grading results.'),
+    status?: string(name='status', description='The task status.', example='Examples: submitted, processing, finished, or failed'),
+    taskId?: string(name='taskId', description='The unique identifier of the task. You must include this ID in subsequent queries.', example='task-20261116-abc123'),
+  }(name='data', description='The import command.'),
+  message?: string(name='message', description='The request error message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID on the caller side.', example='req-20261116-0001'),
 }
 
 model CreateEduHomeworkCorrectSubmitResponse = {
@@ -117,14 +129,13 @@ model CreateEduHomeworkCorrectSubmitResponse = {
 }
 
 /**
-  * @description ## 请求说明
-  * - 该接口用于提交单页作业图片进行批改，支持通过图片URL或Base64编码的图片数据。
-  * - 提交后会立即返回任务ID、矫正图及题目检测结果，但不包含具体的批改结论。
-  * - 需要通过查询接口轮询获取最终的批改结果。
-  * - 支持对图片进行透视矫正，默认开启。
-  * - 图片要求：支持多种格式（JPEG, PNG, GIF等），推荐体积不超过1MB，最大支持15MB（Base64编码后）。
-  * - 每次请求仅处理一张图片，多张图片需分别提交。
-  * - `request_id`字段建议由调用方生成并传递，以便于问题排查和对账。
+  * @description ## Request description
+  * - This operation submits a homework image to the server for question segmentation, recognition, and grading.
+  * - You can submit the image by using `imageBase64` or `imageUrl`. `imageBase64` takes precedence.
+  * - The optional `dewarp` parameter specifies whether to correct the image distortion. Default value: `true`.
+  * - Provide `requestId` to facilitate troubleshooting and reconciliation.
+  * - Image size limit: The Base64-encoded image size cannot exceed 15 MB.
+  * - All requests and responses use the JSON format.
   * @param request  the request parameters of CreateEduHomeworkCorrectSubmit  CreateEduHomeworkCorrectSubmitRequest
   * @return CreateEduHomeworkCorrectSubmitResponse
  */
@@ -134,42 +145,47 @@ async function createEduHomeworkCorrectSubmit(request: CreateEduHomeworkCorrectS
 }
 
 model CreateEduProblemSolveRequest {
-  query: {
+  query?: {
     image?: {
-      base64?: string(name='base64'),
-      format: string(name='format', description='This parameter is required.'),
-      url?: string(name='url'),
-    }(name='image'),
-  }(name='query', description='This parameter is required.', shrink='json', position='Body'),
-  requestId?: string(name='requestId', example='019F593F-D6EE-5F44-819A-6CDA127D1637', position='Body'),
+      base64?: string(name='base64', description='**The Base64-encoded image**. If both this parameter and the URL are provided, this parameter takes precedence.', example='iVBORw0KGgoAAAANSUhEUgAAAAUA...'),
+      format: string(name='format', description='**The image format**: jpg, jpeg, or png. The value must match the actual file format.
+
+This parameter is required.', example='jpg'),
+      url?: string(name='url', description='The URL of a single question image.', example='https://your-cdn.example.com/question.jpg'),
+    }(name='image', description='**The image information.**'),
+  }(name='query', description='**The question image container.**', shrink='json', position='Body'),
+  requestId?: string(name='requestId', description='The request ID.', example='019F593F-D6EE-5F44-819A-6CDA127D1637', position='Body'),
 }
 
 model CreateEduProblemSolveResponseBody = {
-  data?: {
-    code?: string(name='code', example='change_batch'),
-    finished?: boolean(name='finished'),
-    items?: [ 
-      {
-        content?: string(name='content', example='{}'),
-        imageUrl?: string(name='imageUrl'),
-        questionId?: string(name='questionId'),
-        status?: string(name='status', example='200'),
-        thinking?: {
-          content?: string(name='content', example='8ci7nsj9WPYXvQb9MJfA'),
-          status?: string(name='status', example='200'),
-        }(name='thinking'),
-      }
-    ](name='items'),
-    message?: string(name='message', example='ok'),
-    requestId?: string(name='requestId', example='098E23F7-A74C-5584-87A1-39734D5B83CE'),
-    resultType?: string(name='resultType'),
-    retryable?: boolean(name='retryable'),
-    usage?: {
-      completionTokens?: int32(name='completionTokens'),
-      promptTokens?: int32(name='promptTokens'),
-    }(name='usage'),
-  }(name='data'),
-  event?: string(name='event', example='message'),
+  code?: string(name='code', description='The API data identifier.', example='change_batch'),
+  finished?: boolean(name='finished', description='Specifies whether this is the final full snapshot. The value is fixed to true in the complete event.'),
+  items?: [ 
+    {
+      content?: string(name='content', description='The complete Markdown content of the question resolution, including the deduction process and the final result.', example='{}'),
+      imageUrl?: string(name='imageUrl', description='The URL of the unique image for the current question. The URL may be time-sensitive. If the question is not associated with an image resource and no request URL is available for fallback, an empty string is returned.', example='https://xxx.jpg'),
+      questionId?: string(name='questionId', description='The question identifier. The value is the question title, such as Question 1. The server does not return a separate title field. If the downstream service does not provide a question title, which is always the case for single-question scenarios, titles such as Question 1 and Question 2 are generated in the order of the questions.', example='50a10e43a33e36179e355556d319ebd5'),
+      status?: string(name='status', description='The current question status. Valid values:
+* processing: Processing.
+* complete: Complete.', example='200'),
+      thinking?: {
+        content?: string(name='content', description='The current thinking content.', example='8ci7nsj9WPYXvQb9MJfA'),
+        status?: string(name='status', description='The thinking status. Valid values:
+* processing: Processing.
+* complete: Complete.', example='200'),
+      }(name='thinking', description='The thinking process. This field is returned only when result_type is single, and is not returned for multiple questions.'),
+    }
+  ](name='items', description='The current list of complete question results.'),
+  message?: string(name='message', description='The actual response message of the request.', example='ok'),
+  requestId?: string(name='requestId', description='Echo request ID echoed from echo request.', example='098E23F7-A74C-5584-87A1-39734D5B83CE'),
+  resultType?: string(name='resultType', description='The type of the question resolution result. Valid values:
+* single: Single question.
+* multiple: Multiple questions.', example='single'),
+  retryable?: boolean(name='retryable', description='Specifies whether the error is retryable. Default value: true.'),
+  usage?: {
+    completionTokens?: int32(name='completionTokens', description='The number of output tokens.', example='1024'),
+    promptTokens?: int32(name='promptTokens', description='The number of input tokens.', example='1024'),
+  }(name='usage', description='The token usage. Only the complete event carries the final value. The message event does not return this field.'),
 }
 
 model CreateEduProblemSolveResponse = {
@@ -179,15 +195,18 @@ model CreateEduProblemSolveResponse = {
 }
 
 /**
-  * @description ## 请求说明
-  * - 本接口支持通过单张题目图片的URL或Base64编码进行解题请求。
-  * - 支持处理JPEG、JPG、PNG格式的图片，且图片大小不超过10MB，像素总数不超过260万。
-  * - 请求必须携带`request_id`字段，用于链路关联和对账；建议使用UUID以保证唯一性。
-  * - `Authorization`头部需包含有效的`appKey`，采用`Bearer <appKey>`格式。
-  * - 接口响应为SSE流式数据，客户端应逐事件读取并解析，不得等待连接关闭后整体读取。
-  * - 成功响应包括`message`（过程态全量解题快照）和`complete`（最终完整结果）两种事件类型。
-  * - 错误处理分为建流前与建流后两个阶段，根据错误码及`retryable`字段决定是否重试。
-  * - 客户端超时设置建议不低于3分钟，并确保代理层不会缓存SSE响应或提前关闭长连接。
+  * @description ## Request description
+  * - This API supports obtaining question resolution results by providing the URL or Base64 encoding of a question image.
+  * - Supports processing a single image. The image format must be JPG, JPEG, or PNG.
+  * - The image must be clear and complete. Avoid tilted, obscured, or irrelevant content.
+  * - Each request can process only one image. Multi-image or plain text requests are not supported.
+  * - The recommended image size is up to 1 MB, with a maximum of 10 MB. The image width and height must not exceed 8,000 pixels, and the total pixel count must not exceed 2.6 million.
+  * - You must use the HTTPS protocol to call the API and provide image URLs.
+  * - The user_id parameter must be an anonymized identifier. Do not pass direct identity information such as names or phone numbers.
+  * - The API uses the HTTP POST method combined with Server-Sent Events (SSE) streaming response. The client must read the response event by event, rather than waiting for the connection to close to read the entire response.
+  * - A successful response returns the question resolution process through a series of message events and ends with a complete event. If an error occurs, an error event is returned.
+  * - For retryable errors such as TOO_MANY_ACTIVE_STREAMS, use an exponential backoff strategy to retry the request.
+  * - Set a reasonable timeout period of at least 3 minutes on the client, and ensure that the proxy layer does not cache SSE responses.
   * @param request  the request parameters of CreateEduProblemSolve  CreateEduProblemSolveRequest
   * @return CreateEduProblemSolveResponse
  */
@@ -202,51 +221,102 @@ function createEduProblemSolveWithResponseIterable(request: CreateEduProblemSolv
 }
 
 model GetEduHomeworkCorrectionResultRequest {
-  taskId?: string(name='taskId', position='Query'),
+  taskId?: string(name='taskId', description='The task ID.', example='b18eabc4-5d84-40b0-ae20-e0eb2f585781', position='Query'),
 }
 
 model GetEduHomeworkCorrectionResultResponseBody = {
-  code?: string(name='code', example='OK'),
+  code?: string(name='code', description='The API status.', example='SUCCESS'),
   data?: {
-    angle?: long(name='angle'),
-    dewarpUrl?: string(name='dewarpUrl'),
+    angle?: long(name='angle', description='The rotation angle of the image in the clockwise direction, in degrees.', example='0'),
+    dewarpUrl?: string(name='dewarpUrl', description='The URL of the dewarped image. If dewarp is set to false, the URL of the original image is returned.', example='https://example.com/dewarp.jpg'),
     questionResults?: [ 
       {
         answerResults?: [ 
           {
             answerPoints?: [ 
               {
-                x?: long(name='x', example='0.0'),
-                y?: long(name='y', example='0.03'),
+                x?: long(name='x', description='The X-axis coordinate value.', example='120'),
+                y?: long(name='y', description='The Y-axis coordinate value.', example='980'),
               }
-            ](name='answerPoints'),
+            ](name='answerPoints', description='The coordinate group of the user\\\\"s answering area. It generally contains four vertex coordinate values, arranged in the order of top-left, top-right, bottom-right, and bottom-left, such as `[{"x": ..., "y": ...}, ...]`.'),
             checkPoint?: {
-              x?: long(name='x', example='0.0'),
-              y?: long(name='y', example='0.90'),
-            }(name='checkPoint'),
-            checkResult?: string(name='checkResult'),
-            standardAnswer?: string(name='standardAnswer'),
-            userAnswer?: string(name='userAnswer'),
+              x?: long(name='x', description='The X-axis coordinate value.', example='120'),
+              y?: long(name='y', description='The Y-axis coordinate value.', example='980'),
+            }(name='checkPoint', description='The coordinates of the grading mark point, such as `{ "x": ..., "y": ... }`.'),
+            checkResult?: string(name='checkResult', description='The grading conclusion, such as `correct`, `wrong`, or `partial`.', example='correct'),
+            standardAnswer?: string(name='standardAnswer', description='The ground truth.', example='120'),
+            userAnswer?: string(name='userAnswer', description='The student\\\\"s answer.', example='980'),
           }
-        ](name='answerResults'),
-        finish?: boolean(name='finish', example='True'),
-        questionContent?: string(name='questionContent'),
-        questionId?: string(name='questionId'),
+        ](name='answerResults', description='The array of answering and grading results for the question. For more information, see the following table.'),
+        finish?: boolean(name='finish', description='Indicates whether the task is finished:
+
+- **true**: The task is finished.
+- **false**: The task is not finished.', example='true'),
+        questionContent?: string(name='questionContent', description='The text content of the question.', example='1 + 1 = ?'),
+        questionId?: string(name='questionId', description='The question ID.', example='q-001'),
         questionPoints?: [[ 
           {
-            x?: long(name='x', example='0.0'),
-            y?: long(name='y', example='0.0'),
+            x?: long(name='x', description='The X-axis coordinate value.', example='120'),
+            y?: long(name='y', description='The Y-axis coordinate value.', example='980'),
           }
-        ]        ](name='questionPoints'),
-        questionType?: string(name='questionType'),
-        solution?: string(name='solution', example='已处理：接口耗时已恢复低于阈值（09:53后分钟平均约1.8s～3.3s）'),
+        ]        ](name='questionPoints', description='The coordinate group of the question area. It generally contains four vertex coordinate values, arranged in the order of top-left, top-right, bottom-right, and bottom-left.', example='`[[{"x": 120, "y": 980}, ...]]`'),
+        questionType?: string(name='questionType', description='The question type.', example='Multiple-choice question, applied subjective question, problem-solving question, calculation question, etc'),
+        solution?: string(name='solution', description='The question analysis or solution.', example='Question analysis or solution'),
       }
-    ](name='questionResults'),
-    status?: string(name='status', example='OK'),
-    taskId?: string(name='taskId'),
-  }(name='data'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId'),
+    ](name='questionResults', description='The array of question recognition and grading results. For more information, see the following table.'),
+    status?: string(name='status', description='The task status.', example='submitted, processing, finished, or failed'),
+    taskId?: string(name='taskId', description='The unique identifier of the task.', example='task-20261116-abc123'),
+  }(name='data', description='The business data. This field is usually empty when the task fails.', example='{
+  "request_id": "req-20261116-0001",
+  "code": "SUCCESS",
+  "message": "success",
+  "data": {
+    "task_id": "task-20261116-abc123",
+    "status": "finished",
+    "course": "math",
+    "dewarp_url": "https://example.com/dewarp.jpg",
+    "angle": 0,
+    "render_url": "https://example.com/render.jpg",
+    "question_results": [
+      {
+        "question_id": "q-001",
+        "question_type": "choice",
+        "question_content": "1 + 1 = ?",
+        "question_points": [
+          [
+            {"x": 100, "y": 100},
+            {"x": 200, "y": 100},
+            {"x": 200, "y": 150},
+            {"x": 100, "y": 150}
+          ]
+        ],
+        "finish": true,
+        "answer_results": [
+          {
+            "check_result": "correct",
+            "check_point": {"x": 150, "y": 125},
+            "answer_points": [
+              {"x": 120, "y": 120},
+              {"x": 180, "y": 120},
+              {"x": 180, "y": 130},
+              {"x": 120, "y": 130}
+            ],
+            "user_answer": "2",
+            "standard_answer": "2"
+          }
+        ],
+        "solution": "1 + 1 = 2"
+      }
+    ],
+    "usage": {
+      "prompt_tokens": 1000,
+      "completion_tokens": 200,
+      "total_tokens": 1200
+    }
+  }
+}'),
+  message?: string(name='message', description='The request error message.', example='success'),
+  requestId?: string(name='requestId', description='The request ID, which can be used for troubleshooting.', example='req-20261116-0001'),
 }
 
 model GetEduHomeworkCorrectionResultResponse = {
@@ -256,6 +326,12 @@ model GetEduHomeworkCorrectionResultResponse = {
 }
 
 /**
+  * @description ## Request description
+  * - This operation queries the status and detailed results of single-page homework grading by using the `taskId` returned when the task is submitted.
+  * - The caller should poll this operation at an interval of 1 to 2 seconds until the task status changes to `finished` or `failed`.
+  * - When the task status is `finished`, the response contains complete grading information, including question recognition, grading conclusions, dewarped images, and rendered images.
+  * - If the task fails (the status is `failed`), check the `message` field in the response or the specific fault information in `data`.
+  * - All requests and responses are in JSON format.
   * @param request  the request parameters of GetEduHomeworkCorrectionResult  GetEduHomeworkCorrectionResultRequest
   * @return GetEduHomeworkCorrectionResultResponse
  */
@@ -268,14 +344,17 @@ model GetQwenEduApiActivationStatusRequest {
 }
 
 model GetQwenEduApiActivationStatusResponseBody = {
-  code?: string(name='code', example='OK'),
+  code?: string(name='code', description='The API status or POP error code.', example='OK'),
   data?: {
-    failCode?: string(name='failCode'),
-    failMessage?: string(name='failMessage'),
-    status?: string(name='status', example='ACTIVE'),
-  }(name='data'),
-  message?: string(name='message', example='success'),
-  requestId?: string(name='requestId'),
+    failCode?: string(name='failCode', description='The **failure code**. For more information, see 3.4.', example='ACTIVATION_FAILED'),
+    failMessage?: string(name='failMessage', description='The **failure description**.', example='Service activation failed. Try again later'),
+    status?: string(name='status', description='The activation status. Valid values:
+- ACTIVE: Activated.
+- ACTIVATING: Activating.
+- FAILED: Activation failed.', example='ACTIVE'),
+  }(name='data', description='The activation result.'),
+  message?: string(name='message', description='The request error message.', example='success'),
+  requestId?: string(name='requestId', description='The **POP request ID**. This field is not returned if signature verification or identity authentication fails.', example='5C5E3F0A-2B0E-4F7B-9C55-0E1A6A0E2F11'),
 }
 
 model GetQwenEduApiActivationStatusResponse = {
@@ -285,6 +364,14 @@ model GetQwenEduApiActivationStatusResponse = {
 }
 
 /**
+  * @description ## Request description
+  * This operation queries whether a specified Alibaba Cloud account or RAM user has successfully activated the Qwen learning AI suite. Before calling any business API operations, you must use this operation to confirm that the service status is `ACTIVE`. If the service is not activated, perform the corresponding operations based on the returned status information, such as waiting for a period of time and retrying.
+  * ### Precautions
+  * - This operation supports calls from Alibaba Cloud accounts and RAM users.
+  * - When a RAM user calls this operation, make sure that the RAM user has the required RAM permissions. The service is activated for the Alibaba Cloud account to which the RAM user belongs.
+  * - This operation is idempotent based on the Alibaba Cloud account ID. Repeated calls do not result in multiple activations.
+  * - If the status is `ACTIVATING`, retry the query after the time interval recommended by the returned `retry_after_seconds` field.
+  * - If a failure occurs (`FAILED`), refer to the specific error code, take corresponding measures, and then try again.
   * @param request  the request parameters of GetQwenEduApiActivationStatus  GetQwenEduApiActivationStatusRequest
   * @return GetQwenEduApiActivationStatusResponse
  */
