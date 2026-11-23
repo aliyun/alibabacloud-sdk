@@ -228,6 +228,15 @@ model PromptTemplateItem {
 model RunStrategies {
   backfill?: BackfillStrategy(name='backfill', description='The historical batch backfill policy. Backfill is enabled when the object exists and enabled is not explicitly set to false.', example='{"enabled":true,"startTime":1782816000000,"endTime":1782902400000,"immediate":false}'),
   continuous?: ContinuousStrategy(name='continuous', description='The continuous evaluation policy. Continuous evaluation is enabled when the object exists and enabled is not explicitly set to false.', example='{"enabled":true,"intervalUnit":"HOUR","intervalValue":1,"dataDelayMinutes":5}'),
+  selectedData?: SelectedDataStrategy(name='selectedData', description='The selection of specified objects for evaluation.', example='{"startTime":1794542191,"endTime":1795146991,"evalIds":["2646a9380bba3c86371f55a0226322941794983634"]}'),
+}
+
+model SelectedDataStrategy {
+  endTime?: long(name='endTime', description='The end time of the statistical window in UNIX seconds.', example='1735660800'),
+  evalIds?: [ string ](name='evalIds', description='The list of evaluation IDs.', example='["2646a9380bba3c86371f55a0226322941794983634"]'),
+  startTime?: long(name='startTime', description='The estimated start time in milliseconds.
+
+> You can modify this parameter only when the course is in the preview state.', example='1735574400'),
 }
 
 model AddDatasetDataRequest {
@@ -1932,7 +1941,7 @@ model GetExperimentPlanResponseBody = {
     ExperimentConfig
   ](name='experiments', description='The list of experiment configurations.', example='[{"label": "A", "name": "baseline", "modelName": "qwen-max"}]'),
   input?: map[string]any(name='input', description='Optional.', example='{"question": "How do I get a refund?"}'),
-  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This field is empty if no pipeline is associated.'),
+  pipelineName?: string(name='pipelineName', description='The name of the associated data processing pipeline. This field is empty if no pipeline is associated.', example='dify-log'),
   planId?: string(name='planId', description='The ID of the experiment plan.', example='exp-plan-0242d983f5d340fd8479cf2c19eb279e'),
   planName?: string(name='planName', description='The name of the experiment plan.', example='arms_agent_experiment'),
   querySql?: string(name='querySql', description='The custom query SQL clause in partial dataset mode.', example='status=\\\\"OK\\\\"'),
@@ -2583,37 +2592,37 @@ async function listEvaluationRuns(request: ListEvaluationRunsRequest): ListEvalu
 }
 
 model ListEvaluationTasksRequest {
-  agentSpace?: string(name='agentSpace', description='The AgentSpace name.', example='prod-agentspace', position='Query'),
-  channel?: string(name='channel', description='The filter condition for the task source. If this parameter is not specified, tasks from the default source are queried.', example='default', position='Query'),
-  dataType?: string(name='dataType', description='The data source type of the evaluation object. Set this parameter to `trace` for trace-based evaluation.', example='trace', position='Query'),
-  maxResults?: int32(name='maxResults', description='The number of entries per page. Default value: 20. Maximum value: 100.', example='20', position='Query'),
+  agentSpace?: string(name='agentSpace', description='The name of the AgentSpace.', example='prod-agentspace', position='Query'),
+  channel?: string(name='channel', description='The filter condition for the task source. If not specified, tasks from the default source are queried.', example='default', position='Query'),
+  dataType?: string(name='dataType', description='The data source type of the evaluation object. Use trace for trace evaluation.', example='trace', position='Query'),
+  maxResults?: int32(name='maxResults', description='The number of entries to return per page. The default value is 20, and the maximum value is 100.', example='20', position='Query'),
   nextToken?: string(name='nextToken', description='The pagination token for the next page, obtained from the previous response.', example='eyJsYXN0SWQiOjEyMywib2Zmc2V0IjoyMH0=', position='Query'),
   status?: string(name='status', description='The filter condition for the evaluation task status.', example='Running', position='Query'),
-  taskMode?: string(name='taskMode', description='The evaluation task mode. If this parameter is not specified, the default value is `batch`.', example='batch', position='Query'),
-  taskName?: string(name='taskName', description='The fuzzy match condition for the task name.', example='trace_task_completion_eval', position='Query'),
+  taskMode?: string(name='taskMode', description='The mode of the evaluation task. If not specified, the backend defaults to batch.', example='batch', position='Query'),
+  taskName?: string(name='taskName', description='The fuzzy search condition for the task name.', example='trace_task_completion_eval', position='Query'),
 }
 
 model ListEvaluationTasksResponseBody = {
   evaluationTasks?: [ 
     {
       config?: map[string]string(name='config', description='The data source and execution configuration summary.', example='{"storeName":"logstore-tracing","dataScope":"trace"}'),
-      createdAt?: long(name='createdAt', description='The creation time, in seconds-level UNIX timestamp.', example='1782816000'),
+      createdAt?: long(name='createdAt', description='The creation time, represented as a UNIX timestamp in seconds.', example='1782816000'),
       dataType?: string(name='dataType', description='The data source type of the evaluation object.', example='trace'),
-      description?: string(name='description', description='The description of the evaluation task.', example='Evaluate the task completion of the online Agent trace'),
-      evaluators?: string(name='evaluators', description='The evaluator configuration summary, in JSON string format.', example='[{"evaluatorRef":"Builtin.agent_task_completion"}]'),
-      runStrategyConfig?: RunStrategies(name='runStrategyConfig', description='The structured run strategy configuration, including the parsed backfill strategy and continuous evaluation strategy.', example='{"backfill":{"enabled":true,"startTime":1782816000000,"endTime":1782902400000},"continuous":{"enabled":true,"intervalUnit":"HOUR","intervalValue":1,"dataDelayMinutes":5}}'),
+      description?: string(name='description', description='The evaluation task description.', example='Evaluate the completion rate of online agent trace tasks'),
+      evaluators?: string(name='evaluators', description='The evaluator configuration summary, as a JSON string.', example='[{"evaluatorRef":"Builtin.agent_task_completion"}]'),
+      runStrategyConfig?: RunStrategies(name='runStrategyConfig', description='The structured configuration of the run strategy, including the parsed backfill strategy and continuous evaluation strategy.', example='{"backfill":{"enabled":true,"startTime":1782816000000,"endTime":1782902400000},"continuous":{"enabled":true,"intervalUnit":"HOUR","intervalValue":1,"dataDelayMinutes":5}}'),
       status?: string(name='status', description='The evaluation task status.', example='Running'),
-      tags?: map[string]string(name='tags', description='The key-value pairs of task tags. This parameter is empty if no tags are set.', example='{"serviceId":"checkout-service","env":"prod"}'),
+      tags?: map[string]string(name='tags', description='The key-value pairs of task tags. Empty if not set.', example='{"serviceId":"checkout-service","env":"prod"}'),
       taskId?: string(name='taskId', description='The evaluation task ID.', example='eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25'),
       taskMode?: string(name='taskMode', description='The evaluation task mode.', example='batch'),
       taskName?: string(name='taskName', description='The task name.', example='trace_task_completion_eval'),
-      updatedAt?: long(name='updatedAt', description='The last update time, in seconds-level UNIX timestamp.', example='1782816600'),
+      updatedAt?: long(name='updatedAt', description='The last update time, represented as a UNIX timestamp in seconds.', example='1782816600'),
     }
   ](name='evaluationTasks', description='The list of evaluation task summaries.', example='[{"taskId":"eval-task-8b36f2e2b1f94f9c91ce7a4b0f6d9c25","taskName":"trace_task_completion_eval","taskMode":"batch","dataType":"trace","status":"Running"}]'),
-  maxResults?: int32(name='maxResults', description='The number of entries per page used in this request.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token for the next page. An empty value indicates that no more pages are available.', example='eyJsYXN0SWQiOjEwMSwib2Zmc2V0IjoyMH0='),
+  maxResults?: int32(name='maxResults', description='The number of entries per page used for this request.', example='20'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page. An empty value indicates that there is no next page.', example='eyJsYXN0SWQiOjEwMSwib2Zmc2V0IjoyMH0='),
   requestId?: string(name='requestId', description='The request ID.', example='3FE4CD1E-FF41-56BE-B590-7A021D9C1524'),
-  totalCount?: int32(name='totalCount', description='The total number of records. The total count is calculated only on the first page. This value may be empty on subsequent pages.', example='126'),
+  totalCount?: int32(name='totalCount', description='The total number of records. The backend queries the total count only on the first page, so this field may be empty on subsequent pages.', example='126'),
 }
 
 model ListEvaluationTasksResponse = {
@@ -3092,6 +3101,53 @@ async function listPipelines(request: ListPipelinesRequest): ListPipelinesRespon
   return @handler.do('RESTFUL', 'ListPipelines', 'GET', '/agentspace/{agentSpace}/pipeline', 'json', false, 'json', request);
 }
 
+model ListTagResourcesRequest {
+  nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates that no additional pages exist.', example='eyJuZXh0IjoiNDAifQ==', position='Query'),
+  resourceId?: [ string ](name='resourceId', description='The list of resource IDs.', example='["space-a","space-b"]', shrink='json', position='Query'),
+  resourceType: string(name='resourceType', description='The resource type. Set the value to agentspace.
+
+This parameter is required.', example='agentspace', position='Query'),
+  tag?: [ 
+    {
+      key?: string(name='key', description='The tag key.', example='key1', minLength=1, maxLength=128),
+      value?: string(name='value', description='The tag value.', example='value1', maxLength=256),
+    }
+  ](name='tag', description='The tag filter conditions. Multiple conditions are combined with the AND operator. At least one of resourceId and tag must be specified.', shrink='json', position='Query'),
+}
+
+model ListTagResourcesResponseBody = {
+  nextToken?: string(name='nextToken', description='The pagination token. An empty value indicates that no additional pages exist.', example='eyJsYXN0SWQiOjEyMH0='),
+  requestId?: string(name='requestId', description='The request ID.', example='EB27D183-8F6C-5C5A-A6A3-E0508AF54F78'),
+  tagResources?: [ 
+    {
+      resourceId?: string(name='resourceId', description='The resource ID.', example='space-a'),
+      resourceType?: string(name='resourceType', description='The resource type. Set the value to agentspace.', example='agentspace'),
+      tagKey?: string(name='tagKey', description='The tag key.', example='key1'),
+      tagValue?: string(name='tagValue', description='The tag value.', example='value1'),
+    }
+  ](name='tagResources', description='The list of tag information.', example='[{
+	"resourceType": "agentspace",
+	"resourceId": "space-a",
+	"tagKey": "key1",
+	"tagValue": "value1"
+}]'),
+}
+
+model ListTagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListTagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of ListTagResources  ListTagResourcesRequest
+  * @return ListTagResourcesResponse
+ */
+async function listTagResources(request: ListTagResourcesRequest): ListTagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'ListTagResources', 'GET', '/tags', 'json', false, 'json', request);
+}
+
 model PausePipelineRequest {
   agentSpace?: string(name='agentSpace', description='The name of the AgentSpace where the pipeline is located.', example='my-agent-space', position='Path'),
   pipelineName?: string(name='pipelineName', description='The name of the pipeline to pause.', example='my-pipeline', position='Path'),
@@ -3340,6 +3396,50 @@ async function searchContext(request: SearchContextRequest): SearchContextRespon
   return @handler.do('RESTFUL', 'SearchContext', 'POST', '/agentspace/{agentSpace}/contextstore/{contextStoreName}/context/search', 'json', false, 'json', request);
 }
 
+model TagResourcesRequest {
+  resourceId: [ string ](name='resourceId', description='The list of resource IDs.
+
+This parameter is required.', example='["space-a","space-b"]', position='Body'),
+  resourceType: string(name='resourceType', description='The resource type. Set the value to agentspace.
+
+This parameter is required.', example='agentspace', position='Body'),
+  tag?: [ 
+    {
+      key?: string(name='key', description='The tag key. Format requirements:
+
+- The length must be 1 to 128 characters.
+- The key cannot contain "http://" or "https://".
+- The key cannot start with "acs:" or "aliyun".', example='key1', maxLength=128),
+      value?: string(name='value', description='The tag value. Format requirements:
+
+- The length must be 1 to 128 characters.
+- The value cannot contain "http://" or "https://".', example='value1', maxLength=256),
+    }
+  ](name='tag', description='The list of tags. Up to 20 tag key-value pairs are supported at a time.', example='[{
+	"key": "key1",
+	"value": "value1"
+}]', position='Body'),
+}
+
+model TagResourcesResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='01A11E6F-1216-5ED6-918C-668BAF39022B'),
+}
+
+model TagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: TagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of TagResources  TagResourcesRequest
+  * @return TagResourcesResponse
+ */
+async function tagResources(request: TagResourcesRequest): TagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'TagResources', 'POST', '/tags', 'json', false, 'json', request);
+}
+
 model TerminatePipelineRequest {
   agentSpace?: string(name='agentSpace', description='The name of the AgentSpace where the pipeline is located.', example='my-agent-space', position='Path'),
   pipelineName?: string(name='pipelineName', description='The name of the pipeline to be terminated.', example='my-pipeline', position='Path'),
@@ -3370,6 +3470,36 @@ model TerminatePipelineResponse = {
 async function terminatePipeline(request: TerminatePipelineRequest): TerminatePipelineResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'TerminatePipeline', 'POST', '/agentspace/{agentSpace}/pipeline/{pipelineName}/terminate', 'json', false, 'json', request);
+}
+
+model UntagResourcesRequest {
+  all?: string(name='all', description='Specifies whether to remove all custom tags. Valid values: true, false, and an empty string. If this parameter is not specified or is set to an empty string, the value is treated as false. The value true takes effect only when the tagKey parameter is not specified or is an empty array.', example='true', position='Query'),
+  resourceId: [ string ](name='resourceId', description='The list of resource IDs.
+
+This parameter is required.', example='["space-a","space-b"]', shrink='json', position='Query'),
+  resourceType: string(name='resourceType', description='The resource type. Set the value to agentspace.
+
+This parameter is required.', example='agentspace', position='Query'),
+  tagKey?: [ string ](name='tagKey', description='The list of tag keys to remove. You can specify up to 20 tag keys. The tag keys must be unique. If this parameter is not empty, it takes precedence over the all parameter.', example='["key1", "key2", "key3"]', shrink='json', position='Query'),
+}
+
+model UntagResourcesResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='01A0033F-8E61-570B-BBDB-4D5A64898F54'),
+}
+
+model UntagResourcesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UntagResourcesResponseBody(name='body'),
+}
+
+/**
+  * @param request  the request parameters of UntagResources  UntagResourcesRequest
+  * @return UntagResourcesResponse
+ */
+async function untagResources(request: UntagResourcesRequest): UntagResourcesResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'UntagResources', 'DELETE', '/tags', 'json', false, 'json', request);
 }
 
 model UpdateAgentSpaceRequest {
