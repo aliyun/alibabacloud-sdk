@@ -1,0 +1,641 @@
+@clientName("websocket")
+
+model SessionCreate {
+  type?: string(name='type', description='This parameter is required.'),
+  eventId?: string(name='event_id', description='可省略；提供时必须为非空、非纯空白字符串，用于关联响应。', example='evt_create_1'),
+  mode?: string(name='mode', description='与 session.mode 二选一；同时提供必须一致。均省略时后端选择 single，网关不补默认值。'),
+  languagePair?: [ string ](name='language_pair', description='双向条件必填，与 session.language_pair 二选一；同时提供时内容及顺序必须一致。仅支持 zh 与 en/ja/ko 组合，顺序可反转，由后端校验。', example='["zh","en"]'),
+  session?: {
+    mode?: string(name='mode'),
+    languagePair?: [ string ](name='language_pair', description='双向须提供本字段或根节点 language_pair；须包含 zh 和 en/ja/ko 之一。'),
+  }(name='session', description='单向可省略或指定 mode=single；双向须指定 bidirectional 模式及语言对。创建后模式与语言对不可变，音频和输出配置通过 SessionUpdate 下发。', example='{"mode":"bidirectional","language_pair":["zh","en"]}'),
+}
+
+model SessionUpdate {
+  type?: string(name='type', description='This parameter is required.'),
+  eventId?: string(name='event_id', description='可省略；提供时必须为非空、非纯空白字符串。', example='evt_update_1'),
+  session?: {
+    mode?: string(name='mode', description='仅双向使用；可省略，提供时必须为 bidirectional，不能切换模式。'),
+    languagePair?: [ string ](name='language_pair', description='仅双向使用；可省略，提供时必须与创建时内容及顺序一致。'),
+    inputAudio?: {
+      format?: string(name='format'),
+      sampleRate?: int32(name='sample_rate', example='16000'),
+      channels?: int32(name='channels'),
+    }(name='input_audio', description='仅双向使用；省略时后端使用 pcm_s16le、16000Hz、单声道，不接受 null。'),
+    output?: {
+      modalities?: [ string ](name='modalities', description='必须包含 text，可加 audio；不可重复，不能只有 audio。允许顺序反转，后端规范化为 text、audio。'),
+      audio?: {
+        format?: string(name='format'),
+        sampleRate?: int32(name='sample_rate'),
+        channels?: int32(name='channels'),
+        voice?: {
+          mode?: string(name='mode'),
+          id?: string(name='id', description='非空且不能含控制字符，最长128字符；具体音色支持范围由模型校验。', example='Tina'),
+        }(name='voice', description='仅支持 preset；不支持 clone_frequency。id 省略或为 default 时后端使用 Tina。'),
+      }(name='audio'),
+    }(name='output', description='仅双向使用；省略时后端输出 text 和 audio。'),
+    transcription?: {
+      enabled?: boolean(name='enabled', description='省略时后端为 true；关闭输出不会关闭内部语种识别。'),
+    }(name='transcription'),
+    turnDetection?: {
+      type?: string(name='type', description='manual 对象仅用于双向；单向手动模式使用整个 turn_detection 为 null。'),
+      threshold?: float(name='threshold', description='范围 -1 到 1，后端缺省0.2。', example='0.2'),
+      silenceDurationMs?: int32(name='silence_duration_ms', description='范围200到6000，后端缺省1000。', example='1000'),
+    }(name='turn_detection', description='单向 manual 必须显式传 null，VAD 使用 server_vad 对象。双向不接受 null，manual 使用对象；省略时后端为 server_vad。nullable 仅兼容单向，模式约束交后端校验。', nullable=true),
+    modalities?: [ string ](name='modalities', description='仅单向使用；支持 text 或 text 与 audio，省略时模型默认 text 与 audio。双向使用 output.modalities。'),
+    sampleRate?: int32(name='sample_rate', description='仅单向使用；须与输入音频一致，支持8000或16000。', example='16000'),
+    inputAudioFormat?: string(name='input_audio_format', description='仅单向原生协议使用；现有冒烟客户端使用 pcm，opus 尚未在本次实测。双向仅支持 pcm_s16le。', example='pcm'),
+    inputAudioTranscription?: {
+      language?: string(name='language', description='默认 auto，省略或 auto 表示自动识别。开启时保留指定的受支持语种；关闭时忽略本字段。此字段不是翻译目标语言。', example='auto'),
+      enabled?: boolean(name='enabled', description='默认 true。false 时忽略 language，不影响译文和译音。', example='true'),
+    }(name='input_audio_transcription', description='仅单向使用，仅支持 enabled、language。对象省略或为空时默认开启、自动识别。enabled=false 时忽略 language，关闭原文转写；model 不再接受。默认值由后端补齐，网关不注入。'),
+    translation?: {
+      language?: string(name='language', description='例如 en，缺省时模型默认 en；具体支持范围由模型校验。', example='en'),
+      sameLanguageSkipOptions?: {
+        skipText?: boolean(name='skip_text'),
+        skipAudio?: boolean(name='skip_audio'),
+      }(name='same_language_skip_options', description='仅单向 Qwen 3.5 使用，目标语种为 zh 或 en 时生效；源语种等于目标语种时按设置跳过输出。'),
+      corpus?: {
+        phrases?: map[string]string(name='phrases', description='动态 key 为源语言词汇，value 为目标语言译词；不固定热词名称，动态键映射保留需网关实测。', example='{"人工智能":"Artificial Intelligence","机器学习":"Machine Learning"}'),
+      }(name='corpus', description='仅单向原生协议使用；与双向不支持的 glossary 字段不同。'),
+    }(name='translation', description='仅单向原生协议使用；双向目标语言来自创建时的语言对，不接受本字段。'),
+    outputAudioFormat?: string(name='output_audio_format', description='仅单向译音使用，当前原生协议只支持 pcm。', example='pcm'),
+    voice?: string(name='voice', description='未启用复刻时使用预设音色，模型缺省为 Tina。启用复刻且 frequency 为 once/always 时必须为 default；never 时须为已有复刻音色ID。双向使用 output.audio.voice.id。', example='Tina'),
+    enableVoiceClone?: boolean(name='enable_voice_clone', description='仅单向原生协议使用，模型默认 false；开启时联动 voice 和 voice_clone_options，实际可用性由上游校验。本次未实测复刻，双向不支持。'),
+    voiceCloneOptions?: {
+      frequency?: string(name='frequency', description='never 使用已有复刻音色；once 会话开始时复刻一次；always 每次输出前复刻。once/always 必须设置 voice=default。'),
+    }(name='voice_clone_options', description='仅 enable_voice_clone=true 时生效；双向不支持本字段。'),
+  }(name='session', description='仅填写当前模式适用字段。双向必须提供 session 对象，仅允许输入前更新；单向按 Qwen 3.5 原生契约可省略 session。
+双向不支持 glossary、声音复刻及单向平铺配置，模式、语言对、条件必填及能力校验由后端执行。网关不补默认值。
+单向手动提交、关闭转写：{"modalities":["text"],"sample_rate":16000,"input_audio_format":"pcm","input_audio_transcription":{"enabled":false},"translation":{"language":"en"},"turn_detection":null}
+单向 VAD、译音与转写：{"modalities":["text","audio"],"sample_rate":16000,"input_audio_format":"pcm","input_audio_transcription":{"enabled":true,"language":"auto"},"translation":{"language":"en"},"turn_detection":{"type":"server_vad","threshold":0.2,"silence_duration_ms":1000},"output_audio_format":"pcm","voice":"Tina","enable_voice_clone":false}
+双向手动提交、仅译文：{"input_audio":{"format":"pcm_s16le","sample_rate":16000,"channels":1},"output":{"modalities":["text"]},"transcription":{"enabled":false},"turn_detection":{"type":"manual"}}
+双向 VAD、译文与译音：{"input_audio":{"format":"pcm_s16le","sample_rate":16000,"channels":1},"output":{"modalities":["text","audio"],"audio":{"format":"pcm_s16le","sample_rate":24000,"channels":1,"voice":{"mode":"preset","id":"Tina"}}},"transcription":{"enabled":true},"turn_detection":{"type":"server_vad","threshold":0.2,"silence_duration_ms":1000}}
+单向扩展字段依据百炼 live-translator-client-events；新增原生字段须同步登记。显式 null 和热词动态键的映射保留行为仍需网关实测。'),
+}
+
+model InputAudioBufferAppend {
+  type?: string(name='type', description='This parameter is required.'),
+  eventId?: string(name='event_id', description='可省略；提供时必须为非空、非纯空白字符串。', example='evt_audio_1'),
+  audio?: bytes(name='audio', description='等待 SessionUpdated 后发送；必须为 JSON 文本消息中的 Base64 字符串，不能发送 binary 帧。解码后每块最多10240字节；双向必须为非空 PCM16 完整采样，字节数为偶数。解码与大小检查由后端执行。
+
+This parameter is required.'),
+  sequence?: long(name='sequence', description='仅双向使用；可省略，提供时从0开始递增。只有携带 sequence 且成功接受的块推进计数；clear 不重置。网关不补默认值，连续性由后端校验。', example='0'),
+}
+
+model InputAudioBufferCommit {
+  type?: string(name='type', description='无额外业务入参。Manual 模式提交非空缓冲；双向须等待上一提交确认，server_vad 模式拒绝显式 commit。
+
+This parameter is required.'),
+  eventId?: string(name='event_id', description='可省略；提供时必须为非空、非纯空白字符串。', example='evt_commit_1'),
+}
+
+model InputAudioBufferClear {
+  type?: string(name='type', description='无额外业务入参。清理未处理缓冲，不撤回已下发结果；双向仅 manual 模式允许，server_vad 或存在待确认 commit 时拒绝。
+
+This parameter is required.'),
+  eventId?: string(name='event_id', description='可省略；提供时必须为非空、非纯空白字符串。', example='evt_clear_1'),
+}
+
+model SessionFinish {
+  type?: string(name='type', description='This parameter is required.'),
+  eventId?: string(name='event_id', description='可省略；提供时必须为非空、非纯空白字符串。', example='evt_finish_1'),
+  reason?: string(name='reason', description='双向省略时后端按 completed 排空结果，cancelled 立即取消；clear 进行中拒绝结束。单向客户端省略本字段，等待 SessionFinished 后关闭连接。网关不补默认值。', example='completed'),
+}
+
+model RealtimeError {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  error?: {
+    type?: string(name='type'),
+    code?: string(name='code'),
+    message?: string(name='message'),
+    param?: string(name='param'),
+    fatal?: boolean(name='fatal'),
+    retryable?: boolean(name='retryable'),
+    causedBy?: string(name='caused_by'),
+  }(name='error'),
+}
+
+model SessionCreated {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  causedBy?: string(name='caused_by'),
+  createdAt?: long(name='created_at'),
+  expiresAt?: long(name='expires_at'),
+  session?: {
+    id?: string(name='id'),
+    object?: string(name='object'),
+    modalities?: [ string ](name='modalities'),
+    voice?: string(name='voice'),
+    inputAudioFormat?: string(name='input_audio_format'),
+    sampleRate?: int32(name='sample_rate'),
+    outputAudioFormat?: string(name='output_audio_format'),
+    turnDetection?: {
+      type?: string(name='type'),
+      threshold?: float(name='threshold'),
+      silenceDurationMs?: int32(name='silence_duration_ms'),
+    }(name='turn_detection'),
+    translation?: {
+      language?: string(name='language'),
+      corpus?: {
+        phrases?: map[string]string(name='phrases'),
+      }(name='corpus'),
+    }(name='translation'),
+  }(name='session'),
+}
+
+model SessionUpdated {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  causedBy?: string(name='caused_by'),
+  warnings?: [ string ](name='warnings'),
+  session?: {
+    mode?: string(name='mode'),
+    languagePair?: [ string ](name='language_pair'),
+    inputAudio?: {
+      format?: string(name='format'),
+      sampleRate?: int32(name='sample_rate'),
+      channels?: int32(name='channels'),
+    }(name='input_audio'),
+    output?: {
+      modalities?: [ string ](name='modalities'),
+      audio?: {
+        format?: string(name='format'),
+        sampleRate?: int32(name='sample_rate'),
+        channels?: int32(name='channels'),
+        voice?: {
+          mode?: string(name='mode'),
+          id?: string(name='id'),
+        }(name='voice'),
+      }(name='audio'),
+    }(name='output'),
+    transcription?: {
+      enabled?: boolean(name='enabled'),
+    }(name='transcription'),
+    turnDetection?: {
+      type?: string(name='type'),
+      threshold?: float(name='threshold'),
+      silenceDurationMs?: int32(name='silence_duration_ms'),
+      prefixPaddingMs?: int32(name='prefix_padding_ms'),
+      createResponse?: boolean(name='create_response'),
+      interruptResponse?: boolean(name='interrupt_response'),
+    }(name='turn_detection'),
+    id?: string(name='id'),
+    object?: string(name='object'),
+    modalities?: [ string ](name='modalities'),
+    voice?: string(name='voice'),
+    inputAudioFormat?: string(name='input_audio_format'),
+    sampleRate?: int32(name='sample_rate'),
+    outputAudioFormat?: string(name='output_audio_format'),
+    translation?: {
+      language?: string(name='language'),
+      corpus?: {
+        phrases?: map[string]string(name='phrases'),
+      }(name='corpus'),
+    }(name='translation'),
+    enableVoiceClone?: boolean(name='enable_voice_clone'),
+    voiceCloneOptions?: {
+      frequency?: string(name='frequency'),
+    }(name='voice_clone_options'),
+    inputAudioTranscription?: {
+      enabled?: boolean(name='enabled', description='This parameter is required.'),
+      language?: string(name='language', description='开启时回显指定语种，自动识别回显 auto；关闭时统一回显 auto。
+
+This parameter is required.'),
+    }(name='input_audio_transcription', description='单向回执固定包含 enabled、language；双向使用 transcription 字段。内部转写 model 不对客回显。'),
+  }(name='session'),
+}
+
+model UsageReported {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  usageId?: string(name='usage_id', description='与计量上报使用相同的稳定标识；不以 event_id 或翻译 segment_id 代替。'),
+  status?: string(name='status', description='仅在真实 MQ 接收用量后发送；不表示已完成扣费或出账。'),
+  usageMap?: {
+    inputAudioSeconds?: string(name='InputAudioSeconds', description='每段按采样时长独立四舍五入为整数秒，以字符串返回，允许为 "0"。'),
+    voiceTranslationType?: string(name='VoiceTranslationType'),
+  }(name='usageMap', description='单次用量记录，不是会话累计值；字段名称及字符串值与计量上报保持一致。'),
+}
+
+model SessionFinished {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  causedBy?: string(name='caused_by'),
+  reason?: string(name='reason'),
+  usageComplete?: boolean(name='usage_complete', description='true 表示结束时用量已完成 MQ 接收与通知写出；超时、取消、异常或用量不完整时为 false，不代表最终扣费结果。兼容旧版本时可省略，网关不补默认值。'),
+}
+
+model InputAudioBufferCommitted {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  segmentId?: string(name='segment_id'),
+  causedBy?: string(name='caused_by'),
+  audioDurationMs?: long(name='audio_duration_ms'),
+  itemId?: string(name='item_id'),
+  previousItemId?: string(name='previous_item_id'),
+}
+
+model InputAudioBufferCleared {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  causedBy?: string(name='caused_by'),
+}
+
+model SegmentStarted {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  segmentId?: string(name='segment_id'),
+  startMs?: long(name='start_ms'),
+}
+
+model LanguageDetected {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  segmentId?: string(name='segment_id'),
+  direction?: string(name='direction'),
+  sourceLanguage?: string(name='source_language'),
+  targetLanguage?: string(name='target_language'),
+}
+
+model TranscriptionTextDelta {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  text?: string(name='text', description='可回改的累计全文，按最新 revision 覆盖，不作增量拼接。'),
+  startMs?: long(name='start_ms', description='仅已知原文起始边界时返回。'),
+  endMs?: long(name='end_ms', description='仅已知原文结束边界时返回。'),
+  transcriptionId?: string(name='transcription_id', description='同一原文的快照与完成事件共享此标识，不关联翻译 segment_id。'),
+  revision?: long(name='revision', description='同一 transcription_id 内单调递增；中间快照可能合并，版本号不保证连续。'),
+  stash?: string(name='stash', description='可被修正的暂存文本，可为空；仅 stash 变化也会产生新版本。'),
+}
+
+model TranscriptionDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  transcriptionId?: string(name='transcription_id', description='与该原文的 TranscriptionTextDelta 共享标识，不关联翻译 segment_id。'),
+  revision?: long(name='revision', description='同一 transcription_id 内单调递增，完成后不再更新。'),
+  text?: string(name='text', description='最终原文，可以为空；转写失败时保留已收到的 text 与 stash 合并结果，并附带 error。'),
+  startMs?: long(name='start_ms', description='仅已知原文起始边界时返回。'),
+  endMs?: long(name='end_ms', description='仅已知原文结束边界时返回。'),
+  error?: {
+    code?: string(name='code'),
+  }(name='error', description='仅原文转写失败时返回；正常完成时省略。'),
+}
+
+model TranslationTextDelta {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  segmentId?: string(name='segment_id'),
+  direction?: string(name='direction'),
+  sourceLanguage?: string(name='source_language'),
+  targetLanguage?: string(name='target_language'),
+  text?: string(name='text'),
+  stash?: string(name='stash'),
+}
+
+model TranslationTextDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  segmentId?: string(name='segment_id'),
+  direction?: string(name='direction'),
+  sourceLanguage?: string(name='source_language'),
+  targetLanguage?: string(name='target_language'),
+  text?: string(name='text'),
+}
+
+model TranslationAudioDelta {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  segmentId?: string(name='segment_id'),
+  direction?: string(name='direction'),
+  sourceLanguage?: string(name='source_language'),
+  targetLanguage?: string(name='target_language'),
+  audio?: string(name='audio'),
+  sequence?: long(name='sequence'),
+}
+
+model TranslationAudioDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  segmentId?: string(name='segment_id'),
+  direction?: string(name='direction'),
+  sourceLanguage?: string(name='source_language'),
+  targetLanguage?: string(name='target_language'),
+  finishReason?: string(name='finish_reason'),
+}
+
+model SegmentDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  sessionId?: string(name='session_id'),
+  segmentId?: string(name='segment_id'),
+  direction?: string(name='direction'),
+  sourceLanguage?: string(name='source_language'),
+  targetLanguage?: string(name='target_language'),
+  startMs?: long(name='start_ms'),
+  endMs?: long(name='end_ms'),
+}
+
+model InputAudioBufferSpeechStarted {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  audioStartMs?: long(name='audio_start_ms'),
+  itemId?: string(name='item_id'),
+}
+
+model InputAudioBufferSpeechStopped {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  audioEndMs?: long(name='audio_end_ms'),
+  itemId?: string(name='item_id'),
+}
+
+model ConversationItemCreated {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  previousItemId?: string(name='previous_item_id'),
+  item?: {
+    id?: string(name='id'),
+    object?: string(name='object'),
+    type?: string(name='type'),
+    status?: string(name='status'),
+    role?: string(name='role'),
+    content?: [ 
+      {
+        type?: string(name='type'),
+        text?: string(name='text'),
+        transcript?: string(name='transcript'),
+      }
+    ](name='content'),
+  }(name='item'),
+}
+
+model ConversationItemInputAudioTranscriptionText {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  itemId?: string(name='item_id'),
+  contentIndex?: int32(name='content_index'),
+  text?: string(name='text'),
+  stash?: string(name='stash'),
+  language?: string(name='language'),
+  emotion?: string(name='emotion'),
+}
+
+model ConversationItemInputAudioTranscriptionCompleted {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  itemId?: string(name='item_id'),
+  contentIndex?: int32(name='content_index'),
+  transcript?: string(name='transcript'),
+  language?: string(name='language'),
+  emotion?: string(name='emotion'),
+}
+
+model ConversationItemInputAudioTranscriptionFailed {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  itemId?: string(name='item_id'),
+  contentIndex?: int32(name='content_index'),
+  error?: {
+    code?: string(name='code'),
+    message?: string(name='message'),
+    param?: string(name='param'),
+  }(name='error'),
+}
+
+model ResponseCreated {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  response?: {
+    id?: string(name='id'),
+    object?: string(name='object'),
+    conversationId?: string(name='conversation_id'),
+    status?: string(name='status'),
+    modalities?: [ string ](name='modalities'),
+    voice?: string(name='voice'),
+    outputAudioFormat?: string(name='output_audio_format'),
+    output?: [ 
+      {
+        id?: string(name='id'),
+        object?: string(name='object'),
+        type?: string(name='type'),
+        status?: string(name='status'),
+        role?: string(name='role'),
+        content?: [ 
+          {
+            type?: string(name='type'),
+            text?: string(name='text'),
+            transcript?: string(name='transcript'),
+          }
+        ](name='content'),
+      }
+    ](name='output'),
+  }(name='response'),
+}
+
+model ResponseDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  response?: {
+    id?: string(name='id'),
+    object?: string(name='object'),
+    conversationId?: string(name='conversation_id'),
+    status?: string(name='status'),
+    modalities?: [ string ](name='modalities'),
+    voice?: string(name='voice'),
+    outputAudioFormat?: string(name='output_audio_format'),
+    output?: [ 
+      {
+        id?: string(name='id'),
+        object?: string(name='object'),
+        type?: string(name='type'),
+        status?: string(name='status'),
+        role?: string(name='role'),
+        content?: [ 
+          {
+            type?: string(name='type'),
+            text?: string(name='text'),
+            transcript?: string(name='transcript'),
+          }
+        ](name='content'),
+      }
+    ](name='output'),
+    usage?: {
+      totalTokens?: long(name='total_tokens'),
+      inputTokens?: long(name='input_tokens'),
+      outputTokens?: long(name='output_tokens'),
+      inputTokensDetails?: {
+        textTokens?: long(name='text_tokens'),
+        audioTokens?: long(name='audio_tokens'),
+      }(name='input_tokens_details'),
+      outputTokensDetails?: {
+        textTokens?: long(name='text_tokens'),
+        audioTokens?: long(name='audio_tokens'),
+      }(name='output_tokens_details'),
+    }(name='usage'),
+  }(name='response'),
+}
+
+model ResponseTextText {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+  text?: string(name='text'),
+  stash?: string(name='stash'),
+}
+
+model ResponseTextDelta {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+  delta?: string(name='delta'),
+}
+
+model ResponseTextDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+  text?: string(name='text'),
+}
+
+model ResponseAudioDelta {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+  delta?: string(name='delta'),
+}
+
+model ResponseAudioDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+}
+
+model ResponseAudioTranscriptText {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+  text?: string(name='text'),
+  stash?: string(name='stash'),
+}
+
+model ResponseAudioTranscriptDelta {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+  delta?: string(name='delta'),
+}
+
+model ResponseAudioTranscriptDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+  transcript?: string(name='transcript'),
+}
+
+model ResponseOutputItemAdded {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  outputIndex?: int32(name='output_index'),
+  item?: {
+    id?: string(name='id'),
+    object?: string(name='object'),
+    type?: string(name='type'),
+    status?: string(name='status'),
+    role?: string(name='role'),
+    content?: [ 
+      {
+        type?: string(name='type'),
+        text?: string(name='text'),
+        transcript?: string(name='transcript'),
+      }
+    ](name='content'),
+  }(name='item'),
+}
+
+model ResponseOutputItemDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  outputIndex?: int32(name='output_index'),
+  item?: {
+    id?: string(name='id'),
+    object?: string(name='object'),
+    type?: string(name='type'),
+    status?: string(name='status'),
+    role?: string(name='role'),
+    content?: [ 
+      {
+        type?: string(name='type'),
+        text?: string(name='text'),
+        transcript?: string(name='transcript'),
+      }
+    ](name='content'),
+  }(name='item'),
+}
+
+model ResponseContentPartAdded {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+  part?: {
+    type?: string(name='type'),
+    text?: string(name='text'),
+  }(name='part'),
+}
+
+model ResponseContentPartDone {
+  type?: string(name='type'),
+  eventId?: string(name='event_id'),
+  responseId?: string(name='response_id'),
+  itemId?: string(name='item_id'),
+  outputIndex?: int32(name='output_index'),
+  contentIndex?: int32(name='content_index'),
+  part?: {
+    type?: string(name='type'),
+    text?: string(name='text'),
+  }(name='part'),
+}
