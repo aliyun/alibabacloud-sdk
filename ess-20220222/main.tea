@@ -2498,26 +2498,28 @@ async function createEciScalingConfiguration(request: CreateEciScalingConfigurat
 }
 
 model CreateLifecycleHookRequest {
-  defaultResult?: string(name='DefaultResult', description='The action to be performed after the wait state ends. Valid values:
-- CONTINUE: continues the response to the scale-out or scale-in activity.
-- ABANDON: releases the ECS instances created during the scale-out activity or removes the ECS instances from the scaling group during the scale-in activity.
-- ROLLBACK: rejects the release of ECS instances and rolls back the scale-in activity. For a scale-out activity, this value has the same effect as ABANDON, which releases the created ECS instances.
+  defaultResult?: string(name='DefaultResult', description='The action to be performed after the wait state ends. Valid values: 
 
-When a scale-in activity occurs in the scaling group and multiple lifecycle hooks are triggered, if the DefaultResult of one lifecycle hook is set to ABANDON or ROLLBACK and the wait state of the hook ends, the wait states of other lifecycle hooks are ended in advance. In other cases, the action to be performed is determined by the last lifecycle hook whose wait state ends.
+- CONTINUE: Continues the response to the scale-out or scale-in activity.
+- ABANDON: Releases the ECS instances created by the scale-out activity or removes the ECS instances in the scale-in activity from the scaling group. 
+- ROLLBACK: Rejects the release of ECS instances and rolls back the scale-in activity. For a scale-out activity, this value directly releases the created ECS instances, which has the same effect as ABANDON.
+
+When a scale-in activity occurs in the scaling group and multiple lifecycle hooks are triggered, if the DefaultResult of one lifecycle hook is set to ABANDON or ROLLBACK and the wait state of the hook ends, the wait states of other lifecycle hooks are ended in advance. In other cases, the action to be performed is subject to the action of the last lifecycle hook whose wait state ends.
 
 Default value: CONTINUE.', example='CONTINUE'),
-  heartbeatTimeout?: int32(name='HeartbeatTimeout', description='The wait time set by the lifecycle hook for the scaling activity. After the wait state times out, the next action is performed. Valid values: 30 to 21600. Unit: seconds.
+  heartbeatTimeout?: int32(name='HeartbeatTimeout', description='The wait time configured by the lifecycle hook for the scaling activity. After the wait state times out, the next action is performed. Valid values: 30 to 21600. Unit: seconds.
 
-After you create a lifecycle hook, you can call the RecordLifecycleActionHeartbeat operation to extend the wait time of the ECS instance, or call the CompleteLifecycleAction operation to end the wait state of the scaling activity in advance. 
+After you create a lifecycle hook, you can call RecordLifecycleActionHeartbeat to extend the wait time of the ECS instance, or call CompleteLifecycleAction to end the wait state of the scaling activity in advance. 
 
 Default value: 600.', example='600'),
   lifecycleActionSources?: [ string ](name='LifecycleActionSources', description='The specific scenarios triggered by the lifecycle hook.'),
-  lifecycleHookName?: string(name='LifecycleHookName', description='The name of the lifecycle hook. The name must be unique within the scaling group. It must be 2 to 64 characters in length, and can contain letters, digits, underscores (_), hyphens (-), and periods (.). It must start with a letter, digit, or Chinese character.
+  lifecycleHookName?: string(name='LifecycleHookName', description='The name of the lifecycle hook. The name must be unique among all lifecycle hooks in the current scaling group. It must be 2 to 64 characters in length, start with a digit, an uppercase or lowercase letter, or a Chinese character, and can contain digits, underscores (_), hyphens (-), and periods (.).
 
 Default value: the value of LifecycleHookId.', example='lifecyclehook****'),
-  lifecycleTransition?: string(name='LifecycleTransition', description='The type of scaling activity to which the lifecycle hook applies. Valid values:
-- SCALE_OUT: scale-out activities of the scaling group.
-- SCALE_IN: scale-in activities of the scaling group.
+  lifecycleTransition?: string(name='LifecycleTransition', description='The type of scaling activity to which the lifecycle hook applies. Valid values: 
+         
+- SCALE_OUT: scale-out activity of the scaling group. 
+- SCALE_IN: scale-in activity of the scaling group.
 
 This parameter is required.', example='SCALE_OUT'),
   notificationArn?: string(name='NotificationArn', description='The identifier of the notification recipient for the lifecycle hook. If you do not specify this parameter, no notifications are sent. If you specify this parameter, the following notification methods are supported:
@@ -2528,13 +2530,13 @@ This parameter is required.', example='SCALE_OUT'),
 
 The variables in the formats have the following meanings:
 - region-id: the ID of the region where the scaling group resides.
-- account-id: the Alibaba Cloud account ID. The ID of a RAM user is not supported.
+- account-id: the Alibaba Cloud account ID. The ID of a Resource Access Management (RAM) user is not supported.
 - queuename: the name of the MNS queue.
 - topicname: the name of the MNS topic.
 - templatename: the name of the OOS template.', example='acs:mns:cn-beijing:161456884340****:queue/modifyLifecycleHo****'),
   notificationMetadata?: string(name='NotificationMetadata', description='The notification message pushed to the NotificationArn (notification recipient) when the lifecycle hook pauses the scaling activity. This parameter helps you manage and mark different types of notification messages. You must specify NotificationArn together with this parameter. The value can be up to 4,096 characters in length.
 
-If NotificationArn is set to an OOS template, including a public template or a custom template, NotificationMetadata must be specified as a JSON string that matches the parameters of the OOS template. For example, `{"dbInstanceId": "dds-bp17661e0135****", "modifyMode": "Append"}`, where `dbInstanceId` and `modifyMode` are parameters defined in the OOS template. Some parameters of the OOS template have default values. You must specify the parameters that do not have default values in NotificationMetadata. If you specify a parameter that has a default value, the original default value is overwritten. However, keep the default values for the following parameters to obtain relevant information during the runtime of the scaling activity:
+If NotificationArn is set to an OOS template, including a public or custom template, NotificationMetadata must be specified as a JSON string that matches the parameters of the OOS template. For example, `{"dbInstanceId": "dds-bp17661e0135****", "modifyMode": "Append"}`, where `dbInstanceId` and `modifyMode` are parameters defined in the OOS template. Some parameters of the OOS template have default values. You must specify parameters without default values in NotificationMetadata. If you specify parameters with default values, the original default values are overwritten. However, keep the default values for the following parameters to obtain relevant information at runtime:
 
 - `regionId`: the region where the scaling activity is executed. Default value: ${regionId}.
 
@@ -2542,14 +2544,14 @@ If NotificationArn is set to an OOS template, including a public template or a c
 
 - `lifecycleHookId`: the ID of the lifecycle hook. Default value: ${lifecycleHookId}.
 
-- `lifecycleActionToken`: the identifier of the wait state of the scaling activity, which is used to end the current suspended action in advance. Default value: ${lifecycleActionToken}.
+- `lifecycleActionToken`: the wait state identifier for the scaling activity, which is used to end the current suspended activity in advance. Default value: ${lifecycleActionToken}.
 
 - `scalingGroupId`: the ID of the scaling group to which the scaling activity belongs. Default value: ${scalingGroupId}.
 
-- `lifecycleActionResult`: the action to be performed after the wait state of the lifecycle hook ends. This parameter is used to end the current suspended action in advance when the OOS template execution fails. When DefaultResult is set to ROLLBACK, the default value of this parameter is ROLLBACK. In other cases, the default value is ABANDON.
+- `lifecycleActionResult`: the action to be performed after the wait state of the lifecycle hook ends. This parameter is used to end the current suspended activity in advance when the OOS template execution fails. When DefaultResult is set to ROLLBACK, the default value of this parameter is ROLLBACK. In other cases, the default value is ABANDON.
 
-> - You can adjust the settings of lifecycleActionResult to overwrite the current default value as needed. Valid values: ABANDON, CONTINUE, ROLLBACK, and ${lifecycleActionResult}.
-${lifecycleActionResult} indicates that the value of lifecycleActionResult is the same as the value of DefaultResult.
+>- You can configure the value of lifecycleActionResult to overwrite the current default value as needed. Valid values: ABANDON, CONTINUE, ROLLBACK, and ${lifecycleActionResult}.
+Among these values, ${lifecycleActionResult} indicates that the value of lifecycleActionResult is the same as that of DefaultResult.
 - You can obtain detailed information about the parameters of the corresponding template in the [OOS console](https://oos.console.aliyun.com/).', example='Test lifecycle hook.'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
@@ -2561,7 +2563,7 @@ This parameter is required.', example='asg-bp1eyv4qn8ssgv43****'),
 
 model CreateLifecycleHookResponseBody = {
   lifecycleHookId?: string(name='LifecycleHookId', description='The ID of the lifecycle hook.', example='ash-bp1at9ufhmcf9cmy****'),
-  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model CreateLifecycleHookResponse = {
@@ -2571,10 +2573,10 @@ model CreateLifecycleHookResponse = {
 }
 
 /**
- * @summary Creates one or more lifecycle hooks for a specified Auto Scaling group. These hooks intervene at critical stages of the instance lifecycle, such as before startup or termination, allowing you to execute custom operations such as sending notifications or running automated scripts. This feature enables finer-grained control and management, allowing you to authenticate, configure, or back up data before and after instances are affected by a scaling activity, thereby enhancing the flexibility and reliability of application deployments.
+ * @summary The CreateLifecycleHook API creates one or more lifecycle hooks in a specified scaling group. These hooks intervene at critical stages of the instance lifecycle, such as before startup or termination, and allow you to perform custom operations, such as sending notifications or executing automation scripts. This feature enables finer-grained control and management. For example, you can perform validation, configuration, or data backup tasks before and after instances are affected by scaling activities, which enhances the flexibility and reliability of application deployments.
  *
- * @description A scaling group can have up to 10 lifecycle hooks. When a scaling activity occurs in a scaling group that has lifecycle hooks, the lifecycle hooks pause the scaling activity for a period of time. You can specify the wait time by using the HeartbeatTimeout parameter. During the wait time, you can perform operations such as initializing the configurations of ECS instances and obtaining ECS instance data.
- * During a scale-out activity, ECS instances enter the wait state after they are added to the whitelist of the ApsaraDB RDS instance, and are added to the backend server group of the Server Load Balancer (SLB) instance after the wait state ends. During a scale-in activity, ECS instances enter the wait state after they are removed from the backend server group of the SLB instance, and are removed from the whitelist of the ApsaraDB RDS instance after the wait state ends.
+ * @description You can create up to 10 lifecycle hooks in a scaling group. When a scaling activity occurs in a scaling group that has lifecycle hooks, the lifecycle hooks suspend the scaling activity for a period of time. You can specify the wait time by using the HeartbeatTimeout parameter. During the wait time, you can perform operations such as initializing the configurations of ECS instances and obtaining ECS instance data.
+ * During a scale-out activity, ECS instances enter the wait state after they are added to the whitelist of an ApsaraDB RDS instance, and are added to the backend server group of a Server Load Balancer (SLB) instance after the wait state ends. During a scale-in activity, ECS instances enter the wait state after they are removed from the backend server group of the SLB instance, and are removed from the whitelist of the ApsaraDB RDS instance after the wait state ends.
  * You can configure notification methods for lifecycle hooks. Supported notification methods include Message Service (MNS) topics, MNS queues, and Operation Orchestration Service (OOS) templates. If you configure an OOS template, you must create a Resource Access Management (RAM) role for OOS. For more information, see [Grant RAM permissions to OOS](https://help.aliyun.com/document_detail/120810.html).
  * > If the scaling group contains existing ECS instances and the configured OOS template is used to add or remove instances from the whitelist of a cloud database other than ApsaraDB RDS, you must manually add the existing ECS instances to the whitelist of the cloud database.
  *
@@ -2636,10 +2638,10 @@ async function createLifecycleHookWithOptions(request: CreateLifecycleHookReques
 }
 
 /**
- * @summary Creates one or more lifecycle hooks for a specified Auto Scaling group. These hooks intervene at critical stages of the instance lifecycle, such as before startup or termination, allowing you to execute custom operations such as sending notifications or running automated scripts. This feature enables finer-grained control and management, allowing you to authenticate, configure, or back up data before and after instances are affected by a scaling activity, thereby enhancing the flexibility and reliability of application deployments.
+ * @summary The CreateLifecycleHook API creates one or more lifecycle hooks in a specified scaling group. These hooks intervene at critical stages of the instance lifecycle, such as before startup or termination, and allow you to perform custom operations, such as sending notifications or executing automation scripts. This feature enables finer-grained control and management. For example, you can perform validation, configuration, or data backup tasks before and after instances are affected by scaling activities, which enhances the flexibility and reliability of application deployments.
  *
- * @description A scaling group can have up to 10 lifecycle hooks. When a scaling activity occurs in a scaling group that has lifecycle hooks, the lifecycle hooks pause the scaling activity for a period of time. You can specify the wait time by using the HeartbeatTimeout parameter. During the wait time, you can perform operations such as initializing the configurations of ECS instances and obtaining ECS instance data.
- * During a scale-out activity, ECS instances enter the wait state after they are added to the whitelist of the ApsaraDB RDS instance, and are added to the backend server group of the Server Load Balancer (SLB) instance after the wait state ends. During a scale-in activity, ECS instances enter the wait state after they are removed from the backend server group of the SLB instance, and are removed from the whitelist of the ApsaraDB RDS instance after the wait state ends.
+ * @description You can create up to 10 lifecycle hooks in a scaling group. When a scaling activity occurs in a scaling group that has lifecycle hooks, the lifecycle hooks suspend the scaling activity for a period of time. You can specify the wait time by using the HeartbeatTimeout parameter. During the wait time, you can perform operations such as initializing the configurations of ECS instances and obtaining ECS instance data.
+ * During a scale-out activity, ECS instances enter the wait state after they are added to the whitelist of an ApsaraDB RDS instance, and are added to the backend server group of a Server Load Balancer (SLB) instance after the wait state ends. During a scale-in activity, ECS instances enter the wait state after they are removed from the backend server group of the SLB instance, and are removed from the whitelist of the ApsaraDB RDS instance after the wait state ends.
  * You can configure notification methods for lifecycle hooks. Supported notification methods include Message Service (MNS) topics, MNS queues, and Operation Orchestration Service (OOS) templates. If you configure an OOS template, you must create a Resource Access Management (RAM) role for OOS. For more information, see [Grant RAM permissions to OOS](https://help.aliyun.com/document_detail/120810.html).
  * > If the scaling group contains existing ECS instances and the configured OOS template is used to add or remove instances from the whitelist of a cloud database other than ApsaraDB RDS, you must manually add the existing ECS instances to the whitelist of the cloud database.
  *
@@ -5073,59 +5075,66 @@ async function createScalingRule(request: CreateScalingRuleRequest): CreateScali
 
 model CreateScheduledTaskRequest {
   description?: string(name='Description', description='The description of the scheduled task. The description must be 2 to 200 characters in length.', example='Test scheduled task.'),
-  desiredCapacity?: int32(name='DesiredCapacity', description='The expected number of instances in the scaling group when the scaling method of the scheduled task is to specify the number of instances in the scaling group.
+  desiredCapacity?: int32(name='DesiredCapacity', description='The expected number of instances in the scaling group when the scaling method of the scheduled task is set to specifying the number of instances in the scaling group.
 
-> The scaling group must support the expected number of instances. This means that `DesiredCapacity` must be specified when the scaling group is created.', example='10'),
-  launchExpirationTime?: int32(name='LaunchExpirationTime', description='The period during which the scheduled task retries the trigger after the trigger operation fails. Unit: seconds. Valid values: 0 to 1800.
+> The scaling group must support the expected number of instances. This means that DesiredCapacity must be specified when the scaling group is created.', example='10'),
+  launchExpirationTime?: int32(name='LaunchExpirationTime', description='The period within which the scheduled task retries after a trigger failure. Unit: seconds. Valid values: 0 to 1800.
 
 Default value: 600.', example='600'),
-  launchTime?: string(name='LaunchTime', description='The time at which the scheduled task is triggered. Specify the time in the ISO 8601 standard in the UTC time format. Format: YYYY-MM-DDThh:mmZ. You cannot specify a time that is later than 90 days from the creation date. 
+  launchTime?: string(name='LaunchTime', description='The time at which the scheduled task is triggered. Specify the time in the ISO 8601 standard in the YYYY-MM-DDThh:mmZ format. The time must be in UTC. You cannot specify a time that is later than 90 days from the creation date. 
 
-- If you specify `RecurrenceType`, the time specified by this parameter is the default time for recurring execution.
+- If RecurrenceType is specified, the time specified by this parameter is the default time for recurring execution.
 
-- If you do not specify `RecurrenceType`, the task is executed once at the specified date and time.', example='2014-08-17T16:52Z'),
-  maxValue?: int32(name='MaxValue', description='The maximum number of instances in the scaling group when the scaling method of the scheduled task is to specify the number of instances in the scaling group.', example='10'),
-  minValue?: int32(name='MinValue', description='The minimum number of instances in the scaling group when the scaling method of the scheduled task is to specify the number of instances in the scaling group.', example='0'),
+- If RecurrenceType is not specified, the task is executed only once at the specified date and time.', example='2014-08-17T16:52Z'),
+  maxValue?: int32(name='MaxValue', description='The maximum number of instances in the scaling group when the scaling method of the scheduled task is set to specifying the number of instances in the scaling group.', example='10'),
+  minValue?: int32(name='MinValue', description='The minimum number of instances in the scaling group when the scaling method of the scheduled task is set to specifying the number of instances in the scaling group.', example='0'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  recurrenceEndTime?: string(name='RecurrenceEndTime', description='The end time of the scheduled task that is executed repeatedly. Specify the time in the ISO 8601 standard in the UTC time format.
-
-Format: YYYY-MM-DDThh:mmZ. You cannot specify a time that is later than 365 days from the creation date.', example='2014-08-17T16:55Z'),
+  recurrenceEndTime?: string(name='RecurrenceEndTime', description='The end time of the scheduled task that is executed repeatedly. Specify the time in the ISO 8601 standard in the YYYY-MM-DDThh:mmZ format. The time must be in UTC. You cannot specify a time that is later than 365 days from the creation date.', example='2014-08-17T16:55Z'),
   recurrenceType?: string(name='RecurrenceType', description='The recurrence type of the scheduled task. Valid values: 
 - Daily: The scheduled task is executed once every specified number of days. 
 - Weekly: The scheduled task is executed on specified days of each week. 
 - Monthly: The scheduled task is executed on specified days of each month. 
 - Cron: The scheduled task is executed based on the specified cron expression. 
 
-You must specify both `RecurrenceType` and `RecurrenceValue`.', example='Daily'),
+You must specify both RecurrenceType and RecurrenceValue.', example='Daily'),
   recurrenceValue?: string(name='RecurrenceValue', description='The recurrence value of the scheduled task. 
 
-- If `RecurrenceType` is set to `Daily`, you can enter only one value. Valid values: 1 to 31. 
-- If `RecurrenceType` is set to `Weekly`, you can enter multiple values separated by commas (,). For example, the values for Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, and Saturday are `0,1,2,3,4,5,6`.  
-- If `RecurrenceType` is set to `Monthly`, the format is `A-B`. Valid values of A and B: 1 to 31. B must be greater than or equal to A. 
-- If `RecurrenceType` is set to `Cron`, the value represents the UTC time. It supports a five-field expression for minutes, hours, days, months, and weeks. It supports wildcards such as commas (,), question marks (?), hyphens (-), asterisks (*), number signs (#), forward slashes (/), L, and W.  
+- If RecurrenceType is set to Daily, you can specify only one value. Valid values: 1 to 31. 
+- If RecurrenceType is set to Weekly, you can specify multiple values separated by commas (,). For example, the values for Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, and Saturday are 0,1,2,3,4,5,6.  
+- If RecurrenceType is set to Monthly, the format is A-B. Valid values of A and B: 1 to 31. B must be greater than or equal to A. 
+- If RecurrenceType is set to Cron, the value represents UTC time and supports a five-field expression for minutes, hours, days, months, and days of the week. The expression supports the following wildcards: commas (,), question marks (?), hyphens (-), asterisks (*), number signs (#), forward slashes (/), L, and W.  
 
-You must specify both `RecurrenceType` and `RecurrenceValue`.', example='1'),
+You must specify both RecurrenceType and RecurrenceValue.', example='1'),
   regionId?: string(name='RegionId', description='The ID of the region to which the scheduled task belongs.
 
 This parameter is required.', example='cn-qingdao'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group for which you want to modify the number of instances when the scheduled task is triggered.
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group in which you want to modify the number of instances or adjust the warm pool capacity when the scheduled task is triggered.
 
-After you specify `ScalingGroupId`, the scaling method of the scheduled task is to specify the number of instances in the scaling group. You must specify a value for at least one of the following parameters: `MinValue`, `MaxValue`, and `DesiredCapacity`. You cannot specify both `ScheduledAction` and `ScalingGroupId` at the same time.', example='asg-bp18p2yfxow2dloq****'),
+After you specify ScalingGroupId, the scaling method of the scheduled task is set to specifying the number of instances in the scaling group or adjusting the warm pool capacity.
+
+- To specify the number of instances in the scaling group, you must specify a value for at least one of the following parameters: MinValue, MaxValue, and DesiredCapacity.
+- To adjust the warm pool capacity, you must configure WarmPoolCapacityOptions.
+
+> You cannot specify both ScheduledAction and ScalingGroupId at the same time.', example='asg-bp18p2yfxow2dloq****'),
   scheduledAction?: string(name='ScheduledAction', description='The unique identifier of the scaling rule to be executed when the scheduled task is triggered.
 
-After you specify `ScheduledAction`, the scaling method of the scheduled task is to select an existing scaling rule. You cannot specify both `ScheduledAction` and `ScalingGroupId` at the same time.', example='ari:acs:ess:cn-hangzhou:140692647****:scalingrule/asr-bp12tcnol686y1ik****'),
-  scheduledTaskName?: string(name='ScheduledTaskName', description='The name of the scheduled task. The name must be 2 to 64 characters in length. It must start with a letter, digit, or Chinese character, and can contain letters, digits, Chinese characters, underscores (_), hyphens (-), and periods (.). The name must be unique within the same region and account. Default value: the value of ScheduledTaskId.', example='scheduled****'),
-  taskEnabled?: boolean(name='TaskEnabled', description='Specifies whether to start the scheduled task. Valid values: 
-- true: Starts the task.
-- false: Stops the task.
+After you specify ScheduledAction, the scaling method of the scheduled task is set to selecting an existing scaling rule. You cannot specify both ScheduledAction and ScalingGroupId at the same time.', example='ari:acs:ess:cn-hangzhou:140692647****:scalingrule/asr-bp12tcnol686y1ik****'),
+  scheduledTaskName?: string(name='ScheduledTaskName', description='The name of the scheduled task. The name must be 2 to 64 characters in length and can contain letters, digits, underscores (_), hyphens (-), and periods (.). It must start with a letter, digit, or Chinese character. The name must be unique within the same region and Alibaba Cloud account. 
+
+Default value: the value of ScheduledTaskId.', example='scheduled****'),
+  taskEnabled?: boolean(name='TaskEnabled', description='Specifies whether to enable the scheduled task. Valid values: 
+- true: enables the task.
+- false: disables the task.
 
 Default value: true.', example='true'),
   warmPoolCapacityOptions?: {
-    desiredGroupPreparedCapacity?: int32(name='DesiredGroupPreparedCapacity', description='The expected number of warmed instances.', example='5'),
-    minCapacity?: int32(name='MinCapacity', description='The minimum number of instances in the warm pool.', example='0'),
-  }(name='WarmPoolCapacityOptions', description='The warm pool capacity configuration for the scaling group. This parameter takes effect only when a warm pool is configured for the scaling group.'),
+    desiredGroupPreparedCapacity?: int32(name='DesiredGroupPreparedCapacity', description='The expected number of prepared instances to be covered. The system maintains the sum of the current number of instances in the scaling group and the number of instances in the warm pool at this value. Default value: the maximum number of instances in the scaling group, which is specified by MaxSize.', example='5'),
+    minCapacity?: int32(name='MinCapacity', description='The minimum number of instances in the warm pool. The system always retains at least this number of prepared instances in the warm pool to ensure that instances can be quickly added from the warm pool during scale-out. Default value: 0.', example='0'),
+  }(name='WarmPoolCapacityOptions', description='The warm pool capacity configurations of the scaling group. This parameter takes effect only when a warm pool is configured for the scaling group.
+
+> When you configure this parameter, you must specify ScalingGroupId.'),
 }
 
 model CreateScheduledTaskResponseBody = {
@@ -5140,15 +5149,15 @@ model CreateScheduledTaskResponse = {
 }
 
 /**
- * @summary A scheduled node is a preset node. You can invoke the CreateScheduledTask API to create a scheduled node that executes a specified scaling rule at a specified time. This enables automatic scaling of compute resources to meet business requirements while controlling costs.
+ * @summary Creates a scheduled task. A scheduled task is a preset node. You can invoke the CreateScheduledTask API to create a scheduled task that executes a specified scaling rule at a specified time to automatically scale the compute resource, meeting business requirements while controlling costs.
  *
- * @description - If a scheduled node trigger to execute a scaling rule has failed because a scaling activity is in progress or the scaling group is disabled, the scheduled node automatically retries the trigger within the `LaunchExpirationTime` period. Otherwise, the scheduled trigger is canceled.
+ * @description - If a scheduled node has failed to trigger the execution of the scaling rule because a scaling activity is in progress or the scaling group is disabled, the scheduled node automatically retries within the `LaunchExpirationTime` period. Otherwise, the scheduled trigger is canceled.
  * - If multiple scheduled nodes trigger scaling rules for the same scaling group at approximately the same time, the details of the triggered scaling activities are as follows:
- *     - **Scaling groups with Settings for the expected number of instances**: Scaling activities triggered by multiple scheduled nodes are classified as parallel scaling activity. For example, if multiple scheduled nodes are executed at approximately the same time, the scaling group can trigger multiple parallel scaling activity events simultaneously.
- *     - **Scaling groups without Settings for the expected number of instances**: The earliest triggered scheduled node executes the scaling activity first. Because a scaling group can have only one scaling activity at a time, subsequent scheduled nodes automatically retry the scheduled trigger within the `LaunchExpirationTime` period. If a subsequent scheduled node is still retrying within the `LaunchExpirationTime` period after the previous scaling activity is completed, the scaling rule of the scheduled node is executed to trigger the corresponding scaling activity.
+ *     - **Scaling groups with Settings for the expected number of instances**: Scaling activities triggered by multiple scheduled nodes are of the parallel scaling activity type. For example, if multiple scheduled nodes are executed at approximately the same time, the scaling group can trigger multiple parallel scaling activity executions simultaneously.
+ *     - **Scaling groups without Settings for the expected number of instances**: The earliest triggered scheduled node executes the scaling activity first. Because a scaling group can run only one scaling activity at a time, subsequent scheduled nodes automatically retry within the `LaunchExpirationTime` period. If a subsequent scheduled node is still retrying within the `LaunchExpirationTime` period after the previous scaling activity is completed, the scaling rule of the scheduled node is executed and the corresponding scaling activity is triggered.
  * - Scheduled nodes support the following two scaling methods:
- *     - Use the ScheduledAction parameter to specify the scaling rule to be executed.
- *     - Use the ScalingGroupId parameter to specify the number of instances in the scaling group.
+ *     - Specify the scaling rule to be executed by using the ScheduledAction parameter.
+ *     - Specify the number of instances in the scaling group by using the ScalingGroupId parameter.
  *   > You cannot specify both ScheduledAction and ScalingGroupId at the same time.
  *
  * @param request CreateScheduledTaskRequest
@@ -5230,15 +5239,15 @@ async function createScheduledTaskWithOptions(request: CreateScheduledTaskReques
 }
 
 /**
- * @summary A scheduled node is a preset node. You can invoke the CreateScheduledTask API to create a scheduled node that executes a specified scaling rule at a specified time. This enables automatic scaling of compute resources to meet business requirements while controlling costs.
+ * @summary Creates a scheduled task. A scheduled task is a preset node. You can invoke the CreateScheduledTask API to create a scheduled task that executes a specified scaling rule at a specified time to automatically scale the compute resource, meeting business requirements while controlling costs.
  *
- * @description - If a scheduled node trigger to execute a scaling rule has failed because a scaling activity is in progress or the scaling group is disabled, the scheduled node automatically retries the trigger within the `LaunchExpirationTime` period. Otherwise, the scheduled trigger is canceled.
+ * @description - If a scheduled node has failed to trigger the execution of the scaling rule because a scaling activity is in progress or the scaling group is disabled, the scheduled node automatically retries within the `LaunchExpirationTime` period. Otherwise, the scheduled trigger is canceled.
  * - If multiple scheduled nodes trigger scaling rules for the same scaling group at approximately the same time, the details of the triggered scaling activities are as follows:
- *     - **Scaling groups with Settings for the expected number of instances**: Scaling activities triggered by multiple scheduled nodes are classified as parallel scaling activity. For example, if multiple scheduled nodes are executed at approximately the same time, the scaling group can trigger multiple parallel scaling activity events simultaneously.
- *     - **Scaling groups without Settings for the expected number of instances**: The earliest triggered scheduled node executes the scaling activity first. Because a scaling group can have only one scaling activity at a time, subsequent scheduled nodes automatically retry the scheduled trigger within the `LaunchExpirationTime` period. If a subsequent scheduled node is still retrying within the `LaunchExpirationTime` period after the previous scaling activity is completed, the scaling rule of the scheduled node is executed to trigger the corresponding scaling activity.
+ *     - **Scaling groups with Settings for the expected number of instances**: Scaling activities triggered by multiple scheduled nodes are of the parallel scaling activity type. For example, if multiple scheduled nodes are executed at approximately the same time, the scaling group can trigger multiple parallel scaling activity executions simultaneously.
+ *     - **Scaling groups without Settings for the expected number of instances**: The earliest triggered scheduled node executes the scaling activity first. Because a scaling group can run only one scaling activity at a time, subsequent scheduled nodes automatically retry within the `LaunchExpirationTime` period. If a subsequent scheduled node is still retrying within the `LaunchExpirationTime` period after the previous scaling activity is completed, the scaling rule of the scheduled node is executed and the corresponding scaling activity is triggered.
  * - Scheduled nodes support the following two scaling methods:
- *     - Use the ScheduledAction parameter to specify the scaling rule to be executed.
- *     - Use the ScalingGroupId parameter to specify the number of instances in the scaling group.
+ *     - Specify the scaling rule to be executed by using the ScheduledAction parameter.
+ *     - Specify the number of instances in the scaling group by using the ScalingGroupId parameter.
  *   > You cannot specify both ScheduledAction and ScalingGroupId at the same time.
  *
  * @param request CreateScheduledTaskRequest
@@ -6030,6 +6039,73 @@ async function deleteScheduledTaskWithOptions(request: DeleteScheduledTaskReques
 async function deleteScheduledTask(request: DeleteScheduledTaskRequest): DeleteScheduledTaskResponse {
   var runtime = new Util.RuntimeOptions{};
   return deleteScheduledTaskWithOptions(request, runtime);
+}
+
+model DeleteWarmPoolRequest {
+  clientToken?: string(name='ClientToken', description='Ensures the idempotence of the request. You can generate a parameter value on your client to ensure that the value is unique across different requests. The value can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see How to ensure idempotence.', example='123e4567-e89b-12d3-a456-42665544****'),
+  regionId?: string(name='RegionId', description='The region ID of the scaling group.
+
+This parameter is required.', example='cn-hangzhou'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp1igpak5ft1flyp****'),
+}
+
+model DeleteWarmPoolResponseBody = {
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+}
+
+model DeleteWarmPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteWarmPoolResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes the warmup pool of a scaling group and releases the instances in the warmup pool.
+ *
+ * @param request DeleteWarmPoolRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteWarmPoolResponse
+ */
+async function deleteWarmPoolWithOptions(request: DeleteWarmPoolRequest, runtime: Util.RuntimeOptions): DeleteWarmPoolResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.scalingGroupId)) {
+    query['ScalingGroupId'] = request.scalingGroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DeleteWarmPool',
+    version = '2022-02-22',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes the warmup pool of a scaling group and releases the instances in the warmup pool.
+ *
+ * @param request DeleteWarmPoolRequest
+ * @return DeleteWarmPoolResponse
+ */
+async function deleteWarmPool(request: DeleteWarmPoolRequest): DeleteWarmPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return deleteWarmPoolWithOptions(request, runtime);
 }
 
 model DescribeAlarmsRequest {
@@ -8059,35 +8135,37 @@ async function describeLifecycleActions(request: DescribeLifecycleActionsRequest
 }
 
 model DescribeLifecycleHooksRequest {
-  lifecycleHookIds?: [ string ](name='LifecycleHookIds', description='The list of lifecycle hook IDs.'),
+  lifecycleHookIds?: [ string ](name='LifecycleHookIds', description='The IDs of the lifecycle hooks.
+> Conditionally required: You must specify at least one of LifecycleHookIds or ScalingGroupId when you query lifecycle hooks. If you specify both parameters, LifecycleHookIds takes precedence. If you specify only RegionId without specifying either of the two parameters, a 400 InvalidParameter error is returned.'),
   lifecycleHookName?: string(name='LifecycleHookName', description='The name of the lifecycle hook.', example='lifecyclehook****'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   pageNumber?: int32(name='PageNumber', description='The page number of the instance status list. Pages start from 1.
 
 Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The Settings for the number of entries to return on each page during paging in a paged query. Maximum value: 50.
+  pageSize?: int32(name='PageSize', description='The number of entries to return on each page. Maximum value: 50.
 
 Default value: 50.', example='50'),
-  regionId?: string(name='RegionId', description='The ID of the region where the scaling group resides.', example='cn-beijing'),
+  regionId?: string(name='RegionId', description='The region ID of the scaling group.', example='cn-beijing'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
-  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-bp1igpak5ft1flyp****'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
+> Conditionally required: You must specify at least one of LifecycleHookIds or ScalingGroupId when you query lifecycle hooks. If you specify only RegionId without specifying either of the two parameters, a 400 InvalidParameter error is returned.', example='asg-bp1igpak5ft1flyp****'),
 }
 
 model DescribeLifecycleHooksResponseBody = {
   lifecycleHooks?: [ 
     {
-      defaultResult?: string(name='DefaultResult', description='The next action to perform after the wait state of the instance ends.', example='CONTINUE'),
-      heartbeatTimeout?: int32(name='HeartbeatTimeout', description='The wait time configured in the lifecycle hook for the scaling activity. The next action is performed when the wait time expires.', example='60'),
-      lifecycleActionSources?: [ string ](name='LifecycleActionSources', description='The specific scenarios that trigger the lifecycle hook.'),
+      defaultResult?: string(name='DefaultResult', description='The action to perform after the wait state of the instance ends.', example='CONTINUE'),
+      heartbeatTimeout?: int32(name='HeartbeatTimeout', description='The wait time configured in the lifecycle hook for the scaling activity. The next action is performed after the wait time expires.', example='60'),
+      lifecycleActionSources?: [ string ](name='LifecycleActionSources', description='The specific scenarios in which the lifecycle hook is triggered.'),
       lifecycleHookId?: string(name='LifecycleHookId', description='The ID of the lifecycle hook.', example='ash-bp19d1032y9kij96****'),
       lifecycleHookName?: string(name='LifecycleHookName', description='The name of the lifecycle hook.', example='lifecyclehook****'),
       lifecycleHookStatus?: string(name='LifecycleHookStatus', description='The status of the lifecycle hook. Valid values:
 - Active: The lifecycle hook is active.
 - InActive: The lifecycle hook is inactive.', example='Active'),
       lifecycleTransition?: string(name='LifecycleTransition', description='The scaling activity type associated with the lifecycle hook.', example='SCALE_OUT'),
-      notificationArn?: string(name='NotificationArn', description='The notification recipient identifier for the lifecycle hook. The parameter format is as follows:
-- No notification configured: `acs:ess:{region-id}:{account-id}:null/null`.
+      notificationArn?: string(name='NotificationArn', description='The identifier of the notification recipient for the lifecycle hook. The parameter format is as follows:
+- Notifications not configured: `acs:ess:{region-id}:{account-id}:null/null`.
 - MNS queue: `acs:mns:{region-id}:{account-id}:queue/{queuename}`.
 - MNS topic: `acs:mns:{region-id}:{account-id}:topic/{topicname}`.
 - OOS template: `acs:oos:{region-id}:{account-id}:template/{templatename}`.
@@ -8105,7 +8183,7 @@ The variables in the parameter format have the following meanings:
   ](name='LifecycleHooks', description='The list of lifecycle hooks.'),
   pageNumber?: int32(name='PageNumber', description='The page number of the returned page.', example='1'),
   pageSize?: int32(name='PageSize', description='The number of entries returned per page.', example='50'),
-  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   totalCount?: int32(name='TotalCount', description='The total number of lifecycle hooks.', example='1'),
 }
 
@@ -8116,7 +8194,7 @@ model DescribeLifecycleHooksResponse = {
 }
 
 /**
- * @summary Queries the details of lifecycle hooks by specifying lifecycle hook IDs or scaling group IDs. The returned information includes the next action after the wait state ends, the scaling activity type associated with the lifecycle hook, the notification recipient identifier, and the suspension wait time.
+ * @summary Queries the information of lifecycle hooks by specifying lifecycle hook IDs or scaling group IDs. The information includes the next action to perform after the wait state ends, the scaling activity type associated with the lifecycle hook, the notification recipient identifier, and the suspension wait time.
  *
  * @description You can query lifecycle hooks in the following three ways:
  * - Specify a list of lifecycle hook IDs (LifecycleHookIds). In this case, the ScalingGroupId and LifecycleHookName parameters are ignored.
@@ -8175,7 +8253,7 @@ async function describeLifecycleHooksWithOptions(request: DescribeLifecycleHooks
 }
 
 /**
- * @summary Queries the details of lifecycle hooks by specifying lifecycle hook IDs or scaling group IDs. The returned information includes the next action after the wait state ends, the scaling activity type associated with the lifecycle hook, the notification recipient identifier, and the suspension wait time.
+ * @summary Queries the information of lifecycle hooks by specifying lifecycle hook IDs or scaling group IDs. The information includes the next action to perform after the wait state ends, the scaling activity type associated with the lifecycle hook, the notification recipient identifier, and the suspension wait time.
  *
  * @description You can query lifecycle hooks in the following three ways:
  * - Specify a list of lifecycle hook IDs (LifecycleHookIds). In this case, the ScalingGroupId and LifecycleHookName parameters are ignored.
@@ -9839,28 +9917,28 @@ model DescribeScalingGroupsRequest {
   pageNumber?: int32(name='PageNumber', description='The page number. Pages start from 1.
 
 Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='The paging Settings for the number of entries per page in a paged query. Maximum value: 50.
+  pageSize?: int32(name='PageSize', description='The Settings for the number of entries per page during paging in a paged query. Maximum value: 50.
 
 Default value: 10.', example='10'),
-  regionId?: string(name='RegionId', description='The ID of the region to which the scaling group belongs.
+  regionId?: string(name='RegionId', description='The region ID.
 
 This parameter is required.', example='cn-qingdao'),
   resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the scaling groups to query belong.
 
-> If no scaling groups belong to the specified resource group, an empty result is returned and no error is reported.', example='rg-123******'),
+> If no scaling group belongs to the specified resource group, an empty result is returned and no error is returned.', example='rg-123******'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   scalingGroupIds?: [ string ](name='ScalingGroupIds', description='The IDs of the scaling groups to query.
 
-Invalid scaling group IDs are ignored in the query results, and no error is reported.'),
+Invalid scaling group IDs are ignored in the response and no error is returned.'),
   scalingGroupName?: string(name='ScalingGroupName', description='The name of the scaling group.', example='scalinggroup****'),
   scalingGroupNames?: [ string ](name='ScalingGroupNames', description='The names of the scaling groups to query.
 
-Invalid scaling group names are ignored in the query results, and no error is reported.'),
+Invalid scaling group names are ignored in the response and no error is returned.'),
   tags?: [ 
     {
-      key?: string(name='Key', description='The key of the tag.', example='Department'),
-      value?: string(name='Value', description='The value of the tag.', example='Finance'),
+      key?: string(name='Key', description='The tag key of the scaling group.', example='Department'),
+      value?: string(name='Value', description='The tag value of the scaling group.', example='Finance'),
     }
   ](name='Tags', description='The tags of the scaling group.'),
 }
@@ -9871,7 +9949,7 @@ model DescribeScalingGroupsResponseBody = {
   requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
   scalingGroups?: [ 
     {
-      activeCapacity?: int32(name='ActiveCapacity', description='The number of ECS instances that have been added to the scaling group and are running properly.', example='1'),
+      activeCapacity?: int32(name='ActiveCapacity', description='The number of ECS instances that have been added to the scaling group and are running normally.', example='1'),
       activeScalingConfigurationId?: string(name='ActiveScalingConfigurationId', description='The ID of the active scaling configuration in the scaling group.', example='asc-bp1et2qekq3ojr33****'),
       albServerGroups?: [ 
         {
@@ -9880,47 +9958,46 @@ model DescribeScalingGroupsResponseBody = {
           weight?: int32(name='Weight', description='The weight of the ECS instance as a backend server after Auto Scaling adds the ECS instance to the ALB server group.', example='100'),
         }
       ](name='AlbServerGroups', description='The collection of information about Application Load Balancer (ALB) server groups.'),
-      allocationStrategy?: string(name='AllocationStrategy', description='The capacity allocation strategy, which determines how the scaling group selects available instance types to meet the capacity requirements. The capacity distribution strategy applies to both pay-as-you-go and spot capacity. This parameter takes effect only when the `MultiAZPolicy` parameter is set to `COMPOSABLE`. Valid values:
+      allocationStrategy?: string(name='AllocationStrategy', description='The capacity allocation strategy, which determines how the scaling group selects available instance types to meet the capacity requirements. The capacity distribution strategy applies to both pay-as-you-go and spot capacity. This parameter takes effect only when the MultiAZPolicy parameter is set to COMPOSABLE. Valid values:
 
 - priority: Creates instances based on the order of the configured instance types.
-- lowestPrice: Creates instances based on the unit price per vCPU of the instance types in ascending order.', example='priority'),
-      autoRebalance?: boolean(name='AutoRebalance', description='Specifies whether to enable automatic balancing for the scaling group. This parameter takes effect only when BalancedOnly is enabled for zone balancing. Valid values:
+- lowestPrice: Creates instances based on the unit vCPU price of the instance types in ascending order.', example='priority'),
+      autoRebalance?: boolean(name='AutoRebalance', description='Specifies whether to enable automatic balancing for the scaling group. This parameter takes effect only when BalancedOnly is enabled for the zone balance scaling group. Valid values:
 - false: Automatic balancing for the scaling group is disabled.
-- true: Automatic balancing for the scaling group is enabled. The scaling group automatically detects the capacity across zones. When the capacity is unbalanced, the scaling group proactively scales in or out to rebalance the capacity across zones.', example='false'),
-      azBalance?: boolean(name='AzBalance', description='Specifies whether the capacity of the scaling group is evenly distributed across multiple zones. This parameter takes effect only when the `MultiAZPolicy` parameter is set to `COMPOSABLE`. Valid values:
+- true: Automatic balancing for the scaling group is enabled. The scaling group automatically detects the capacity across zones. If the capacity is unbalanced, the scaling group proactively scales in or out to rebalance the capacity across zones.', example='false'),
+      azBalance?: boolean(name='AzBalance', description='Specifies whether the capacity of the scaling group is evenly distributed across multiple zones. This parameter takes effect only when the MultiAZPolicy parameter is set to COMPOSABLE. Valid values:
 
 - true: The capacity of the scaling group is evenly distributed across multiple zones.
 - false: The capacity of the scaling group is not evenly distributed across multiple zones.', example='false'),
-      balanceMode?: string(name='BalanceMode', description='The zone balancing mode. This parameter takes effect only when the zone balancing mode is enabled. Valid values:
+      balanceMode?: string(name='BalanceMode', description='The zone balance mode. This parameter takes effect only when the zone balance mode is enabled. Valid values:
  
-- BalancedBestEffort: When resource creation fails in a zone, the system falls back to other zones to ensure best-effort delivery of resources.
+- BalancedBestEffort: If resource creation fails in a zone, the system falls back to other zones to ensure best-effort delivery of resources.
 
-- BalancedOnly: When resource creation fails in a zone, the system does not fall back to other zones. The scale-out activity partially succeeds to avoid excessive imbalance of resources across different zones.', example='BalancedBestEffort'),
+- BalancedOnly: If resource creation fails in a zone, the system does not fall back to other zones. The scale-out activity partially succeeds to avoid excessive imbalance of resources across different zones.', example='BalancedBestEffort'),
       capacityOptions?: {
-        compensateWithOnDemand?: boolean(name='CompensateWithOnDemand', description='Specifies whether to automatically create pay-as-you-go instances to meet the required number of ECS instances when the `MultiAZPolicy` parameter is set to `COST_OPTIMIZED` and sufficient spot instances cannot be created due to price or inventory reasons. Valid values:
+        compensateWithOnDemand?: boolean(name='CompensateWithOnDemand', description='Specifies whether to automatically create pay-as-you-go instances to meet the required number of ECS instances when the MultiAZPolicy parameter is set to COST_OPTIMIZED and sufficient spot instances cannot be created due to price or inventory reasons. Valid values:
 
 - true: Allowed.
 - false: Not allowed.', example='true'),
         onDemandBaseCapacity?: int32(name='OnDemandBaseCapacity', description='The minimum number of pay-as-you-go instances required in the scaling group. If the number of pay-as-you-go instances in the scaling group is less than this value, the system preferentially creates pay-as-you-go instances. Valid values: 0 to 1000.', example='0'),
-        onDemandPercentageAboveBaseCapacity?: int32(name='OnDemandPercentageAboveBaseCapacity', description='The percentage of pay-as-you-go instances in the excess instances after the scaling group meets the minimum number of pay-as-you-go instances specified by `OnDemandBaseCapacity`. Valid values: 0 to 100.', example='0'),
+        onDemandPercentageAboveBaseCapacity?: int32(name='OnDemandPercentageAboveBaseCapacity', description='The percentage of pay-as-you-go instances among the excess instances after the scaling group meets the minimum number of pay-as-you-go instances specified by OnDemandBaseCapacity. Valid values: 0 to 100.', example='0'),
         priceComparisonMode?: string(name='PriceComparisonMode', description='The price comparison mode of the cost optimization strategy for the scaling group. Valid values:
 - PricePerUnit: Compares prices based on the price per unit of capacity.
 
   The capacity of an instance in the scaling group is equal to the weight set for the instance type. The default weight is 1, which means one ECS instance occupies one unit of capacity.
 
 - PricePerVCpu: Compares prices based on the price per vCPU.', example='PricePerUnit'),
-        spotAutoReplaceOnDemand?: boolean(name='SpotAutoReplaceOnDemand', description='Specifies whether to use spot instances to replace pay-as-you-go capacity when `CompensateWithOnDemand` is enabled and the percentage of pay-as-you-go instances exceeds the value of `OnDemandPercentageAboveBaseCapacity`. In common scenarios where `CompensateWithOnDemand` downgrades spot instances to pay-as-you-go instances due to spot inventory or price reasons, this parameter attempts to use spot instances to replace the excess pay-as-you-go capacity to avoid long-term retention of pay-as-you-go instances. Valid values:
+        spotAutoReplaceOnDemand?: boolean(name='SpotAutoReplaceOnDemand', description='Specifies whether to use spot instances to replace pay-as-you-go capacity when CompensateWithOnDemand is enabled and the percentage of pay-as-you-go instances exceeds the value of OnDemandPercentageAboveBaseCapacity. In common scenarios where CompensateWithOnDemand downgrades spot instances to pay-as-you-go instances due to spot inventory or price reasons, this feature attempts to use spot instances to replace the excess pay-as-you-go capacity to avoid long-term retention of pay-as-you-go instances. Valid values:
 
 - true: Allowed.
 - false: Not allowed.', example='false'),
       }(name='CapacityOptions', description='The capacity options.'),
-      compensateWithOnDemand?: boolean(name='CompensateWithOnDemand', description='Specifies whether to automatically create pay-as-you-go instances to meet the requirement for the number of ECS instances when the MultiAZPolicy parameter is set to COST_OPTIMIZED and the required number of spot instances cannot be created due to insufficient resources or price limits. Valid values:
-
-- true: yes.
-- false: no.', example='true'),
+      compensateWithOnDemand?: boolean(name='CompensateWithOnDemand', description='Specifies whether to automatically create pay-as-you-go instances to meet the requirement for the number of ECS instances when the MultiAZPolicy parameter is set to COST_OPTIMIZED and spot instances cannot be created due to price or inventory issues. Valid values:
+- true: Allowed.
+- false: Not allowed.', example='true'),
       creationTime?: string(name='CreationTime', description='The time when the scaling group was created. The time follows the ISO 8601 standard in the YYYY-MM-DDTHH:mmZ format. The time is displayed in UTC.', example='2014-08-14T10:58Z'),
       currentHostName?: string(name='CurrentHostName', description='> This parameter is not available.', example='hostname'),
-      customPolicyARN?: string(name='CustomPolicyARN', description='The Alibaba Cloud Resource Name (ARN) of the Function Compute function for the custom scale-in policy. This parameter takes effect only when the first removal policy configured in RemovalPolicies is CustomPolicy.', example='acs:fc:cn-zhangjiakou:16145688****:services/ess_custom_terminate_policy.LATEST/functions/ess_custom_terminate_policy_name'),
+      customPolicyARN?: string(name='CustomPolicyARN', description='The Alibaba Cloud Resource Name (ARN) of the Function Compute function for the custom scale-in policy. This parameter takes effect only when the first removal policy in RemovalPolicies is set to CustomPolicy.', example='acs:fc:cn-zhangjiakou:16145688****:services/ess_custom_terminate_policy.LATEST/functions/ess_custom_terminate_policy_name'),
       DBInstanceIds?: [ string ](name='DBInstanceIds', description='The IDs of the ApsaraDB RDS instances associated with the scaling group.'),
       DBInstances?: [ 
         {
@@ -9932,53 +10009,50 @@ model DescribeScalingGroupsResponseBody = {
 - MongoDB', example='RDS'),
         }
       ](name='DBInstances', description='The list of databases associated with the scaling group.'),
-      defaultCooldown?: int32(name='DefaultCooldown', description='The default cooldown time of the scaling group. During the cooldown time, the scaling group does not execute any other scaling activity. This parameter applies only to a scaling activity triggered by a CloudMonitor event-triggered task.', example='60'),
-      desiredCapacity?: int32(name='DesiredCapacity', description='The expected number of instances in the scaling group. The scaling group automatically maintains the number of ECS instances at the expected number of instances.', example='5'),
+      defaultCooldown?: int32(name='DefaultCooldown', description='The default cooldown time of the scaling group. During the cooldown time, the scaling group does not execute any other scaling activity. This parameter takes effect only for a scaling activity triggered by [CloudMonitor](https://help.aliyun.com/document_detail/35170.html) event-triggered tasks.', example='60'),
+      desiredCapacity?: int32(name='DesiredCapacity', description='The expected number of ECS instances in the scaling group. The scaling group automatically maintains the number of ECS instances at the expected number of instances.', example='5'),
       enableDesiredCapacity?: boolean(name='EnableDesiredCapacity', description='Specifies whether the expected number of instances feature is enabled. Valid values:
 - true: The expected number of instances feature is enabled.
 - false: The expected number of instances feature is disabled.', example='false'),
       groupDeletionProtection?: boolean(name='GroupDeletionProtection', description='Indicates whether deletion protection is enabled for the scaling group. Valid values:
-
 - true: Deletion protection is enabled. The scaling group cannot be deleted.
 - false: Deletion protection is disabled.', example='true'),
       groupType?: string(name='GroupType', description='The type of instances managed by the scaling group.', example='ECS'),
       healthCheckType?: string(name='HealthCheckType', description='The health check mode of the scaling group. Valid values:
-
 - NONE: No health check is performed.
-- ECS: Health checks are performed on instances in the scaling group. This value applies to both ECS and ECI scaling groups.
-- LOAD_BALANCER: The health status of instances is determined based on the health check results of load balancing (CLB load balancing type is not supported).', example='ECS'),
+- ECS: Health checks are performed on instances in the scaling group. This value is used to enable instance health checks for both ECS and ECI scaling groups.
+- LOAD_BALANCER: The health status of instances is determined based on the health check results of load balancing (CLB load balancing is not supported).', example='ECS'),
       healthCheckTypes?: [ string ](name='HealthCheckTypes', description='The health check mode of the scaling group. Valid values:
 
 - NONE: No health check is performed.
 - ECS: Health checks are performed on instances in the scaling group. This value is used to enable instance health checks for both ECS and ECI scaling groups.
-- LOAD_BALANCER: The health status of instances is determined based on the health check results of load balancing (the CLB load balancing type is not currently supported).'),
+- LOAD_BALANCER: The health status of instances is determined based on the load balancing health check results (the CLB load balancing type is not currently supported).'),
       initCapacity?: int32(name='InitCapacity', description='The number of instances in the initialization state before scale-out in the scaling group.', example='0'),
       isElasticStrengthInAlarm?: boolean(name='IsElasticStrengthInAlarm', description='> This parameter is not available.', example='false'),
       launchTemplateId?: string(name='LaunchTemplateId', description='The ID of the launch template used by the scaling group.', example='lt-m5e3ofjr1zn1aw7****'),
       launchTemplateOverrides?: [ 
         {
           instanceType?: string(name='InstanceType', description='The specified instance type, which overrides the instance type in the launch template.', example='ecs.c5.xlarge'),
-          spotPriceLimit?: float(name='SpotPriceLimit', description='The maximum hourly price for the instance type specified in the launch template override (namely, LaunchTemplateOverride.InstanceType).
+          spotPriceLimit?: float(name='SpotPriceLimit', description='The maximum hourly price for the instance type specified in the launch template override (namely LaunchTemplateOverride.InstanceType).
 > This parameter takes effect only when the LaunchTemplateId parameter is specified.', example='0.025'),
-          weightedCapacity?: int32(name='WeightedCapacity', description='The weight of the instance type, which indicates the capacity of a single instance of the specified instance type in the scaling group. A greater weight indicates that fewer instances of the specified instance type are required to meet the expected capacity.', example='4'),
+          weightedCapacity?: int32(name='WeightedCapacity', description='The weight of the specified instance type, which indicates the capacity of a single instance of this type in the scaling group. A higher weight indicates that fewer instances of this type are required to meet the expected capacity.', example='4'),
         }
-      ](name='LaunchTemplateOverrides', description='The instance type overrides for the launch template.'),
+      ](name='LaunchTemplateOverrides', description='The instance type information that extends the launch template.'),
       launchTemplateVersion?: string(name='LaunchTemplateVersion', description='The version of the launch template used by the scaling group.', example='Default'),
       lifecycleState?: string(name='LifecycleState', description='The lifecycle state of the scaling group. Valid values:
-
 - Active: The scaling group is active. Only active scaling groups can accept requests to execute scaling rules and trigger a scaling activity.
-- Inactive: The scaling group is inactive. Inactive scaling groups do not accept any requests to execute scaling rules.
-- Deleting: The scaling group is being deleted. Scaling groups in the Deleting state do not accept any requests to execute scaling rules, and their parameters cannot be modified.', example='Active'),
+- Inactive: The scaling group is inactive. Inactive scaling groups do not receive any requests to execute scaling rules.
+- Deleting: The scaling group is being deleted. Scaling groups in the deleting state do not receive any requests to execute scaling rules, and their parameters cannot be modified.', example='Active'),
       loadBalancerConfigs?: [ 
         {
-          loadBalancerId?: string(name='LoadBalancerId', description='The ID of the load balancing CLB (formerly SLB) instance.', example='lb-2zep8alpq5zq1a2xwyxxx'),
-          weight?: int32(name='Weight', description='The weight of the ECS instance as a backend server after Auto Scaling adds the ECS instance to the SLB server group. A higher weight specifies that more access requests are distributed to the ECS instance. If the weight is 0, the ECS instance does not receive access requests. Valid values: 0 to 100.', example='10'),
+          loadBalancerId?: string(name='LoadBalancerId', description='The ID of the Classic Load Balancer (CLB) instance for load balancing.', example='lb-2zep8alpq5zq1a2xwyxxx'),
+          weight?: int32(name='Weight', description='The weight of the ECS instance as a backend server after Auto Scaling adds the ECS instance to the SLB server group. A higher weight indicates that more access requests are distributed to the ECS instance. If the weight is 0, the ECS instance does not receive access requests. Valid values: 0 to 100.', example='10'),
         }
       ](name='LoadBalancerConfigs', description='The list of load balancing configurations.'),
       loadBalancerIds?: [ string ](name='LoadBalancerIds', description='The list of IDs of the load balancing instances associated with the scaling group.'),
       maxInstanceLifetime?: int32(name='MaxInstanceLifetime', description='The maximum lifetime of an instance in the scaling group. Unit: seconds.
 
-Valid values: 0 or `[86400, Integer.maxValue]`. A value of 0 indicates that the configured value of MaxInstanceLifetime is cleared, which means MaxInstanceLifetime is not configured.
+Valid values: 0 or [86400, Integer.maxValue]. A value of 0 indicates that the configured value of MaxInstanceLifetime is cleared, which means MaxInstanceLifetime is not configured.
 
 Default value: null.
 
@@ -9988,80 +10062,73 @@ Default value: null.
       modificationTime?: string(name='ModificationTime', description='The time when the scaling group was modified. The time follows the ISO 8601 standard in the YYYY-MM-DDTHH:mmZ format. The time is displayed in UTC.', example='2014-08-14T10:58Z'),
       monitorGroupId?: string(name='MonitorGroupId', description='The ID of the CloudMonitor application group associated with the scaling group.', example='1497****'),
       multiAZPolicy?: string(name='MultiAZPolicy', description='The scale-out and scale-in policy for ECS instances in a multi-zone scaling group. Valid values:
-         
-- PRIORITY: Scales instances based on the defined vSwitches (VSwitchIds). If ECS instances cannot be created in the zone of the vSwitch with the highest priority, the system automatically uses the vSwitch with the next highest priority to create ECS instances.
-- COST_OPTIMIZED: Attempts to create instances based on the unit price of vCPUs from low to high. If the scaling configuration specifies multiple instance types that use the preemptible billing method, the system preferentially creates spot instances. You can use the CompensateWithOnDemand parameter to specify whether to automatically create pay-as-you-go instances when spot instances cannot be created due to insufficient resources.
-    > The COST_OPTIMIZED value takes effect only when the scaling configuration specifies multiple instance types or uses spot instances.
-- BALANCE: Evenly allocates ECS instances across the active zones specified for the scaling group. If the instances are unevenly distributed across zones due to insufficient resources, you can call the RebalanceInstance operation to balance the resources.', example='PRIORITY'),
+- PRIORITY: Scales out and scales in instances based on the vSwitches defined in VSwitchIds. If ECS instances cannot be created in the active zone of the vSwitch with the highest priority, the system automatically uses the vSwitch with the next highest priority to create ECS instances.
+- COST_OPTIMIZED: Attempts to create instances based on the unit price of vCPUs from low to high. When the scaling configuration specifies multiple instance types with the spot billing method, the system preferentially creates spot instances. You can use the CompensateWithOnDemand parameter to specify whether to automatically attempt to create pay-as-you-go instances when spot instances cannot be created due to inventory issues.
+    > COST_OPTIMIZED takes effect only when the scaling configuration specifies multiple instance types or uses spot instances.
+- BALANCE: Evenly allocates ECS instances across the active zones specified for the scaling group. If the distribution becomes unbalanced due to insufficient inventory, you can call the RebalanceInstance operation to balance the resources.', example='PRIORITY'),
       onDemandBaseCapacity?: int32(name='OnDemandBaseCapacity', description='The minimum number of pay-as-you-go instances required in the scaling group. Valid values: 0 to 1000. When the number of pay-as-you-go instances in the scaling group is less than this value, the system preferentially creates pay-as-you-go instances.', example='30'),
-      onDemandPercentageAboveBaseCapacity?: int32(name='OnDemandPercentageAboveBaseCapacity', description='The percentage of pay-as-you-go instances to be created when the number of instances exceeds the value of OnDemandBaseCapacity. Valid values: 0 to 100.', example='20'),
-      pendingCapacity?: int32(name='PendingCapacity', description='The number of ECS instances that are being added to the scaling group but have not completed the relevant configurations.', example='0'),
-      pendingWaitCapacity?: int32(name='PendingWaitCapacity', description='The number of ECS instances that are pending addition to the scaling group.', example='1'),
-      protectedCapacity?: int32(name='ProtectedCapacity', description='The number of ECS instances that are in the Protected state in the scaling group.', example='1'),
+      onDemandPercentageAboveBaseCapacity?: int32(name='OnDemandPercentageAboveBaseCapacity', description='The percentage of pay-as-you-go instances to be created when the scaling group exceeds the minimum number of pay-as-you-go instances specified by OnDemandBaseCapacity. Valid values: 0 to 100.', example='20'),
+      pendingCapacity?: int32(name='PendingCapacity', description='The number of ECS instances that are being added to the scaling group but have not completed the related configurations.', example='0'),
+      pendingWaitCapacity?: int32(name='PendingWaitCapacity', description='The number of ECS instances that are in the pending wait state in the scaling group.', example='1'),
+      protectedCapacity?: int32(name='ProtectedCapacity', description='The number of ECS instances that are in the protected state in the scaling group.', example='1'),
       regionId?: string(name='RegionId', description='The ID of the region to which the scaling group belongs.', example='cn-qingdao'),
       removalPolicies?: [ string ](name='RemovalPolicies', description='The collection of policies for removing ECS instances from the scaling group. Valid values:
-- OldestInstance: Removes the ECS instances that were created at the earliest point in time.
-- NewestInstance: Removes the ECS instances that were created at the latest point in time.
-- OldestScalingConfiguration: Removes the ECS instances that were created by using the earliest scaling configuration.'),
+- OldestInstance: Removes the ECS instance that was created earliest.
+- NewestInstance: Removes the ECS instance that was created latest.
+- OldestScalingConfiguration: Removes the ECS instance that was created earliest based on the scaling configuration.'),
       removingCapacity?: int32(name='RemovingCapacity', description='The number of ECS instances that are being removed from the scaling group.', example='0'),
-      removingWaitCapacity?: int32(name='RemovingWaitCapacity', description='The number of ECS instances that are pending removal from the scaling group.', example='1'),
+      removingWaitCapacity?: int32(name='RemovingWaitCapacity', description='The number of ECS instances that are in the removing wait state in the scaling group.', example='1'),
       resourceGroupId?: string(name='ResourceGroupId', description='The ID of the resource group to which the scaling group belongs.', example='rg-123****'),
       scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-bp14wlu85wrpchm0****'),
       scalingGroupName?: string(name='ScalingGroupName', description='The name of the scaling group.', example='dyrSuvBOtO1dEdIlIbp****'),
       scalingPolicy?: string(name='ScalingPolicy', description='The reclaim mode of the scaling group. Valid values:
-         
 - recycle: The scaling group uses the shutdown and reclaim mode.
 - release: The scaling group uses the release mode.
 - forcerelease: The scaling group uses the force release mode.
-
 For more information about the actions on removed instances, see [RemoveInstances](https://help.aliyun.com/document_detail/25955.html).', example='recycle'),
       serverGroups?: [ 
         {
           port?: int32(name='Port', description='The port number used by the ECS instance after Auto Scaling adds the ECS instance to the server group.', example='80'),
           serverGroupId?: string(name='ServerGroupId', description='The ID of the server group.', example='sgp-i9ouakeaerr*****'),
           type?: string(name='Type', description='The type of the server group. Valid values:
-
-- ALB: Application Load Balancer (application load balancing).
-- NLB: Network Load Balancer (network load balancing).
-- GWLB: Gateway Load Balancer (gateway load balancing).', example='ALB'),
+- ALB: Application Load Balancer (ALB).
+- NLB: Network Load Balancer (NLB).
+- GWLB: Gateway Load Balancer (GWLB).', example='ALB'),
           weight?: int32(name='Weight', description='The weight of the ECS instance as a backend server after Auto Scaling adds the ECS instance to the server group.', example='100'),
         }
       ](name='ServerGroups', description='The collection of information about load balancing server groups.
-
-> You can use this parameter to obtain the collection of information about ALB service groups, Network Load Balancer (NLB) server groups, and Gateway Load Balancer (GWLB) service groups associated with the scaling group.
+> You can use this parameter to obtain the collection of information about ALB service groups, NLB server groups, and GWLB service groups associated with the scaling group.
 >'),
-      spotAllocationStrategy?: string(name='SpotAllocationStrategy', description='The spot capacity distribution strategy. You can use this parameter to specify the distribution strategy for spot capacity separately. This parameter takes effect only when the `MultiAZPolicy` parameter is set to `COMPOSABLE`. Valid values:
+      spotAllocationStrategy?: string(name='SpotAllocationStrategy', description='The spot capacity distribution strategy. You can use this parameter to separately specify the distribution strategy for spot capacity. This parameter takes effect only when the MultiAZPolicy parameter is set to COMPOSABLE. Valid values:
 
 - priority: Creates instances based on the order of the configured instance types.
-- lowestPrice: Creates instances based on the unit price per vCPU of the instance types in ascending order.
+- lowestPrice: Creates instances based on the unit vCPU price of the instance types in ascending order.
 
 Default value: priority.', example='lowestPrice'),
       spotCapacity?: int32(name='SpotCapacity', description='The number of spot instances in the scaling group.', example='0'),
-      spotInstancePools?: int32(name='SpotInstancePools', description='The number of available instance types specified. The scaling group creates spot instances evenly across the specified instance types with the lowest cost. Valid values: 0 to 10.', example='5'),
-      spotInstanceRemedy?: boolean(name='SpotInstanceRemedy', description='Indicates whether spot instance replenishment is enabled. If this feature is enabled, when the scaling group receives a system message indicating that a preemptible instance will be reclaimed, the scaling group attempts to create a new instance to replace the preemptible instance.', example='true'),
-      standbyCapacity?: int32(name='StandbyCapacity', description='The number of instances that are in the Standby state in the scaling group.', example='1'),
+      spotInstancePools?: int32(name='SpotInstancePools', description='The number of available instance types specified. The scaling group evenly creates spot instances based on the most cost-effective instance types. Valid values: 0 to 10.', example='5'),
+      spotInstanceRemedy?: boolean(name='SpotInstanceRemedy', description='Indicates whether the spot instance replacement feature is enabled. After this feature is enabled, when the scaling group receives a system message indicating that a spot instance will be reclaimed, the scaling group attempts to create a new instance to replace the spot instance to be reclaimed.', example='true'),
+      standbyCapacity?: int32(name='StandbyCapacity', description='The number of instances that are in the standby state in the scaling group.', example='1'),
       stopInstanceTimeout?: int32(name='StopInstanceTimeout', description='The timeout period for waiting for an ECS instance to be stopped during the scale-in process. Unit: seconds.', example='60'),
       stoppedCapacity?: int32(name='StoppedCapacity', description='The number of instances in the scaling group that are in the economical mode.', example='1'),
       suspendedProcesses?: [ string ](name='SuspendedProcesses', description='The suspended processes. If no process is suspended, an empty value is returned. Valid values:
-
 - ScaleIn: The scale-in process.
 - ScaleOut: The scale-out process.
 - HealthCheck: The health check process.
 - AlarmNotification: The event-triggered task process.
 - ScheduledAction: The scheduled task process.'),
       systemSuspended?: boolean(name='SystemSuspended', description='Indicates whether Auto Scaling stops executing any scaling activity in the scaling group. Valid values:
-
-- true: Auto Scaling stops executing any scaling activity in the scaling group. This indicates that the scaling group has failed to execute scale-out or scale-in operations for more than seven consecutive days. You must modify the scaling group or scaling configuration to resume the execution of the scaling activity.
+- true: Auto Scaling stops executing any scaling activity in the scaling group. This indicates that the scaling group has failed to execute scale-out or scale-in for more than seven consecutive days. You must modify the scaling group or scaling configuration to resume the execution of the scaling activity.
 - false: Auto Scaling executes the scaling activity in the scaling group.', example='true'),
       tags?: [ 
         {
           propagate?: boolean(name='Propagate', description='Specifies whether the tag is propagated. Valid values:
-- true: Tags on the scaling group are propagated only to newly created instances, but not to instances that are already running in the scaling group.
+- true: Tags on the scaling group are propagated only to newly created instances, but not to existing instances in the scaling group.
 - false: Tags on the scaling group are not propagated to instances.
 
 Default value: false.', example='false'),
-          tagKey?: string(name='TagKey', description='The key of the tag.', example='Department'),
-          tagValue?: string(name='TagValue', description='The value of the tag.', example='Finance'),
+          tagKey?: string(name='TagKey', description='The tag key of the scaling group.', example='Department'),
+          tagValue?: string(name='TagValue', description='The tag value of the scaling group.', example='Finance'),
         }
       ](name='Tags', description='The tags of the scaling group.'),
       totalCapacity?: int32(name='TotalCapacity', description='The total weighted capacity of all ECS instances in the scaling group if instance type weights are configured. Otherwise, this parameter indicates the total number of ECS instances in the scaling group.', example='1'),
@@ -10072,31 +10139,35 @@ Default value: false.', example='false'),
           VServerGroupAttributes?: [ 
             {
               port?: int32(name='Port', description='The port number used by the load balancing instance to provide services.', example='22'),
-              VServerGroupId?: string(name='VServerGroupId', description='The property of the backend server group.', example='rsp-bp12bjrny****'),
+              VServerGroupId?: string(name='VServerGroupId', description='The attributes of the backend server group.', example='rsp-bp12bjrny****'),
               weight?: int32(name='Weight', description='The weight of the backend server group.', example='1'),
             }
-          ](name='VServerGroupAttributes', description='The property of the backend server group.'),
+          ](name='VServerGroupAttributes', description='The attributes of the backend server group.'),
         }
       ](name='VServerGroups', description='The list of backend server groups.'),
       vSwitchId?: string(name='VSwitchId', description='The ID of the vSwitch associated with the scaling group.', example='vsw-bp1whw2u46cn8zubm****'),
-      vSwitchIds?: [ string ](name='VSwitchIds', description='The collection of IDs of the vSwitches associated with the scaling group. If you specify the VSwitchIds parameter, the VSwitchId parameter is ignored.'),
+      vSwitchIds?: [ string ](name='VSwitchIds', description='The collection of IDs of the vSwitches associated with the scaling group. If you use the VSwitchIds parameter, the VSwitchId parameter is ignored.'),
       vpcId?: string(name='VpcId', description='The ID of the VPC to which the scaling group belongs.', example='vpc-bp1vwnn14rqpyiczj****'),
       warmPoolCapacity?: int32(name='WarmPoolCapacity', description='The number of instances in the warm pool.', example='5'),
       warmPoolConfiguration?: {
         capacityOptions?: {
-          desiredGroupPreparedCapacity?: int32(name='DesiredGroupPreparedCapacity', description='The expected number of prepared instances. The system always maintains the sum of the number of instances in the scaling group and the number of instances in the warm pool equal to the expected capacity of the warm pool.', example='5'),
-          minCapacity?: int32(name='MinCapacity', description='The minimum number of instances to maintain in the warm pool.', example='0'),
+          desiredGroupPreparedCapacity?: int32(name='DesiredGroupPreparedCapacity', description='The expected number of pre-warmed instances to cover. The system maintains the sum of the current number of instances in the scaling group and the number of instances in the warm pool at this value.', example='5'),
+          minCapacity?: int32(name='MinCapacity', description='The minimum number of instances in the warm pool. The system always retains no less than this number of pre-warmed instances in the warm pool to ensure rapid scale-out from the warm pool at any time.', example='0'),
         }(name='CapacityOptions', description='The capacity configuration of the warm pool.'),
         instanceReusePolicy?: {
-          reuseOnScaleIn?: boolean(name='ReuseOnScaleIn', description='Specifies whether instances are added back to the warm pool when the scaling group scales in.'),
+          reuseOnScaleIn?: boolean(name='ReuseOnScaleIn', description='Specifies whether instances are returned to the warm pool when the scaling group scales in.', example='true'),
         }(name='InstanceReusePolicy', description='The instance reuse policy.'),
-        poolState?: string(name='PoolState', description='The instance status in the warm pool. Valid values:
-- Stopped: Economical mode.
-- Running: Running.', example='Running'),
+        poolState?: string(name='PoolState', description='The state of instances in the warm pool. Valid values:
+
+- Running: The instances are in the running state. Scale-out is faster, but you are charged for the full cost of the instances.
+
+- Stopped: The instances are in the economical mode. You are charged only for resources such as cloud disks, elastic IP addresses (EIPs), and snapshots of the instances. However, instance startup may fail during scale-out due to insufficient inventory.', example='Running'),
         status?: string(name='Status', description='The status of the warm pool. Valid values:
-- Active: Running.
+
+- Active: Active.
+
 - Deleting: Deleting.', example='Active'),
-      }(name='WarmPoolConfiguration', description='The warm pool configuration of the scaling group.'),
+      }(name='WarmPoolConfiguration', description='The current warm pool configuration of the scaling group.'),
       zoneShiftOptions?: {
         expiryTime?: string(name='ExpiryTime', description='The expiration time of the zone shift. After the expiration time, the system automatically ends the shift and restores the related zones. The time is displayed in UTC and follows the ISO 8601 standard in the YYYY-MM-DDThh:mmZ format.', example='2026-01-01T12:05Z'),
         impairedZoneIds?: [ string ](name='ImpairedZoneIds', description='The list of impaired zone IDs.', example='cn-hangzhou-g'),
@@ -10105,19 +10176,19 @@ Default value: false.', example='false'),
 
 - ReplaceUnhealthy: Unhealthy instances in all zones are replaced normally.
 - IgnoreUnhealthy: Unhealthy instances in impaired zones are not replaced. Healthy zones are not affected.', example='ReplaceUnhealthy'),
-          scaleInBlockedRuleTypes?: [ string ](name='ScaleInBlockedRuleTypes', description='Blocks scale-in activities triggered by specified types of scaling rules. The blocking scope applies to all zones under the scaling group, not just the impaired zones. This prevents false improvements in monitoring metrics caused by unreachable instances in impaired zones, which could lead to accidental scale-in activities. Valid values: 
+          scaleInBlockedRuleTypes?: [ string ](name='ScaleInBlockedRuleTypes', description='Blocks scale-in triggered by specified types of scaling rules. The blocking scope covers all zones under the scaling group, not just the impaired zones. This prevents false scale-in caused by seemingly improved monitoring metrics due to unreachable instances in impaired zones. Valid values: 
 
-- StepScalingRule: Blocks scale-in activities triggered by step scaling rules. 
-- TargetTrackingScalingRule: Blocks scale-in activities triggered by target tracking scaling rules. 
+- StepScalingRule: Blocks scale-in triggered by step scaling rules. 
+- TargetTrackingScalingRule: Blocks scale-in triggered by target tracking scaling rules. 
 - None: No blocking.', example='StepScalingRule'),
-          scaleOutInHealthyZonesOnly?: boolean(name='ScaleOutInHealthyZonesOnly', description='Specifies whether scale-out activities create instances only in healthy zones during the shift. Valid values: 
+          scaleOutInHealthyZonesOnly?: boolean(name='ScaleOutInHealthyZonesOnly', description='Specifies whether scale-out creates instances only in healthy zones during the shift. Valid values: 
 
-- true: Scale-out activities create instances only in healthy zones and skip impaired zones. 
-- false: Scale-out activities are not restricted by zone and can create instances in any zone under the scaling group.', example='true'),
+- true: Scale-out creates instances only in healthy zones and skips impaired zones. 
+- false: Scale-out is not restricted by zone and can create instances in any zone under the scaling group.', example='true'),
         }(name='ZoneShiftPolicy', description='The behavior policy of the scaling group during the zone shift.'),
       }(name='ZoneShiftOptions', description='The zone shift options.'),
     }
-  ](name='ScalingGroups', description='The collection of scaling group information.'),
+  ](name='ScalingGroups', description='The scaling groups.'),
   totalCount?: int32(name='TotalCount', description='The total number of scaling groups.', example='1'),
 }
 
@@ -10128,7 +10199,7 @@ model DescribeScalingGroupsResponse = {
 }
 
 /**
- * @summary Queries the details of scaling groups, including basic information, instances, and scaling configurations.
+ * @summary Queries the details of scaling groups, including basic information, instances in the scaling groups, and scaling configurations.
  *
  * @param request DescribeScalingGroupsRequest
  * @param runtime runtime options for this request RuntimeOptions
@@ -10194,7 +10265,7 @@ async function describeScalingGroupsWithOptions(request: DescribeScalingGroupsRe
 }
 
 /**
- * @summary Queries the details of scaling groups, including basic information, instances, and scaling configurations.
+ * @summary Queries the details of scaling groups, including basic information, instances in the scaling groups, and scaling configurations.
  *
  * @param request DescribeScalingGroupsRequest
  * @return DescribeScalingGroupsResponse
@@ -10659,17 +10730,17 @@ async function describeScalingRules(request: DescribeScalingRulesRequest): Descr
 model DescribeScheduledTasksRequest {
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  pageNumber?: int32(name='PageNumber', description='The page number of the scheduled task list. Pages start from 1.
+  pageNumber?: int32(name='PageNumber', description='The page number of the scheduled task list. Pages start from page 1.
 
 Default value: 1.', example='1'),
-  pageSize?: int32(name='PageSize', description='Settings for the number of entries per page during paging in a paged query. Maximum value: 50.
+  pageSize?: int32(name='PageSize', description='The number of entries per page in a paged query. Maximum value: 50.
 
 Default value: 10.', example='50'),
   recurrenceType?: string(name='RecurrenceType', description='The recurrence type of the scheduled task. Valid values: 
 - Daily: The scheduled task is executed once every specified number of days. 
 - Weekly: The scheduled task is executed on specified days of each week. 
 - Monthly: The scheduled task is executed on specified days of each month. 
-- Cron: The scheduled task is executed based on the specified cron expression.', example='Weekly'),
+- Cron: The scheduled task is executed based on a specified cron expression.', example='Weekly'),
   recurrenceValue?: string(name='RecurrenceValue', description='The recurrence value of the scheduled task.
 
 This parameter is supported only when RecurrenceType is set to Weekly. You can specify multiple values separated by commas (,). For example, the values for Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, and Saturday are 0, 1, 2, 3, 4, 5, and 6.', example='1,2,3'),
@@ -10679,12 +10750,12 @@ This parameter is required.', example='cn-qingdao'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
   scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group that executes the scheduled task.', example='asg-bp1bo5tca4m56nap****'),
-  scheduledActions?: [ string ](name='ScheduledActions', description='The scaling rules used when the scheduled tasks are triggered. This parameter is valid only when a scaling rule is specified for the scheduled tasks.'),
-  scheduledTaskIds?: [ string ](name='ScheduledTaskIds', description='The IDs of the scheduled tasks to query.'),
-  scheduledTaskNames?: [ string ](name='ScheduledTaskNames', description='The names of the scheduled tasks to query.'),
-  taskEnabled?: boolean(name='TaskEnabled', description='Specifies whether the scheduled task is enabled. Valid values:
-- true: The task is enabled.
-- false: The task is disabled.', example='true'),
+  scheduledActions?: [ string ](name='ScheduledActions', description='The scaling rules that are used when the scheduled tasks are triggered. This parameter is valid only when a scaling rule is specified for the scheduled task.'),
+  scheduledTaskIds?: [ string ](name='ScheduledTaskIds', description='The IDs of the scheduled tasks to be queried.'),
+  scheduledTaskNames?: [ string ](name='ScheduledTaskNames', description='The names of the scheduled tasks to be queried.'),
+  taskEnabled?: boolean(name='TaskEnabled', description='Specifies whether the scheduled task is started. Valid values:
+- true: The task is started.
+- false: The task is stopped.', example='true'),
   taskName?: string(name='TaskName', description='The name of the task. Fuzzy match by keyword is supported.', example='scheduled****'),
 }
 
@@ -10695,29 +10766,29 @@ model DescribeScheduledTasksResponseBody = {
   scheduledTasks?: [ 
     {
       description?: string(name='Description', description='The description of the scheduled task.', example='Test scheduled task.'),
-      desiredCapacity?: int32(name='DesiredCapacity', description='The expected number of instances in the scaling group. This parameter is valid when the scaling method of the scheduled task is set to configuring the number of instances in the scaling group.', example='10'),
-      launchExpirationTime?: int32(name='LaunchExpirationTime', description='The retry period after the scheduled task fails to be triggered. Unit: seconds. Valid values: 0 to 21600.', example='600'),
-      launchTime?: string(name='LaunchTime', description='The time when the scheduled task is triggered. The time follows the ISO 8601 standard in the YYYY-MM-DDTHH:mmZ format. The time is displayed in UTC.', example='2014-08-18T10:52Z'),
-      maxValue?: int32(name='MaxValue', description='The maximum number of instances in the scaling group. This parameter is valid when the scaling method of the scheduled task is set to configuring the number of instances in the scaling group.', example='10'),
-      minValue?: int32(name='MinValue', description='The minimum number of instances in the scaling group. This parameter is valid when the scaling method of the scheduled task is set to configuring the number of instances in the scaling group.', example='0'),
-      recurrenceEndTime?: string(name='RecurrenceEndTime', description='The end time of the recurrence for the scheduled task. The time follows the ISO 8601 standard in the YYYY-MM-DDTHH:mmZ format. The time is displayed in UTC.', example='2014-08-20T16:55Z'),
+      desiredCapacity?: int32(name='DesiredCapacity', description='The expected number of instances in the scaling group. This parameter takes effect when the scaling method of the scheduled task is set to adjust the number of instances in the scaling group.', example='10'),
+      launchExpirationTime?: int32(name='LaunchExpirationTime', description='The time period during which a retry is performed after the scheduled task fails to be triggered. Unit: seconds. Valid values: 0 to 21600.', example='600'),
+      launchTime?: string(name='LaunchTime', description='The time at which the scheduled task is triggered. The time follows the ISO 8601 standard in the YYYY-MM-DDTHH:mmZ format. The time is displayed in UTC.', example='2014-08-18T10:52Z'),
+      maxValue?: int32(name='MaxValue', description='The maximum number of instances in the scaling group. This parameter takes effect when the scaling method of the scheduled task is set to adjust the number of instances in the scaling group.', example='10'),
+      minValue?: int32(name='MinValue', description='The minimum number of instances in the scaling group. This parameter takes effect when the scaling method of the scheduled task is set to adjust the number of instances in the scaling group.', example='0'),
+      recurrenceEndTime?: string(name='RecurrenceEndTime', description='The end time of the recurring scheduled task. The time follows the ISO 8601 standard in the YYYY-MM-DDTHH:mmZ format. The time is displayed in UTC.', example='2014-08-20T16:55Z'),
       recurrenceType?: string(name='RecurrenceType', description='The recurrence type of the scheduled task.', example='Daily'),
       recurrenceValue?: string(name='RecurrenceValue', description='The recurrence value of the scheduled task.', example='1'),
       scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group that executes the scheduled task.', example='asg-bp1bo5tca4m56nap****'),
-      scheduledAction?: string(name='ScheduledAction', description='The scaling rule executed when the scheduled task is triggered. This parameter is returned only when a scaling rule is specified for the scheduled task.', example='ari:acs:ess:cn-hangzhou:1406926474****:scalingrule/asr-bp1id5rhu8edp7kd****'),
+      scheduledAction?: string(name='ScheduledAction', description='The scaling rule used when the scheduled task is executed. This parameter is returned only when a scaling rule is specified for the scheduled task.', example='ari:acs:ess:cn-hangzhou:1406926474****:scalingrule/asr-bp1id5rhu8edp7kd****'),
       scheduledTaskId?: string(name='ScheduledTaskId', description='The ID of the scheduled task.', example='edRtShc57WGXdt8TlPbr****'),
       scheduledTaskName?: string(name='ScheduledTaskName', description='The name of the scheduled task.', example='scheduled****'),
-      taskEnabled?: boolean(name='TaskEnabled', description='Indicates whether the scheduled task is enabled. Valid values: 
-- true: The task is enabled.
-- false: The task is disabled.
+      taskEnabled?: boolean(name='TaskEnabled', description='Indicates whether the scheduled task is started. Valid values: 
+- true: The task is started.
+- false: The task is stopped.
 
 Default value: true.', example='true'),
       warmPoolCapacityOptions?: {
-        desiredGroupPreparedCapacity?: int32(name='DesiredGroupPreparedCapacity', description='The expected number of prepared instances.', example='5'),
+        desiredGroupPreparedCapacity?: int32(name='DesiredGroupPreparedCapacity', description='The expected number of instances covered by the warm pool. The system maintains the sum of the current number of instances in the scaling group and the number of instances in the warm pool at this value.', example='5'),
         minCapacity?: int32(name='MinCapacity', description='The minimum number of instances in the warm pool.', example='0'),
       }(name='WarmPoolCapacityOptions', description='The warm pool capacity configurations of the scaling group.'),
     }
-  ](name='ScheduledTasks', description='The scheduled tasks.'),
+  ](name='ScheduledTasks', description='The information about the scheduled tasks.'),
   totalCount?: int32(name='TotalCount', description='The total number of scheduled tasks.', example='1'),
 }
 
@@ -10728,7 +10799,7 @@ model DescribeScheduledTasksResponse = {
 }
 
 /**
- * @summary Queries the details of scheduled tasks. A scheduled task is a preset task that executes a specified scaling rule at a specified time to implement automatic scale-out and scale-in of compute resources. After a scheduled task is created, you can call the DescribeScheduledTasks API operation to query the details of the scheduled task, such as the trigger time, the total number of scheduled tasks, and the ID of the scaling group that executes the scheduled task.
+ * @summary Queries the details of scheduled tasks. A scheduled task is a preset task that executes a specified scaling rule at a specified time to implement automatic scale-out and scale-in of compute resources. After you create a scheduled task, you can call the DescribeScheduledTasks API to query the details of the scheduled task, such as the trigger time, the total number of scheduled tasks, and the ID of the scaling group that executes the scheduled task.
  *
  * @description You can query scheduled tasks by scheduled task ID, scheduled task name, or the scaling rule executed by the scheduled task.
  *
@@ -10802,7 +10873,7 @@ async function describeScheduledTasksWithOptions(request: DescribeScheduledTasks
 }
 
 /**
- * @summary Queries the details of scheduled tasks. A scheduled task is a preset task that executes a specified scaling rule at a specified time to implement automatic scale-out and scale-in of compute resources. After a scheduled task is created, you can call the DescribeScheduledTasks API operation to query the details of the scheduled task, such as the trigger time, the total number of scheduled tasks, and the ID of the scaling group that executes the scheduled task.
+ * @summary Queries the details of scheduled tasks. A scheduled task is a preset task that executes a specified scaling rule at a specified time to implement automatic scale-out and scale-in of compute resources. After you create a scheduled task, you can call the DescribeScheduledTasks API to query the details of the scheduled task, such as the trigger time, the total number of scheduled tasks, and the ID of the scaling group that executes the scheduled task.
  *
  * @description You can query scheduled tasks by scheduled task ID, scheduled task name, or the scaling rule executed by the scheduled task.
  *
@@ -10812,6 +10883,106 @@ async function describeScheduledTasksWithOptions(request: DescribeScheduledTasks
 async function describeScheduledTasks(request: DescribeScheduledTasksRequest): DescribeScheduledTasksResponse {
   var runtime = new Util.RuntimeOptions{};
   return describeScheduledTasksWithOptions(request, runtime);
+}
+
+model DescribeWarmPoolInstancesRequest {
+  maxResults?: int32(name='MaxResults', description='The maximum number of entries per page for a paged query. Valid values: 1 to 50. Default value: 10.', example='10'),
+  nextToken?: string(name='NextToken', description='The query token. Set the value to the NextToken value returned from the previous call. You do not need to specify this parameter for the first call. An empty NextToken value indicates that no more results are available.', example='caeba0bbb2be03f84eb48b699f0a****'),
+  regionId?: string(name='RegionId', description='The region ID of the scaling group.
+
+This parameter is required.', example='cn-hangzhou'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp18p2yfxow2dloq****'),
+}
+
+model DescribeWarmPoolInstancesResponseBody = {
+  nextToken?: string(name='NextToken', description='The token for the next query. An empty NextToken value indicates that no more results are available.', example='AAAAAcSz4VTb1Nq****'),
+  requestId?: string(name='RequestId', description='The request ID.', example='E38EB733-D714-4658-8A5F-0688AB68****'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-bp18p2yfxow2dloq****'),
+  warmPoolInstances?: [ 
+    {
+      createdTime?: string(name='CreatedTime', description='The time when the ECS instance was added to the warm pool, accurate to the second. The time is in UTC and follows the ISO 8601 standard in the YYYY-MM-DDTHH:mm:ssZ format.', example='2020-05-18T03:11:39Z'),
+      instanceId?: string(name='InstanceId', description='The ID of the ECS instance.', example='i-bp1c2hf**********'),
+      launchTemplateId?: string(name='LaunchTemplateId', description='The ID of the instance launch template.', example='lt-uf64k10pok76*****'),
+      launchTemplateVersion?: string(name='LaunchTemplateVersion', description='The version of the instance launch template.', example='2'),
+      lifecycleState?: string(name='LifecycleState', description='The lifecycle state of the ECS instance in the warm pool. Valid values:
+
+- Pending: The ECS instance is being added to the warm pool.
+
+- Pending:Wait: The addition of the ECS instance is suspended. If a lifecycle hook that applies to scale-out activities for the warm pool is created in the scaling group, the ECS instance is suspended when it is added to the warm pool and waits for the lifecycle hook to time out.
+
+- Removing: The ECS instance is being removed from the warm pool.
+
+- Removing:Wait: The removal of the ECS instance is suspended. If a lifecycle hook that applies to scale-in activities for the warm pool is created in the scaling group, the ECS instance is suspended when it is removed from the warm pool and waits for the lifecycle hook to time out.
+
+- Running: The ECS instance is successfully added to the warm pool and is in the running state.
+
+- Stopped: The ECS instance is successfully added to the warm pool and is in the economical mode.', example='Running'),
+      privateIpAddress?: string(name='PrivateIpAddress', description='The private IP address of the instance.', example='1*.1*.1*.2*'),
+      scalingActivityId?: string(name='ScalingActivityId', description='The ID of the scaling activity when the ECS instance was added to the warm pool.', example='asa-2ze87i********'),
+      scalingConfigurationId?: string(name='ScalingConfigurationId', description='The ID of the associated scaling configuration.', example='asc-2ze3j8*********'),
+      scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.', example='asg-bp18p2yfxow2dloq****'),
+      scalingInstanceId?: string(name='ScalingInstanceId', description='The instance identity in the scaling group, which corresponds one-to-one with the ID of the ECS instance.', example='asi-j6cj1gcte640ekhb****'),
+      zoneId?: string(name='ZoneId', description='The zone ID of the ECS instance.', example='cn-hangzhou-g'),
+    }
+  ](name='WarmPoolInstances', description='The list of ECS instances in the warm pool.'),
+}
+
+model DescribeWarmPoolInstancesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DescribeWarmPoolInstancesResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of ECS instances in the warm pool of a scaling group.
+ *
+ * @param request DescribeWarmPoolInstancesRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DescribeWarmPoolInstancesResponse
+ */
+async function describeWarmPoolInstancesWithOptions(request: DescribeWarmPoolInstancesRequest, runtime: Util.RuntimeOptions): DescribeWarmPoolInstancesResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.maxResults)) {
+    query['MaxResults'] = request.maxResults;
+  }
+  if (!Util.isUnset(request.nextToken)) {
+    query['NextToken'] = request.nextToken;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.scalingGroupId)) {
+    query['ScalingGroupId'] = request.scalingGroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'DescribeWarmPoolInstances',
+    version = '2022-02-22',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of ECS instances in the warm pool of a scaling group.
+ *
+ * @param request DescribeWarmPoolInstancesRequest
+ * @return DescribeWarmPoolInstancesResponse
+ */
+async function describeWarmPoolInstances(request: DescribeWarmPoolInstancesRequest): DescribeWarmPoolInstancesResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return describeWarmPoolInstancesWithOptions(request, runtime);
 }
 
 model DetachAlbServerGroupsRequest {
@@ -13582,12 +13753,13 @@ async function modifyInstanceAttribute(request: ModifyInstanceAttributeRequest):
 }
 
 model ModifyLifecycleHookRequest {
-  defaultResult?: string(name='DefaultResult', description='The subsequent action after the wait state ends. Valid values:
-- CONTINUE: continues the response to the scale-out activity or the scale-in activity.
-- ABANDON: releases the ECS instances created during the scale-out activity or removes the ECS instances from the scaling group during the scale-in activity.
-- ROLLBACK: rejects the release of ECS instances and rolls back the scale-in activity. For a scale-out activity, this value has the same effect as ABANDON, which releases the created ECS instances.
+  defaultResult?: string(name='DefaultResult', description='The subsequent action to perform after the wait state ends. Valid values: 
 
-If a scale-in activity occurs and multiple lifecycle hooks are triggered, and the DefaultResult of one lifecycle hook is set to ABANDON or ROLLBACK, the wait states of other lifecycle hooks are ended in advance when the wait state of this hook ends. In other cases, the subsequent action is determined by the last lifecycle hook that ends its wait state.', example='CONTINUE'),
+- CONTINUE: Continues the response to the scale-out or scale-down activity.
+- ABANDON: Releases the ECS instances created during the scale-out activity or removes the ECS instances from the scaling group during the scale-down activity.
+- ROLLBACK: Rejects the release of ECS instances and rolls back the scale-down activity. For a scale-out activity, releases the created ECS instances, which has the same effect as ABANDON.
+
+If a scale-down activity is triggered and multiple lifecycle hooks are invoked, and the DefaultResult of one lifecycle hook is set to ABANDON or ROLLBACK, the wait states of other lifecycle hooks are ended in advance when the wait state of this hook ends. In other cases, the subsequent action is determined by the last lifecycle hook that ends its wait state.', example='CONTINUE'),
   heartbeatTimeout?: int32(name='HeartbeatTimeout', description='The wait time set by the lifecycle hook for the scaling activity. The subsequent action is performed after the wait state times out. Valid values: 30 to 21600. Unit: seconds.
 
 You can call the RecordLifecycleActionHeartbeat operation to extend the wait time of the ECS instance, or call the CompleteLifecycleAction operation to end the wait state of the scaling activity in advance.', example='600'),
@@ -13595,29 +13767,29 @@ You can call the RecordLifecycleActionHeartbeat operation to extend the wait tim
   lifecycleHookId?: string(name='LifecycleHookId', description='The ID of the lifecycle hook to be modified.', example='ash-bp1fxuqyi98w0aib****'),
   lifecycleHookName?: string(name='LifecycleHookName', description='The name of the lifecycle hook to be modified.', example='test_SCAL****'),
   lifecycleHookStatus?: string(name='LifecycleHookStatus', description='The status of the lifecycle hook. Valid values:
-- Active: enables the lifecycle hook.
-- InActive: pauses the lifecycle hook.
+- Active: Enables the lifecycle hook.
+- InActive: Disables the lifecycle hook.
 
 If you do not specify this parameter, the status of the lifecycle hook remains unchanged.
-> After a lifecycle hook is created, it is in the Active state by default.', example='Active'),
+> After a lifecycle hook is created, it is enabled by default.', example='Active'),
   lifecycleTransition?: string(name='LifecycleTransition', description='The type of scaling activity to which the lifecycle hook applies. Valid values:
-- SCALE_OUT: scale-out activity of the scaling group.
-- SCALE_IN: scale-in activity of the scaling group.', example='SCALE_IN'),
-  notificationArn?: string(name='NotificationArn', description='The identity of the Notification Recipient for the lifecycle hook. Settings for this parameter support the following notification methods:
+- SCALE_OUT: Scale-out activity of the scaling group.
+- SCALE_IN: Scale-in activity of the scaling group.', example='SCALE_IN'),
+  notificationArn?: string(name='NotificationArn', description='The identifier of the notification recipient for the lifecycle hook. The following notification methods are supported:
 - Message Service (MNS) queue. Format: acs:mns:{region-id}:{account-id}:queue/{queuename}.
 - MNS topic. Format: acs:mns:{region-id}:{account-id}:topic/{topicname}.
 - Operation Orchestration Service (OOS) template. Format: acs:oos:{region-id}:{account-id}:template/{templatename}.
 - EventBridge. Format: acs:eventbridge:{region-id}:{account-id}:eventbus/default.
 
-Variables in the parameter formats:
-- region-id: the ID of the region where the scaling group resides.
-- account-id: the Alibaba Cloud account ID.
-- queuename: the name of the MNS queue.
-- topicname: the name of the MNS topic.
-- templatename: the name of the OOS template.', example='acs:mns:cn-beijing:161456884340****:queue/modifyLifecycleHo****'),
+Variables in the formats:
+- region-id: The ID of the region where the scaling group resides.
+- account-id: The Alibaba Cloud account ID.
+- queuename: The name of the MNS queue.
+- topicname: The name of the MNS topic.
+- templatename: The name of the OOS template.', example='acs:mns:cn-beijing:161456884340****:queue/modifyLifecycleHo****'),
   notificationMetadata?: string(name='NotificationMetadata', description='The fixed string information for the wait state of the scaling activity. The value can be up to 4,096 characters in length.
 
-When Auto Scaling pushes a message to the Notification Recipient, it also sends the predefined NotificationMetadata parameter value to help you manage and mark different types of notifications. This parameter takes effect only when the NotificationArn parameter is specified.', example='Test'),
+When Auto Scaling pushes a message to the notification recipient, it also sends the predefined NotificationMetadata value to help you manage and tag different types of notifications. This parameter takes effect only when the NotificationArn parameter is specified.', example='Test'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
   regionId?: string(name='RegionId', description='The region ID of the scaling group.', example='cn-beijing'),
@@ -13636,7 +13808,7 @@ model ModifyLifecycleHookResponse = {
 }
 
 /**
- * @summary Modifies a lifecycle hook. You can modify the applicable scaling activity type, the wait time for scaling activities, and the subsequent action after the wait state ends by specifying the lifecycle hook ID or name and the scaling group ID.
+ * @summary Modifies the configurations of a lifecycle hook, such as the applicable scaling activity type, the wait time for the scaling activity, and the subsequent action after the wait state ends. You can specify the lifecycle hook by its ID or name and the scaling group ID without the need to delete the lifecycle hook if it no longer meets your business requirements.
  *
  * @description You can specify the lifecycle hook to be modified in one of the following ways:
  * - Specify only the lifecycle hook ID (LifecycleHookId). In this case, the ScalingGroupId and LifecycleHookName parameters are ignored.
@@ -13709,7 +13881,7 @@ async function modifyLifecycleHookWithOptions(request: ModifyLifecycleHookReques
 }
 
 /**
- * @summary Modifies a lifecycle hook. You can modify the applicable scaling activity type, the wait time for scaling activities, and the subsequent action after the wait state ends by specifying the lifecycle hook ID or name and the scaling group ID.
+ * @summary Modifies the configurations of a lifecycle hook, such as the applicable scaling activity type, the wait time for the scaling activity, and the subsequent action after the wait state ends. You can specify the lifecycle hook by its ID or name and the scaling group ID without the need to delete the lifecycle hook if it no longer meets your business requirements.
  *
  * @description You can specify the lifecycle hook to be modified in one of the following ways:
  * - Specify only the lifecycle hook ID (LifecycleHookId). In this case, the ScalingGroupId and LifecycleHookName parameters are ignored.
@@ -15753,9 +15925,9 @@ async function modifyScalingRule(request: ModifyScalingRuleRequest): ModifyScali
 
 model ModifyScheduledTaskRequest {
   description?: string(name='Description', description='The description of the scheduled task. The description must be 2 to 200 characters in length.', example='Test scheduled task.'),
-  desiredCapacity?: int32(name='DesiredCapacity', description='The expected number of instances in the scaling group. This parameter is available only when the scaling method of the scheduled task is set to specifying the number of instances in the scaling group.
-> The scaling group must support setting the expected number of instances. Specifically, DesiredCapacity must be specified when the scaling group is created.', example='10'),
-  launchExpirationTime?: int32(name='LaunchExpirationTime', description='The period of time during which Auto Scaling retries to execute the scheduled task after the trigger operation fails. Unit: seconds. Valid values: 0 to 1800.
+  desiredCapacity?: int32(name='DesiredCapacity', description='The expected number of instances in the scaling group. This parameter is required when the scaling method of the scheduled task is set to specify the number of instances in the scaling group.
+> The scaling group must support the expected number of instances. This means that DesiredCapacity must be specified when the scaling group is created.', example='10'),
+  launchExpirationTime?: int32(name='LaunchExpirationTime', description='The retry period during which Auto Scaling continues to attempt to execute the scheduled task after the triggered operation fails. Unit: seconds. Valid values: 0 to 1800.
 
 Default value: 600.', example='600'),
   launchTime?: string(name='LaunchTime', description='The time at which the scheduled task is executed. Specify the time in the ISO 8601 standard in the YYYY-MM-DDThh:mmZ format. The time must be in UTC. You cannot specify a time that is later than 90 days from the date of modification.
@@ -15763,11 +15935,11 @@ Default value: 600.', example='600'),
 - If RecurrenceType is specified, the time specified by this parameter is the default time for recurring execution.
 
 - If RecurrenceType is not specified, the task is executed only once at the specified date and time.', example='2014-08-18T10:52Z'),
-  maxValue?: int32(name='MaxValue', description='The maximum number of instances in the scaling group. This parameter is available only when the scaling method of the scheduled task is set to specifying the number of instances in the scaling group.', example='10'),
-  minValue?: int32(name='MinValue', description='The minimum number of instances in the scaling group. This parameter is available only when the scaling method of the scheduled task is set to specifying the number of instances in the scaling group.', example='0'),
+  maxValue?: int32(name='MaxValue', description='The maximum number of instances in the scaling group. This parameter is required when the scaling method of the scheduled task is set to specify the number of instances in the scaling group.', example='10'),
+  minValue?: int32(name='MinValue', description='The minimum number of instances in the scaling group. This parameter is required when the scaling method of the scheduled task is set to specify the number of instances in the scaling group.', example='0'),
   ownerAccount?: string(name='OwnerAccount'),
   ownerId?: long(name='OwnerId'),
-  recurrenceEndTime?: string(name='RecurrenceEndTime', description='The end time of the scheduled task for recurring execution. Specify the time in the ISO 8601 standard in the YYYY-MM-DDThh:mmZ format. The time must be in UTC. You cannot specify a time that is later than 365 days from the date of modification.', example='2014-08-20T16:55Z'),
+  recurrenceEndTime?: string(name='RecurrenceEndTime', description='The end time of the scheduled task that is executed repeatedly. Specify the time in the ISO 8601 standard in the YYYY-MM-DDThh:mmZ format. The time must be in UTC. You cannot specify a time that is later than 365 days from the date of modification.', example='2014-08-20T16:55Z'),
   recurrenceType?: string(name='RecurrenceType', description='The recurrence type of the scheduled task. Valid values:
  
 - Daily: The scheduled task is executed once every specified number of days.
@@ -15778,35 +15950,42 @@ Default value: 600.', example='600'),
 After modification, both RecurrenceType and RecurrenceValue must be valid.', example='Daily'),
   recurrenceValue?: string(name='RecurrenceValue', description='The recurrence value of the scheduled task.
 
-- If RecurrenceType is set to Daily, only one value can be entered. Valid values: 1 to 31.
-- If RecurrenceType is set to Weekly, multiple values can be entered and must be separated by commas (,). For example, the values for Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, and Saturday are 0,1,2,3,4,5,6.
+- If RecurrenceType is set to Daily, you can specify only one value. Valid values: 1 to 31.
+- If RecurrenceType is set to Weekly, you can specify multiple values separated by commas (,). For example, the values for Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, and Saturday are 0,1,2,3,4,5,6.
 - If RecurrenceType is set to Monthly, the format is A-B. Valid values of A and B: 1 to 31. B must be greater than or equal to A.
-- If RecurrenceType is set to Cron, the value represents UTC time and supports a five-field expression for minutes, hours, days, months, and weeks. Wildcards such as commas (,), question marks (?), hyphens (-), asterisks (*), number signs (#), forward slashes (/), L, and W are supported.
+- If RecurrenceType is set to Cron, the value specifies a cron expression in UTC. The expression supports five fields: minute, hour, day, month, and week. It supports wildcards such as commas (,), question marks (?), hyphens (-), asterisks (*), number signs (#), forward slashes (/), L, and W.
 
 After modification, both RecurrenceType and RecurrenceValue must be valid.', example='2'),
   regionId?: string(name='RegionId', description='The region ID.', example='cn-hangzhou'),
   resourceOwnerAccount?: string(name='ResourceOwnerAccount'),
   resourceOwnerId?: long(name='ResourceOwnerId'),
-  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group for which you want to modify the number of instances when the scheduled task is triggered. This parameter is available only when the scaling method is set to specifying the number of instances in the scaling group. After you specify ScalingGroupId, you must specify a value for at least one of the following parameters: MinValue, MaxValue, and DesiredCapacity.
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group in which you want to modify the number of instances or adjust the warm pool capacity when the scheduled task is triggered.
+
+After you specify ScalingGroupId, the scaling method of the scheduled task is set to specify the number of instances in the scaling group or adjust the warm pool capacity.
+
+- Specify the number of instances in the scaling group: You must specify at least one of the MinValue, MaxValue, and DesiredCapacity parameters.
+- Adjust the warm pool capacity: You must specify WarmPoolCapacityOptions.
 
 > You cannot specify both ScheduledAction and ScalingGroupId at the same time.', example='asg-bp18p2yfxow2dloq****'),
-  scheduledAction?: string(name='ScheduledAction', description='The unique identifier of the scaling rule. This parameter is available only when the scaling method is set to selecting an existing scaling rule. Select a created scaling rule and enter its unique identifier, which can be viewed on the scaling rule details page.
+  scheduledAction?: string(name='ScheduledAction', description='The ID of the scaling rule to execute. This parameter is available only when the scaling method is set to execute an existing scaling rule. You can view the ID on the details page of the scaling rule.
 
 > You cannot specify both ScheduledAction and ScalingGroupId at the same time.', example='ari:acs:ess:cn-hangzhou:14069264****:scalingrule/asr-bp12tcnol686y1ik****'),
   scheduledTaskId?: string(name='ScheduledTaskId', description='The ID of the scheduled task.
 
 This parameter is required.', example='edRtShc57WGXdt8TlPbr****'),
-  scheduledTaskName?: string(name='ScheduledTaskName', description='The name of the scheduled task. The name must be 2 to 64 characters in length and start with a letter, digit, or Chinese character. It can contain periods (.), underscores (_), and hyphens (-). The name must be unique within the same region and Alibaba Cloud account.', example='scheduled****'),
+  scheduledTaskName?: string(name='ScheduledTaskName', description='The name of the scheduled task. The name must be 2 to 64 characters in length and can contain periods (.), underscores (_), and hyphens (-). It must start with a letter, digit, or Chinese character. The name must be unique within the same region and Alibaba Cloud account.', example='scheduled****'),
   taskEnabled?: boolean(name='TaskEnabled', description='Specifies whether to enable the scheduled task. Valid values:
 
-- true: Enables the scheduled task.
-- false: Disables the scheduled task.
+- true: enables the scheduled task.
+- false: disables the scheduled task.
 
 Default value: true.', example='true'),
   warmPoolCapacityOptions?: {
-    desiredGroupPreparedCapacity?: int32(name='DesiredGroupPreparedCapacity', description='The expected number of warmed instances.', example='5'),
-    minCapacity?: int32(name='MinCapacity', description='The minimum number of instances in the warm pool.', example='0'),
-  }(name='WarmPoolCapacityOptions', description='The warm pool capacity configuration of the scaling group. This parameter is valid only when a warm pool is configured for the scaling group.'),
+    desiredGroupPreparedCapacity?: int32(name='DesiredGroupPreparedCapacity', description='The expected number of prepared instances. The system maintains the sum of the current number of instances in the scaling group and the number of instances in the warm pool at this value. Default value: the maximum number of instances in the scaling group, which is specified by MaxSize.', example='5'),
+    minCapacity?: int32(name='MinCapacity', description='The minimum number of instances in the warm pool. The system always retains at least this number of prepared instances in the warm pool to ensure that instances can be quickly added from the warm pool during scale-out. Default value: 0.', example='0'),
+  }(name='WarmPoolCapacityOptions', description='The warm pool capacity configuration of the scaling group. This parameter is valid only when a warm pool is configured for the scaling group.
+
+> You must specify ScalingGroupId when you specify this parameter.'),
 }
 
 model ModifyScheduledTaskResponseBody = {
@@ -15820,11 +15999,11 @@ model ModifyScheduledTaskResponse = {
 }
 
 /**
- * @summary Modifies the configuration parameters of an existing scheduled task. You can specify the scheduled task ID to modify parameters such as the scaling rule to be executed, the number of instances in the scaling group, the task execution frequency, and the retry policy.
+ * @summary Modifies the configuration parameters of an existing scheduled task, such as the scaling rule to execute, the number of instances in the scaling group, the task execution frequency, and the retry policy.
  *
  * @description Scheduled tasks support two scaling methods:
- * - Set the scaling rule to be executed by using the ScheduledAction parameter.
- * - Set the number of instances in the scaling group by using the ScalingGroupId parameter.
+ * - Specify the scaling rule to execute by using the ScheduledAction parameter.
+ * - Specify the number of instances in the scaling group by using the ScalingGroupId parameter.
  * > You cannot specify both ScheduledAction and ScalingGroupId at the same time.
  *
  * @param request ModifyScheduledTaskRequest
@@ -15912,11 +16091,11 @@ async function modifyScheduledTaskWithOptions(request: ModifyScheduledTaskReques
 }
 
 /**
- * @summary Modifies the configuration parameters of an existing scheduled task. You can specify the scheduled task ID to modify parameters such as the scaling rule to be executed, the number of instances in the scaling group, the task execution frequency, and the retry policy.
+ * @summary Modifies the configuration parameters of an existing scheduled task, such as the scaling rule to execute, the number of instances in the scaling group, the task execution frequency, and the retry policy.
  *
  * @description Scheduled tasks support two scaling methods:
- * - Set the scaling rule to be executed by using the ScheduledAction parameter.
- * - Set the number of instances in the scaling group by using the ScalingGroupId parameter.
+ * - Specify the scaling rule to execute by using the ScheduledAction parameter.
+ * - Specify the number of instances in the scaling group by using the ScalingGroupId parameter.
  * > You cannot specify both ScheduledAction and ScalingGroupId at the same time.
  *
  * @param request ModifyScheduledTaskRequest
@@ -15925,6 +16104,115 @@ async function modifyScheduledTaskWithOptions(request: ModifyScheduledTaskReques
 async function modifyScheduledTask(request: ModifyScheduledTaskRequest): ModifyScheduledTaskResponse {
   var runtime = new Util.RuntimeOptions{};
   return modifyScheduledTaskWithOptions(request, runtime);
+}
+
+model PutWarmPoolRequest {
+  capacityOptions?: {
+    desiredGroupPreparedCapacity?: int32(name='DesiredGroupPreparedCapacity', description='The expected number of instances to be warmed. The system maintains the sum of the current number of instances in the scaling group and the number of instances in the warm pool at this value. Instances that exceed the current number of instances in the scaling group are scaled out into the warm pool in advance. When traffic peaks occur, instances can be quickly added from the warm pool, avoiding the wait time caused by creating instances on demand.
+
+Default value: the maximum number of instances in the scaling group, which is specified by `MaxSize`.
+> The value of `DesiredGroupPreparedCapacity` must be less than or equal to the maximum number of instances in the scaling group, which is specified by `MaxSize`.', example='20'),
+    minCapacity?: int32(name='MinCapacity', description='The minimum number of instances in the warm pool. The system always keeps at least this number of warmed instances in the warm pool to ensure that instances can be quickly added from the warm pool during scale-out.
+
+Default value: 0.
+
+> The value of `MinCapacity` must be less than or equal to the value of `DesiredGroupPreparedCapacity`.', example='0'),
+  }(name='CapacityOptions', description='The capacity options for the warm pool.', example='0'),
+  clientToken?: string(name='ClientToken', description='The client token that is used to ensure the idempotence of the request. You can use the client to generate the token, but you must ensure that it is unique among different requests.
+
+The token can contain only ASCII characters and cannot exceed 64 characters in length. For more information, see [How to ensure idempotence](https://help.aliyun.com/document_detail/25965.html).', example='123e4567-e89b-12d3-a456-42665544****'),
+  instanceReusePolicy?: {
+    reuseOnScaleIn?: boolean(name='ReuseOnScaleIn', description='Specifies whether instances are reclaimed to the warm pool when the scaling group scales in. Valid values:
+
+- true: Instances are reclaimed to the warm pool.
+- false: Instances are not reclaimed to the warm pool.
+
+Default value: false.', example='true'),
+  }(name='InstanceReusePolicy', description='The instance reclaim policy.'),
+  poolState?: string(name='PoolState', description='The state of instances in the warm pool. Valid values:
+
+- Running: The instances are in the running state. This state allows faster scale-out, but you are charged for the full cost of the instances.
+- Stopped: The instances are in the economical mode. You are charged only for resources such as cloud disks, elastic IP addresses (EIPs), and snapshots of the instances. However, instance startup may fail during scale-out due to insufficient inventory.
+
+Default value: Stopped.', example='Running'),
+  regionId?: string(name='RegionId', description='The region ID of the scaling group.
+
+This parameter is required.', example='cn-hangzhou'),
+  scalingGroupId?: string(name='ScalingGroupId', description='The ID of the scaling group.
+
+This parameter is required.', example='asg-bp1fo0dbtsbmqa9h****'),
+}
+
+model PutWarmPoolResponseBody = {
+  requestId?: string(name='RequestId', description='The ID of the request.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3****'),
+}
+
+model PutWarmPoolResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: PutWarmPoolResponseBody(name='body'),
+}
+
+/**
+ * @summary Configures a warm pool for a scaling group. If the scaling group does not have a warm pool, this operation creates one. If the scaling group already has a warm pool, this operation updates the configurations of the warm pool.
+ *
+ * @description - Warm pools are supported only for ECS scaling groups.
+ * - Warm pools are supported only when the reclaim mode of the scaling group is set to release or forcerelease.
+ *
+ * @param request PutWarmPoolRequest
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return PutWarmPoolResponse
+ */
+async function putWarmPoolWithOptions(request: PutWarmPoolRequest, runtime: Util.RuntimeOptions): PutWarmPoolResponse {
+  Util.validateModel(request);
+  var query = {};
+  if (!Util.isUnset(request.capacityOptions)) {
+    query['CapacityOptions'] = request.capacityOptions;
+  }
+  if (!Util.isUnset(request.clientToken)) {
+    query['ClientToken'] = request.clientToken;
+  }
+  if (!Util.isUnset(request.instanceReusePolicy)) {
+    query['InstanceReusePolicy'] = request.instanceReusePolicy;
+  }
+  if (!Util.isUnset(request.poolState)) {
+    query['PoolState'] = request.poolState;
+  }
+  if (!Util.isUnset(request.regionId)) {
+    query['RegionId'] = request.regionId;
+  }
+  if (!Util.isUnset(request.scalingGroupId)) {
+    query['ScalingGroupId'] = request.scalingGroupId;
+  }
+  var req = new OpenApi.OpenApiRequest{ 
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApi.Params{
+    action = 'PutWarmPool',
+    version = '2022-02-22',
+    protocol = 'HTTPS',
+    pathname = '/',
+    method = 'POST',
+    authType = 'AK',
+    style = 'RPC',
+    reqBodyType = 'formData',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Configures a warm pool for a scaling group. If the scaling group does not have a warm pool, this operation creates one. If the scaling group already has a warm pool, this operation updates the configurations of the warm pool.
+ *
+ * @description - Warm pools are supported only for ECS scaling groups.
+ * - Warm pools are supported only when the reclaim mode of the scaling group is set to release or forcerelease.
+ *
+ * @param request PutWarmPoolRequest
+ * @return PutWarmPoolResponse
+ */
+async function putWarmPool(request: PutWarmPoolRequest): PutWarmPoolResponse {
+  var runtime = new Util.RuntimeOptions{};
+  return putWarmPoolWithOptions(request, runtime);
 }
 
 model QueryHistoricalMetricRequest {
@@ -16950,6 +17238,9 @@ model RollbackInstanceRefreshResponse = {
 /**
  * @summary Rolls back an instance refresh task if the desired configuration does not meet your requirements during task execution. During the rollback, the system uses the active configuration of the scaling group to create new instances to replace those created based on the desired configuration.
  *
+ * @description ## 前提条件
+ * 被回滚的实例刷新任务必须在启动时（调用 StartInstanceRefresh）设置了 `DesiredConfiguration` 参数。未设置 `DesiredConfiguration` 的实例刷新任务不支持回滚，调用本接口会返回 `UnsupportedOperation.DesiredConfiguration` 错误；如需回滚此类任务，请先取消该任务，再以 `DesiredConfiguration` 重新启动实例刷新后执行回滚。
+ *
  * @param request RollbackInstanceRefreshRequest
  * @param runtime runtime options for this request RuntimeOptions
  * @return RollbackInstanceRefreshResponse
@@ -16991,6 +17282,9 @@ async function rollbackInstanceRefreshWithOptions(request: RollbackInstanceRefre
 
 /**
  * @summary Rolls back an instance refresh task if the desired configuration does not meet your requirements during task execution. During the rollback, the system uses the active configuration of the scaling group to create new instances to replace those created based on the desired configuration.
+ *
+ * @description ## 前提条件
+ * 被回滚的实例刷新任务必须在启动时（调用 StartInstanceRefresh）设置了 `DesiredConfiguration` 参数。未设置 `DesiredConfiguration` 的实例刷新任务不支持回滚，调用本接口会返回 `UnsupportedOperation.DesiredConfiguration` 错误；如需回滚此类任务，请先取消该任务，再以 `DesiredConfiguration` 重新启动实例刷新后执行回滚。
  *
  * @param request RollbackInstanceRefreshRequest
  * @return RollbackInstanceRefreshResponse
