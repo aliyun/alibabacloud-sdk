@@ -1957,6 +1957,12 @@ model ModelApiListApiInfoDeployCntMapValue = {
   cnt?: long(name='cnt', description='The total number of APIs.', example='1'),
 }
 
+model DataResultsValue = {
+  routeId?: string(name='routeId', description='The route ID corresponding to the result, which is the same as the key in results.', example='hr-example001'),
+  status?: string(name='status', description='For asynchronous publishing, Pending indicates that the request is accepted, and Rejected indicates that the request is rejected before submission. For synchronous publishing, Succeeded indicates that the route is successfully published, and Failed indicates that the publishing failed.', example='Succeeded'),
+  errorMessage?: string(name='errorMessage', description='The cause of the route being rejected or failing to be published. This parameter is returned when the status is Rejected or Failed.', example='ErrorType: Conflict, ErrorCode: DeployRouteForbidden, Message: the route  example-route is not allowed to deploy when it\\\\"s status is Deploying., Params: [example-route Deploying]'),
+}
+
 model DataPathConfigsFieldPathsValue = {
   fieldKey?: string(name='fieldKey', description='The identity key of the field, which is unique within the same URI of the request, such as input_token.', example='input_token'),
   jsonPath?: string(name='jsonPath', description='The JSONPath expression of the field in the request or response message, such as usage.prompt_tokens.', example='usage.prompt_tokens'),
@@ -2427,6 +2433,85 @@ async function batchDeleteConsumerAuthorizationRule(request: BatchDeleteConsumer
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return batchDeleteConsumerAuthorizationRuleWithOptions(request, headers, runtime);
+}
+
+model BatchDeployHttpApiRoutesRequest {
+  async?: boolean(name='async', description='Specifies whether to publish routes asynchronously. Default value: true. If set to true, the acceptance results of the routes are returned. If set to false, the system waits for the batch processing to complete and returns the final results and statistics for each route.', example='false'),
+  deployAll?: boolean(name='deployAll', description='Specifies whether to publish all routes visible to the current user under the API. Default value: false. If you set this parameter to true, all visible routes are published and the routeIds parameter is ignored.', example='false'),
+  routeIds?: [ string ](name='routeIds', description='The list of route IDs to publish. If deployAll is omitted or set to false, at least one route ID must be provided. If any route does not exist or belongs to another API, the entire batch request is rejected.', example='["hr-example001","hr-example002"]'),
+}
+
+model BatchDeployHttpApiRoutesResponseBody = {
+  code?: string(name='code', description='The response code of the API call. For the acceptance or publishing results of each route, see data.results.', example='Ok'),
+  data?: {
+    failedCount?: int32(name='failedCount', description='The number of routes that failed to be published in the batch. This parameter is returned only for synchronous publishing and can be 0.', example='0'),
+    results?: map[string]DataResultsValue(name='results', description='A result map with route IDs as keys. If some routes in the same batch fail, the routes that have been successfully published remain valid.', example='{"hr-example001":{"routeId":"hr-example001","status":"Succeeded"},"hr-example002":{"routeId":"hr-example002","status":"Succeeded"}}'),
+    successCount?: int32(name='successCount', description='The number of routes successfully published in the batch. This parameter is returned only for synchronous publishing and can be 0.', example='2'),
+  }(name='data', description='The per-route results of the batch publishing operation. Synchronous publishing also returns the numbers of successful and failed routes, whereas asynchronous publishing returns only the per-route acceptance results.'),
+  message?: string(name='message', description='The response message of the API call. If a route fails or is rejected, see the errorMessage of the corresponding route for the cause.', example='success'),
+  requestId?: string(name='requestId', description='The request ID of the API call. You can use the ID to locate the request.', example='F7B8A1C2-1234-5678-90AB-CDEF12345678'),
+}
+
+model BatchDeployHttpApiRoutesResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: BatchDeployHttpApiRoutesResponseBody(name='body'),
+}
+
+/**
+ * @summary Publishes specified routes or all visible routes under the same HTTP API in batches.
+ *
+ * @description Batch requests are processed individually after passing route ownership validation. If some routes fail to be published, other successfully published routes remain valid.
+ *
+ * @param request BatchDeployHttpApiRoutesRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return BatchDeployHttpApiRoutesResponse
+ */
+@context("batchDeployHttpApiRoutesWithContext")
+async function batchDeployHttpApiRoutesWithOptions(httpApiId: string, request: BatchDeployHttpApiRoutesRequest, headers: map[string]string, runtime: $RuntimeOptions): BatchDeployHttpApiRoutesResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.async)) {
+    body['async'] = request.async;
+  }
+  if (!$isNull(request.deployAll)) {
+    body['deployAll'] = request.deployAll;
+  }
+  if (!$isNull(request.routeIds)) {
+    body['routeIds'] = request.routeIds;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'BatchDeployHttpApiRoutes',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/http-apis/${$URL.percentEncode(httpApiId)}/routes/batch-deploy`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Publishes specified routes or all visible routes under the same HTTP API in batches.
+ *
+ * @description Batch requests are processed individually after passing route ownership validation. If some routes fail to be published, other successfully published routes remain valid.
+ *
+ * @param request BatchDeployHttpApiRoutesRequest
+ * @return BatchDeployHttpApiRoutesResponse
+ */
+async function batchDeployHttpApiRoutes(httpApiId: string, request: BatchDeployHttpApiRoutesRequest): BatchDeployHttpApiRoutesResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return batchDeployHttpApiRoutesWithOptions(httpApiId, request, headers, runtime);
 }
 
 model BatchExportHttpApisRequest {
@@ -9942,94 +10027,102 @@ model GetConsumerAccessOverviewRequest {
   gatewayId?: string(name='gatewayId', description='The target AI gateway instance ID. Quotas and resources are isolated by instance.
 
 This parameter is required.', example='gw-123456'),
+  includeModelTpm?: boolean(name='includeModelTpm', description='Specifies whether to also query the model TPM limits. Default value: false. If set to true, modelTpmLimits is returned for dedicated instances.', example='true'),
 }
 
 model GetConsumerAccessOverviewResponseBody = {
-  code?: string(name='code', description='The response status code. The value is Ok for successful requests, or a specific business error code for failed requests.', example='Ok'),
+  code?: string(name='code', description='The response status code. It returns Ok for a successful request or a specific business error code for a failed request.', example='Ok'),
   data?: {
-    complete?: boolean(name='complete', description='Specifies whether the query result is complete. A successful response returns a complete projection.'),
+    complete?: boolean(name='complete', description='Indicates whether the query result is complete. A successful response returns a complete projection.', example='true'),
     gateway?: {
       gatewayId?: string(name='gatewayId', description='The ID of the AI gateway instance to which the resource belongs.', example='gw-d00000000000000000000'),
       name?: string(name='name', description='The name of the consumer.', example='beta-consumer'),
-    }(name='gateway', description='The gateway identifier and name in the current view.'),
+    }(name='gateway', description='The gateway identifier and name in the current context.', example='{"gatewayId":"gw-example01","name":"team-ai-gateway"}'),
     identityDescription?: string(name='identityDescription', description='The description text of the consumer.', example='Consumer for business applications'),
     impacts?: [ 
       {
         authorizationCounts?: {
-          agentApis?: int32(name='agentApis', description='The number of agent APIs with configured authorization.', example='1'),
-          mcpServers?: int32(name='mcpServers', description='The number of MCP servers with configured authorization.', example='1'),
-          modelApis?: int32(name='modelApis', description='The number of model APIs with configured authorization.', example='1'),
-        }(name='authorizationCounts', description='The number of authorization configurations counted by resource type.'),
+          agentApis?: int32(name='agentApis', description='The number of agent APIs with configured authorizations.', example='1'),
+          mcpServers?: int32(name='mcpServers', description='The number of MCP services with configured authorizations.', example='1'),
+          modelApis?: int32(name='modelApis', description='The number of model APIs with configured authorizations.', example='1'),
+        }(name='authorizationCounts', description='The number of authorization configurations by resource type.', example='{"modelApis":1,"mcpServers":0,"agentApis":0}'),
         gateway?: {
           gatewayId?: string(name='gatewayId', description='The ID of the AI gateway instance to which the resource belongs.', example='gw-d00000000000000000000'),
           name?: string(name='name', description='The name of the consumer.', example='beta-consumer'),
-        }(name='gateway', description='The gateway identifier and name in the current view.'),
-        resources?: [ string ](name='resources', description='The collection of resources for which the consumer has been granted authorization.'),
+        }(name='gateway', description='The gateway identifier and name in the current context.', example='{"gatewayId":"gw-example01","name":"team-ai-gateway"}'),
+        resources?: [ string ](name='resources', description='The collection of resources for which the consumer has been granted authorization.', example='["team-chat"]'),
       }
-    ](name='impacts', description='The impact of authorization configurations for this consumer in readable gateways within the local region.'),
+    ](name='impacts', description='The impact of authorization configurations for the consumer in readable gateways within the local region.', example='[{"gateway":{"gatewayId":"gw-example01","name":"team-ai-gateway"},"resources":["team-chat"],"authorizationCounts":{"modelApis":1,"mcpServers":0,"agentApis":0}}]'),
+    modelTpmLimits?: [ 
+      {
+        consumerTpm?: long(name='consumerTpm', description='The maximum tokens per minute for the current consumer using this model. Returned only when a rule is configured for the consumer.', example='300'),
+        globalTpm?: long(name='globalTpm', description='The maximum tokens per minute shared by all consumers for this model within the instance. Returned only when a global limit is configured.', example='1800'),
+        modelId?: string(name='modelId', description='The actual model card ID starting with msc- or the logical model ID starting with vm-.', example='msc-example01'),
+      }
+    ](name='modelTpmLimits', description='The list of models with configured global or current consumer TPM limits in the target dedicated instance. Returned when includeModelTpm is set to true, and an empty array when no matching models exist.', example='[{"modelId":"msc-example01","consumerTpm":300,"globalTpm":1800}]'),
     quotas?: [ 
       {
-        limit?: long(name='limit', description='The quota limit for the current rule, measured in the same unit as the unit field.', example='1000000'),
+        limit?: long(name='limit', description='The quota limit for the current rule, using the same unit of measurement as the unit field.', example='1000000'),
         name?: string(name='name', description='The name of the consumer.', example='beta-consumer'),
         periodMultiplier?: long(name='periodMultiplier', description='The multiplier for the custom period.', example='1'),
-        periodType?: string(name='periodType', description='The quota period type. Valid values: day, week, and month.', example='day'),
-        ruleId?: string(name='ruleId', description='The quota rule ID.', example='qr-d00000000000000000000'),
+        periodType?: string(name='periodType', description='The type of the quota period. Valid values: day, week, and month.', example='day'),
+        ruleId?: string(name='ruleId', description='The ID of the quota rule.', example='qr-d00000000000000000000'),
         subjectId?: string(name='subjectId', description='The ID of the subject to which the quota belongs.', example='cs-d00000000000000000000'),
         subjectName?: string(name='subjectName', description='The name of the subject to which the quota belongs.', example='beta-consumer'),
-        subjectType?: string(name='subjectType', description='The quota subject type. Valid values: consumer and consumer_group.', example='consumer'),
-        unit?: string(name='unit', description='The quota measurement unit.', example='token'),
-        used?: double(name='used', description='The used quota within the period corresponding to the current rule, measured in the same unit as the unit field.', example='100'),
-        windowAlignment?: string(name='windowAlignment', description='The alignment method of the period window. Valid values: calendar for natural periods and epoch for custom base periods.', example='calendar'),
+        subjectType?: string(name='subjectType', description='The type of the quota subject. Valid values: consumer and consumer_group.', example='consumer'),
+        unit?: string(name='unit', description='The unit of measurement for the quota.', example='token'),
+        used?: double(name='used', description='The used quota within the period corresponding to the current rule, using the same unit of measurement as the unit field.', example='100'),
+        windowAlignment?: string(name='windowAlignment', description='The alignment of the period window. Valid values: calendar for natural periods and epoch for custom base periods.', example='calendar'),
       }
-    ](name='quotas', description='The quota rules and usage for the consumer and its associated consumer group.'),
+    ](name='quotas', description='The quota rules and usage for the consumer and its associated consumer group.', example='[{"ruleId":"rule-example01","subjectId":"cs-example01","subjectType":"consumer","subjectName":"team-app","name":"daily-tokens","limit":100000,"used":1250,"unit":"Token","periodType":"day","windowAlignment":"calendar"}]'),
     resources?: [ 
       {
-        allModels?: boolean(name='allModels', description='Specifies whether the authorization scope of this resource includes all models.', nullable=true),
-        allTools?: boolean(name='allTools', description='Specifies whether the authorization scope of this MCP resource includes all tools.', nullable=true),
-        consumerGroupName?: string(name='consumerGroupName', description='The name of the consumer group that provides this authorization.', example='beta-consumer-group'),
+        allModels?: boolean(name='allModels', description='Specifies whether the authorization scope of the resource includes all models.', example='true', nullable=true),
+        allTools?: boolean(name='allTools', description='Specifies whether the authorization scope of the MCP resource includes all tools.', example='true', nullable=true),
+        consumerGroupName?: string(name='consumerGroupName', description='The name of the consumer group that grants this authorization.', example='beta-consumer-group'),
         entitlementState?: {
           appliedRevision?: long(name='appliedRevision', description='The applied authorization revision number.', example='1'),
           desiredRevision?: long(name='desiredRevision', description='The expected authorization revision number to be delivered.', example='2'),
-          errorMessage?: string(name='errorMessage', description='The error description when processing fails. This field is empty if no error occurs.', example='Configuration delivery failed'),
-          status?: string(name='status', description='The status. Valid values: Pending, Applying, Committed, and Failed.', example='Committed'),
-        }(name='entitlementState', description='The existing desired or applied state of the model entitlement projection. This field is omitted if no state row exists.'),
-        expireTime?: string(name='expireTime', description='The expiration time. The value is null for long-term authorization, an RFC 3339 formatted string for short-term authorization that can be losslessly projected, or omitted if unknown.', example='2026-12-31T23:59:59Z', nullable=true),
+          errorMessage?: string(name='errorMessage', description='The error description when processing fails. Empty when no error occurs.', example='Configuration delivery failed'),
+          status?: string(name='status', description='The status of the entitlement delivery. Valid values: Pending, Applying, Committed, and Failed.', example='Committed'),
+        }(name='entitlementState', description='The existing desired and applied states of the model entitlement projection. Omitted when no state row exists.', example='{"desiredRevision":2,"appliedRevision":1,"status":"Pending"}'),
+        expireTime?: string(name='expireTime', description='The expiration time. The value is null for long-term authorizations, an RFC 3339 formatted string for short-term authorizations with lossless projection, and omitted when unknown.', example='2026-12-31T23:59:59Z', nullable=true),
         modelGroups?: [ 
           {
-            consumerGroupName?: string(name='consumerGroupName', description='The name of the consumer group that provides this authorization.', example='beta-consumer-group'),
+            consumerGroupName?: string(name='consumerGroupName', description='The name of the consumer group that grants this authorization.', example='beta-consumer-group'),
             modelGroupId?: string(name='modelGroupId', description='The model group ID. Use the modelGroupId returned by CreateModelGroup.', example='mg-d00000000000000000000'),
             models?: [ 
               {
-                consumerGroupName?: string(name='consumerGroupName', description='The name of the consumer group that provides this authorization.', example='beta-consumer-group'),
-                modelCardId?: string(name='modelCardId', description='The model identifier. Standard models use the source model card ID, while logical model endpoints use the vm- prefix.', example='msc-d00000000000000000000'),
+                consumerGroupName?: string(name='consumerGroupName', description='The name of the consumer group that grants this authorization.', example='beta-consumer-group'),
+                modelCardId?: string(name='modelCardId', description='The model identifier. A standard model uses the source model card ID, while a logical model endpoint uses a vm- prefix.', example='msc-d00000000000000000000'),
                 modelSourceId?: string(name='modelSourceId', description='The model source ID. Use the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
                 modelSourceName?: string(name='modelSourceName', description='The display name of the model source.', example='Model Studio model source'),
                 modelType?: string(name='modelType', description='The model type. Valid values: Model and LogicalModel.', example='Model'),
                 name?: string(name='name', description='The name of the consumer.', example='beta-consumer'),
               }
-            ](name='models', description='The list of accessible model endpoints within the current resource scope.'),
+            ](name='models', description='The list of accessible model endpoints within the current resource scope.', example='[{"modelCardId":"msc-example01","name":"text-chat","modelType":"Model","modelSourceId":"ms-example01","modelSourceName":"team-model-source"}]'),
             name?: string(name='name', description='The name of the consumer.', example='beta-consumer'),
           }
-        ](name='modelGroups', description='The accessible model groups and their model collections.'),
+        ](name='modelGroups', description='The accessible model groups and their model collections.', example='[{"modelGroupId":"mg-example01","name":"chat-models","models":[{"modelCardId":"msc-example01","name":"text-chat","modelType":"Model","modelSourceId":"ms-example01","modelSourceName":"team-model-source"}]}]'),
         models?: [ 
           {
-            consumerGroupName?: string(name='consumerGroupName', description='The name of the consumer group that provides this authorization.', example='beta-consumer-group'),
-            modelCardId?: string(name='modelCardId', description='The model identifier. Standard models use the source model card ID, while logical model endpoints use the vm- prefix.', example='msc-d00000000000000000000'),
+            consumerGroupName?: string(name='consumerGroupName', description='The name of the consumer group that grants this authorization.', example='beta-consumer-group'),
+            modelCardId?: string(name='modelCardId', description='The model identifier. A standard model uses the source model card ID, while a logical model endpoint uses a vm- prefix.', example='msc-d00000000000000000000'),
             modelSourceId?: string(name='modelSourceId', description='The model source ID. Use the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
             modelSourceName?: string(name='modelSourceName', description='The display name of the model source.', example='Model Studio model source'),
             modelType?: string(name='modelType', description='The model type. Valid values: Model and LogicalModel.', example='Model'),
             name?: string(name='name', description='The name of the consumer.', example='beta-consumer'),
           }
-        ](name='models', description='The list of accessible model endpoints within the current resource scope.'),
+        ](name='models', description='The list of accessible model endpoints within the current resource scope.', example='[{"modelCardId":"msc-example01","name":"text-chat","modelType":"Model","modelSourceId":"ms-example01","modelSourceName":"team-model-source"}]'),
         name?: string(name='name', description='The name of the consumer.', example='beta-consumer'),
         resourceId?: string(name='resourceId', description='The immutable identifier of the authorized resource.', example='api-d00000000000000000000'),
         resourceType?: string(name='resourceType', description='The resource type. Valid values: ModelApi, MCP, and Agent.', example='ModelApi'),
-        tools?: [ string ](name='tools', description='The list of names of MCP tools that are allowed to be called within this resource scope.'),
+        tools?: [ string ](name='tools', description='The list of MCP tool names that are allowed to be called within the resource scope.', example='["search"]'),
       }
-    ](name='resources', description='The collection of resources for which the consumer has been granted authorization.'),
-  }(name='data', description='The business result returned by the consumer operation.'),
+    ](name='resources', description='The collection of resources for which the consumer has been granted authorization.', example='[{"resourceId":"api-example01","name":"team-chat","resourceType":"ModelApi","models":[{"modelCardId":"msc-example01","name":"text-chat","modelType":"Model","modelSourceId":"ms-example01","modelSourceName":"team-model-source"}],"modelGroups":[]}]'),
+  }(name='data', description='The business result returned by the consumer operation.', example='{"gateway":{"gatewayId":"gw-example01","name":"team-ai-gateway"},"identityDescription":"Consumer used by the conversation service","resources":[{"resourceId":"api-example01","name":"team-chat","resourceType":"ModelApi","models":[],"modelGroups":[]}],"quotas":[],"impacts":[{"gateway":{"gatewayId":"gw-example01","name":"team-ai-gateway"},"resources":["team-chat"],"authorizationCounts":{"modelApis":1,"mcpServers":0,"agentApis":0}}],"modelTpmLimits":[{"modelId":"msc-example01","consumerTpm":300,"globalTpm":1800}],"complete":true}'),
   message?: string(name='message', description='The response message that describes the request processing result.', example='success'),
-  requestId?: string(name='requestId', description='The request ID generated by the system to trace the current call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  requestId?: string(name='requestId', description='The ID of the request generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model GetConsumerAccessOverviewResponse = {
@@ -10052,6 +10145,9 @@ async function getConsumerAccessOverviewWithOptions(consumerId: string, request:
   var query : map[string]any = {};
   if (!$isNull(request.gatewayId)) {
     query['gatewayId'] = request.gatewayId;
+  }
+  if (!$isNull(request.includeModelTpm)) {
+    query['includeModelTpm'] = request.includeModelTpm;
   }
 
   var req = new OpenApiUtil.OpenApiRequest{ 
@@ -12463,6 +12559,76 @@ async function getModelGroup(modelGroupId: string, request: GetModelGroupRequest
   return getModelGroupWithOptions(modelGroupId, request, headers, runtime);
 }
 
+model GetModelTokenRateLimitRequest {
+}
+
+model GetModelTokenRateLimitResponseBody = {
+  code?: string(name='code', description='The result code of the request. The value is Ok if the request is successful.', example='Ok'),
+  data?: {
+    appliedRevision?: long(name='appliedRevision', description='The most recent configuration revision successfully delivered to the control plane.', example='1'),
+    consumerRuleIds?: map[string]string(name='consumerRuleIds', description='The mapping from consumer IDs to model throttling rule IDs.', example='{"cs-example01":"model-tpm/gw-example01/msc-example01/consumer/cs-example01"}'),
+    consumers?: [ 
+      {
+        consumerId?: string(name='consumerId', description='The ID of the consumer.', example='cs-example01'),
+        tpm?: long(name='tpm', description='The maximum number of tokens per minute (TPM) for this consumer using this model.', example='300'),
+      }
+    ](name='consumers', description='The list of configured consumer quotas for this model.', example='[{"consumerId":"cs-example01","tpm":300}]'),
+    gatewayId?: string(name='gatewayId', description='The instance ID of the dedicated AI gateway.', example='gw-example01'),
+    globalRuleId?: string(name='globalRuleId', description='The rule ID for the global model quota, which can be matched with the rule hits in the gateway throttling logs. This parameter is returned only when the global quota is configured.', example='model-tpm/gw-example01/msc-example01/global'),
+    globalTpm?: long(name='globalTpm', description='The maximum number of tokens per minute (TPM) shared by all consumers for this model within the instance.', example='1800'),
+    modelId?: string(name='modelId', description='The actual model card ID (prefixed with msc-) or the logical model ID (prefixed with vm-).', example='msc-example01'),
+    revision?: long(name='revision', description='The saved revision of the model throttling configuration. Pass this value as expectedRevision in subsequent modification requests.', example='1'),
+  }(name='data', description='The saved quotas, versions, and rule IDs for the current model.', example='{"gatewayId":"gw-example01","modelId":"msc-example01","revision":1,"appliedRevision":1,"globalTpm":1800,"consumers":[{"consumerId":"cs-example01","tpm":300}],"globalRuleId":"model-tpm/gw-example01/msc-example01/global","consumerRuleIds":{"cs-example01":"model-tpm/gw-example01/msc-example01/consumer/cs-example01"}}'),
+  message?: string(name='message', description='The cause of the error. This parameter is omitted if the request is successful.', example='The specified gateway does not exist.'),
+  requestId?: string(name='requestId', description='The unique identifier of the request, which can be used for troubleshooting.', example='7A35E9B2-4C16-4E90-8A71-24F3BB508C01'),
+}
+
+model GetModelTokenRateLimitResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetModelTokenRateLimitResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the token throttling rules for a model.
+ *
+ * @param request GetModelTokenRateLimitRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return GetModelTokenRateLimitResponse
+ */
+@context("getModelTokenRateLimitWithContext")
+async function getModelTokenRateLimitWithOptions(gatewayId: string, modelId: string, request: GetModelTokenRateLimitRequest, headers: map[string]string, runtime: $RuntimeOptions): GetModelTokenRateLimitResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'GetModelTokenRateLimit',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${$URL.percentEncode(gatewayId)}/model-tpm/${$URL.percentEncode(modelId)}`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the token throttling rules for a model.
+ *
+ * @param request GetModelTokenRateLimitRequest
+ * @return GetModelTokenRateLimitResponse
+ */
+async function getModelTokenRateLimit(gatewayId: string, modelId: string, request: GetModelTokenRateLimitRequest): GetModelTokenRateLimitResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return getModelTokenRateLimitWithOptions(gatewayId, modelId, request, headers, runtime);
+}
+
 model GetPluginAttachmentResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
@@ -14677,6 +14843,115 @@ async function listBatchExportTasks(request: ListBatchExportTasksRequest): ListB
   return listBatchExportTasksWithOptions(request, headers, runtime);
 }
 
+model ListBatchImportTasksRequest {
+  endTime?: string(name='endTime', description='The end time of the creation time range. Specify the time in RFC 3339 format.', example='2026-05-26T11:00:00Z'),
+  gatewayId?: string(name='gatewayId', description='The gateway instance ID. If specified, only tasks under this gateway are returned.', example='gw-xxx'),
+  maxResults?: int32(name='maxResults', description='The maximum number of tasks to return in a single request.', example='100'),
+  nextToken?: string(name='nextToken', description='The start mark for the paging query.', example='token-xxx'),
+  pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
+  pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
+  startTime?: string(name='startTime', description='The start time of the creation time range. Specify the time in RFC 3339 format.', example='2026-05-26T10:00:00Z'),
+  statuses?: string(name='statuses', description='The list of task statuses. Separate multiple statuses with commas (,).', example='Pending,Running'),
+}
+
+model ListBatchImportTasksResponseBody = {
+  code?: string(name='code', description='The response status code.', example='Ok'),
+  data?: {
+    items?: [ 
+      {
+        createTime?: string(name='createTime', description='The time when the task was created.', example='2026-05-26T10:00:00Z'),
+        errorMessage?: string(name='errorMessage', description='The error message.', example='some apis failed'),
+        gatewayId?: string(name='gatewayId', description='The gateway instance ID associated with the task.', example='gw-xxx'),
+        processedCount?: int32(name='processedCount', description='The number of processed items.', example='5'),
+        status?: string(name='status', description='The status of the task. Valid values: Pending, Running, Success, PartialSuccess, and Failed.', example='Running'),
+        taskId?: string(name='taskId', description='The ID of the task.', example='task-xxx'),
+        taskType?: string(name='taskType', description='The type of the task.', example='BatchImport'),
+        totalCount?: int32(name='totalCount', description='The total number of tasks.', example='10'),
+      }
+    ](name='items', description='The list of tasks. Tasks are returned in descending order of creation time, with the latest tasks first.'),
+    pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
+    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
+    totalSize?: int32(name='totalSize', description='The total number of tasks.', example='1'),
+  }(name='data', description='The response data.'),
+  maxResults?: int32(name='maxResults', description='The maximum number of records returned in the current request.', example='100'),
+  message?: string(name='message', description='The response message.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next query. This parameter is empty if no more results are available.', example='token-xxx'),
+  requestId?: string(name='requestId', description='Id of the request', example='CE534E1D-FCE4-5930-B784-E055EC1AEE6F'),
+}
+
+model ListBatchImportTasksResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListBatchImportTasksResponseBody(name='body'),
+}
+
+/**
+ * @summary Queries the list of batch import tasks.
+ *
+ * @param request ListBatchImportTasksRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListBatchImportTasksResponse
+ */
+@context("listBatchImportTasksWithContext")
+async function listBatchImportTasksWithOptions(request: ListBatchImportTasksRequest, headers: map[string]string, runtime: $RuntimeOptions): ListBatchImportTasksResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.endTime)) {
+    query['endTime'] = request.endTime;
+  }
+  if (!$isNull(request.gatewayId)) {
+    query['gatewayId'] = request.gatewayId;
+  }
+  if (!$isNull(request.maxResults)) {
+    query['maxResults'] = request.maxResults;
+  }
+  if (!$isNull(request.nextToken)) {
+    query['nextToken'] = request.nextToken;
+  }
+  if (!$isNull(request.pageNumber)) {
+    query['pageNumber'] = request.pageNumber;
+  }
+  if (!$isNull(request.pageSize)) {
+    query['pageSize'] = request.pageSize;
+  }
+  if (!$isNull(request.startTime)) {
+    query['startTime'] = request.startTime;
+  }
+  if (!$isNull(request.statuses)) {
+    query['statuses'] = request.statuses;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListBatchImportTasks',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/http-api-batch-import-tasks`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Queries the list of batch import tasks.
+ *
+ * @param request ListBatchImportTasksRequest
+ * @return ListBatchImportTasksResponse
+ */
+async function listBatchImportTasks(request: ListBatchImportTasksRequest): ListBatchImportTasksResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listBatchImportTasksWithOptions(request, headers, runtime);
+}
+
 model ListChatSessionsRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of entries per page. The default value and valid values are not specified in the API definition.', example='10'),
   nextToken?: string(name='nextToken', description='The pagination cursor. Pass the nextToken returned in the previous response to retrieve the next page. Do not pass this parameter for the first query.', example='token-xxxxxxxx'),
@@ -16554,19 +16829,19 @@ async function listGatewayQuotaRules(gatewayId: string, request: ListGatewayQuot
 }
 
 model ListGatewayWebsocketEventsRequest {
-  connectionId?: string(name='connectionId', description='The connection ID.', example='connection-example'),
-  endTime?: long(name='endTime', description='The end time.
+  connectionId?: string(name='connectionId', description='The connection identifier.', example='connection-example'),
+  endTime?: long(name='endTime', description='The end time. The value is a UNIX timestamp in seconds since the UTC epoch. Example: 1793919600.
 
 This parameter is required.', example='1793919600'),
-  maxResults?: int32(name='maxResults', description='The number of entries per page for cursor-based pagination. If not specified or set to 0, the default value is 50. If the value is greater than 100, it is capped at 100. Negative values are invalid.', example='50'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results per page for cursor-based pagination.', example='50'),
   model?: string(name='model', description='The model.', example='qwen-plus'),
-  nextToken?: string(name='nextToken', description='The pagination cursor. Do not specify this parameter for the first query. For subsequent pages, use the nextToken value returned in the previous response. The time range and filter conditions must remain unchanged, but you can adjust the maxResults value.', example='opaque-token-from-previous-page'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='opaque-token-from-previous-page'),
   provider?: string(name='provider', description='The provider.', example='dashscope'),
   source?: string(name='source', description='The log source.', example='access.log'),
-  startTime?: long(name='startTime', description='The start time.
+  startTime?: long(name='startTime', description='The start time. The value is a UNIX timestamp in seconds since the UTC epoch. Example: 1793916000.
 
 This parameter is required.', example='1793916000'),
-  turnId?: string(name='turnId', description='The turn ID.', example='turn-example'),
+  turnId?: string(name='turnId', description='The turn identifier.', example='turn-example'),
 }
 
 model ListGatewayWebsocketEventsResponseBody = {
@@ -16575,11 +16850,11 @@ model ListGatewayWebsocketEventsResponseBody = {
     basis?: string(name='basis', description='The data basis.', example='observed'),
     hasMore?: boolean(name='hasMore', description='Indicates whether there is a next page.', example='false'),
     items?: [  map[string]any ](name='items', description='The observability events.', example='[]'),
-    maxResults?: int32(name='maxResults', description='The actual number of entries per page used for the current request. The default value is 50 and the maximum value is 100.', example='50'),
-    nextToken?: string(name='nextToken', description='The encrypted cursor returned when there is a next page. This parameter is empty for the last page. The cursor is valid for 10 minutes and is bound to the user, gateway, time range, and filters. You can adjust maxResults for subsequent pages. SLS snapshot isolation is not guaranteed.', example='opaque-token-from-previous-page'),
-  }(name='data', description='The query result.', example='{}'),
+    maxResults?: int32(name='maxResults', description='The actual number of results per page.', example='50'),
+    nextToken?: string(name='nextToken', description='The pagination token for the next page.', example='opaque-token-from-previous-page'),
+  }(name='data', description='The query results.', example='{}'),
   message?: string(name='message', description='The error message.', example='The specified gateway does not exist.'),
-  requestId?: string(name='requestId', description='The request ID.', example='D0A6A1A0-8793-4C10-AB1A-2C03E770A912'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='D0A6A1A0-8793-4C10-AB1A-2C03E770A912'),
 }
 
 model ListGatewayWebsocketEventsResponse = {
@@ -16589,9 +16864,9 @@ model ListGatewayWebsocketEventsResponse = {
 }
 
 /**
- * @summary Queries historical WebSocket events delivered by a dedicated Professional AI gateway to the Simple Log Service (SLS) of the current user. Supports a time range of up to 31 days, conditional filtering, and cursor-based pagination. The results do not represent the online connection status.
+ * @summary Queries the historical WebSocket events delivered by a dedicated Professional AI gateway to the Simple Log Service (SLS) of the current user. Supports a time range of up to 31 days, conditional filtering, and cursor-based pagination. The results do not represent the online connection status.
  *
- * @description Reads historical events delivered by the dedicated Professional AI gateway of the current user to the user\\"s SLS. Standard user log delivery and corresponding indexes must be enabled. The query time range is a left-closed and right-open interval, with a span of no more than 31 days and cannot include future time. Uses maxResults and nextToken for cursor-based pagination. The results are not an online connection directory, and missing logs do not indicate that no calls occurred.
+ * @description Retrieves the historical events delivered by the dedicated Professional AI gateway of the current user to Simple Log Service (SLS). Standard user log delivery and the corresponding indexes must be enabled. The query time range is a left-closed and right-open interval. The time span cannot exceed 31 days and cannot include future time. Uses maxResults and nextToken for cursor-based pagination. The results do not represent an online connection directory, and missing logs do not indicate that no calls occurred.
  *
  * @param request ListGatewayWebsocketEventsRequest
  * @param headers map
@@ -16649,9 +16924,9 @@ async function listGatewayWebsocketEventsWithOptions(gatewayId: string, request:
 }
 
 /**
- * @summary Queries historical WebSocket events delivered by a dedicated Professional AI gateway to the Simple Log Service (SLS) of the current user. Supports a time range of up to 31 days, conditional filtering, and cursor-based pagination. The results do not represent the online connection status.
+ * @summary Queries the historical WebSocket events delivered by a dedicated Professional AI gateway to the Simple Log Service (SLS) of the current user. Supports a time range of up to 31 days, conditional filtering, and cursor-based pagination. The results do not represent the online connection status.
  *
- * @description Reads historical events delivered by the dedicated Professional AI gateway of the current user to the user\\"s SLS. Standard user log delivery and corresponding indexes must be enabled. The query time range is a left-closed and right-open interval, with a span of no more than 31 days and cannot include future time. Uses maxResults and nextToken for cursor-based pagination. The results are not an online connection directory, and missing logs do not indicate that no calls occurred.
+ * @description Retrieves the historical events delivered by the dedicated Professional AI gateway of the current user to Simple Log Service (SLS). Standard user log delivery and the corresponding indexes must be enabled. The query time range is a left-closed and right-open interval. The time span cannot exceed 31 days and cannot include future time. Uses maxResults and nextToken for cursor-based pagination. The results do not represent an online connection directory, and missing logs do not indicate that no calls occurred.
  *
  * @param request ListGatewayWebsocketEventsRequest
  * @return ListGatewayWebsocketEventsResponse
@@ -24858,10 +25133,10 @@ model UpdateMcpServerRequest {
     services?: [ 
       {
         port?: int32(name='port', description='The service port. Do not specify this parameter for dynamic ports.', example='8080'),
-        protocol?: string(name='protocol', description='The protocol. Valid values:
-- TCP.
-- HTTP.
-- DUBBO.', example='HTTP'),
+        protocol?: string(name='protocol', description='The service protocol. Valid values:
+- TCP: TCP
+- HTTP: HTTP
+- DUBBO: Dubbo', example='HTTP'),
         serviceId?: string(name='serviceId', description='The service ID.', example='svc-cr6pk4tlhtgm58e***'),
         version?: string(name='version', description='The service version.', example='v1'),
         weight?: int32(name='weight', description='The percentage value of the traffic proportion.', example='49'),
@@ -24869,11 +25144,11 @@ model UpdateMcpServerRequest {
     ](name='services', description='The backend services.'),
   }(name='backendConfig', description='The backend service configurations of the route. This parameter is conditionally required. If it is not provided, the API returns InvalidParameter.WithValue(400).'),
   createFromType?: string(name='createFromType', description='The creation source type. Valid values:
-- ApiGatewayHttpToMCP: API Gateway-managed HTTP-to-MCP
-- ApiGatewayProxyMcpHosting: API Gateway-managed direct MCP proxy
-- ApiGatewayAssembly: API Gateway MCP assembly
-- NacosHttpToMCP: API Gateway-managed Nacos-synchronized HTTP-to-MCP
-- NacosMcpHosting: API Gateway-managed Nacos-synchronized direct MCP proxy', example='ApiGatewayMcpHosting'),
+- ApiGatewayHttpToMCP: Gateway-hosted HTTP-to-MCP
+- ApiGatewayProxyMcpHosting: Gateway-hosted direct MCP proxy
+- ApiGatewayAssembly: Gateway MCP assembly
+- NacosHttpToMCP: Gateway-hosted Nacos-synchronized HTTP-to-MCP
+- NacosMcpHosting: Gateway-hosted Nacos-synchronized direct MCP proxy', example='ApiGatewayMcpHosting'),
   description?: string(name='description', description='The description.', example='Product center service route'),
   domainIds?: [ string ](name='domainIds', description='The domain name IDs.'),
   exposedUriPath?: string(name='exposedUriPath', description='The exposed URI path. This parameter is required when protocol is set to SSE or StreamableHTTP and type is set to RealMCP.', example='/sse'),
@@ -24884,7 +25159,7 @@ model UpdateMcpServerRequest {
         services?: [ 
           {
             port?: int32(name='port', description='The service port.', example='8080'),
-            protocol?: string(name='protocol', description='The protocol.', example='HTTP'),
+            protocol?: string(name='protocol', description='The service protocol.', example='HTTP'),
             serviceId?: string(name='serviceId', description='The service ID.', example='gray-svc-123'),
             version?: string(name='version', description='The version number.', example='v1'),
             weight?: int32(name='weight', description='The weight.', example='100'),
@@ -24895,10 +25170,16 @@ model UpdateMcpServerRequest {
       routeId?: string(name='routeId', description='The route ID.', example='route-123'),
     }
   ](name='grayMcpServerConfigs', description='The list of canary release MCP server route configurations.'),
-  instructions?: string(name='instructions', description='The MCP service description.', example='Used to query order status. An order number is required for the query'),
+  instructions?: string(name='instructions', description='The MCP service instructions. Only gateway-hosted HTTP-to-MCP services of AI Gateway Professional Edition are supported. The maximum length is 2,048 UTF-8 bytes.
+
+- Passing a non-empty string replaces the saved instructions.
+- Omitting this field retains the saved instructions.
+- Passing an empty string `""` clears the saved instructions.
+
+After you republish the MCP service, newly established MCP connections can read the updated instructions in `result.instructions` of the `initialize` response. If cleared, the response omits `instructions`.', example='Used to query order status. An order number is required for the query'),
   match?: HttpRouteMatch(name='match', description='The route match rules. This parameter is conditionally required. If it is not provided, the API returns InvalidParameter.IsEmpty(400).'),
   mcpServerConfig?: {
-    mcpServerSpec?: string(name='mcpServerSpec', description='The MCP server configurations. This parameter is mutually exclusive with swaggerConfig.', example='mcp-server-spec-yaml'),
+    mcpServerSpec?: string(name='mcpServerSpec', description='The MCP server configurations. This parameter is mutually exclusive with the swaggerConfig parameter.', example='mcp-server-spec-yaml'),
     swaggerConfig?: string(name='swaggerConfig', description='The Swagger document for HTTP-to-MCP. The document must comply with the OpenAPI 3.0 specification.', example='swagger-content'),
   }(name='mcpServerConfig', description='The HTTP-to-MCP configurations.'),
   mcpStatisticsEnable?: boolean(name='mcpStatisticsEnable', description='Specifies whether to enable MCP observability. Default value: false.', example='false'),
@@ -24929,7 +25210,7 @@ model UpdateMcpServerResponse = {
 /**
  * @summary Updates an MCP server.
  *
- * @description Only sources of the **Container Service** type are allowed to update the configurations of listening Ingresses.
+ * @description Only sources of the **container service** type are allowed to update the configurations of Ingress listeners.
  *
  * @param request UpdateMcpServerRequest
  * @param headers map
@@ -25001,7 +25282,7 @@ async function updateMcpServerWithOptions(mcpServerId: string, request: UpdateMc
 /**
  * @summary Updates an MCP server.
  *
- * @description Only sources of the **Container Service** type are allowed to update the configurations of listening Ingresses.
+ * @description Only sources of the **container service** type are allowed to update the configurations of Ingress listeners.
  *
  * @param request UpdateMcpServerRequest
  * @return UpdateMcpServerResponse
@@ -25307,6 +25588,108 @@ async function updateModelGroup(modelGroupId: string, request: UpdateModelGroupR
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return updateModelGroupWithOptions(modelGroupId, request, headers, runtime);
+}
+
+model UpdateModelTokenRateLimitRequest {
+  consumers?: [ 
+    {
+      consumerId?: string(name='consumerId', description='The ID of the consumer.
+
+This parameter is required.', example='cs-example01'),
+      tpm?: long(name='tpm', description='The tokens per minute (TPM) limit for the consumer using this model.
+
+This parameter is required.', example='300'),
+    }
+  ](name='consumers', description='The complete list of consumer limits. Pass an empty array to clear the consumer limits for the model.
+
+This parameter is required.', example='[{"consumerId":"cs-example01","tpm":300}]'),
+  expectedRevision?: long(name='expectedRevision', description='The revision returned by the last query. Set this parameter to 0 for the first configuration.
+
+This parameter is required.', example='0'),
+  globalTpm?: long(name='globalTpm', description='The global tokens per minute (TPM) limit for the model within the instance. If this parameter is omitted, the global limit is disabled.', example='1800'),
+}
+
+model UpdateModelTokenRateLimitResponseBody = {
+  code?: string(name='code', description='The result code of the request. The value is Ok if the request is successful.', example='Ok'),
+  data?: {
+    appliedRevision?: long(name='appliedRevision', description='The configuration version that was last successfully delivered to the control plane.', example='1'),
+    consumerRuleIds?: map[string]string(name='consumerRuleIds', description='The mapping of consumer IDs to model throttling rule IDs.', example='{"cs-example01":"model-tpm/gw-example01/msc-example01/consumer/cs-example01"}'),
+    consumers?: [ 
+      {
+        consumerId?: string(name='consumerId', description='The ID of the consumer.
+
+This parameter is required.', example='cs-example01'),
+        tpm?: long(name='tpm', description='The tokens per minute (TPM) limit for the consumer using this model.
+
+This parameter is required.', example='300'),
+      }
+    ](name='consumers', description='The list of configured consumer limits for the model.', example='[{"consumerId":"cs-example01","tpm":300}]'),
+    gatewayId?: string(name='gatewayId', description='The instance ID of the dedicated AI gateway.', example='gw-example01'),
+    globalRuleId?: string(name='globalRuleId', description='The rule ID for the global model limit, which can be matched with the rule hits in the gateway throttling logs. This parameter is returned only when the global limit is configured.', example='model-tpm/gw-example01/msc-example01/global'),
+    globalTpm?: long(name='globalTpm', description='The global tokens per minute (TPM) limit shared by all consumers for the model within the instance.', example='1800'),
+    modelId?: string(name='modelId', description='The actual model card ID that starts with msc- or the logical model ID that starts with vm-.', example='msc-example01'),
+    revision?: long(name='revision', description='The saved version of the model throttling configuration. Pass this value as expectedRevision for subsequent modifications.', example='1'),
+  }(name='data', description='The saved limits, version, and rule IDs for the current model.', example='{"gatewayId":"gw-example01","modelId":"msc-example01","revision":1,"appliedRevision":1,"globalTpm":1800,"consumers":[{"consumerId":"cs-example01","tpm":300}],"globalRuleId":"model-tpm/gw-example01/msc-example01/global","consumerRuleIds":{"cs-example01":"model-tpm/gw-example01/msc-example01/consumer/cs-example01"}}'),
+  message?: string(name='message', description='The cause of the error. This parameter is omitted if the request is successful.', example='The specified gateway does not exist.'),
+  requestId?: string(name='requestId', description='The unique identifier of the request, which can be used for troubleshooting.', example='7A35E9B2-4C16-4E90-8A71-24F3BB508C01'),
+}
+
+model UpdateModelTokenRateLimitResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: UpdateModelTokenRateLimitResponseBody(name='body'),
+}
+
+/**
+ * @summary Modifies the token throttling rules for a model.
+ *
+ * @param request UpdateModelTokenRateLimitRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return UpdateModelTokenRateLimitResponse
+ */
+@context("updateModelTokenRateLimitWithContext")
+async function updateModelTokenRateLimitWithOptions(gatewayId: string, modelId: string, request: UpdateModelTokenRateLimitRequest, headers: map[string]string, runtime: $RuntimeOptions): UpdateModelTokenRateLimitResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.consumers)) {
+    body['consumers'] = request.consumers;
+  }
+  if (!$isNull(request.expectedRevision)) {
+    body['expectedRevision'] = request.expectedRevision;
+  }
+  if (!$isNull(request.globalTpm)) {
+    body['globalTpm'] = request.globalTpm;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'UpdateModelTokenRateLimit',
+    version = '2024-03-27',
+    protocol = 'HTTPS',
+    pathname = `/v1/gateways/${$URL.percentEncode(gatewayId)}/model-tpm/${$URL.percentEncode(modelId)}`,
+    method = 'PUT',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Modifies the token throttling rules for a model.
+ *
+ * @param request UpdateModelTokenRateLimitRequest
+ * @return UpdateModelTokenRateLimitResponse
+ */
+async function updateModelTokenRateLimit(gatewayId: string, modelId: string, request: UpdateModelTokenRateLimitRequest): UpdateModelTokenRateLimitResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return updateModelTokenRateLimitWithOptions(gatewayId, modelId, request, headers, runtime);
 }
 
 model UpdateNetworkAccessRequest {
