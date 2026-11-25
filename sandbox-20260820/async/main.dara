@@ -350,10 +350,11 @@ model E2BListedTemplate {
 }
 
 model E2BNetwork {
-  allowOut?: [ string ](name='allowOut', description='The allowlist for outbound access from the sandbox. After configuration, the sandbox can access only the destinations in the list.'),
-  allowPublicTraffic?: boolean(name='allowPublicTraffic', description='Specifies whether to allow Direct Internet Access to the sandbox.'),
-  denyOut?: [ string ](name='denyOut', description='The denylist for outbound access from the sandbox. After configuration, the sandbox cannot access the destinations in the list.'),
-  maskRequestHost?: string(name='maskRequestHost', description='The domain name used to rewrite the request Host header when accessing the sandbox. If this parameter is not specified, the original Host is retained.', example='sandbox.example.com'),
+  allowOut?: [ string ](name='allowOut', description='The allowlist for outbound access from the sandbox. After configuration, the sandbox can only access the destinations in the list.', example='["api.example.com","10.0.0.0/8"]'),
+  allowPublicTraffic?: boolean(name='allowPublicTraffic', description='Specifies whether Direct Internet Access to the sandbox is allowed.', example='false'),
+  denyOut?: [ string ](name='denyOut', description='The denylist for outbound access from the sandbox. After configuration, the sandbox cannot access the destinations in the list.', example='["blocked.example.com","192.168.0.0/16"]'),
+  maskRequestHost?: string(name='maskRequestHost', description='The domain name used to rewrite the request Host header when accessing the sandbox. If not configured, the original Host header remains unchanged.', example='sandbox.example.com'),
+  rules?: map[string][  map[string]any ](name='rules', description='The key is the exact destination hostname or the E2B reserved key @fc.sandbox.identity, and the value is a list of rule objects. The number of hostnames and replacement entries is subject to account quota limits. GetSandboxInner echoes the current hostname rules and configured OAuth options in the same format. User tokens are only used during writes.', example='{"api.example.com":[{"transform":{"headers":{"X-Example":"demo"}}}]}'),
 }
 
 model E2BSandbox {
@@ -523,7 +524,7 @@ model E2BVolumeMount {
 }
 
 model IPConfig {
-  description?: string(name='description', description='The description of the IP rule. The length cannot exceed 128 characters.', example='办公网出口地址'),
+  description?: string(name='description', description='The description of the IP rule. The length cannot exceed 128 characters.', example='The egress address of the office network.'),
   ipAddress?: string(name='ipAddress', description='The IPv4 address or CIDR block. IPv6 is not supported.', example='203.0.113.25/32'),
 }
 
@@ -637,6 +638,13 @@ model InnerSandboxVolumeMount {
       }
     ](name='mountPoints', description='The mount point configuration.'),
   }(name='oss', description='The OSS mount configuration.'),
+}
+
+model InnerUpdateSandboxNetworkInput {
+  allowInternetAccess?: boolean(name='allowInternetAccess', description='The switch for outbound public network access from the sandbox. When set to false, it collapses to the default deny policy of the platform and shares the same outbound policy with allowOut and denyOut. This field is included in the full replacement. If omitted, no deny entries are appended based on this switch. However, if allowOut is not empty and denyOut is empty, denyOut is automatically set to 0.0.0.0/0, and IPv4 outbound traffic to destinations other than those in allowOut is denied.', example='true'),
+  allowOut?: [ string ](name='allowOut', description='The destinations allowed for outbound access, which can be IP addresses, CIDR blocks, exact domain names, or domain names with a wildcard only in the leftmost label (such as *.example.com). allowOut takes precedence over denyOut. The maximum list length depends on the account quota. If omitted, the existing allow list is cleared.', example='["api.example.com","10.0.0.0/8"]'),
+  denyOut?: [ string ](name='denyOut', description='The destinations denied for outbound access, in the same format as allowOut. If a destination matches both allow and deny rules, the allow rule takes precedence. The maximum list length depends on the account quota. If omitted, the existing deny list is cleared.', example='["blocked.example.com","192.168.0.0/16"]'),
+  rules?: map[string][  map[string]any ](name='rules', description='The outbound network rules where the key is an exact destination hostname or the E2B reserved key @fc.sandbox.identity, and the value is a list of rule objects. The number of hosts and replacement entries is subject to the account quota limit. Omitting rules or passing a null object clears the standard host rules. OAuth options tables are updated individually. Omitting the corresponding reserved header retains the original table, while passing the character string "{}" clears the table.', example='{"api.example.com":[{"transform":{"headers":{"X-Example":"demo"}}}]}'),
 }
 
 model JuiceFSVolumeConfig {
@@ -942,25 +950,25 @@ model PublicWarmPoolConfig {
 
 model Quota {
   cpuCores?: int32(name='cpuCores', description='The vCPU quota, in cores.', example='100'),
-  createSessionWithSnapshotConcurrency?: int32(name='createSessionWithSnapshotConcurrency', description='The concurrent quota for creating sandboxes from snapshots in a team. This indicates the maximum number of requests for creating sandboxes from snapshots that can be executed at the same time. Omit or pass null to retain the original configuration during updates. A positive integer sets an exclusive quota. 0 prohibits creating sandboxes from snapshots. -1 clears the exclusive quota and restores the remaining quota of the shared account. During queries, this field is omitted if not configured, an explicit 0 is retained, and -1 is not returned.', example='10'),
-  createSnapshotConcurrency?: int32(name='createSnapshotConcurrency', description='The concurrent quota for creating snapshots in a team. This indicates the maximum number of snapshot creation requests that can be executed at the same time. Omit or pass null to retain the original configuration during updates. A positive integer sets an exclusive quota. 0 prohibits creating snapshots. -1 clears the exclusive quota and restores the remaining quota of the shared account. During queries, this field is omitted if not configured, an explicit 0 is retained, and -1 is not returned.', example='10'),
-  instanceCount?: int32(name='instanceCount', description='The quota for the number of running instances.', example='100'),
+  createSandboxWithSnapshotConcurrency?: int32(name='createSandboxWithSnapshotConcurrency', description='The team snapshot-based sandbox creation concurrency quota, in requests. This value represents the maximum number of snapshot-based sandbox creation requests that can be executed at the same time. When updating, omit this parameter or set it to null to retain the original configuration. Set it to a positive integer to specify an exclusive quota. Set it to 0 to prohibit snapshot-based sandbox creation. Set it to -1 to clear the exclusive quota and restore the remaining quota of the shared account. In query responses, this parameter is omitted if it is not configured. An explicit value of 0 is retained, and -1 is not returned.', example='10'),
+  createSnapshotConcurrency?: int32(name='createSnapshotConcurrency', description='The team snapshot creation concurrency quota, in requests. This value represents the maximum number of snapshot creation requests that can be executed at the same time. When updating, omit this parameter or set it to null to retain the original configuration. Set it to a positive integer to specify an exclusive quota. Set it to 0 to prohibit snapshot creation. Set it to -1 to clear the exclusive quota and restore the remaining quota of the shared account. In query responses, this parameter is omitted if it is not configured. An explicit value of 0 is retained, and -1 is not returned.', example='10'),
+  instanceCount?: int32(name='instanceCount', description='The quota for active instances.', example='100'),
   memoryGB?: int32(name='memoryGB', description='The memory quota, in GB.', example='200'),
-  pauseConcurrency?: int32(name='pauseConcurrency', description='The concurrent quota for sandbox hibernation in a team. This indicates the maximum number of sandbox hibernation requests that can be executed at the same time. Omit or pass null to retain the original configuration during updates. A positive integer sets an exclusive quota. 0 prohibits sandbox hibernation. -1 clears the exclusive quota and restores the remaining quota of the shared account. During queries, this field is omitted if not configured, an explicit 0 is retained, and -1 is not returned.', example='10'),
-  resumeConcurrency?: int32(name='resumeConcurrency', description='The concurrent quota for resuming sandboxes in a team. This indicates the maximum number of sandbox resumption requests that can be executed at the same time. Omit or pass null to retain the original configuration during updates. A positive integer sets an exclusive quota. 0 prohibits resuming sandboxes. -1 clears the exclusive quota and restores the remaining quota of the shared account. During queries, this field is omitted if not configured, an explicit 0 is retained, and -1 is not returned.', example='10'),
-  scalingCpuCoresPerMinute?: long(name='scalingCpuCoresPerMinute', description='The Team CPU creation rate, in cores per minute. Omit or pass null to retain the original configuration during updates. A positive integer sets an exclusive rate. 0 prohibits adding new CPU capacity. -1 clears the exclusive rate and restores the remaining rate of the shared account. During queries, this field is omitted if not configured, an explicit 0 is retained, and -1 is not returned.', example='120'),
-  tagValue?: string(name='tagValue', description='The quota tag value. This value is the team ID, and quotas are calculated independently based on this dimension.', example='7696f4cf-****'),
+  pauseConcurrency?: int32(name='pauseConcurrency', description='The team sandbox hibernation concurrency quota, in requests. This value represents the maximum number of sandbox hibernation requests that can be executed at the same time. When updating, omit this parameter or set it to null to retain the original configuration. Set it to a positive integer to specify an exclusive quota. Set it to 0 to prohibit sandbox hibernation. Set it to -1 to clear the exclusive quota and restore the remaining quota of the shared account. In query responses, this parameter is omitted if it is not configured. An explicit value of 0 is retained, and -1 is not returned.', example='10'),
+  resumeConcurrency?: int32(name='resumeConcurrency', description='The team sandbox wake-up concurrency quota, in requests. This value represents the maximum number of sandbox wake-up requests that can be executed at the same time. When updating, omit this parameter or set it to null to retain the original configuration. Set it to a positive integer to specify an exclusive quota. Set it to 0 to prohibit sandbox wake-up. Set it to -1 to clear the exclusive quota and restore the remaining quota of the shared account. In query responses, this parameter is omitted if it is not configured. An explicit value of 0 is retained, and -1 is not returned.', example='10'),
+  scalingCpuCoresPerMinute?: long(name='scalingCpuCoresPerMinute', description='The team CPU creation rate, in cores per minute. When updating, omit this parameter or set it to null to retain the original configuration. Set it to a positive integer to specify an exclusive rate. Set it to 0 to prohibit new CPU capacity. Set it to -1 to clear the exclusive rate and restore the remaining rate of the shared account. In query responses, this parameter is omitted if it is not configured. An explicit value of 0 is retained, and -1 is not returned.', example='120'),
+  tagValue?: string(name='tagValue', description='The quota tag value, which represents the team ID. Quotas are independently calculated based on this dimension.', example='7696f4cf-****'),
 }
 
 model QuotaUsage {
-  cpuCores?: double(name='cpuCores', description='The consumed CPU quota in vCPUs, not the CPU utilization.', example='1'),
-  createSessionWithSnapshotConcurrency?: int32(name='createSessionWithSnapshotConcurrency', description='The number of unreleased snapshot-based sandbox creation concurrency authorizations.', example='1'),
-  createSnapshotConcurrency?: int32(name='createSnapshotConcurrency', description='The number of unreleased snapshot creation concurrency authorizations.', example='1'),
+  cpuCores?: double(name='cpuCores', description='The consumed CPU quota in vCPUs, which is not the CPU utilization.', example='1'),
+  createSandboxWithSnapshotConcurrency?: int32(name='createSandboxWithSnapshotConcurrency', description='The number of unreleased concurrency authorizations for snapshot-based sandbox creation.', example='1'),
+  createSnapshotConcurrency?: int32(name='createSnapshotConcurrency', description='The number of unreleased concurrency authorizations for snapshot creation.', example='1'),
   instanceCount?: long(name='instanceCount', description='The number of unreleased instance authorizations.', example='1'),
-  memoryGB?: double(name='memoryGB', description='The consumed memory quota in GB, not the actual memory used by processes.', example='1.5'),
-  pauseConcurrency?: int32(name='pauseConcurrency', description='The number of unreleased sandbox hibernation concurrency authorizations.', example='1'),
-  resumeConcurrency?: int32(name='resumeConcurrency', description='The number of unreleased sandbox resume concurrency authorizations.', example='1'),
-  scalingCpuCoresPerMinute?: double(name='scalingCpuCoresPerMinute', description='The number of cores consumed from the team\\\\"s exclusive CPU creation quota that have not yet been naturally replenished. This is not the cumulative creation volume in the last minute. This field is omitted when there is no valid exclusive bucket snapshot, and actual zeros and decimal values are preserved.', example='19.875'),
+  memoryGB?: double(name='memoryGB', description='The consumed memory quota in GB, which is not the actual memory used by processes.', example='1.5'),
+  pauseConcurrency?: int32(name='pauseConcurrency', description='The number of unreleased concurrency authorizations for sandbox hibernation.', example='1'),
+  resumeConcurrency?: int32(name='resumeConcurrency', description='The number of unreleased concurrency authorizations for resuming sandboxes.', example='1'),
+  scalingCpuCoresPerMinute?: double(name='scalingCpuCoresPerMinute', description='The number of cores consumed from the exclusive CPU creation quota of the team that have not yet been naturally replenished. This is not the cumulative creation volume over the last minute. This field is omitted when no valid exclusive bucket snapshot is available. Actual zeros and decimals are retained.', example='19.875'),
 }
 
 model ResourceUsage {
@@ -1568,8 +1576,8 @@ model DescribeQuotaRequest {
 }
 
 model DescribeQuotaResponseBody = {
-  code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. A value of success indicates success.', example='success'),
+  code?: string(name='code', description='The response code. 200 indicates success.', example='200'),
+  message?: string(name='message', description='The response message. success indicates a successful request.', example='success'),
   quota?: Quota(name='quota', description='The quota configuration information.'),
   requestId?: string(name='requestId', description='The request ID.', example='7ADFF8D8-D4BA-5F79-AD49-DDABFEA59B6C'),
   usage?: QuotaUsage(name='usage', description='The current quota usage of the team.', example='{"cpuCores":1,"memoryGB":1.5,"instanceCount":1}'),
@@ -1917,14 +1925,14 @@ async function listCustomDomains(request: ListCustomDomainsRequest): ListCustomD
 
 model ListQuotaRequest {
   maxResults?: int32(name='maxResults', description='The maximum number of records to return per page.', example='10', position='Query'),
-  nextToken?: string(name='nextToken', description='The pagination token. Do not specify this parameter for the first query. To query the next page, specify the nextToken value returned in the previous response.', example='Trigger_fasdatalake_deductionfee', position='Query'),
+  nextToken?: string(name='nextToken', description='The pagination token. Leave this parameter empty for the first request. To query the next page, specify the nextToken value returned in the previous response.', example='Trigger_fasdatalake_deductionfee', position='Query'),
 }
 
 model ListQuotaResponseBody = {
-  code?: string(name='code', description='The response code. The value is 200 if the request succeeds.', example='200'),
-  maxResults?: int32(name='maxResults', description='The value of the maxResults parameter specified in the request. If a positive integer is specified for maxResults in the request, this value is returned. Otherwise, this field is not returned.', example='10'),
-  message?: string(name='message', description='The response message. The value is success if the request succeeds.', example='success'),
-  nextToken?: string(name='nextToken', description='The pagination token used to query the next page.', example='qxGrXje86XMrYQ51aJMy'),
+  code?: string(name='code', description='The response code. The value is 200 if the request is successful.', example='200'),
+  maxResults?: int32(name='maxResults', description='The value of the maxResults parameter specified in the request if a positive integer is specified. Otherwise, this field is not returned.', example='10'),
+  message?: string(name='message', description='The response message. The value is success if the request is successful.', example='success'),
+  nextToken?: string(name='nextToken', description='The pagination token for the next page, which is used for subsequent queries.', example='qxGrXje86XMrYQ51aJMy'),
   quotas?: [
     Quota
   ](name='quotas', description='The list of quota configurations.'),
@@ -2214,8 +2222,8 @@ model UpdateQuotaRequest {
 }
 
 model UpdateQuotaResponseBody = {
-  code?: string(name='code', description='The response code. A value of 200 indicates success.', example='200'),
-  message?: string(name='message', description='The response message. A value of success indicates a successful request.', example='success'),
+  code?: string(name='code', description='The response code. 200 indicates success.', example='200'),
+  message?: string(name='message', description='The response message. success indicates a successful request.', example='success'),
   quota?: Quota(name='quota', description='The quota configuration information.'),
   requestId?: string(name='requestId', description='The request ID.', example='2BCFAE0A-9FA9-5F72-8E8B-724632BC19A9'),
 }
