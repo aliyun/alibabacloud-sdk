@@ -120,6 +120,12 @@ This parameter is required.', example='qwen'),
   upstreamAuthMode?: string(name='upstreamAuthMode', description='Supported only for custom agents. The value api-key indicates a managed API key, and downstream-auth indicates passing through the complete client Authorization header. If this parameter is omitted or left empty during creation, the historical rule applies. If this parameter is omitted or left empty during an update, the existing mode is retained. When passing through the authorization, you can omit customConfig, and you cannot submit a non-empty key.', example='api-key'),
 }
 
+model AiBasicGuardrailConfig {
+  display?: boolean(name='display', description='The read-only display eligibility, which is calculated by the server based on instance capabilities, regional canary releases, and existing configurations. A value of true indicates that the entry can be displayed, and false indicates that it is not displayed. This value does not indicate that the protection is enabled or published successfully. The client does not need to set this value. It is ignored and not saved when passed back.', example='true'),
+  responseEnabled?: boolean(name='responseEnabled', description='Specifies whether to enable basic security detection for model responses. A value of true indicates that the detection is enabled, and false indicates that it is disabled. The field is updated only when a Boolean value is explicitly submitted. If the field is omitted or null is passed, the saved value is retained. If this field has not been saved, response detection is enabled by default at runtime. The overall policy is still controlled by the outer enable field.', example='true', nullable=true),
+  responseMode?: string(name='responseMode', description='The response detection mode, which only processes the exact string async. The mode is updated only when async is explicitly submitted. Other values, empty strings, null, or omissions do not modify the saved mode. If no mode is saved, x-ai-guard-response-mode is not delivered. async is an example of an optional configuration, not a default value.', example='async', nullable=true),
+}
+
 model AiCacheConfig {
   cacheKeyStrategy?: string(name='cacheKeyStrategy', description='The cache key generation strategy.', example='default'),
   cacheMode?: string(name='cacheMode', description='The cache mode.', example='exact'),
@@ -1054,39 +1060,41 @@ model HttpApiOperation {
   authConfig?: AuthConfig(name='authConfig', description='The authentication configuration.'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs', description='The deployment configuration.'),
-  description?: string(name='description', description='The operation description.', example='Retrieve user information'),
-  enableAuth?: boolean(name='enableAuth', description='Indicates whether authentication is enabled.', example='true'),
+  ](name='deployConfigs', description='The deployment configurations.'),
+  description?: string(name='description', description='The API description.', example='Retrieve user information'),
+  enableAuth?: boolean(name='enableAuth', description='Specifies whether authentication is enabled.', example='true'),
   method?: string(name='method', description='The method.
 
 This parameter is required.', example='GET'),
-  mock?: HttpApiMockContract(name='mock', description='The mock configuration of the operation. This configuration takes effect only when the API is published in Mock mode.'),
-  name?: string(name='name', description='The operation name.
+  mock?: HttpApiMockContract(name='mock', description='The API mock configuration. This configuration takes effect only when the API publishing scenario is Mock.'),
+  name?: string(name='name', description='The API name.
 
 This parameter is required.', example='GetUserInfo'),
-  path?: string(name='path', description='The operation path.
+  path?: string(name='path', description='The API path.
 
 This parameter is required.', example='/user'),
-  request?: HttpApiRequestContract(name='request', description='The request parameter definition of the operation.'),
-  response?: HttpApiResponseContract(name='response', description='The response parameter definition of the operation.'),
+  request?: HttpApiRequestContract(name='request', description='The request parameter definition.'),
+  response?: HttpApiResponseContract(name='response', description='The response parameter definition.'),
+  systemParameters?: HttpApiSystemParameters(name='systemParameters', description='The system parameter configuration. This is supported only for operations of standard REST APIs. If you omit this parameter or set it to null during creation, no configuration is applied. If you omit this parameter or set it to null during an update, the original configuration is retained. To clear the configuration, explicitly pass an object without mappings, such as {}. Saving only modifies the draft, and the changes take effect after publishing.'),
 }
 
 model HttpApiOperationInfo {
-  authConfig?: AuthConfig(name='authConfig', description='The authentication configuration.'),
+  authConfig?: AuthConfig(name='authConfig', description='The permission authentication configuration.'),
   createTimestamp?: long(name='createTimestamp', description='The creation timestamp.', example='1719386834548'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs', description='The backend service deployment information for the operation.'),
+  ](name='deployConfigs', description='The API operation backend service deployment information.'),
   description?: string(name='description', description='The description.', example='Retrieve user information'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether authentication is enabled.', example='true'),
-  method?: string(name='method', description='The operation method.', example='GET'),
-  mock?: HttpApiMockContract(name='mock', description='The operation mock parameter settings.'),
-  name?: string(name='name', description='The operation name.', example='GetUserInfo'),
-  operationId?: string(name='operationId', description='The operation ID.', example='op-xxx'),
-  path?: string(name='path', description='The operation path.', example='/user/123'),
-  request?: HttpApiRequestContract(name='request', description='The operation request parameter definition.'),
-  response?: HttpApiResponseContract(name='response', description='The operation response parameter definition.'),
-  status?: string(name='status', description='The publish status of the operation on the gateway.', example='Deployed'),
+  method?: string(name='method', description='The API operation method.', example='GET'),
+  mock?: HttpApiMockContract(name='mock', description='The API operation mock parameter settings.'),
+  name?: string(name='name', description='The API operation name.', example='GetUserInfo'),
+  operationId?: string(name='operationId', description='The API operation ID.', example='op-xxx'),
+  path?: string(name='path', description='The API operation path.', example='/user/123'),
+  request?: HttpApiRequestContract(name='request', description='The API operation request parameter definition.'),
+  response?: HttpApiResponseContract(name='response', description='The API operation response parameter definition.'),
+  status?: string(name='status', description='The publish status of the API operation on the gateway.', example='Deployed'),
+  systemParameters?: HttpApiSystemParameters(name='systemParameters', description='Maps the system parameters of the current API operation to backend request headers or query parameters. Each source can be configured only once across the two locations.'),
 }
 
 model HttpApiParameter {
@@ -1103,19 +1111,20 @@ This parameter is required.', example='String'),
 }
 
 model HttpApiPolicyConfigs {
+  aiBasicGuardrailConfig?: AiBasicGuardrailConfig(name='aiBasicGuardrailConfig', description='The optional configuration object used exclusively for the AiBasicGuardrail policy, at the same level as the enable field of the policy item. The display field indicates read-only display eligibility. The responseEnabled field controls Detection and Response, and the responseMode field only processes asynchronous requests. If an update omits response fields or the configuration object, the previously saved values are retained. If no saved values exist, Detection and Response is enabled by default without declaring a response pattern. To simply enable or disable protection, modify the outer enable field while retaining other required API parameters. You do not need to resubmit this object.', example='{"responseEnabled":true}', nullable=true),
   aiCacheConfig?: AiCacheConfig(name='aiCacheConfig', description='The AI cache configuration.', nullable=true),
   aiFallbackConfig?: AiFallbackConfig(name='aiFallbackConfig', description='The AI fallback configuration.', nullable=false),
   aiNetworkSearchConfig?: AiNetworkSearchConfig(name='aiNetworkSearchConfig', description='The AI web search configuration.', nullable=true),
-  aiSecurityGuardConfig?: AiSecurityGuardConfig(name='aiSecurityGuardConfig', description='The AI security protection configuration.', nullable=false),
+  aiSecurityGuardConfig?: AiSecurityGuardConfig(name='aiSecurityGuardConfig', description='The AI security Protection Settings.', nullable=false),
   aiStatisticsConfig?: AiStatisticsConfig(name='aiStatisticsConfig', description='The AI statistics configuration.', nullable=false),
-  aiTokenRateLimitConfig?: AiTokenRateLimitConfig(name='aiTokenRateLimitConfig', description='The AI token rate limiting configuration.', deprecated=true, nullable=false),
+  aiTokenRateLimitConfig?: AiTokenRateLimitConfig(name='aiTokenRateLimitConfig', description='The AI token rate limit configuration.', deprecated=true, nullable=false),
   aiToolSelectionConfig?: AiToolSelectionConfig(name='aiToolSelectionConfig', description='The AI tool selection configuration.', nullable=true),
-  enable?: boolean(name='enable', description='Indicates whether the feature is enabled.', example='false'),
-  policyReference?: HttpApiPolicyReference(name='policyReference', description='The read-only compatible reference. GetHttpApi returns the policyId and policyAttachmentId for ModelAPI AiTokenRateLimit. This field must be stripped before write-path persistence and is not used as a bind or unbind instruction.', nullable=true),
+  enable?: boolean(name='enable', description='Specifies whether it is enabled.', example='false'),
+  policyReference?: HttpApiPolicyReference(name='policyReference', description='The read-only compatibility reference. GetHttpApi returns the policyId or policyAttachmentId for the ModelAPI AiTokenRateLimit. This reference must be removed before persistence in the write path and must not be used as a bind or unbind instruction.', nullable=true),
   semanticRouterConfig?: {
-    timeoutMillisecond?: int32(name='timeoutMillisecond', description='The timeout period, in milliseconds.', example='2000'),
+    timeoutMillisecond?: int32(name='timeoutMillisecond', description='The timeout period in milliseconds.', example='2000'),
   }(name='semanticRouterConfig', description='The semantic routing configuration.', nullable=false),
-  type?: string(name='type', description='The policy template type.', example='K8S'),
+  type?: string(name='type', description='The policy templatetype.', example='K8S'),
 }
 
 model HttpApiPolicyReference {
@@ -1258,6 +1267,20 @@ This parameter is required.', example='application/json'),
 }'),
     }
   ](name='items', description='The response definitions.'),
+}
+
+model HttpApiSystemParameterMapping {
+  name?: string(name='name', description='Optional. If this parameter is omitted or is an empty string, the default name based on the source is used. The default names for Header and Query are the same. The header name must be valid and cannot be Host, a pseudo-header, X-Mse-Consumer, or X-Mse-Consumer-Id.', example='x-apig-api-id'),
+  source?: string(name='source', description='Required when configuring each mapping. The request is rejected if this parameter is omitted or empty. APIID and APIName represent the identifier and name of the current API. OperationId and OperationName represent the identifier and name of the current operation. ConsumerID, ConsumerName, and ConsumerExtInfo represent the identifier, name, and extended information of the currently authenticated consumer.', example='APIID'),
+}
+
+model HttpApiSystemParameters {
+  headerParameters?: [
+    HttpApiSystemParameterMapping
+  ](name='headerParameters', description='The backend request header system parameters. If name is omitted or is an empty string, the default name for the source is used.'),
+  queryParameters?: [
+    HttpApiSystemParameterMapping
+  ](name='queryParameters', description='The backend request query system parameters. If name is omitted or is an empty string, the default name for the source is used.'),
 }
 
 model HttpApiVersionConfig {
@@ -1916,17 +1939,17 @@ model TlsCipherSuitesConfig {
 }
 
 model TransportCertificateInfo {
-  algorithm?: string(name='algorithm', description='The signature or key algorithm.', example='RSA_2048'),
-  certIdentifier?: string(name='certIdentifier', description='The certificate identifier, which is the certificate ID under the APIG cloud account.', example='cert-1（1716***@cn-hangzhou 形态）'),
+  algorithm?: string(name='algorithm', description='The signature/key algorithm.', example='RSA_2048'),
+  certIdentifier?: string(name='certIdentifier', description='The certificate identifier (certificate ID under the APIG cloud account).', example='cert-1 (in the 1716***@cn-hangzhou format)'),
   certName?: string(name='certName', description='The certificate name.', example='cert-name'),
-  certificateMatchStatus?: string(name='certificateMatchStatus', description='The matching status between the certificate and the instance domain names.', example='Matched'),
-  commonName?: string(name='commonName', description='The common name (CN) of the certificate.', example='api.example.com'),
-  coveredDomains?: [ string ](name='coveredDomains', description='The set of covered domain names parsed from the CN and SAN. The domain names are in lowercase, deduplicated, and may include wildcards such as *.'),
+  certificateMatchStatus?: string(name='certificateMatchStatus', description='The match status between the certificate and gateway instance domain names.', example='Matched'),
+  commonName?: string(name='commonName', description='The certificate Common Name (CN).', example='api.example.com'),
+  coveredDomains?: [ string ](name='coveredDomains', description='The set of covered domain names parsed from CN and SAN (deduplicated in lowercase, may contain *. wildcards).'),
   issuer?: string(name='issuer', description='The certificate issuer.', example='DigiCert Secure Site CN CA G3'),
-  matchedDomains?: [ string ](name='matchedDomains', description='The gateway instance domain names matched by the covered domain names. The order follows the instance domain names, and the results are deduplicated.'),
-  notAfterTimestamp?: long(name='notAfterTimestamp', description='The expiration timestamp in UNIX milliseconds, which is obtained from the afterDate of the certificate.', example='1747958400000'),
-  notBeforeTimestamp?: long(name='notBeforeTimestamp', description='The UNIX timestamp for the effective period in milliseconds, which is obtained from the beforeDate of the certificate.', example='1716336000000'),
-  sans?: string(name='sans', description='The raw Subject Alternative Name (SAN) string separated by commas, semicolons, or spaces. Elements may include the DNS: prefix.', example='DNS:*.example.org, DNS:foo.example.net'),
+  matchedDomains?: [ string ](name='matchedDomains', description='The gateway instance domain names matched by covered domains (ordered by instance domain name, deduplicated).'),
+  notAfterTimestamp?: long(name='notAfterTimestamp', description='The expiration timestamp (Unix milliseconds, from the certificate afterDate).', example='1747958400000'),
+  notBeforeTimestamp?: long(name='notBeforeTimestamp', description='The effective period UNIX timestamp (Unix milliseconds, from the certificate beforeDate).', example='1716336000000'),
+  sans?: string(name='sans', description='The raw SAN string (separated by commas, semicolons, or whitespace. Elements may have a DNS: prefix).', example='DNS:*.example.org, DNS:foo.example.net'),
 }
 
 model TransportEncryptionInfo {
@@ -3413,7 +3436,7 @@ async function createAiModelProvider(request: CreateAiModelProviderRequest): Cre
 }
 
 model CreateAiModelSourceRequest {
-  callNamePrefix?: string(name='callNamePrefix', example='qwen-prod'),
+  callNamePrefix?: string(name='callNamePrefix', description='The prefix used when calling the model. You can set this prefix starting from the first model source. If this parameter is omitted or contains only whitespace, the provider identifier is used. A custom prefix must be 1 to 32 characters in length, start with a lowercase letter or a digit, and can contain lowercase letters, digits, hyphens (-), underscores (_), and periods (.). The value aigw is reserved. If the prefix is already in use when you create a model source within the same instance, the Conflict.AiModelSourceCallNamePrefixInUse error is returned. The prefix cannot be modified after creation.', example='qwen-prod'),
   displayName?: string(name='displayName', description='The display name of the model source or model provider.
 
 This parameter is required.', example='Model Studio model source'),
@@ -3423,25 +3446,25 @@ This parameter is required.', example='gw-d00000000000000000000'),
   provider?: string(name='provider', description='The stable identifier of the model provider.
 
 This parameter is required.', example='qwen'),
-  serviceId?: string(name='serviceId', description='The ID of the AI service bound to the model source.
+  serviceId?: string(name='serviceId', description='The ID of the actual AI service bound to the model source.
 
 This parameter is required.', example='svc-d00000000000000000000'),
   clientToken?: string(name='clientToken', description='The idempotency token generated by the caller to identify the same creation or retry operation.', example='b1907ca4-952c-4c5f-8d1f-0aa6ae339c96'),
 }
 
 model CreateAiModelSourceResponseBody = {
-  code?: string(name='code', description='The response status code. Ok is returned for success, and a specific business error code is returned for failure.', example='Ok'),
+  code?: string(name='code', description='The response status code. Ok is returned for a successful request, and a specific business error code is returned for a failed request.', example='Ok'),
   data?: {
-    callNamePrefix?: string(name='callNamePrefix', example='qwen-prod'),
+    callNamePrefix?: string(name='callNamePrefix', description='The valid invoke name prefix of the model source. You can specify this prefix during model creation. By default, the provider identity is used. The prefix cannot be modified after creation.', example='qwen-prod'),
     displayName?: string(name='displayName', description='The display name of the model source or model provider.', example='Model Studio model source'),
     gatewayId?: string(name='gatewayId', description='The ID of the AI gateway instance to which the resource belongs.', example='gw-d00000000000000000000'),
     modelCount?: long(name='modelCount', description='The number of models.', example='4'),
     modelSourceId?: string(name='modelSourceId', description='The model source ID. Use the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
     provider?: string(name='provider', description='The stable identifier of the model provider.', example='qwen'),
-    serviceId?: string(name='serviceId', description='The ID of the AI service bound to the model source.', example='svc-d00000000000000000000'),
+    serviceId?: string(name='serviceId', description='The ID of the actual AI service bound to the model source.', example='svc-d00000000000000000000'),
     updateTime?: string(name='updateTime', description='The time of the last business update, in RFC 3339 format and the UTC time zone.', example='2026-11-12T00:00:00Z'),
-    version?: long(name='version', description='The current version of the object, used for conditional checks during update or delete operations.', example='1'),
-  }(name='data', description='The business result returned for the model source operation.'),
+    version?: long(name='version', description='The current version of the object, which is used for conditional checks during updates or deletions.', example='1'),
+  }(name='data', description='The business result returned by the model source operation.'),
   message?: string(name='message', description='The response message that describes the request processing result.', example='success'),
   requestId?: string(name='requestId', description='The request ID generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
@@ -3524,11 +3547,11 @@ model CreateAiModelSourceModelRequest {
     }
   ](name='availablePaths', description='The protocols and invocation paths supported by the model.'),
   credit?: {
-    cacheCost?: float(name='cacheCost', description='The number of credits per million input tokens that hit the cache. The value must be a non-negative number. A value of 0 indicates that cached input is free of charge.', example='0.1'),
+    cacheCost?: float(name='cacheCost', description='The number of credits per million cached input tokens. The value must be a non-negative number. A value of 0 indicates that cached input is free of charge.', example='0.1'),
     inputCost?: float(name='inputCost', description='The number of credits per million input tokens. The value must be a non-negative number. A value of 0 indicates that the input is free of charge.', example='1'),
     outputCost?: float(name='outputCost', description='The number of credits per million output tokens. The value must be a non-negative number. A value of 0 indicates that the output is free of charge.', example='2'),
     type?: string(name='type', description='The pricing method. Valid values: fixed (fixed credit pricing).', example='fixed'),
-  }(name='credit', description='The credit pricing configuration of the model.'),
+  }(name='credit', description='The credit pricing configuration for the model.'),
   features?: map[string]any(name='features', description='The set of capabilities declared by the model. The key is the capability name, and the value indicates whether the capability is supported.', example='{"nativeStreaming":true}'),
   meta?: {
     maxInputTokens?: long(name='maxInputTokens', description='The maximum number of input tokens supported by the model.', example='32768'),
@@ -3540,14 +3563,14 @@ model CreateAiModelSourceModelRequest {
   modelName?: string(name='modelName', description='The actual model name used by the upstream service.
 
 This parameter is required.', example='qwen-plus'),
-  modelSourceId?: string(name='modelSourceId', description='The ID of the model source. Use the modelSourceId returned by the CreateAiModelSource operation.
+  modelSourceId?: string(name='modelSourceId', description='The ID of the model source. Use the modelSourceId returned by CreateAiModelSource.
 
 This parameter is required.', example='ms-d00000000000000000000'),
-  clientToken?: string(name='clientToken', description='The client-generated idempotency token used to identify the same creation or retry operation.', example='b1907ca4-952c-4c5f-8d1f-0aa6ae339c96'),
+  clientToken?: string(name='clientToken', description='The idempotency token generated by the caller to identify the same creation or retry operation.', example='b1907ca4-952c-4c5f-8d1f-0aa6ae339c96'),
 }
 
 model CreateAiModelSourceModelResponseBody = {
-  code?: string(name='code', description='The response status code. A value of Ok indicates success. If the request fails, a specific business error code is returned.', example='Ok'),
+  code?: string(name='code', description='The response status code. A value of Ok indicates success. A specific business error code is returned upon failure.', example='Ok'),
   data?: {
     availablePaths?: [ 
       {
@@ -3555,13 +3578,13 @@ model CreateAiModelSourceModelResponseBody = {
         type?: string(name='type', description='The protocol type used by the invocation path.', example='OpenAI/v1'),
       }
     ](name='availablePaths', description='The protocols and invocation paths supported by the model.'),
-    callName?: string(name='callName', example='qwen-prod/qwen-plus'),
+    callName?: string(name='callName', description='The full name used to invoke the model, in the format of valid invocation name prefix of the model source/model name. If the model source uses the default prefix, the prefix is the provider identifier.', example='qwen-prod/qwen-plus'),
     credit?: {
-      cacheCost?: float(name='cacheCost', description='The number of credits per million input tokens that hit the cache. The value must be a non-negative number. A value of 0 indicates that cached input is free of charge.', example='0.1'),
+      cacheCost?: float(name='cacheCost', description='The number of credits per million cached input tokens. The value must be a non-negative number. A value of 0 indicates that cached input is free of charge.', example='0.1'),
       inputCost?: float(name='inputCost', description='The number of credits per million input tokens. The value must be a non-negative number. A value of 0 indicates that the input is free of charge.', example='1'),
       outputCost?: float(name='outputCost', description='The number of credits per million output tokens. The value must be a non-negative number. A value of 0 indicates that the output is free of charge.', example='2'),
       type?: string(name='type', description='The pricing method. Valid values: fixed (fixed credit pricing).', example='fixed'),
-    }(name='credit', description='The credit pricing configuration of the model.'),
+    }(name='credit', description='The credit pricing configuration for the model.'),
     features?: map[string]any(name='features', description='The set of capabilities declared by the model. The key is the capability name, and the value indicates whether the capability is supported.', example='{"nativeStreaming":true}'),
     gatewayId?: string(name='gatewayId', description='The ID of the AI gateway instance to which the resource belongs.', example='gw-d00000000000000000000'),
     meta?: {
@@ -3571,20 +3594,20 @@ model CreateAiModelSourceModelResponseBody = {
       supportedInputModalities?: [ string ](name='supportedInputModalities', description='The input modalities supported by the model.'),
       supportedOutputModalities?: [ string ](name='supportedOutputModalities', description='The output modalities supported by the model.'),
     }(name='meta', description='The token limits and input and output modality information of the model.'),
-    modelCardId?: string(name='modelCardId', description='The model identifier. Standard models use the source model card ID, and logical model entries use the vm- prefix.', example='msc-d00000000000000000000'),
+    modelCardId?: string(name='modelCardId', description='The model identifier. A standard model uses the source model card ID, and a logical model entry uses the vm- prefix.', example='msc-d00000000000000000000'),
     modelName?: string(name='modelName', description='The actual model name used by the upstream service.', example='qwen-plus'),
     modelProvider?: string(name='modelProvider', description='The stable identifier of the provider to which the model belongs.', example='qwen'),
-    modelSourceId?: string(name='modelSourceId', description='The ID of the model source. Use the modelSourceId returned by the CreateAiModelSource operation.', example='ms-d00000000000000000000'),
+    modelSourceId?: string(name='modelSourceId', description='The ID of the model source. Use the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
     modelSourceName?: string(name='modelSourceName', description='The display name of the model source.', example='Model Studio model source'),
-    modelSourceVersion?: long(name='modelSourceVersion', description='The current version of the model source to which the model belongs.', example='1'),
-    pricingStatus?: string(name='pricingStatus', description='The synchronization status of the model pricing configuration. A value of Pending indicates that the current version has not been synchronized. A value of Ready indicates that the current version has been synchronized.', example='Ready'),
+    modelSourceVersion?: long(name='modelSourceVersion', description='The current version of the associated model source.', example='1'),
+    pricingStatus?: string(name='pricingStatus', description='The synchronization status of the model pricing configuration. Valid values: Pending (the current version is not synchronized) and Ready (synchronized).', example='Ready'),
     serviceId?: string(name='serviceId', description='The ID of the actual AI service bound to the model source.', example='svc-d00000000000000000000'),
-    source?: string(name='source', description='The source of the model asset. A value of user indicates a user model, and a value of builtin indicates a system built-in model.', example='user'),
-    updateTime?: string(name='updateTime', description='The time of the last business update. The time is in RFC 3339 format and in the UTC time zone.', example='2026-11-12T00:00:00Z'),
-    version?: long(name='version', description='The current version of the object. It is used for conditional validation during update or deletion.', example='1'),
-  }(name='data', description='The business result returned by the operation on the AI model in the model source.'),
-  message?: string(name='message', description='The response message that describes the request processing result.', example='success'),
-  requestId?: string(name='requestId', description='The ID of the request. It is generated by the system and used to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+    source?: string(name='source', description='The source of the model asset. Valid values: user (user model) and builtin (system built-in model).', example='user'),
+    updateTime?: string(name='updateTime', description='The time of the last business update, in RFC 3339 format and the UTC time zone.', example='2026-11-12T00:00:00Z'),
+    version?: long(name='version', description='The current version of the object, which is used for conditional validation during updates or deletions.', example='1'),
+  }(name='data', description='The business result returned by the operation on the AI model in the source.'),
+  message?: string(name='message', description='The response message, which describes the request processing result.', example='success'),
+  requestId?: string(name='requestId', description='The request ID, which is generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model CreateAiModelSourceModelResponse = {
@@ -3594,7 +3617,7 @@ model CreateAiModelSourceModelResponse = {
 }
 
 /**
- * @summary Creates an AI model in a model source.
+ * @summary Creates an AI model in a source.
  *
  * @param request CreateAiModelSourceModelRequest
  * @param headers map
@@ -3649,7 +3672,7 @@ async function createAiModelSourceModelWithOptions(request: CreateAiModelSourceM
 }
 
 /**
- * @summary Creates an AI model in a model source.
+ * @summary Creates an AI model in a source.
  *
  * @param request CreateAiModelSourceModelRequest
  * @return CreateAiModelSourceModelResponse
@@ -3661,10 +3684,10 @@ async function createAiModelSourceModel(request: CreateAiModelSourceModelRequest
 }
 
 model CreateAndAttachPolicyRequest {
-  attachResourceIds?: [ string ](name='attachResourceIds', description='The list of target resource IDs to attach.
+  attachResourceIds?: [ string ](name='attachResourceIds', description='The list of target resource IDs to mount.
 
 This parameter is required.'),
-  attachResourceType?: string(name='attachResourceType', description='The type of the target resource to attach.
+  attachResourceType?: string(name='attachResourceType', description='The type of the target resource to mount.
 
 This parameter is required.', example='GatewayRoute'),
   className?: string(name='className', description='The policy type.
@@ -3676,13 +3699,13 @@ This parameter is required.', example='{"serviceConfigs":[...]}'),
   description?: string(name='description', description='The policy description.', example='Fallback when the primary route fails'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-test'),
   gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-xxx'),
-  name?: string(name='name', description='The policy name. This parameter is required when className is set to IpAccessControl, JWTAuth, OIDCAuth, or ExternalZAuth, and must be unique within the same gateway instance specified by gatewayId under the current account. If the name duplicates an existing policy, a PolicyExisted error is returned. When you retry after receiving this error, you must use a new name. Resubmitting the same name will always fail. For other className values such as RateLimit, Timeout, Retry, ServiceTls, and AiProxy, this parameter is optional, used only for display purposes, and can be omitted.', example='my-fallback-policy'),
+  name?: string(name='name', description='The policy name. This parameter is required when className is set to IpAccessControl, JWTAuth, OIDCAuth, or ExternalZAuth, and must be unique within the same gateway instance (gatewayId) under the current account. If the name duplicates an existing policy, a PolicyExisted error is returned. When you retry after receiving this error, you must specify a new name. Resubmitting the same name will always fail. For other className values (such as RateLimit, Timeout, Retry, ServiceTls, and AiProxy), this parameter is optional and used only for display purposes.', example='my-fallback-policy'),
 }
 
 model CreateAndAttachPolicyResponseBody = {
   code?: string(name='code', description='The response status code.', example='200'),
   data?: {
-    attachment?: Attachment(name='attachment', description='The attachment relationship information.'),
+    attachment?: Attachment(name='attachment', description='The mount relationship information.'),
     policyId?: string(name='policyId', description='The ID of the newly created policy.', example='plc-xxx'),
   }(name='data', description='The response structure.'),
   message?: string(name='message', description='The response message.', example='success'),
@@ -3839,17 +3862,18 @@ model CreateConsumerRequest {
   akSkIdentityConfigs?: [
     AkSkIdentityConfig
   ](name='akSkIdentityConfigs', description='The list of AK/SK identity configurations.'),
-  apikeyIdentityConfig?: ApiKeyIdentityConfig(name='apikeyIdentityConfig', description='The identity configuration for API key authentication.'),
+  apikeyIdentityConfig?: ApiKeyIdentityConfig(name='apikeyIdentityConfig', description='The API key authentication identity configuration.'),
   description?: string(name='description', description='The description of the consumer.', example='consumer for test'),
   enable?: boolean(name='enable', description='Specifies whether to enable the consumer.', example='false'),
-  expireAt?: long(name='expireAt', description='The expiration time of the consumer. The value must be a positive integer that represents a UNIX timestamp in seconds and is later than the current time. If this parameter is left empty, the consumer never expires. The API key, JWT, and HMAC of the same consumer share this expiration time. Milliseconds are not automatically converted to seconds.', example='1893456000'),
+  expireAt?: long(name='expireAt', description='The expiration time of the consumer, in UTC UNIX seconds. The value must be a positive integer and later than the current time. If this parameter is not specified, the consumer is permanently valid. The API key, JWT, and HMAC of the same consumer share this expiration time. Milliseconds are not automatically converted.', example='1893456000'),
+  extInfo?: string(name='extInfo', description='The extended information of the consumer. The value is saved as a raw string and can be up to 65,535 UTF-8 bytes in length. If this parameter is omitted, no extended information is configured.', example='partner-a'),
   gatewayType?: string(name='gatewayType', description='The gateway type. Valid values:
-- API: the consumer of a cloud-native API gateway.
-- AI: the consumer of an AI gateway.', example='API'),
+- API: consumer of a cloud-native API gateway
+- AI: consumer of an AI gateway', example='API'),
   jwtIdentityConfig?: JwtIdentityConfig(name='jwtIdentityConfig', description='The JWT identity configuration.'),
   name?: string(name='name', description='The name of the consumer.', example='test'),
-  clientToken?: string(name='clientToken', description='The idempotence identity. You can invoke the API with a globally unique value (a UUID is recommended) that does not exceed 64 characters in length. If you invoke a duplicate request with the same ClientToken and identical request parameters within 24 hours after the first request succeeds, the system directly returns the consumer ID created by the first request without creating a new consumer. If you invoke a request with the same ClientToken but different request parameters, the system returns IdempotentParameterMismatch. If the first request is still being processed, the system returns IdempotentProcessing. If this parameter is left empty, idempotence control is disabled, and the behavior is the same as that of the existing version.', example='5f7a2c1e-9b3d-4e8f-a1c6-0d2b8e4f7a13'),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to perform only a dry run. If you set this parameter to true, the system performs the same parameter, permission, IAM, resource policy, resource existence, and business rule checks as a real creation request, but does not create the consumer, write data to the database, create or delete a SecretRef, or generate audit logs. If this parameter is left empty or set to false, the behavior is the same as that of the previous version.'),
+  clientToken?: string(name='clientToken', description='The idempotency token. The caller generates a globally unique value, such as a UUID, with a maximum length of 64 characters. Within approximately 24 hours after the first request succeeds, a repeated request with the same ClientToken and identical request parameters directly returns the consumer ID created in the first request without creating a new consumer. If the request parameters are different, an IdempotentParameterMismatch error is returned. If the first request is still being processed, an IdempotentProcessing error is returned. If this parameter is not specified, idempotency control is disabled, and the behavior is the same as that of the existing version.', example='5f7a2c1e-9b3d-4e8f-a1c6-0d2b8e4f7a13'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If you set this parameter to true, the system performs the same parameter, permission, IAM, resource policy, resource existence, and business rule checks as a real creation request. However, the system does not create the consumer, write data to the database, create or delete a SecretRef, or cause side effects such as generating audit logs. If this parameter is not specified or is set to false, the behavior is the same as that of the existing version.'),
 }
 
 model CreateConsumerResponseBody = {
@@ -3901,6 +3925,9 @@ async function createConsumerWithOptions(request: CreateConsumerRequest, headers
   }
   if (!$isNull(request.expireAt)) {
     body['expireAt'] = request.expireAt;
+  }
+  if (!$isNull(request.extInfo)) {
+    body['extInfo'] = request.extInfo;
   }
   if (!$isNull(request.gatewayType)) {
     body['gatewayType'] = request.gatewayType;
@@ -4772,27 +4799,27 @@ async function createGatewayQuotaRuleSubjectUsageExportTask(gatewayId: string, r
 }
 
 model CreateHttpApiRequest {
-  agentProtocols?: [ string ](name='agentProtocols', description='The list of protocols supported by the agent. This parameter is required when type is set to Agent. For other types, you do not need to specify this parameter.'),
-  aiProtocols?: [ string ](name='aiProtocols', description='The list of AI API protocols. This parameter is required and only one protocol can be specified when type is set to LLM. This parameter is required and multiple protocols can be specified when type is set to Ai. For other types, this parameter is not required. Example: OpenAI/v1.'),
+  agentProtocols?: [ string ](name='agentProtocols', description='The list of protocols supported by the agent. This parameter is required when type is set to Agent. This parameter is not required for other types.'),
+  aiProtocols?: [ string ](name='aiProtocols', description='The list of AI API protocols. This parameter is required and only one protocol can be passed when type is set to LLM. This parameter is required and multiple protocols can be passed when type is set to Ai. This parameter is not required for other types. Example: OpenAI/v1.'),
   authConfig?: AuthConfig(name='authConfig', description='The permission authentication configuration. This parameter is required when enableAuth is set to true.'),
-  basePath?: string(name='basePath', description='The base path of the API. It must start with a forward slash (/), be up to 256 bytes in length, and contain no spaces. This parameter is required when type is set to Rest. When type is set to LLM, Ai, or Agent, this parameter is optional and defaults to /.', example='/v1'),
+  basePath?: string(name='basePath', description='The base path of the API. It must start with a forward slash (/), be up to 256 bytes in length, and contain no spaces. This parameter is required when type is set to Rest. When type is set to LLM, Ai, or Agent, this parameter is optional and the default value is /.', example='/v1'),
   belongGatewayId?: string(name='belongGatewayId', description='The ID of the associated gateway.', example='gw-abc123xyz789'),
   deployConfigs?: [
     HttpApiDeployConfig
-  ](name='deployConfigs', description='The list of deployment configurations for the HTTP API. This parameter is required and only one deployment configuration can be specified when type is set to LLM or Ai. For other types, this parameter is not validated at the request layer.'),
+  ](name='deployConfigs', description='The list of deployment configurations for the HTTP API. This parameter is required and only one deployment configuration can be passed when type is set to LLM or Ai. Request-layer validation is not required for other types.'),
   description?: string(name='description', description='The description of the API.', example='Test API for integration'),
   dryRun?: boolean(name='dryRun', description='Specifies whether to only preview the operation without executing it.', example='true', deprecated=true),
-  enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable permission authentication. This parameter is validated when type is set to LLM, Ai, or Agent. When type is set to Rest, this parameter is not validated at the request layer.', example='true'),
+  enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable permission authentication. This parameter is validated when type is set to LLM, Ai, or Agent. This parameter is not validated at the request layer when type is set to Rest.', example='true'),
   firstByteTimeout?: int32(name='firstByteTimeout', description='The timeout period for waiting for the backend to return the first byte.', example='30'),
   ingressConfig?: {
     clusterId?: string(name='clusterId', description='The cluster ID.', example='k7v5eobfzttudni2pw***'),
     environmentId?: string(name='environmentId', description='The environment ID.', example='env-cq146allhtgk***'),
-    ingressClass?: string(name='ingressClass', description='The Ingress class to listen on.', example='mse'),
+    ingressClass?: string(name='ingressClass', description='The Ingress class to listen to.', example='mse'),
     overrideIngressIp?: boolean(name='overrideIngressIp', description='Specifies whether to update the address in the Ingress status.', example='false'),
     sourceId?: string(name='sourceId', description='The source ID.', example='src-crdddallhtgtr***', deprecated=true),
     watchNamespace?: string(name='watchNamespace', description='The namespace to watch.', example='default'),
-  }(name='ingressConfig', description='The configuration information of the HTTP Ingress API. This parameter is required and cannot be null when type is set to HttpIngress. For other types, you do not need to specify this parameter.'),
-  modelCategory?: string(name='modelCategory', description='The AI model category. This parameter is optional when type is set to LLM or Ai. For other types, you do not need to specify this parameter. Valid values: Text (text generation), Image (image generation), Audio (audio processing), Video (video generation), MultiModal (multimodal), Embedding (vector embedding), Rerank (reranking), and Others (others).', example='Text'),
+  }(name='ingressConfig', description='The configuration information of the HTTP Ingress API. This parameter is required and cannot be nil when type is set to HttpIngress. This parameter is not required for other types.'),
+  modelCategory?: string(name='modelCategory', description='The AI model category. This parameter is optional when type is set to LLM or Ai, and is not required for other types. Valid values: Text (text generation), Image (image generation), Audio (audio processing), Video (video generation), MultiModal (multimodal), Embedding (vector embedding), Rerank (reranking), and Others (others).', example='Text'),
   name?: string(name='name', description='The name of the HTTP API, which is used to identify the current API resource, such as test-api.
 
 This parameter is required.', example='test-api'),
@@ -4800,11 +4827,11 @@ This parameter is required.', example='test-api'),
   removeBasePathOnForward?: boolean(name='removeBasePathOnForward', description='Specifies whether to remove the base path when forwarding requests.', example='true'),
   resourceGroupId?: string(name='resourceGroupId', description='The resource group ID.', example='rg-xxx'),
   strategy?: string(name='strategy', description='The conflict merging strategy for import.', example='ExistFirst'),
-  type?: string(name='type', description='The type of the HTTP API. Valid values: Http (common HTTP API), Rest (RESTful API), WebSocket (WebSocket API), HttpIngress (HTTP API accessed through Ingress), LLM (large language model API), and Agent (agent API).
+  type?: string(name='type', description='The type of the HTTP API. Valid values: Http (common HTTP API), Rest (RESTful API), WebSocket (WebSocket API), HttpIngress (HTTP API accessed through Ingress), LLM (large language model API), and Agent (agent proxy API).
 
 This parameter is required.', example='Http'),
   versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration.'),
-  clientToken?: string(name='clientToken', description='The idempotency token. A globally unique value generated by the caller (a UUID is recommended). The value can be up to 64 characters in length. If you make a repeated request with the same ClientToken and identical request parameters within approximately 24 hours after the initial request succeeds, the system directly returns the httpApiId created by the initial request and does not create a duplicate HTTP API. If a repeated request has the same ClientToken but different request parameters, the system returns the IdempotentParameterMismatch error. If the initial request is still being processed, the system returns the IdempotentProcessing error. If this parameter is not specified, idempotency control is disabled, and the behavior remains the same as in previous versions.', example='5f7a2c1e-9b3d-4e8f-a1c6-0d2b8e4f7a13'),
+  clientToken?: string(name='clientToken', description='The idempotency token. It is a globally unique value generated by the caller (UUID is recommended) and can be up to 64 characters in length. Within about 24 hours after the first request succeeds, a repeated request with the same ClientToken and identical request parameters directly returns the httpApiId created by the first request without creating the HTTP API again. If the same ClientToken is used but the request parameters are different, IdempotentParameterMismatch is returned. If the first request is still being processed, IdempotentProcessing is returned. If this parameter is not specified, idempotency control is not enabled, and the behavior is consistent with the existing version.', example='5f7a2c1e-9b3d-4e8f-a1c6-0d2b8e4f7a13'),
 }
 
 model CreateHttpApiResponseBody = {
@@ -6219,7 +6246,7 @@ async function createPluginWorkspace(request: CreatePluginWorkspaceRequest): Cre
 }
 
 model CreatePolicyRequest {
-  className?: string(name='className', description='The policy type, such as RateLimit, ConcurrencyLimit, CircuitBreaker, HttpRewrite, HeaderModify, Cors, Authentication, FlowCopy, Timeout, Retry, IpAccessControl, DirectResponse, Redirect, Fallback, ServiceTls, ServiceLb, ServicePortTls, Waf, JWTAuth, OIDCAuth, ExternalZAuth, AiProxy, ModelRouter, AiStatistics, AiSecurityGuard, AiFallback, ModelMapper, AiTokenRateLimit, AiCache, and DynamicRoute.
+  className?: string(name='className', description='The type of the policy. Valid values: RateLimit, ConcurrencyLimit, CircuitBreaker, HttpRewrite, HeaderModify, Cors, Authentication, FlowCopy, Timeout, Retry, IpAccessControl, DirectResponse, Redirect, Fallback, ServiceTls, ServiceLb, ServicePortTls, Waf, JWTAuth, OIDCAuth, ExternalZAuth, AiProxy, ModelRouter, AiStatistics, AiSecurityGuard, AiFallback, ModelMapper, AiTokenRateLimit, AiCache, and DynamicRoute.
 
 This parameter is required.', example='Timeout'),
   config?: string(name='config', description='The policy configuration.
@@ -6234,7 +6261,7 @@ This parameter is required.', example='test-policy'),
 model CreatePolicyResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
-    policyId?: string(name='policyId', description='The policy ID.', example='p-cq7l5s5lhtgi6qasr***'),
+    policyId?: string(name='policyId', description='The ID of the policy.', example='p-cq7l5s5lhtgi6qasr***'),
   }(name='data', description='The response data.'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='The request ID.', example='393E2630-DBE7-5221-AB35-9E7406754***'),
@@ -9576,20 +9603,20 @@ model GetAiModelSourceRequest {
 }
 
 model GetAiModelSourceResponseBody = {
-  code?: string(name='code', description='The response status code. Ok is returned for success, and a specific business error code is returned for failure.', example='Ok'),
+  code?: string(name='code', description='The response status code. Ok is returned upon success, and a specific business error code is returned upon failure.', example='Ok'),
   data?: {
-    callNamePrefix?: string(name='callNamePrefix', example='qwen-prod'),
+    callNamePrefix?: string(name='callNamePrefix', description='The valid invoke name prefix for the model source. You can specify this prefix during model creation for the source. The default value is the provider identity. This prefix cannot be modified after creation.', example='qwen-prod'),
     displayName?: string(name='displayName', description='The display name of the model source or model provider.', example='Model Studio model source'),
     gatewayId?: string(name='gatewayId', description='The ID of the AI gateway instance to which the resource belongs.', example='gw-d00000000000000000000'),
     modelCount?: long(name='modelCount', description='The number of models.', example='4'),
     modelSourceId?: string(name='modelSourceId', description='The model source ID. Use the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
     provider?: string(name='provider', description='The stable identifier of the model provider.', example='qwen'),
     serviceId?: string(name='serviceId', description='The ID of the actual AI service bound to the model source.', example='svc-d00000000000000000000'),
-    updateTime?: string(name='updateTime', description='The time of the last business update, in RFC 3339 format and the UTC time zone.', example='2026-11-12T00:00:00Z'),
-    version?: long(name='version', description='The current version of the object, which is used for conditional validation during updates or deletions.', example='1'),
+    updateTime?: string(name='updateTime', description='The time of the last business update. The time is in RFC 3339 format and in the UTC time zone.', example='2026-11-12T00:00:00Z'),
+    version?: long(name='version', description='The current version of the object, which is used for conditional checks during updates or deletions.', example='1'),
   }(name='data', description='The business result returned by the model source operation.'),
   message?: string(name='message', description='The response message that describes the request processing result.', example='success'),
-  requestId?: string(name='requestId', description='The request ID. This ID is generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  requestId?: string(name='requestId', description='The request ID generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model GetAiModelSourceResponse = {
@@ -9714,22 +9741,22 @@ model GetAiModelSourceModelRequest {
 }
 
 model GetAiModelSourceModelResponseBody = {
-  code?: string(name='code', description='The response status code. Returns Ok for success and a specific business error code for failure.', example='Ok'),
+  code?: string(name='code', description='The response status code. Ok indicates success, and a specific business error code indicates failure.', example='Ok'),
   data?: {
     availablePaths?: [ 
       {
-        path?: string(name='path', description='The invocation path of the model.', example='/v1/chat/completions'),
-        type?: string(name='type', description='The protocol type used by the invocation path.', example='OpenAI/v1'),
+        path?: string(name='path', description='The call path of the model.', example='/v1/chat/completions'),
+        type?: string(name='type', description='The protocol type used for the call path.', example='OpenAI/v1'),
       }
-    ](name='availablePaths', description='The protocols and invocation paths supported by the model.'),
-    callName?: string(name='callName', example='qwen-prod/qwen-plus'),
+    ](name='availablePaths', description='The protocols and call paths supported by the model.'),
+    callName?: string(name='callName', description='The full name used to call the model, in the format of valid call name prefix of the model source/model name. If the model source uses the default prefix, the prefix is the provider identifier.', example='qwen-prod/qwen-plus'),
     credit?: {
-      cacheCost?: float(name='cacheCost', description='The number of credits per million cached input tokens. This is a non-negative number. A value of 0 indicates free of charge.', example='0.1'),
-      inputCost?: float(name='inputCost', description='The number of credits per million input tokens. This is a non-negative number. A value of 0 indicates free of charge.', example='1'),
-      outputCost?: float(name='outputCost', description='The number of credits per million output tokens. This is a non-negative number. A value of 0 indicates free of charge.', example='2'),
-      type?: string(name='type', description='The pricing method. Valid values: fixed: fixed credit pricing.', example='fixed'),
-    }(name='credit', description='The credit pricing configuration of the model.'),
-    features?: map[string]any(name='features', description='The set of capabilities declared for the model. The key is the capability name and the value indicates whether the capability is supported.', example='{"nativeStreaming":true}'),
+      cacheCost?: float(name='cacheCost', description='The number of credits per million cache-hit input tokens. The value must be a non-negative number. A value of 0 indicates that the cached input is free of charge.', example='0.1'),
+      inputCost?: float(name='inputCost', description='The number of credits per million input tokens. The value must be a non-negative number. A value of 0 indicates that the input is free of charge.', example='1'),
+      outputCost?: float(name='outputCost', description='The number of credits per million output tokens. The value must be a non-negative number. A value of 0 indicates that the output is free of charge.', example='2'),
+      type?: string(name='type', description='The pricing method. Valid values: fixed: Fixed credit pricing.', example='fixed'),
+    }(name='credit', description='The credit pricing configuration for the model.'),
+    features?: map[string]any(name='features', description='The set of capabilities declared by the model. The key is the capability name, and the value indicates whether the capability is supported.', example='{"nativeStreaming":true}'),
     gatewayId?: string(name='gatewayId', description='The ID of the AI gateway instance to which the resource belongs.', example='gw-d00000000000000000000'),
     meta?: {
       maxInputTokens?: long(name='maxInputTokens', description='The maximum number of input tokens supported by the model.', example='32768'),
@@ -9738,18 +9765,18 @@ model GetAiModelSourceModelResponseBody = {
       supportedInputModalities?: [ string ](name='supportedInputModalities', description='The input modalities supported by the model.'),
       supportedOutputModalities?: [ string ](name='supportedOutputModalities', description='The output modalities supported by the model.'),
     }(name='meta', description='The token limits and the input and output modality information of the model.'),
-    modelCardId?: string(name='modelCardId', description='The model identifier. For standard models, use the source model card ID. For logical model entries, use the vm- prefix.', example='msc-d00000000000000000000'),
+    modelCardId?: string(name='modelCardId', description='The model identifier. For standard models, use the source model card ID. For logical model entries, use the vm- identifier.', example='msc-d00000000000000000000'),
     modelName?: string(name='modelName', description='The actual model name used by the upstream service.', example='qwen-plus'),
     modelProvider?: string(name='modelProvider', description='The stable identifier of the model provider.', example='qwen'),
-    modelSourceId?: string(name='modelSourceId', description='The model source ID. Use the modelSourceId returned by the CreateAiModelSource operation.', example='ms-d00000000000000000000'),
+    modelSourceId?: string(name='modelSourceId', description='The model source ID, which is the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
     modelSourceName?: string(name='modelSourceName', description='The display name of the model source.', example='Model Studio model source'),
-    modelSourceVersion?: long(name='modelSourceVersion', description='The current version of the associated model source.', example='1'),
+    modelSourceVersion?: long(name='modelSourceVersion', description='The current version of the model source to which the model belongs.', example='1'),
     pricingStatus?: string(name='pricingStatus', description='The synchronization status of the model pricing configuration. A value of Pending indicates that the current version is not synchronized. A value of Ready indicates that the current version is synchronized.', example='Ready'),
-    serviceId?: string(name='serviceId', description='The ID of the actual AI service that is bound to the model source.', example='svc-d00000000000000000000'),
+    serviceId?: string(name='serviceId', description='The ID of the actual AI service bound to the model source.', example='svc-d00000000000000000000'),
     source?: string(name='source', description='The source of the model asset. A value of user indicates a user-defined model, and builtin indicates a system built-in model.', example='user'),
-    updateTime?: string(name='updateTime', description='The time of the last business update, in RFC 3339 format and the UTC time zone.', example='2026-11-12T00:00:00Z'),
+    updateTime?: string(name='updateTime', description='The time of the last business update, in RFC 3339 format and UTC time zone.', example='2026-11-12T00:00:00Z'),
     version?: long(name='version', description='The current version of the object, which is used for conditional validation during updates or deletions.', example='1'),
-  }(name='data', description='The business result returned by operations on models in a source.'),
+  }(name='data', description='The business result returned for the AI model in the model source.'),
   message?: string(name='message', description='The response message that describes the result of the request.', example='success'),
   requestId?: string(name='requestId', description='The request ID generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
@@ -9761,7 +9788,7 @@ model GetAiModelSourceModelResponse = {
 }
 
 /**
- * @summary Queries AI models in a source.
+ * @summary Queries an AI model in a model source.
  *
  * @param request GetAiModelSourceModelRequest
  * @param headers map
@@ -9789,7 +9816,7 @@ async function getAiModelSourceModelWithOptions(modelCardId: string, request: Ge
 }
 
 /**
- * @summary Queries AI models in a source.
+ * @summary Queries an AI model in a model source.
  *
  * @param request GetAiModelSourceModelRequest
  * @return GetAiModelSourceModelResponse
@@ -10197,25 +10224,30 @@ model GetConsumerResponseBody = {
   data?: {
     akSkIdentityConfigs?: [
       AkSkIdentityConfig
-    ](name='akSkIdentityConfigs', description='The AccessKey pair identity authentication configuration.'),
+    ](name='akSkIdentityConfigs', description='The AK/SK identity authentication configurations.'),
     apiKeyIdentityConfig?: ApiKeyIdentityConfig(name='apiKeyIdentityConfig', description='The API key identity authentication configuration.'),
     consumerGroups?: [ 
       {
-        consumerGroupId?: string(name='consumerGroupId', description='The ID of the consumer group.', example='csg-8c13d2b4f8a1'),
-        description?: string(name='description', description='The description of the consumer group.', example='Used to group production API call invokers'),
-        joinTimestamp?: long(name='joinTimestamp', description='The time when the consumer joined the consumer group, as a Unix timestamp in milliseconds.', example='1715769600000'),
-        name?: string(name='name', description='The name of the consumer group.', example='api-consumer-group'),
+        consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID.', example='csg-8c13d2b4f8a1'),
+        description?: string(name='description', description='The consumer group description.', example='Used to group consumers that invoke production APIs'),
+        joinTimestamp?: long(name='joinTimestamp', description='The time when the consumer joined the consumer group, in Unix milliseconds.', example='1715769600000'),
+        name?: string(name='name', description='The consumer group name.', example='api-consumer-group'),
       }
     ](name='consumerGroups', description='The list of consumer groups to which the consumer belongs.'),
-    consumerId?: string(name='consumerId', description='The ID of the consumer.', example='cs-cvgbtk6m1hkji5sb8dr0'),
+    consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-cvgbtk6m1hkji5sb8dr0'),
     createTimestamp?: long(name='createTimestamp', description='The creation timestamp.', example='1719386834548'),
     deployStatus?: string(name='deployStatus', description='The publish status of the API in the current environment.', example='""'),
-    description?: string(name='description', description='The description.', example='Consumer dedicated for testing'),
+    description?: string(name='description', description='The description.', example='Test consumer'),
     enable?: boolean(name='enable', description='Specifies whether the consumer is enabled.', example='true'),
-    expireAt?: long(name='expireAt', description='The expiration time of the consumer in UTC Unix seconds. A null value indicates permanent validity and does not affect the enable or disable semantics of the enable parameter.', example='1893456000'),
-    expireStatus?: string(name='expireStatus', description='The validity status calculated based on the current time. Valid values: Permanent: permanently valid. InEffect: more than seven days remaining. AboutToExpire: more than zero and up to seven days remaining. Expired: the expiration time has been reached.', example='InEffect'),
+    expireAt?: long(name='expireAt', description='The consumer expiration time in UTC Unix seconds. A null value indicates that the consumer is permanently valid and does not change the start or stop semantics of the enable parameter.', example='1893456000'),
+    expireStatus?: string(name='expireStatus', description='The validity status calculated based on the current time. Valid values:
+- Permanent: Permanently valid.
+- InEffect: More than seven days remaining.
+- AboutToExpire: More than zero but no more than seven days remaining.
+- Expired: The expiration time has been reached.', example='InEffect'),
+    extInfo?: string(name='extInfo', description='The saved consumer extension information.', example='partner-a'),
     jwtIdentityConfig?: JwtIdentityConfig(name='jwtIdentityConfig', description='The JWT identity authentication configuration.'),
-    name?: string(name='name', description='The name of the consumer.', example='consumer-1'),
+    name?: string(name='name', description='The consumer name.', example='consumer-1'),
     updateTimestamp?: long(name='updateTimestamp', description='The update timestamp.', example='1719386834548'),
   }(name='data', description='The response data.'),
   message?: string(name='message', description='The response message.', example='success'),
@@ -10447,7 +10479,7 @@ model GetConsumerAuthorizationRuleResponse = {
 /**
  * @deprecated OpenAPI GetConsumerAuthorizationRule is deprecated
  *
- * @summary Retrieves consumer authorization rules.
+ * @summary Retrieves a consumer authorization rule.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -10476,7 +10508,7 @@ async function getConsumerAuthorizationRuleWithOptions(consumerAuthorizationRule
 /**
  * @deprecated OpenAPI GetConsumerAuthorizationRule is deprecated
  *
- * @summary Retrieves consumer authorization rules.
+ * @summary Retrieves a consumer authorization rule.
  *
  * @return GetConsumerAuthorizationRuleResponse
  */
@@ -12029,7 +12061,7 @@ async function getHiMarketConsumerCredential(consumerId: string, request: GetHiM
 }
 
 model GetHttpApiRequest {
-  expandPolicyConfigs?: boolean(name='expandPolicyConfigs', description='Specifies whether to expand independent policy configurations. If this parameter is omitted or set to true, a fully compatible view is returned. If this parameter is set to false, policy references and optional read-only plug-in statuses are returned for Model API token throttling managed by policies, and the rule body can be retrieved by calling GetPolicy.'),
+  expandPolicyConfigs?: boolean(name='expandPolicyConfigs', description='Specifies whether to expand independent policy configurations. If this parameter is omitted or set to true, a full compatibility view is returned. If this parameter is set to false, policy-managed Model API token throttling returns policy references and optional read-only plug-in status, and the rule body can be retrieved by calling GetPolicy.'),
 }
 
 model GetHttpApiResponseBody = {
@@ -12046,7 +12078,7 @@ model GetHttpApiResponse = {
 }
 
 /**
- * @summary Retrieves the HTTP API information.
+ * @summary Retrieves HTTP API information.
  *
  * @param request GetHttpApiRequest
  * @param headers map
@@ -12080,7 +12112,7 @@ async function getHttpApiWithOptions(httpApiId: string, request: GetHttpApiReque
 }
 
 /**
- * @summary Retrieves the HTTP API information.
+ * @summary Retrieves HTTP API information.
  *
  * @param request GetHttpApiRequest
  * @return GetHttpApiResponse
@@ -12105,7 +12137,7 @@ model GetHttpApiOperationResponse = {
 }
 
 /**
- * @summary Retrieves the API operation information.
+ * @summary Retrieves API operation information.
  *
  * @param headers map
  * @param runtime runtime options for this request RuntimeOptions
@@ -12131,7 +12163,7 @@ async function getHttpApiOperationWithOptions(httpApiId: string, operationId: st
 }
 
 /**
- * @summary Retrieves the API operation information.
+ * @summary Retrieves API operation information.
  *
  * @return GetHttpApiOperationResponse
  */
@@ -12877,14 +12909,14 @@ model GetPluginAttachmentResponseBody = {
     enable?: boolean(name='enable', description='Indicates whether the plugin is enabled.', example='true'),
     environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
     gatewayInfo?: GatewayInfo(name='gatewayInfo', description='The gateway information.'),
-    parentResourceInfo?: ParentResourceInfo(name='parentResourceInfo', description='The parent mounted resource information.'),
+    parentResourceInfo?: ParentResourceInfo(name='parentResourceInfo', description='The parent attached resource information.'),
     pluginAttachmentId?: string(name='pluginAttachmentId', description='The ID of the plugin attachment.', example='pa-d05f1tmm1hku195dd8j0'),
     pluginClassInfo?: PluginClassInfo(name='pluginClassInfo', description='The plugin type information.'),
     pluginConfig?: string(name='pluginConfig', description='The Base64-encoded content of the original plugin configuration.', example='cHJlcGVuZDoKLSByb2xlOiBzeXN0ZW0KICBjb250ZW50OiDor7fkvb/nlKjoi7Hor63lm57nrZTpl67popgKYXBwZW5kOgotIHJvbGU6IHVzZXIKICBjb250ZW50OiDmr4/mrKHlm57nrZTlrozpl67popjvvIzlsJ3or5Xov5vooYzlj43pl64K'),
-    pluginId?: string(name='pluginId', description='The plugin ID.', example='pl-cvo8ub6m1hkvgv03r3k0'),
+    pluginId?: string(name='pluginId', description='The ID of the plugin.', example='pl-cvo8ub6m1hkvgv03r3k0'),
     resourceInfos?: [
       ResourceInfo
-    ](name='resourceInfos', description='The list of mounted resource information.'),
+    ](name='resourceInfos', description='The list of attached resource information.'),
   }(name='data', description='The response data.'),
   message?: string(name='message', description='The response message.', example='success'),
   requestId?: string(name='requestId', description='Id of the request', example='C61E30D3-579A-5B43-994E-31E02EDC9129'),
@@ -13978,26 +14010,26 @@ model ImportHttpApiRequest {
   deployConfigs?: [
     HttpApiDeployConfig
   ](name='deployConfigs', description='The API deployment configurations.'),
-  description?: string(name='description', description='The description of the imported API. If you do not specify this parameter, the description is extracted from the API definition. The maximum length is 255 bytes.', example='Test API'),
-  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If you set this parameter to true, only a check is performed and no import operation is executed.', example='false'),
+  description?: string(name='description', description='The description of the API to be imported. If you do not specify this parameter, the description is extracted from the API definition file. The maximum length is 255 bytes.', example='Test API'),
+  dryRun?: boolean(name='dryRun', description='Specifies whether to perform a dry run. If this parameter is set to true, only the check is performed and no import operation is executed.', example='false'),
   gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-xxx'),
   mcpRouteId?: string(name='mcpRouteId', description='The MCP route ID.', example='mcp-route-xxxxxxxx'),
-  name?: string(name='name', description='The name of the imported API. If you do not specify this parameter, the name is extracted from the API definition file. If an API with the same name and versioning configuration already exists, the existing API definition is updated based on the strategy parameter during this import.', example='import-test'),
+  name?: string(name='name', description='The name of the API to be imported. If you do not specify this parameter, the name is extracted from the API definition file. If an API with the same name and version configuration already exists, the existing API definition is updated based on the strategy parameter.', example='import-test'),
   resourceGroupId?: string(name='resourceGroupId', description='The [resource group ID](https://help.aliyun.com/document_detail/151181.html).', example='rg-aek23nsa353vmra'),
-  specContentBase64?: string(name='specContentBase64', description='The Base64-encoded API definition. Supports OAS 2.0 and OAS 3.0 specifications in YAML and JSON formats. This parameter has a higher priority than the specFileUrl parameter. If the file size exceeds 10 MB, use the specFileUrl parameter instead.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
-  specFileUrl?: string(name='specFileUrl', description='The download URL of the API definition file. The file must be downloadable over the Internet or through the internal network of OSS in the same region. The URL must have download permissions. For OSS file links that are not publicly readable, see References [Download objects by using presigned URLs](https://help.aliyun.com/document_detail/39607.html) and provide a URL with download permissions. Currently, only API definition files stored in OSS are supported.'),
+  specContentBase64?: string(name='specContentBase64', description='The Base64-encoded API definition. Supports OAS 2.0 and OAS 3.0 specifications in YAML or JSON format. This parameter takes precedence over the specFileUrl parameter. If the file size exceeds 10 MB, use the specFileUrl parameter.', example='b3BlbmFwaTogMy4wLjAKaW5mbzoKICAgIHRpdGxlOiBkZW1vCiAgICBkZXNjcmlwdGlvbjogdGhpc2lzZGVtbwogICAgdmVyc2lvbjogIiIKcGF0aHM6CiAgICAvdXNlci97dXNlcklkfToKICAgICAgICBnZXQ6CiAgICAgICAgICAgIHN1bW1hcnk6IOiOt+WPlueUqOaIt+S/oeaBrwogICAgICAgICAgICBkZXNjcmlwdGlvbjog6I635Y+W55So5oi35L+h5oGvCiAgICAgICAgICAgIG9wZXJhdGlvbklkOiBHZXRVc2VySW5mbwogICAgICAgICAgICByZXNwb25zZXM6CiAgICAgICAgICAgICAgICAiMjAwIjoKICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjog5oiQ5YqfCiAgICAgICAgICAgICAgICAgICAgY29udGVudDoKICAgICAgICAgICAgICAgICAgICAgICAgYXBwbGljYXRpb24vanNvbjtjaGFyc2V0PXV0Zi04OgogICAgICAgICAgICAgICAgICAgICAgICAgICAgc2NoZW1hOiBudWxsCnNlcnZlcnM6CiAgICAtIHVybDogaHR0cDovL2FwaS5leGFtcGxlLmNvbS92MQo='),
+  specFileUrl?: string(name='specFileUrl', description='The download URL of the API definition file. The file must be downloadable over the Internet or by using an internal network download URL of OSS in the same region. The URL must have download permissions. For OSS file links that are not publicly readable, refer to References [Download objects by using presigned URLs](https://help.aliyun.com/document_detail/39607.html) and provide a URL with download permissions. Currently, only API definition files stored in OSS are supported.'),
   specOssConfig?: {
     bucketName?: string(name='bucketName', description='The bucket name.', example='gms-service-prod'),
     objectKey?: string(name='objectKey', description='The full path of the file.', example='/test/swagger.json'),
     regionId?: string(name='regionId', description='The region ID.', example='cn-shanghai'),
   }(name='specOssConfig', description='The OSS configuration.'),
-  strategy?: string(name='strategy', description='The update policy to use when the imported API name and version management are the same as those of an existing API. Valid values:
+  strategy?: string(name='strategy', description='The update policy to specify when the imported API name and version management are the same as those of an existing API. Valid values:
 - SpecOnly: The imported file completely overwrites the existing API.
 - SpecFirst: The imported file takes precedence. New operations are added and existing operations are updated. Operations not mentioned in the file remain unchanged.
 - ExistFirst: The existing API takes precedence. Only new operations are added, and existing operations are not updated.
 Default value: ExistFirst.', example='ExistFirst'),
-  targetHttpApiId?: string(name='targetHttpApiId', description='If you specify this parameter, this import updates the specified API instead of importing a new API or searching for an existing API based on the API name and version management configuration. The target API must be of the REST type.', example='api-xxxx'),
-  versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration. If versioning is enabled and an API with the same name and version number already exists, this import is treated as an update. If versioning is disabled and an API with the same name already exists, this import is also treated as an update.'),
+  targetHttpApiId?: string(name='targetHttpApiId', description='The ID of the HTTP API to be overwritten by the import. If you specify this parameter, the import operation updates the specified API instead of importing a new API or searching for an existing API based on the API name and version management configuration. The name and versionConfig parameters become invalid. The target API must be of the REST type.', example='api-xxxx'),
+  versionConfig?: HttpApiVersionConfig(name='versionConfig', description='The API versioning configuration. If versioning is enabled and an API with the same name and version number already exists, the import operation is treated as an update. If versioning is disabled and an API with the same name already exists, the import operation is also treated as an update.'),
   withGatewayExtension?: boolean(name='withGatewayExtension', description='Specifies whether to import gateway extension information.', example='false'),
 }
 
@@ -14005,11 +14037,11 @@ model ImportHttpApiResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   data?: {
     dryRunInfo?: {
-      errorMessages?: [ string ](name='errorMessages', description='The error messages. If the error messages are not empty, the API cannot be imported successfully.'),
+      errorMessages?: [ string ](name='errorMessages', description='The error messages. If this field is not empty, the API cannot be imported successfully.'),
       existHttpApiInfo?: HttpApiApiInfo(name='existHttpApiInfo', description='The existing API information. If this field is not empty, the import operation will update the API.'),
       failureComponents?: [ 
         {
-          errorMessage?: string(name='errorMessage', description='The error message.', example='Invalid data structure definition'),
+          errorMessage?: string(name='errorMessage', description='The error message.', example='Incorrect data structure definition'),
           name?: string(name='name', description='The data structure name.', example='orderDTO'),
         }
       ](name='failureComponents', description='The list of data structures that failed the dry run.'),
@@ -14029,7 +14061,7 @@ model ImportHttpApiResponseBody = {
       mcpToolsDefinition?: string(name='mcpToolsDefinition', description='The MCP tool definition information.', example='...'),
       successComponents?: [ 
         {
-          action?: string(name='action', description='The action to perform after the dry run.
+          action?: string(name='action', description='The action to be performed after the dry run.
 - Create: Create.
 - Update: Update.', example='Create'),
           name?: string(name='name', description='The data structure name.', example='userDTO'),
@@ -14037,7 +14069,7 @@ model ImportHttpApiResponseBody = {
       ](name='successComponents', description='The list of data structures that passed the dry run.'),
       successOperations?: [ 
         {
-          action?: string(name='action', description='The action to perform after the dry run.
+          action?: string(name='action', description='The action to be performed after the dry run.
 - Create: Create.
 - Update: Update.', example='Create'),
           method?: string(name='method', description='The operation method.', example='POST'),
@@ -14051,8 +14083,8 @@ model ImportHttpApiResponseBody = {
           name?: string(name='name', description='The name.', example='user-route'),
         }
       ](name='successRoutes', description='The list of successfully imported routes.'),
-      warningMessages?: [ string ](name='warningMessages', description='The warning messages. If the warning messages are not empty, some operations or data structures may fail to import.'),
-    }(name='dryRunInfo', description='The dry run result.'),
+      warningMessages?: [ string ](name='warningMessages', description='The warning messages. If this field is not empty, some operations or data structures may fail to import.'),
+    }(name='dryRunInfo', description='The dry run results.'),
     httpApiId?: string(name='httpApiId', description='The unique ID of the HTTP API.', example='api-xxx'),
     name?: string(name='name', description='The API name.', example='import-test'),
   }(name='data', description='The API information.'),
@@ -14804,32 +14836,32 @@ model ListAiModelSourcesRequest {
   gatewayId?: string(name='gatewayId', description='The ID of the AI gateway instance to which the resource belongs.
 
 This parameter is required.', example='gw-d00000000000000000000'),
-  keyword?: string(name='keyword', description='The search keyword used to match resources by name or identifier.', example='beta'),
-  maxResults?: int32(name='maxResults', description='The maximum number of results to return per page. Valid values: 1 to 100. This parameter is required. Do not use pageNumber or pageSize for token-based pagination.
+  keyword?: string(name='keyword', description='The query keyword used to match resources by name or identifier.', example='beta'),
+  maxResults?: int32(name='maxResults', description='The maximum number of results per page. Valid values: 1 to 100. This parameter is required. Token-based pagination does not use pageNumber or pageSize.
 
 This parameter is required.', example='20'),
-  nextToken?: string(name='nextToken', description='The pagination token returned from the previous page. Omit this parameter for the first page. The token is empty or omitted on the last page.', example='eyJvZmZzZXQiOjIwfQ=='),
+  nextToken?: string(name='nextToken', description='The query position returned from the previous page. Omit this parameter for the first page. For the last page, this parameter is empty or omitted.', example='eyJvZmZzZXQiOjIwfQ=='),
   provider?: string(name='provider', description='The stable identifier of the model provider.', example='qwen'),
 }
 
 model ListAiModelSourcesResponseBody = {
-  code?: string(name='code', description='The response status code. The value is Ok for successful requests, or a specific business error code for failed requests.', example='Ok'),
+  code?: string(name='code', description='The response status code. A value of Ok indicates success. A specific business error code indicates failure.', example='Ok'),
   data?: {
     items?: [ 
       {
-        callNamePrefix?: string(name='callNamePrefix', example='qwen-prod'),
+        callNamePrefix?: string(name='callNamePrefix', description='The valid invoke name prefix for the model source. You can specify this prefix during model creation. By default, the provider identity is used. This prefix cannot be modified after creation.', example='qwen-prod'),
         displayName?: string(name='displayName', description='The display name of the model source or model provider.', example='Model Studio model source'),
         gatewayId?: string(name='gatewayId', description='The ID of the AI gateway instance to which the resource belongs.', example='gw-d00000000000000000000'),
         modelCount?: long(name='modelCount', description='The number of models.', example='4'),
-        modelSourceId?: string(name='modelSourceId', description='The ID of the model source. Use the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
+        modelSourceId?: string(name='modelSourceId', description='The model source ID. Use the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
         provider?: string(name='provider', description='The stable identifier of the model provider.', example='qwen'),
         serviceId?: string(name='serviceId', description='The ID of the actual AI service bound to the model source.', example='svc-d00000000000000000000'),
         updateTime?: string(name='updateTime', description='The time of the last business update, in RFC 3339 format and the UTC time zone.', example='2026-11-12T00:00:00Z'),
-        version?: long(name='version', description='The current version of the object, which is used for conditional checks during updates or deletions.', example='1'),
+        version?: long(name='version', description='The current version of the object, which is used for conditional validation during updates or deletions.', example='1'),
       }
     ](name='items', description='The list of model sources returned on the current page.'),
     maxResults?: int32(name='maxResults', description='The maximum number of records returned per page.', example='20'),
-    nextToken?: string(name='nextToken', description='The pagination token returned from the previous page. Do not specify this parameter when you query the first page.', example='eyJvZmZzZXQiOjIwfQ=='),
+    nextToken?: string(name='nextToken', description='The pagination token returned from the previous page. Do not pass this parameter when querying the first page.', example='eyJvZmZzZXQiOjIwfQ=='),
     totalCount?: long(name='totalCount', description='The total number of records that match the current query conditions.', example='4'),
   }(name='data', description='The business result returned by the model source operation.'),
   message?: string(name='message', description='The response message that describes the request processing result.', example='success'),
@@ -14843,7 +14875,7 @@ model ListAiModelSourcesResponse = {
 }
 
 /**
- * @summary Queries a list of standalone AI model sources.
+ * @summary Queries a list of independent AI model sources.
  *
  * @param request ListAiModelSourcesRequest
  * @param headers map
@@ -14889,7 +14921,7 @@ async function listAiModelSourcesWithOptions(request: ListAiModelSourcesRequest,
 }
 
 /**
- * @summary Queries a list of standalone AI model sources.
+ * @summary Queries a list of independent AI model sources.
  *
  * @param request ListAiModelSourcesRequest
  * @return ListAiModelSourcesResponse
@@ -15286,9 +15318,9 @@ async function listChatSessions(request: ListChatSessionsRequest): ListChatSessi
 }
 
 model ListConsumerAuthorizationRulesRequest {
-  apiNameLike?: string(name='apiNameLike', description='The fuzzy search parameter for the API name.', example='qwen3'),
+  apiNameLike?: string(name='apiNameLike', description='The fuzzy search parameter for API names.', example='qwen3'),
   pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-  pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 10.', example='10'),
+  pageSize?: int32(name='pageSize', description='The page size. Default value: 10.', example='10'),
 }
 
 model ListConsumerAuthorizationRulesResponseBody = {
@@ -15298,7 +15330,7 @@ model ListConsumerAuthorizationRulesResponseBody = {
       {
         apiInfo?: HttpApiApiInfo(name='apiInfo', description='The API information.'),
         consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The ID of the consumer authorization rule.', example='car-csgeka5lhtggrjcprok0'),
-        consumerId?: string(name='consumerId', description='The ID of the consumer.', example='cs-csheiftlhtgmp0j0hp4g'),
+        consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-csheiftlhtgmp0j0hp4g'),
         createTimestamp?: long(name='createTimestamp', description='The creation timestamp.', example='1719386834548'),
         deployStatus?: string(name='deployStatus', description='The publish status of the API in the current environment.', example='{}'),
         environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
@@ -15306,13 +15338,13 @@ model ListConsumerAuthorizationRulesResponseBody = {
         expireStatus?: string(name='expireStatus', description='The expiration status.', example='InEffect'),
         expireTimestamp?: long(name='expireTimestamp', description='The expiration time.', example='172086834548'),
         gatewayInfo?: GatewayInfo(name='gatewayInfo', description='The gateway information.'),
-        resourceId?: string(name='resourceId', description='The ID of the resource.', example='2351944'),
-        resourceType?: string(name='resourceType', description='The type of the resource.', example='HttpApiRoute'),
+        resourceId?: string(name='resourceId', description='The resource ID.', example='2351944'),
+        resourceType?: string(name='resourceType', description='The resource type.', example='HttpApiRoute'),
         updateTimestamp?: long(name='updateTimestamp', description='The update timestamp. Unit: milliseconds.', example='1721116090326'),
       }
     ](name='items', description='The list of consumer authorization information.'),
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
-    pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
+    pageSize?: int32(name='pageSize', description='The page size.', example='10'),
     totalSize?: string(name='totalSize', description='The total number of entries.', example='9'),
   }(name='data', description='The response data.'),
   message?: string(name='message', description='The response message.', example='success'),
@@ -15991,22 +16023,26 @@ async function listConsumerQuotaRules(consumerId: string, request: ListConsumerQ
 }
 
 model ListConsumersRequest {
-  expireStatus?: string(name='expireStatus', description='The validity status filter. Valid values: Permanent, InEffect, AboutToExpire, and Expired. You can specify multiple values separated by commas to form a union. If this parameter is not specified, all statuses are included and intersected with the name and display status filters.', example='Expired,AboutToExpire'),
-  gatewayType?: string(name='gatewayType', description='The gateway type used for filtering. Currently, **AI** and **API** gateway types are supported.', example='AI'),
-  includeExpirationSummary?: boolean(name='includeExpirationSummary', description='Specifies whether to return the full expiration reminder count. Default value: false. The statistical scope is limited only by the current account and gatewayType.', example='true'),
-  nameLike?: string(name='nameLike', description='The keyword used for fuzzy search by API name.', example='UI-test'),
+  expireStatus?: string(name='expireStatus', description='The expiration status filter. Valid values: Permanent, InEffect, AboutToExpire, and Expired. You can specify multiple values separated by commas to form a union. If this parameter is not specified, all statuses are included, and the result is intersected with the name and display status filters.', example='Expired,AboutToExpire'),
+  gatewayType?: string(name='gatewayType', description='The gateway type filter. Currently, **AI** and **API** gateway types are supported.', example='AI'),
+  includeExpirationSummary?: boolean(name='includeExpirationSummary', description='Specifies whether to return the total count of expiration reminders. Default value: false. The statistical scope is limited only by the current account and gatewayType.', example='true'),
+  nameLike?: string(name='nameLike', description='The keyword used to perform a fuzzy search by API name.', example='UI-test'),
   pageNumber?: int32(name='pageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Default value: 10.', example='10'),
-  status?: string(name='status', description='The display status filter. Valid values: Enabled (enabled and not expired), Disabled (disabled regardless of expiration), and Expired (enabled and expired). If this parameter is not specified, all statuses are included and intersected with other filter conditions.', example='Enabled'),
+  status?: string(name='status', description='The display status filter. Valid values:
+- Enabled: Enabled and not expired.
+- Disabled: Disabled, regardless of whether it has expired.
+- Expired: Enabled and expired.
+If this parameter is not specified, all statuses are included, and the result is intersected with other filter conditions.', example='Enabled'),
 }
 
 model ListConsumersResponseBody = {
   code?: string(name='code', description='The response code.', example='Ok'),
   data?: {
     expirationSummary?: {
-      aboutToExpire?: long(name='aboutToExpire', description='The number of unexpired consumers with a remaining validity period of no more than seven days, including those that are manually disabled.', example='1'),
+      aboutToExpire?: long(name='aboutToExpire', description='The number of unexpired consumers with a remaining validity period of seven days or less, including those that are manually disabled.', example='1'),
       expired?: long(name='expired', description='The number of expired consumers, including those that are manually disabled.', example='2'),
-    }(name='expirationSummary', description='The expiration reminder count for all consumers under the same account and gateway type. This count is not affected by name filters, status filters, or pagination. This field is returned only when includeExpirationSummary is set to true.'),
+    }(name='expirationSummary', description='The count of expiration reminders for all consumers under the same account and gateway type. This count is not affected by name, status filters, or pagination. This field is returned only when includeExpirationSummary is set to true.'),
     items?: [ 
       {
         consumerId?: string(name='consumerId', description='The consumer ID.', example='cs-csheiftlhtgmp0j0hp4g'),
@@ -16015,7 +16051,8 @@ model ListConsumersResponseBody = {
         description?: string(name='description', description='The description.', example='Test consumer'),
         enable?: boolean(name='enable', description='Specifies whether the consumer is enabled.', example='true'),
         expireAt?: long(name='expireAt', description='The expiration time of the consumer, in UTC UNIX seconds. A null value indicates that the consumer is permanently valid.', example='1893456000'),
-        expireStatus?: string(name='expireStatus', description='The validity status. Valid values: Permanent, InEffect, AboutToExpire, and Expired. The status is accurate to the second. A remaining time of exactly seven days is classified as AboutToExpire, and an exact expiration time is classified as Expired.', example='InEffect'),
+        expireStatus?: string(name='expireStatus', description='The expiration status. Valid values: Permanent, InEffect, AboutToExpire, and Expired. The status is accurate to the second. A remaining validity period of exactly seven days is classified as AboutToExpire, and an expired status is classified as Expired.', example='InEffect'),
+        extInfo?: string(name='extInfo', description='The saved extended information of the consumer.', example='partner-a'),
         name?: string(name='name', description='The consumer name.', example='user-service'),
         updateTimestamp?: long(name='updateTimestamp', description='The update timestamp.', example='1721123855214'),
       }
@@ -17737,19 +17774,19 @@ async function listHiMarketConsumers(request: ListHiMarketConsumersRequest): Lis
 }
 
 model ListHttpApiOperationsRequest {
-  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='Filters API operations by a specific consumer authorization rule ID. The response includes only authorized API operations.', example='cas-xxx'),
+  consumerAuthorizationRuleId?: string(name='consumerAuthorizationRuleId', description='The ID of the consumer authorization rule used to filter API operations. The response includes only authorized API operations.', example='cas-xxx'),
   enableAuth?: boolean(name='enableAuth', description='Specifies whether to enable the authentication filter.', example='true'),
   forDeploy?: boolean(name='forDeploy', description='Specifies whether the request is for a deployment scenario.', example='true'),
   gatewayId?: string(name='gatewayId', description='The ID of the gateway used to filter API operations.', example='gw-001'),
-  method?: string(name='method', description='Filters API operations by HTTP method.', example='GET'),
-  name?: string(name='name', description='Searches for API operations by exact name.', example='getUserInfo'),
-  nameLike?: string(name='nameLike', description='Searches for API operations by name prefix.', example='GetUser'),
+  method?: string(name='method', description='The HTTP method used to filter API operations.', example='GET'),
+  name?: string(name='name', description='The exact name used to search for API operations.', example='getUserInfo'),
+  nameLike?: string(name='nameLike', description='The name prefix used to search for API operations.', example='GetUser'),
   pageNumber?: int32(name='pageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='10'),
-  pathLike?: string(name='pathLike', description='Searches for API operations by path prefix.', example='/v1'),
-  withConsumerInEnvironmentId?: string(name='withConsumerInEnvironmentId', description='The ID of the environment. The response includes the list of authorization rules for the specified consumer in this environment for each API operation. You must also specify the withConsumerInfoById parameter.', example='env-xxx'),
-  withConsumerInfoById?: string(name='withConsumerInfoById', description='The ID of the consumer. The response includes the list of authorization rules for this consumer in the specified environment for each API operation. You must also specify the withConsumerInEnvironmentId parameter.', example='cs-xxx'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The ID of the plugin. Retrieves the plugin release information based on this plugin ID.', example='pl-xxx'),
+  pathLike?: string(name='pathLike', description='The path prefix used to search for API operations.', example='/v1'),
+  withConsumerInEnvironmentId?: string(name='withConsumerInEnvironmentId', description='The ID of the environment. The response includes the authorization rules of the specified consumer in this environment for each API operation. You must also specify the withConsumerInfoById parameter.', example='env-xxx'),
+  withConsumerInfoById?: string(name='withConsumerInfoById', description='The ID of the consumer. The response includes the authorization rules of this consumer in the specified environment for each API operation. You must also specify the withConsumerInEnvironmentId parameter.', example='cs-xxx'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The ID of the plugin used to retrieve plugin release information.', example='pl-xxx'),
 }
 
 model ListHttpApiOperationsResponseBody = {
@@ -17763,7 +17800,7 @@ model ListHttpApiOperationsResponseBody = {
     totalSize?: int32(name='totalSize', description='The total number of entries.', example='10'),
   }(name='data', description='The list of API operations.'),
   message?: string(name='message', description='The response message.', example='success'),
-  requestId?: string(name='requestId', description='The ID of the request.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+  requestId?: string(name='requestId', description='The request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
 }
 
 model ListHttpApiOperationsResponse = {
@@ -17983,24 +18020,24 @@ async function listHttpApiRoutes(httpApiId: string, request: ListHttpApiRoutesRe
 model ListHttpApisRequest {
   gatewayId?: string(name='gatewayId', description='The ID of the cloud-native API gateway.', example='gw-cq2avtllh****'),
   gatewayType?: string(name='gatewayType', description='The type of the gateway associated with the HTTP API. Valid values: API (cloud-native API gateway) and AI (AI gateway).', example='API'),
-  keyword?: string(name='keyword', description='The search keyword. Supports fuzzy search by API name or exact search by API ID.', example='test-'),
-  name?: string(name='name', description='The name for exact search.', example='login'),
+  keyword?: string(name='keyword', description='The search keyword. Supports fuzzy match for API names and exact match for API IDs.', example='test-'),
+  name?: string(name='name', description='The API name for exact search.', example='login'),
   pageNumber?: int32(name='pageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 500. Default value: 10.', example='10'),
   resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group.', example='rg-ahr5uil8raz0rq3b'),
-  types?: string(name='types', description='The types of the HTTP APIs. You can specify multiple types separated by commas (,). Valid values:
+  types?: string(name='types', description='The type of the HTTP API. Multiple types can be specified and separated by commas (,). Valid values:
 - Http
 - Rest
 - Websocket
 - HttpIngress', example='Http,Rest'),
-  withAPIsPublishedToEnvironment?: boolean(name='withAPIsPublishedToEnvironment', description='Specifies whether to return the information about APIs published to the specified environment.', example='true'),
-  withAuthPolicyInEnvironmentId?: string(name='withAuthPolicyInEnvironmentId', description='The environment ID. If specified, the response includes consumer authentication policy information for each API in the specified environment.', example='env-xxx'),
-  withAuthPolicyList?: boolean(name='withAuthPolicyList', description='Specifies whether the authentication policy is enabled.', example='true'),
-  withConsumerInfoById?: string(name='withConsumerInfoById', description='The consumer ID. If specified, the response includes the authorization rule list for the specified consumer in the information of each API.', example='cs-xxx'),
+  withAPIsPublishedToEnvironment?: boolean(name='withAPIsPublishedToEnvironment', description='Specifies whether to return the information of APIs published to the specified environment.', example='true'),
+  withAuthPolicyInEnvironmentId?: string(name='withAuthPolicyInEnvironmentId', description='The environment ID. The response includes consumer authentication policy information for each API in the specified environment.', example='env-xxx'),
+  withAuthPolicyList?: boolean(name='withAuthPolicyList', description='Specifies whether to include the authentication policy list.', example='true'),
+  withConsumerInfoById?: string(name='withConsumerInfoById', description='The consumer ID. The response includes the list of authorization rules for the specified consumer in the API information.', example='cs-xxx'),
   withEnvironmentInfo?: boolean(name='withEnvironmentInfo', description='Specifies whether to include the environment context.', example='true'),
   withEnvironmentInfoById?: string(name='withEnvironmentInfoById', description='The environment ID.', example='env-ctovu5mm1hksb4q8ln40'),
   withIngressInfo?: boolean(name='withIngressInfo', description='Specifies whether to include Ingress information.', example='false'),
-  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The plugin ID. If specified, the plugin release information is retrieved based on this ID.', example='pl-ct9qn3um1hktue8dqol0'),
+  withPluginAttachmentByPluginId?: string(name='withPluginAttachmentByPluginId', description='The plugin ID. The response includes plugin release information based on the specified plugin ID.', example='pl-ct9qn3um1hktue8dqol0'),
   withPolicyConfigs?: boolean(name='withPolicyConfigs', description='Specifies whether to include policy information.', example='false'),
 }
 
@@ -18013,9 +18050,9 @@ model ListHttpApisResponseBody = {
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
     pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
     totalSize?: int32(name='totalSize', description='The total number of entries.', example='10'),
-  }(name='data', description='The API list.'),
+  }(name='data', description='The list of APIs.'),
   message?: string(name='message', description='The response message.', example='success'),
-  requestId?: string(name='requestId', description='The request ID.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+  requestId?: string(name='requestId', description='The ID of the request.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
 }
 
 model ListHttpApisResponse = {
@@ -18025,7 +18062,7 @@ model ListHttpApisResponse = {
 }
 
 /**
- * @summary Retrieves the list of HTTP APIs.
+ * @summary Retrieves a list of HTTP APIs.
  *
  * @param request ListHttpApisRequest
  * @param headers map
@@ -18107,7 +18144,7 @@ async function listHttpApisWithOptions(request: ListHttpApisRequest, headers: ma
 }
 
 /**
- * @summary Retrieves the list of HTTP APIs.
+ * @summary Retrieves a list of HTTP APIs.
  *
  * @param request ListHttpApisRequest
  * @return ListHttpApisResponse
@@ -18754,13 +18791,13 @@ async function listMigrationTasks(request: ListMigrationTasksRequest): ListMigra
 }
 
 model ListModelApisRequest {
-  gatewayId?: string(name='gatewayId', description='The gateway instance ID used to filter results.', example='gw-d00000000000000000000'),
-  includeLegacy?: boolean(name='includeLegacy', description='Specifies whether to return legacy model APIs created by scenario. If this parameter is omitted or set to false, only APIs created by selecting a model are returned. If this parameter is set to true, APIs created by both methods are returned on the same page, excluding common HTTP, MCP, or Agent APIs.'),
+  gatewayId?: string(name='gatewayId', description='The gateway instance ID used for filtering.', example='gw-d00000000000000000000'),
+  includeLegacy?: boolean(name='includeLegacy', description='Specifies whether to return legacy model APIs created by scenario. If omitted or set to false, only APIs created by selecting a model are returned. If set to true, APIs created by both methods are returned on the same page, excluding common HTTP, MCP, or Agent APIs.'),
   keyword?: string(name='keyword', description='The search keyword. Supports fuzzy search by API name or exact search by API ID.', example='beta'),
   name?: string(name='name', description='The API name for exact search.', example='beta-model-api'),
   pageNumber?: int32(name='pageNumber', description='The page number. Pages start from 1. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page. Valid values: 1 to 100. Default value: 10.', example='20'),
-  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group used to filter results.', example='rg-acf0000000000000000'),
+  resourceGroupId?: string(name='resourceGroupId', description='The ID of the resource group used for filtering.', example='rg-acf0000000000000000'),
 }
 
 model ListModelApisResponseBody = {
@@ -18768,11 +18805,11 @@ model ListModelApisResponseBody = {
   data?: {
     items?: [ 
       {
-        creationMode?: string(name='creationMode', description='The creation mode. Valid values: ChooseModel (created by selecting a model) and Scene (created by scenario). Single-object operations still use the ModelApi or HttpApi operation corresponding to the mode.', example='ChooseModel'),
+        creationMode?: string(name='creationMode', description='The creation method. Valid values: ChooseModel: created by selecting a model. Scene: created by scenario. Single-object operations still use the corresponding ModelApi or HttpApi API.', example='ChooseModel'),
         gatewayId?: string(name='gatewayId', description='The gateway instance ID.', example='gw-d00000000000000000000'),
-        name?: string(name='name', description='The name of the API.', example='beta-model-api'),
-        type?: string(name='type', description='The type of the API.', example='LLM'),
-        versionEnabled?: boolean(name='versionEnabled', description='Indicates whether version management is enabled.'),
+        name?: string(name='name', description='The API name.', example='beta-model-api'),
+        type?: string(name='type', description='The API type.', example='LLM'),
+        versionEnabled?: boolean(name='versionEnabled', description='Specifies whether version management is enabled.'),
         versionedHttpApis?: [
           ModelApiListApiInfo
         ](name='versionedHttpApis', description='The versioned API information.'),
@@ -18783,7 +18820,7 @@ model ListModelApisResponseBody = {
     totalSize?: int32(name='totalSize', description='The total number of entries.', example='4'),
   }(name='data', description='The list of model APIs.'),
   message?: string(name='message', description='The response message.', example='success'),
-  requestId?: string(name='requestId', description='The request ID. It is generated by the system and used to locate the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  requestId?: string(name='requestId', description='The request ID generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model ListModelApisResponse = {
@@ -18793,7 +18830,7 @@ model ListModelApisResponse = {
 }
 
 /**
- * @summary Queries the list of model APIs.
+ * @summary Queries model APIs.
  *
  * @param request ListModelApisRequest
  * @param headers map
@@ -18845,7 +18882,7 @@ async function listModelApisWithOptions(request: ListModelApisRequest, headers: 
 }
 
 /**
- * @summary Queries the list of model APIs.
+ * @summary Queries model APIs.
  *
  * @param request ListModelApisRequest
  * @return ListModelApisResponse
@@ -19106,15 +19143,15 @@ async function listMseNacosSources(gatewayId: string, request: ListMseNacosSourc
 }
 
 model ListPluginAttachmentsRequest {
-  attachResourceId?: string(name='attachResourceId', description='The ID of the mounted resource.', example='hr-cv2h58em1hkg7c6vt43g'),
-  attachResourceType?: string(name='attachResourceType', description='The type of the plugin mount point. This parameter is not yet enabled.', example='GatewayRoute'),
-  attachResourceTypes?: string(name='attachResourceTypes', description='The types of mount points. Separate multiple values with commas.', example='GatewayRoute'),
+  attachResourceId?: string(name='attachResourceId', description='The mount resource ID.', example='hr-cv2h58em1hkg7c6vt43g'),
+  attachResourceType?: string(name='attachResourceType', description='The plugin mount point type. This parameter is not currently enabled.', example='GatewayRoute'),
+  attachResourceTypes?: string(name='attachResourceTypes', description='The mount point types. Separate multiple values with commas.', example='GatewayRoute'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-crlnqhtlhtgqflkqislg'),
   gatewayId?: string(name='gatewayId', description='The gateway ID.', example='gw-cr79f75lhtgme744084g'),
   pageNumber?: int32(name='pageNumber', description='The page number. Default value: 1.', example='1'),
   pageSize?: int32(name='pageSize', description='The number of entries per page.', example='10'),
   pluginId?: string(name='pluginId', description='The plugin ID.', example='pl-ct8181um1hkiqns9f6e0'),
-  withParentResource?: boolean(name='withParentResource', description='Specifies whether to return the mounts of parent resources. <notice>If this parameter is set to true, it must be used together with a single value of attachResourceTypes. Valid values: GatewayRoute and Operation.</notice>', example='false'),
+  withParentResource?: boolean(name='withParentResource', description='Specifies whether to return the parent resource mounts. <notice>If this parameter is set to true, it must be used together with a single value of attachResourceTypes. Valid values: GatewayRoute and Operation.</notice>', example='false'),
 }
 
 model ListPluginAttachmentsResponseBody = {
@@ -19122,17 +19159,17 @@ model ListPluginAttachmentsResponseBody = {
   data?: {
     items?: [ 
       {
-        attachResourceType?: string(name='attachResourceType', description='The type of the plugin mount resource. Valid values: GatewayRoute, Gateway, GatewayDomain, HttpApi, and Operation.', example='GatewayRoute'),
+        attachResourceType?: string(name='attachResourceType', description='The plugin mount resource type. Valid values: GatewayRoute, Gateway, GatewayDomain, HttpApi, and Operation.', example='GatewayRoute'),
         enable?: boolean(name='enable', description='Indicates whether the plugin is enabled.', example='true'),
         environmentInfo?: EnvironmentInfo(name='environmentInfo', description='The environment context.'),
         parentResourceInfo?: ParentResourceInfo(name='parentResourceInfo', description='The parent resource information.'),
-        pluginAttachmentId?: string(name='pluginAttachmentId', description='The ID of the plugin mount.', example='pa-d0j9t5em1hkncrlo51mg'),
-        pluginClassInfo?: PluginClassInfo(name='pluginClassInfo', description='The plugin class information.'),
+        pluginAttachmentId?: string(name='pluginAttachmentId', description='The plugin mount ID.', example='pa-d0j9t5em1hkncrlo51mg'),
+        pluginClassInfo?: PluginClassInfo(name='pluginClassInfo', description='The plugin type information.'),
         pluginConfig?: string(name='pluginConfig', description='The Base64-encoded content of the original plugin configuration.', example='bGltaXRfYnlfaGVhZGVyOiB4LWFwaS1rZXkKbGltaXRfa2V5czoKLSBrZXk6IGV4YW1wbGUta2V5LWEKICBxdWVyeV9wZXJfc2Vjb25kOiAxMAotIGtleTogZXhhbXBsZS1rZXktYgogIHF1ZXJ5X3Blcl9zZWNvbmQ6IDEK'),
         pluginId?: string(name='pluginId', description='The plugin ID.', example='pl-cvu6r4um1hko3b3ti0a0'),
         resourceInfos?: [
           ResourceInfo
-        ](name='resourceInfos', description='The mounted resource information.'),
+        ](name='resourceInfos', description='The mount resource information.'),
       }
     ](name='items', description='The item details.'),
     pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
@@ -19150,7 +19187,7 @@ model ListPluginAttachmentsResponse = {
 }
 
 /**
- * @summary Retrieves the list of plugin mounts.
+ * @summary Retrieves the plugin mount list.
  *
  * @param request ListPluginAttachmentsRequest
  * @param headers map
@@ -19208,7 +19245,7 @@ async function listPluginAttachmentsWithOptions(request: ListPluginAttachmentsRe
 }
 
 /**
- * @summary Retrieves the list of plugin mounts.
+ * @summary Retrieves the plugin mount list.
  *
  * @param request ListPluginAttachmentsRequest
  * @return ListPluginAttachmentsResponse
@@ -21716,19 +21753,19 @@ async function publishProduct(productId: string, request: PublishProductRequest)
 
 model QueryConsumerAuthorizationRulesRequest {
   apiNameLike?: string(name='apiNameLike', description='The API name.', example='api-xx'),
-  consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID. If you specify this parameter, the authorization rules of the consumer group are queried. At least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters must be specified.', example='csg-8c13d2b4f8a1'),
-  consumerGroupNameLike?: string(name='consumerGroupNameLike', description='The keyword for fuzzy match of the consumer group name.', example='team'),
-  consumerId?: string(name='consumerId', description='The consumer ID. At least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters must be specified.', example='cs-ct21c16m1hkp64hk6qmg'),
+  consumerGroupId?: string(name='consumerGroupId', description='The consumer group ID. If specified, the authorization rules of this consumer group are queried. You must specify at least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters as a query condition.', example='csg-8c13d2b4f8a1'),
+  consumerGroupNameLike?: string(name='consumerGroupNameLike', description='The consumer group name for fuzzy match.', example='team'),
+  consumerId?: string(name='consumerId', description='The consumer ID. You must specify at least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters as a query condition.', example='cs-ct21c16m1hkp64hk6qmg'),
   consumerNameLike?: string(name='consumerNameLike', description='The consumer name.', example='consumer-xxx'),
   environmentId?: string(name='environmentId', description='The environment ID.', example='env-cpqnr6tlhtgubc***'),
   groupByApi?: boolean(name='groupByApi', description='Specifies whether to group by API.', example='true'),
   pageNumber?: int32(name='pageNumber', description='The page number.', example='1'),
   pageSize?: int32(name='pageSize', description='The page size.', example='10'),
-  parentResourceId?: string(name='parentResourceId', description='The parent resource ID. At least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters must be specified.', example='ha-cn-li942gy8p01'),
-  principalType?: string(name='principalType', description='The type of the authorized principal. Valid values: Consumer and ConsumerGroup.', example='ConsumerGroup'),
-  resourceId?: string(name='resourceId', description='The resource ID. At least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters must be specified.', example='ha-cn-li942gy8p03'),
+  parentResourceId?: string(name='parentResourceId', description='The parent resource ID. You must specify at least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters as a query condition.', example='ha-cn-li942gy8p01'),
+  principalType?: string(name='principalType', description='The principal type. Valid values: Consumer and ConsumerGroup.', example='ConsumerGroup'),
+  resourceId?: string(name='resourceId', description='The resource ID. You must specify at least one of the resourceId, parentResourceId, consumerId, and consumerGroupId parameters as a query condition.', example='ha-cn-li942gy8p03'),
   resourceType?: string(name='resourceType', description='The resource type.', example='HttpApiRoute'),
-  resourceTypes?: string(name='resourceTypes', description='The service source types.', example='K8S'),
+  resourceTypes?: string(name='resourceTypes', description='The service source type.', example='K8S'),
 }
 
 model QueryConsumerAuthorizationRulesResponseBody = {
@@ -21749,7 +21786,7 @@ model QueryConsumerAuthorizationRulesResponseBody = {
         expireStatus?: string(name='expireStatus', description='The expiration status.', example='InEffect'),
         expireTimestamp?: long(name='expireTimestamp', description='The expiration time.', example='172086834548'),
         gatewayInfo?: GatewayInfo(name='gatewayInfo', description='The gateway information.'),
-        principalType?: string(name='principalType', description='The type of the authorized principal. Valid values: Consumer and ConsumerGroup.', example='ConsumerGroup'),
+        principalType?: string(name='principalType', description='The principal type. Valid values: Consumer and ConsumerGroup.', example='ConsumerGroup'),
         resourceId?: string(name='resourceId', description='The resource ID.', example='2351944'),
         resourceInfo?: {
           operationInfo?: HttpApiOperationInfo(name='operationInfo', description='The API operation information.'),
@@ -21774,7 +21811,7 @@ model QueryConsumerAuthorizationRulesResponse = {
 }
 
 /**
- * @summary Queries consumer authorization rules.
+ * @summary Queries the list of consumer authorization rules.
  *
  * @param request QueryConsumerAuthorizationRulesRequest
  * @param headers map
@@ -21847,7 +21884,7 @@ async function queryConsumerAuthorizationRulesWithOptions(request: QueryConsumer
 }
 
 /**
- * @summary Queries consumer authorization rules.
+ * @summary Queries the list of consumer authorization rules.
  *
  * @param request QueryConsumerAuthorizationRulesRequest
  * @return QueryConsumerAuthorizationRulesResponse
@@ -23289,24 +23326,24 @@ model UpdateAiModelSourceRequest {
   expectedVersion?: long(name='expectedVersion', description='The expected object version. Use the version returned by the most recent query.
 
 This parameter is required.', example='1'),
-  serviceId?: string(name='serviceId', description='The ID of the actual AI service bound to the model source.', example='svc-d00000000000000000000'),
+  serviceId?: string(name='serviceId', description='The ID of the actual AI service that is bound to the model source.', example='svc-d00000000000000000000'),
 }
 
 model UpdateAiModelSourceResponseBody = {
-  code?: string(name='code', description='The response status code. Ok indicates success, and a specific business error code indicates failure.', example='Ok'),
+  code?: string(name='code', description='The response status code. Ok is returned upon success, and a specific business error code is returned upon failure.', example='Ok'),
   data?: {
-    callNamePrefix?: string(name='callNamePrefix', example='qwen-prod'),
+    callNamePrefix?: string(name='callNamePrefix', description='The valid invoke name prefix of the model source. You can specify it during model creation. By default, the provider identity is used. It cannot be modified after creation.', example='qwen-prod'),
     displayName?: string(name='displayName', description='The display name of the model source or model provider.', example='Model Studio model source'),
     gatewayId?: string(name='gatewayId', description='The ID of the AI gateway instance to which the resource belongs.', example='gw-d00000000000000000000'),
     modelCount?: long(name='modelCount', description='The number of models.', example='4'),
     modelSourceId?: string(name='modelSourceId', description='The model source ID. Use the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
     provider?: string(name='provider', description='The stable identifier of the model provider.', example='qwen'),
-    serviceId?: string(name='serviceId', description='The ID of the actual AI service bound to the model source.', example='svc-d00000000000000000000'),
+    serviceId?: string(name='serviceId', description='The ID of the actual AI service that is bound to the model source.', example='svc-d00000000000000000000'),
     updateTime?: string(name='updateTime', description='The time of the most recent business update. The time is in RFC 3339 format and in the UTC time zone.', example='2026-11-12T00:00:00Z'),
-    version?: long(name='version', description='The current version of the object. This version is used for conditional validation during updates or deletions.', example='1'),
+    version?: long(name='version', description='The current version of the object. This version is used for conditional validation during update or delete operations.', example='1'),
   }(name='data', description='The business result returned by the model source operation.'),
-  message?: string(name='message', description='The response message that describes the request processing result.', example='success'),
-  requestId?: string(name='requestId', description='The request ID generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  message?: string(name='message', description='The response message that describes the result of the request.', example='success'),
+  requestId?: string(name='requestId', description='The request ID. This ID is generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model UpdateAiModelSourceResponse = {
@@ -23376,8 +23413,8 @@ model UpdateAiModelSourceModelRequest {
   ](name='availablePaths', description='The protocols and invocation paths supported by the model.'),
   credit?: {
     cacheCost?: float(name='cacheCost', description='The number of credits per million cached input tokens. The value must be a non-negative number. A value of 0 indicates that cached input is free of charge.', example='0.1'),
-    inputCost?: float(name='inputCost', description='The number of credits per million input tokens. The value must be a non-negative number. A value of 0 indicates that input is free of charge.', example='1'),
-    outputCost?: float(name='outputCost', description='The number of credits per million output tokens. The value must be a non-negative number. A value of 0 indicates that output is free of charge.', example='2'),
+    inputCost?: float(name='inputCost', description='The number of credits per million input tokens. The value must be a non-negative number. A value of 0 indicates that the input is free of charge.', example='1'),
+    outputCost?: float(name='outputCost', description='The number of credits per million output tokens. The value must be a non-negative number. A value of 0 indicates that the output is free of charge.', example='2'),
     type?: string(name='type', description='The pricing method. Valid value: fixed (fixed credit pricing).', example='fixed'),
   }(name='credit', description='The credit pricing configuration of the model.'),
   expectedVersion?: long(name='expectedVersion', description='The expected object version. Use the version returned by the most recent query.
@@ -23395,7 +23432,7 @@ This parameter is required.', example='1'),
 }
 
 model UpdateAiModelSourceModelResponseBody = {
-  code?: string(name='code', description='The response status code. A value of Ok indicates success. If the request fails, a specific business error code is returned.', example='Ok'),
+  code?: string(name='code', description='The response status code. Ok is returned for a successful request, and a specific business error code is returned for a failed request.', example='Ok'),
   data?: {
     availablePaths?: [ 
       {
@@ -23403,11 +23440,11 @@ model UpdateAiModelSourceModelResponseBody = {
         type?: string(name='type', description='The protocol type used by the invocation path.', example='OpenAI/v1'),
       }
     ](name='availablePaths', description='The protocols and invocation paths supported by the model.'),
-    callName?: string(name='callName', example='qwen-prod/qwen-plus'),
+    callName?: string(name='callName', description='The full name used to call this model, in the format of valid call name prefix of the model source/model name. When the model source uses the default prefix, the prefix is the provider identifier.', example='qwen-prod/qwen-plus'),
     credit?: {
       cacheCost?: float(name='cacheCost', description='The number of credits per million cached input tokens. The value must be a non-negative number. A value of 0 indicates that cached input is free of charge.', example='0.1'),
-      inputCost?: float(name='inputCost', description='The number of credits per million input tokens. The value must be a non-negative number. A value of 0 indicates that input is free of charge.', example='1'),
-      outputCost?: float(name='outputCost', description='The number of credits per million output tokens. The value must be a non-negative number. A value of 0 indicates that output is free of charge.', example='2'),
+      inputCost?: float(name='inputCost', description='The number of credits per million input tokens. The value must be a non-negative number. A value of 0 indicates that the input is free of charge.', example='1'),
+      outputCost?: float(name='outputCost', description='The number of credits per million output tokens. The value must be a non-negative number. A value of 0 indicates that the output is free of charge.', example='2'),
       type?: string(name='type', description='The pricing method. Valid value: fixed (fixed credit pricing).', example='fixed'),
     }(name='credit', description='The credit pricing configuration of the model.'),
     features?: map[string]any(name='features', description='The set of capabilities declared by the model. The key is the capability name, and the value indicates whether the capability is supported.', example='{"nativeStreaming":true}'),
@@ -23419,20 +23456,20 @@ model UpdateAiModelSourceModelResponseBody = {
       supportedInputModalities?: [ string ](name='supportedInputModalities', description='The input modalities supported by the model.'),
       supportedOutputModalities?: [ string ](name='supportedOutputModalities', description='The output modalities supported by the model.'),
     }(name='meta', description='The token limits and input and output modality information of the model.'),
-    modelCardId?: string(name='modelCardId', description='The model identifier. For standard models, use the source model card ID. For logical model entries, use the vm- identifier.', example='msc-d00000000000000000000'),
+    modelCardId?: string(name='modelCardId', description='The model identifier. Use the source model card ID for standard models and the vm- identifier for logical model entries.', example='msc-d00000000000000000000'),
     modelName?: string(name='modelName', description='The actual model name used by the upstream service.', example='qwen-plus'),
     modelProvider?: string(name='modelProvider', description='The stable identifier of the provider to which the model belongs.', example='qwen'),
     modelSourceId?: string(name='modelSourceId', description='The model source ID. Use the modelSourceId returned by CreateAiModelSource.', example='ms-d00000000000000000000'),
     modelSourceName?: string(name='modelSourceName', description='The display name of the model source.', example='Model Studio model source'),
     modelSourceVersion?: long(name='modelSourceVersion', description='The current version of the model source to which the model belongs.', example='1'),
-    pricingStatus?: string(name='pricingStatus', description='The synchronization status of the model pricing configuration. Valid values: Pending (the current version is not synchronized) and Ready (the current version is synchronized).', example='Ready'),
+    pricingStatus?: string(name='pricingStatus', description='The synchronization status of the model pricing configuration. A value of Pending indicates that the current version has not been synchronized, and a value of Ready indicates that the current version has been synchronized.', example='Ready'),
     serviceId?: string(name='serviceId', description='The ID of the actual AI service bound to the model source.', example='svc-d00000000000000000000'),
-    source?: string(name='source', description='The source of the model asset. Valid values: user (user model) and builtin (system built-in model).', example='user'),
-    updateTime?: string(name='updateTime', description='The most recent business update time in RFC 3339 format and UTC time zone.', example='2026-11-12T00:00:00Z'),
+    source?: string(name='source', description='The source of the model asset. A value of user indicates a user model, and a value of builtin indicates a system built-in model.', example='user'),
+    updateTime?: string(name='updateTime', description='The time of the most recent business update, in RFC 3339 format and the UTC time zone.', example='2026-11-12T00:00:00Z'),
     version?: long(name='version', description='The current version of the object, which is used for conditional validation during updates or deletions.', example='1'),
-  }(name='data', description='The business result returned by the operation on the AI model in the source.'),
+  }(name='data', description='The business result returned by the operation on the model in the source.'),
   message?: string(name='message', description='The response message, which describes the request processing result.', example='success'),
-  requestId?: string(name='requestId', description='The request ID, which is generated by the system and used to locate this call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  requestId?: string(name='requestId', description='The request ID. It is generated by the system to trace the call.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
 }
 
 model UpdateAiModelSourceModelResponse = {
@@ -23442,7 +23479,7 @@ model UpdateAiModelSourceModelResponse = {
 }
 
 /**
- * @summary Updates an AI model in a source.
+ * @summary Updates an AI model in a model source.
  *
  * @param request UpdateAiModelSourceModelRequest
  * @param headers map
@@ -23491,7 +23528,7 @@ async function updateAiModelSourceModelWithOptions(modelCardId: string, request:
 }
 
 /**
- * @summary Updates an AI model in a source.
+ * @summary Updates an AI model in a model source.
  *
  * @param request UpdateAiModelSourceModelRequest
  * @return UpdateAiModelSourceModelResponse
@@ -23507,7 +23544,6 @@ model UpdateAndAttachPolicyRequest {
 
 This parameter is required.'),
   attachResourceType?: string(name='attachResourceType', description='The mount point types supported by the policy. Valid values:
-
 - HttpApi: HTTP API
 - Operation: operation of the HTTP API
 - GatewayRoute: gateway route
@@ -23530,7 +23566,7 @@ This parameter is required.', example='{\\"enable\\":false}'),
 model UpdateAndAttachPolicyResponseBody = {
   code?: string(name='code', description='The response code.', example='Ok'),
   message?: string(name='message', description='The response message.', example='success'),
-  requestId?: string(name='requestId', description='The request ID, which is used to trace the API call chain.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
+  requestId?: string(name='requestId', description='The request ID used to trace the API call chain.', example='585657D2-1C20-5B8A-AF17-D727C6490BE4'),
 }
 
 model UpdateAndAttachPolicyResponse = {
@@ -23734,21 +23770,22 @@ async function updateCategoryProducts(categoryId: string, request: UpdateCategor
 model UpdateConsumerRequest {
   akSkIdentityConfigs?: [
     AkSkIdentityConfig
-  ](name='akSkIdentityConfigs', description='The list of AK/SK identity authentication configurations.'),
+  ](name='akSkIdentityConfigs', description='The list of AccessKey pair identity authentication configurations.'),
   apikeyIdentityConfig?: ApiKeyIdentityConfig(name='apikeyIdentityConfig', description='The API key identity authentication configuration.'),
   clearExpireAt?: boolean(name='clearExpireAt', description='Specifies whether to clear the expiration time and restore permanent validity. If this parameter is set to true, expireAt cannot be specified at the same time. The default value is false, which indicates that the expiration time is not cleared.', example='false'),
   description?: string(name='description', description='The description.', example='Test consumer'),
-  enable?: boolean(name='enable', description='Specifies whether to enable the consumer.', example='false'),
-  enableAfterRenewal?: boolean(name='enableAfterRenewal', description='Specifies whether to enable the consumer after renewal. This parameter can be set to true only when renew=true. The default value is false, which retains the current enabled or disabled state and does not implicitly enable a manually disabled consumer.', example='false'),
-  expireAt?: long(name='expireAt', description='The expiration time of the consumer, in UTC UNIX seconds. It must be a positive integer and later than the current time. If this parameter is not specified, the original value is retained. This parameter cannot be set at the same time as clearExpireAt=true. If renew=true, the value must be later than the original unexpired expiration time. If the configuration is saved but fails to be delivered, a retry with the original expiration time is allowed, but shortening the expiration time is still prohibited.', example='1893456000'),
+  enable?: boolean(name='enable', description='Specifies whether the consumer is enabled.', example='false'),
+  enableAfterRenewal?: boolean(name='enableAfterRenewal', description='Specifies whether to enable the consumer after renewal. This parameter can be set to true only when renew=true. The default value is false, which retains the current enabled or disabled status and does not implicitly enable a manually disabled consumer.', example='false'),
+  expireAt?: long(name='expireAt', description='The expiration time of the consumer, in UTC UNIX seconds. The value must be a positive integer and later than the current time. If this parameter is not specified, the original value is retained. This parameter cannot be set at the same time as clearExpireAt=true. If renew=true, the value must also be later than the original expiration time that has not expired. If the configuration is saved but fails to be delivered, retries with the original expiration time are allowed, but shortening the expiration time is still prohibited.', example='1893456000'),
+  extInfo?: string(name='extInfo', description='The extended information of the consumer. The value is saved as a raw string and can be up to 65,535 UTF-8 bytes in length. If this parameter is omitted or set to null, the original value is retained. An empty string clears the value.', example='partner-a'),
   jwtIdentityConfig?: JwtIdentityConfig(name='jwtIdentityConfig', description='The JWT identity authentication configuration.'),
-  renew?: boolean(name='renew', description='Specifies whether to only renew the consumer. If this parameter is set to true, only the validity period is updated and the consumer is explicitly enabled at the same time. The latest credentials, description, and authorizations on the server are retained. You must set expireAt or clearExpireAt=true, and you cannot specify identity configurations or description. The default value is false, which retains the original consumer update semantics.', example='false'),
+  renew?: boolean(name='renew', description='Specifies whether to only renew the consumer. If this parameter is set to true, only the validity period is updated and the consumer is explicitly enabled at the same time. The latest credentials, description, and authorizations on the server are retained. You must set expireAt or clearExpireAt=true, and cannot include identity configurations or description. The default value is false, which retains the original consumer update semantics.', example='false'),
 }
 
 model UpdateConsumerResponseBody = {
   code?: string(name='code', description='The response status code.', example='Ok'),
   message?: string(name='message', description='The response message.', example='ok'),
-  requestId?: string(name='requestId', description='The request ID, which is generated by the system to trace the current call.', example='B917B12C-030A-597A-AF2B-6C4353FC9F10'),
+  requestId?: string(name='requestId', description='The request ID, which is generated by the system and used to locate the current call.', example='B917B12C-030A-597A-AF2B-6C4353FC9F10'),
 }
 
 model UpdateConsumerResponse = {
@@ -23789,6 +23826,9 @@ async function updateConsumerWithOptions(consumerId: string, request: UpdateCons
   }
   if (!$isNull(request.expireAt)) {
     body['expireAt'] = request.expireAt;
+  }
+  if (!$isNull(request.extInfo)) {
+    body['extInfo'] = request.extInfo;
   }
   if (!$isNull(request.jwtIdentityConfig)) {
     body['jwtIdentityConfig'] = request.jwtIdentityConfig;
