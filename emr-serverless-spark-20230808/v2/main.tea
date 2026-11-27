@@ -835,14 +835,14 @@ async function changeResourceGroup(request: ChangeResourceGroupRequest): ChangeR
 
 model CreateKyuubiServiceRequest {
   computeInstance?: string(name='computeInstance', description='The specifications of the Kyuubi service.', example='2c8g'),
-  kyuubiConfigs?: string(name='kyuubiConfigs', description='The Kyuubi service configurations.', example='[{\\\\"key\\\\":\\\\"kyuubi.engine.share.level\\\\",\\\\"value\\\\":\\\\"USER\\\\"}]'),
+  kyuubiConfigs?: string(name='kyuubiConfigs', description='The Kyuubi service configurations.', example='[{\\"key\\":\\"kyuubi.engine.share.level\\",\\"value\\":\\"USER\\"}]'),
   kyuubiReleaseVersion?: string(name='kyuubiReleaseVersion', description='The Kyuubi service DPI engine version.', example='1.9.2-0.0.2'),
   name?: string(name='name', description='The name of the Kyuubi service.', example='dev_serverless_spark'),
   publicEndpointEnabled?: boolean(name='publicEndpointEnabled', description='Specifies whether to enable public network access.', example='true'),
   queue?: string(name='queue', description='The execution queue of the Kyuubi service.', example='dev_queue'),
   releaseVersion?: string(name='releaseVersion', description='The Spark DPI engine version.', example='esr-4.6.0 (Spark 3.5.2, Scala 2.12)'),
   replica?: int32(name='replica', description='The number of replicas for high availability.', example='3'),
-  sparkConfigs?: string(name='sparkConfigs', description='The Spark configurations.', example='[{\\\\"key\\\\":\\\\"spark.app.name\\\\",\\\\"value\\\\":\\\\"test\\\\"}]'),
+  sparkConfigs?: string(name='sparkConfigs', description='The Spark configurations.', example='[{\\"key\\":\\"spark.app.name\\",\\"value\\":\\"test\\"}]'),
 }
 
 model CreateKyuubiServiceResponseBody = {
@@ -1045,10 +1045,10 @@ model CreateLivyComputeRequest {
 - sparkBlackListConf
 - livyConf
 - livyClientConf', example='{
-  "sparkDefaultsConf": "spark.driver.cores     1\\\\nspark.driver.memory    4g\\\\nspark.executor.cores   1\\\\nspark.executor.memory  4g\\\\n",
-  "sparkBlackListConf": "spark.driver.cores\\\\nspark.driver.memory",
-  "livyConf": "livy.server.session.timeout  1h\\\\n",
-  "livyClientConf": "livy.rsc.sql.num-rows  1000\\\\n"
+  "sparkDefaultsConf": "spark.driver.cores     1\\nspark.driver.memory    4g\\nspark.executor.cores   1\\nspark.executor.memory  4g\\n",
+  "sparkBlackListConf": "spark.driver.cores\\nspark.driver.memory",
+  "livyConf": "livy.server.session.timeout  1h\\n",
+  "livyClientConf": "livy.rsc.sql.num-rows  1000\\n"
 }'),
   livyVersion?: string(name='livyVersion', description='The Livy version.', example='0.8.0'),
   memoryLimit?: string(name='memoryLimit', description='The memory size of the Livy server. Valid values:
@@ -1637,7 +1637,7 @@ model CreateRayClusterRequest {
     cpu?: string(name='cpu', description='The number of CPU cores.', example='2'),
     displayReleaseVersion?: string(name='displayReleaseVersion', description='The Ray database engine version.', example='ray-1.2.0 (Ray 2.55.1, Python 3.12)'),
     enableAutoScaling?: boolean(name='enableAutoScaling', description='Specifies whether to enable auto-scaling for worker nodes.', example='false'),
-    env?: string(name='env', description='The environment variables.', example='MY_ENV=hello\\\\nMY_ENV2=hello2'),
+    env?: string(name='env', description='The environment variables.', example='MY_ENV=hello\\nMY_ENV2=hello2'),
     gftConfig?: {
       redisPassword?: string(name='redisPassword', description='The Redis password.', example='redispasswd'),
       redisUrl?: string(name='redisUrl', description='The Redis URL.', example='10.12.3.4:6379'),
@@ -1660,7 +1660,7 @@ model CreateRayClusterRequest {
     {
       cpu?: string(name='cpu', description='The number of CPU cores.', example='4'),
       displayReleaseVersion?: string(name='displayReleaseVersion', description='The engine name. If you do not specify this parameter, it is the same as that of the head node.', example='ray-1.2.0 (Ray 2.55.1, Python 3.12)'),
-      env?: string(name='env', description='The environment variables.', example='MY_ENV=hello\\\\nMY_ENV2=hello2'),
+      env?: string(name='env', description='The environment variables.', example='MY_ENV=hello\\nMY_ENV2=hello2'),
       gpuDriverVersion?: string(name='gpuDriverVersion', description='The GPU driver version.', example='550'),
       gpuSpec?: string(name='gpuSpec', description='The GPU instance type.', example='ecs.gn6i-c4g1.xlarge'),
       groupName?: string(name='groupName', description='The name of the worker group.', example='WorkerGroup1'),
@@ -1760,6 +1760,75 @@ async function createRayCluster(workspaceId: string, request: CreateRayClusterRe
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return createRayClusterWithOptions(workspaceId, request, headers, runtime);
+}
+
+model CreateSecretValueRequest {
+  comment?: string(name='comment', description='The comment.', example='My secret'),
+  content?: string(name='content', description='The content of the ciphertext.', example='password'),
+  name?: string(name='name', description='The name of the ciphertext.', example='mysecret'),
+}
+
+model CreateSecretValueResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='5C2B60C6-03CE-5F31-A8A4-13FCBEBACA1C'),
+  secretId?: string(name='secretId', description='The ciphertext ID.', example='st-xxxxxxxxxx'),
+}
+
+model CreateSecretValueResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: CreateSecretValueResponseBody(name='body'),
+}
+
+/**
+ * @summary Creates a ciphertext.
+ *
+ * @param request CreateSecretValueRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return CreateSecretValueResponse
+ */
+@context("createSecretValueWithContext")
+async function createSecretValueWithOptions(workspaceId: string, request: CreateSecretValueRequest, headers: map[string]string, runtime: $RuntimeOptions): CreateSecretValueResponse {
+  request.validate();
+  var body : map[string]any = {};
+  if (!$isNull(request.comment)) {
+    body['comment'] = request.comment;
+  }
+  if (!$isNull(request.content)) {
+    body['content'] = request.content;
+  }
+  if (!$isNull(request.name)) {
+    body['name'] = request.name;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'CreateSecretValue',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/workspaces/${$URL.percentEncode(workspaceId)}/secret`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Creates a ciphertext.
+ *
+ * @param request CreateSecretValueRequest
+ * @return CreateSecretValueResponse
+ */
+async function createSecretValue(workspaceId: string, request: CreateSecretValueRequest): CreateSecretValueResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return createSecretValueWithOptions(workspaceId, request, headers, runtime);
 }
 
 model CreateSessionClusterRequest {
@@ -2521,6 +2590,59 @@ async function deleteRayCluster(workspaceId: string, clusterId: string): DeleteR
   return deleteRayClusterWithOptions(workspaceId, clusterId, headers, runtime);
 }
 
+model DeleteSecretValueRequest {
+}
+
+model DeleteSecretValueResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='DD6B1B2A-5837-5237-ABE4-FF0C8944'),
+}
+
+model DeleteSecretValueResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: DeleteSecretValueResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes the ciphertext.
+ *
+ * @param request DeleteSecretValueRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return DeleteSecretValueResponse
+ */
+@context("deleteSecretValueWithContext")
+async function deleteSecretValueWithOptions(workspaceId: string, secretId: string, request: DeleteSecretValueRequest, headers: map[string]string, runtime: $RuntimeOptions): DeleteSecretValueResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'DeleteSecretValue',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/workspaces/${$URL.percentEncode(workspaceId)}/secret/${$URL.percentEncode(secretId)}`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes the ciphertext.
+ *
+ * @param request DeleteSecretValueRequest
+ * @return DeleteSecretValueResponse
+ */
+async function deleteSecretValue(workspaceId: string, secretId: string, request: DeleteSecretValueRequest): DeleteSecretValueResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return deleteSecretValueWithOptions(workspaceId, secretId, request, headers, runtime);
+}
+
 model DeleteWorkspaceQueueRequest {
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
 }
@@ -2585,12 +2707,12 @@ model EditWorkspaceQueueRequest {
   description?: string(name='description', description='The description.', example='test queue'),
   environments?: [ string ](name='environments', description='The queue environment type.'),
   gpuSpec?: [ string ](name='gpuSpec', description='The list of GPU instance types.'),
-  instanceId?: string(name='instanceId'),
+  instanceId?: string(name='instanceId', description='The ID of the subscription GPU quota instance.'),
   resourceSpec?: {
     cu?: long(name='cu', description='The resource limit for the workspace queue.', example='1000'),
     gpu?: int32(name='gpu', description='The number of GPUs.', example='100'),
     gpuMachineNum?: int32(name='gpuMachineNum', description='The number of GPU machines.'),
-    maxCu?: long(name='maxCu', description='The maximum number of CUs.', example='0.5'),
+    maxCu?: long(name='maxCu', description='The maximum number of CUs.', example='2'),
   }(name='resourceSpec', description='The resource specifications.'),
   workspaceId?: string(name='workspaceId', description='The workspace ID.', example='w-975bcfda9625****'),
   workspaceQueueName?: string(name='workspaceQueueName', description='The name of the workspace queue.', example='dev_queue'),
@@ -2874,17 +2996,17 @@ async function getCacheCluster(cacheClusterId: string, request: GetCacheClusterR
 }
 
 model GetCuHoursRequest {
-  endTime?: string(name='endTime', description='The end time of the query time range.
+  endTime?: string(name='endTime', description='The end time of the query range.
 
 This parameter is required.', example='2024-01-08 00:00:00'),
-  startTime?: string(name='startTime', description='The start time of the query time range.
+  startTime?: string(name='startTime', description='The start time of the query range.
 
 This parameter is required.', example='2024-01-01 00:00:00'),
 }
 
 model GetCuHoursResponseBody = {
   data?: {
-    cuHours?: string(name='cuHours', description='The CU hours consumed by the specified queue during the query period. This value is an estimate and the final value is subject to the bill.', example='{2025-01-09 00:00:00=2.033333, 2025-01-09 01:00:00=2.033333, 2025-01-09 02:00:00=2.033333, 2025-01-09 03:00:00=2.033333, 2025-01-09 04:00:00=2.033333, 2025-01-09 05:00:00=2.033333, 2025-01-09 06:00:00=2.033333, 2025-01-09 07:00:00=2.033333, 2025-01-09 08:00:00=2.033333, 2025-01-09 09:00:00=1.933333, 2025-01-09 10:00:00=2.133333, 2025-01-09 11:00:00=3.100000, 2025-01-09 12:00:00=2.900000}'),
+    cuHours?: string(name='cuHours', description='The CU hours consumed by the queried queue during the query period. This value is an estimate, and the final amount is subject to the bill.', example='{2025-01-09 00:00:00=2.033333, 2025-01-09 01:00:00=2.033333, 2025-01-09 02:00:00=2.033333, 2025-01-09 03:00:00=2.033333, 2025-01-09 04:00:00=2.033333, 2025-01-09 05:00:00=2.033333, 2025-01-09 06:00:00=2.033333, 2025-01-09 07:00:00=2.033333, 2025-01-09 08:00:00=2.033333, 2025-01-09 09:00:00=1.933333, 2025-01-09 10:00:00=2.133333, 2025-01-09 11:00:00=3.100000, 2025-01-09 12:00:00=2.900000}'),
   }(name='data', description='The returned data.', example='{
     "cuHours": "{2025-01-09 00:00:00=2.033333, 2025-01-09 01:00:00=2.033333, 2025-01-09 02:00:00=2.033333, 2025-01-09 03:00:00=2.033333, 2025-01-09 04:00:00=2.033333, 2025-01-09 05:00:00=2.033333, 2025-01-09 06:00:00=2.033333, 2025-01-09 07:00:00=2.033333, 2025-01-09 08:00:00=2.033333, 2025-01-09 09:00:00=1.933333, 2025-01-09 10:00:00=2.133333, 2025-01-09 11:00:00=3.100000, 2025-01-09 12:00:00=2.900000}"
 }'),
@@ -3305,10 +3427,10 @@ model GetLivyComputeResponseBody = {
 - sparkBlackListConf
 - livyConf
 - livyClientConf', example='{
-  "sparkDefaultsConf": "spark.driver.cores     1\\\\nspark.driver.memory    4g\\\\nspark.executor.cores   1\\\\nspark.executor.memory  4g\\\\n",
-  "sparkBlackListConf": "spark.driver.cores\\\\nspark.driver.memory",
-  "livyConf": "livy.server.session.timeout  1h\\\\n",
-  "livyClientConf": "livy.rsc.sql.num-rows  1000\\\\n"
+  "sparkDefaultsConf": "spark.driver.cores     1\\nspark.driver.memory    4g\\nspark.executor.cores   1\\nspark.executor.memory  4g\\n",
+  "sparkBlackListConf": "spark.driver.cores\\nspark.driver.memory",
+  "livyConf": "livy.server.session.timeout  1h\\n",
+  "livyClientConf": "livy.rsc.sql.num-rows  1000\\n"
 }'),
     livyVersion?: string(name='livyVersion', description='The Livy version.', example='0.8.0'),
     memoryLimit?: string(name='memoryLimit', description='The memory size of the Livy server. Valid values:
@@ -3985,9 +4107,9 @@ model GetSqlStatementResponseBody = {
     sqlErrorMessage?: string(name='sqlErrorMessage', description='The SQL query error message.', example='error message'),
     sqlOutputs?: [ 
       {
-        rows?: string(name='rows', description='The query data, formatted as a string serialized in JSON.', example='[{\\\\"values\\\\":[\\\\"test_db\\\\",\\\\"test_table\\\\",false]}'),
+        rows?: string(name='rows', description='The query data, formatted as a string serialized in JSON.', example='[{\\"values\\":[\\"test_db\\",\\"test_table\\",false]}'),
         rowsFilePath?: string(name='rowsFilePath'),
-        schema?: string(name='schema', description='The detailed schema information, formatted as a string serialized in JSON.', example='{\\\\"type\\\\":\\\\"struct\\\\",\\\\"fields\\\\":[{\\\\"name\\\\":\\\\"namespace\\\\",\\\\"type\\\\":\\\\"string\\\\",\\\\"nullable\\\\":false,\\\\"metadata\\\\":{}},{\\\\"name\\\\":\\\\"tableName\\\\",\\\\"type\\\\":\\\\"string\\\\",\\\\"nullable\\\\":false,\\\\"metadata\\\\":{}},{\\\\"name\\\\":\\\\"isTemporary\\\\",\\\\"type\\\\":\\\\"boolean\\\\",\\\\"nullable\\\\":false,\\\\"metadata\\\\":{}}]}'),
+        schema?: string(name='schema', description='The detailed schema information, formatted as a string serialized in JSON.', example='{\\"type\\":\\"struct\\",\\"fields\\":[{\\"name\\":\\"namespace\\",\\"type\\":\\"string\\",\\"nullable\\":false,\\"metadata\\":{}},{\\"name\\":\\"tableName\\",\\"type\\":\\"string\\",\\"nullable\\":false,\\"metadata\\":{}},{\\"name\\":\\"isTemporary\\",\\"type\\":\\"boolean\\",\\"nullable\\":false,\\"metadata\\":{}}]}'),
       }
     ](name='sqlOutputs', description='The list of SQL query results.'),
     state?: string(name='state', description='The query status.', example='running'),
@@ -4194,7 +4316,7 @@ model GetWorkspaceResponseBody = {
     storage?: string(name='storage', description='The OSS path.', example='spark-result'),
     tags?: [ 
       {
-        tagKey?: string(name='tagKey', description='The tag key.', example='[\\\\"COST\\\\"]'),
+        tagKey?: string(name='tagKey', description='The tag key.', example='[\\"COST\\"]'),
         tagValue?: string(name='tagValue', description='The tag value.', example='3d775731-9ec1-4fe2-a00d-061d51fce677'),
       }
     ](name='tags', description='The tag key.'),
@@ -4597,7 +4719,7 @@ async function listJobExecutors(workspaceId: string, jobRunId: string, request: 
 }
 
 model ListJobRunsRequest {
-  applicationConfigs?: string(name='applicationConfigs', description='The Spark configurations.', example='[{\\\\"key\\\\":\\\\"spark.app.name\\\\",\\\\"value\\\\":\\\\"test\\\\"}]'),
+  applicationConfigs?: string(name='applicationConfigs', description='The Spark configurations.', example='[{\\"key\\":\\"spark.app.name\\",\\"value\\":\\"test\\"}]'),
   creator?: string(name='creator', description='The UID of the user who created the job.', example='150976534701****'),
   endTime?: {
     endTime?: long(name='endTime', description='The end of the time range. The value is a UNIX timestamp in milliseconds.', example='1710432000000'),
@@ -4613,7 +4735,7 @@ model ListJobRunsRequest {
   nextToken?: string(name='nextToken', description='The token that marks the position to start reading.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
   resourceQueueId?: string(name='resourceQueueId', description='The name of the resource queue in which the Spark job runs.', example='dev_queue'),
-  runtimeConfigs?: string(name='runtimeConfigs', description='The runtime configurations.', example='[{\\\\"key\\\\":\\\\"mainClass\\\\",\\\\"value\\\\":\\\\"yourClass\\\\"}]'),
+  runtimeConfigs?: string(name='runtimeConfigs', description='The runtime configurations.', example='[{\\"key\\":\\"mainClass\\",\\"value\\":\\"yourClass\\"}]'),
   startTime?: {
     endTime?: long(name='endTime', description='The end of the time range. The value is a UNIX timestamp in milliseconds.', example='1710432000000'),
     startTime?: long(name='startTime', description='The start of the time range. The value is a UNIX timestamp in milliseconds.', example='1709740800000'),
@@ -4628,7 +4750,7 @@ model ListJobRunsRequest {
 }
 
 model ListJobRunsShrinkRequest {
-  applicationConfigs?: string(name='applicationConfigs', description='The Spark configurations.', example='[{\\\\"key\\\\":\\\\"spark.app.name\\\\",\\\\"value\\\\":\\\\"test\\\\"}]'),
+  applicationConfigs?: string(name='applicationConfigs', description='The Spark configurations.', example='[{\\"key\\":\\"spark.app.name\\",\\"value\\":\\"test\\"}]'),
   creator?: string(name='creator', description='The UID of the user who created the job.', example='150976534701****'),
   endTimeShrink?: string(name='endTime', description='The time range for the end time of the job run.'),
   groupByState?: boolean(name='groupByState', description='Specifies whether to aggregate and return statistical results by job run state.'),
@@ -4641,7 +4763,7 @@ model ListJobRunsShrinkRequest {
   nextToken?: string(name='nextToken', description='The token that marks the position to start reading.', example='DD6B1B2A-5837-5237-ABE4-FF0C89568980'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
   resourceQueueId?: string(name='resourceQueueId', description='The name of the resource queue in which the Spark job runs.', example='dev_queue'),
-  runtimeConfigs?: string(name='runtimeConfigs', description='The runtime configurations.', example='[{\\\\"key\\\\":\\\\"mainClass\\\\",\\\\"value\\\\":\\\\"yourClass\\\\"}]'),
+  runtimeConfigs?: string(name='runtimeConfigs', description='The runtime configurations.', example='[{\\"key\\":\\"mainClass\\",\\"value\\":\\"yourClass\\"}]'),
   startTimeShrink?: string(name='startTime', description='The time range for the start time of the job run.'),
   statesShrink?: string(name='states', description='The states of the job runs.', example='["Running","Submitted"]'),
   tagsShrink?: string(name='tags', description='The list of tags.'),
@@ -5408,7 +5530,7 @@ model ListLogContentsResponseBody = {
   listLogContent?: {
     contents?: [ 
       {
-        lineContent?: string(name='LineContent', description='The content of the log line.', example='spark pi is 3.14\\\\n'),
+        lineContent?: string(name='LineContent', description='The content of the log line.', example='spark pi is 3.14\\n'),
       }
     ](name='contents', description='The list of log lines.'),
     totalLength?: long(name='totalLength', description='The total number of log lines.', example='10'),
@@ -6267,6 +6389,71 @@ async function listReleaseVersions(request: ListReleaseVersionsRequest): ListRel
   return listReleaseVersionsWithOptions(request, headers, runtime);
 }
 
+model ListSecretValueRequest {
+}
+
+model ListSecretValueResponseBody = {
+  requestId?: string(name='requestId', description='Id of the request', example='79555076-7087-59EF-A936-8C31A48AA1E2'),
+  secrets?: [ 
+    {
+      comment?: string(name='comment', description='The comment.', example='My secret。'),
+      content?: string(name='content', description='The content of the secret.', example='password'),
+      createTime?: long(name='createTime', description='The creation time. The value is a UNIX timestamp in milliseconds.', example='1787220243000'),
+      creator?: string(name='creator', description='The UID of the creator.', example='12550000006396'),
+      creatorName?: string(name='creatorName', description='The nickname of the creator.', example='admin'),
+      name?: string(name='name', description='The name of the secret.', example='mysecret'),
+      secretId?: string(name='secretId', description='The secret ID.', example='st-xxxxxxxxxxxx'),
+      secretType?: string(name='secretType', description='The type of the secret. The value is fixed to secret.', example='secret'),
+    }
+  ](name='secrets', description='The list of secrets.'),
+}
+
+model ListSecretValueResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: ListSecretValueResponseBody(name='body'),
+}
+
+/**
+ * @summary Lists secrets.
+ *
+ * @param request ListSecretValueRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return ListSecretValueResponse
+ */
+@context("listSecretValueWithContext")
+async function listSecretValueWithOptions(workspaceId: string, request: ListSecretValueRequest, headers: map[string]string, runtime: $RuntimeOptions): ListSecretValueResponse {
+  request.validate();
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'ListSecretValue',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/workspaces/${$URL.percentEncode(workspaceId)}/secret`,
+    method = 'GET',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Lists secrets.
+ *
+ * @param request ListSecretValueRequest
+ * @return ListSecretValueResponse
+ */
+async function listSecretValue(workspaceId: string, request: ListSecretValueRequest): ListSecretValueResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return listSecretValueWithOptions(workspaceId, request, headers, runtime);
+}
+
 model ListSessionClustersRequest {
   kind?: string(name='kind', description='The session type.', example='SQL'),
   maxResults?: int32(name='maxResults', description='The maximum number of records to return in a single request.', example='20'),
@@ -6406,7 +6593,7 @@ model ListSqlStatementContentsRequest {
 model ListSqlStatementContentsResponseBody = {
   requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
   sqlStatementContents?: {
-    contents?: string(name='contents', description='The list of SQL execution result contents.', example='[{\\\\"values\\\\":[\\\\"wj*****\\\\",\\\\"test\\\\",\\\\"2025-04-15\\\\"]}]'),
+    contents?: string(name='contents', description='The list of SQL execution result contents.', example='[{\\"values\\":[\\"wj*****\\",\\"test\\",\\"2025-04-15\\"]}]'),
     maxResults?: int32(name='maxResults', description='The maximum number of records to retrieve at a time.', example='2000'),
     nextToken?: string(name='nextToken', description='The token that indicates the starting position for reading.', example='1'),
     totalCount?: int32(name='totalCount', description='The total number of rows in the results.', example='40000'),
@@ -6712,20 +6899,20 @@ model ListWorkspacesResponseBody = {
       paymentStatus?: string(name='paymentStatus', description='The payment status.', example='PAID/UNPAID'),
       paymentType?: string(name='paymentType', description='The billing method.', example='PayAsYouGo or Subscription'),
       prePaidQuota?: {
-        allocatedResource?: string(name='allocatedResource', description='The amount of resources currently allocated.', example='{\\\\"cpu\\\\":\\\\"1\\\\",\\\\"memory\\\\":\\\\"4Gi\\\\",\\\\"cu\\\\":\\\\"1\\\\"}'),
+        allocatedResource?: string(name='allocatedResource', description='The amount of resources currently allocated.', example='{\\"cpu\\":\\"1\\",\\"memory\\":\\"4Gi\\",\\"cu\\":\\"1\\"}'),
         autoRenewal?: boolean(name='autoRenewal', description='Specifies whether auto-renewal is enabled for the resource. Valid values:
 - true: Auto-renewal is enabled. The resource is automatically renewed upon expiration.
 - false: Auto-renewal is disabled. The resource is stopped upon expiration.', example='true'),
         createTime?: long(name='createTime', description='The time when the resource quota was created. The value is a UNIX timestamp in milliseconds.', example='1745683200000'),
         expireTime?: long(name='expireTime', description='The expiration time of the resource quota. The value is a UNIX timestamp in milliseconds.', example='1740537153000'),
         instanceId?: string(name='instanceId', description='The instance ID of the resource associated with the quota.', example='i-abc12345'),
-        maxResource?: string(name='maxResource', description='The maximum amount of resources that can be used.', example='{\\\\"cpu\\\\":\\\\"1\\\\",\\\\"memory\\\\":\\\\"4Gi\\\\",\\\\"cu\\\\":\\\\"1\\\\"}'),
+        maxResource?: string(name='maxResource', description='The maximum amount of resources that can be used.', example='{\\"cpu\\":\\"1\\",\\"memory\\":\\"4Gi\\",\\"cu\\":\\"1\\"}'),
         orderId?: string(name='orderId', description='The order ID.', example='23464687565'),
         paymentStatus?: string(name='paymentStatus', description='The payment status of the current resource. Valid values:
 - NORMAL: Valid.
 - WAIT_FOR_EXPIRE: Expiring.
 - EXPIRED: Expired.', example='NORMAL'),
-        usedResource?: string(name='usedResource', description='The amount of resources currently used.', example='{\\\\"cpu\\\\":\\\\"0\\\\",\\\\"memory\\\\":\\\\"0Gi\\\\",\\\\"cu\\\\":\\\\"0\\\\"}'),
+        usedResource?: string(name='usedResource', description='The amount of resources currently used.', example='{\\"cpu\\":\\"0\\",\\"memory\\":\\"0Gi\\",\\"cu\\":\\"0\\"}'),
       }(name='prePaidQuota', description='The information about the subscription resource quota.'),
       prePaidQuotaGpu?: [ 
         {
@@ -6757,7 +6944,7 @@ model ListWorkspacesResponseBody = {
       storage?: string(name='storage', description='The OSS path.', example='spark-result'),
       tags?: [ 
         {
-          tagKey?: string(name='tagKey', description='The tag key.', example='[\\\\"COST\\\\"]'),
+          tagKey?: string(name='tagKey', description='The tag key.', example='[\\"COST\\"]'),
           tagValue?: string(name='tagValue', description='The tag value.', example='3d775731-9ec1-4fe2-a00d-061d51fce677'),
         }
       ](name='tags', description='The list of workspace tags.'),
@@ -6889,7 +7076,7 @@ This parameter is required.', example='w-d2d82aa09155****'),
 
 model QueryApmGrafanaDataResponseBody = {
   data?: {
-    data?: string(name='data', description='The returned data.', example='{\\\\"status\\\\":\\\\"success\\\\",\\\\"data\\\\":{\\\\"resultType\\\\":\\\\"matrix\\\\",\\\\"result\\\\":[{\\\\"metric\\\\":{\\\\"fenix_job_runId\\\\":\\\\"jr-xxxxx\\\\"},\\\\"values\\\\":[[1789093630,\\\\"0\\\\"],[1789093640,\\\\"0\\\\"],[1789093650,\\\\"0\\\\"],[1789093660,\\\\"0\\\\"],[1789093670,\\\\"0\\\\"],[1789093680,\\\\"0\\\\"],[1789093690,\\\\"0\\\\"],[1789093700,\\\\"0\\\\"],[1789093710,\\\\"0\\\\"],[1789093720,\\\\"0\\\\"],[1789093730,\\\\"0\\\\"],[1789093740,\\\\"0\\\\"],[1789093750,\\\\"0\\\\"],[1789093760,\\\\"0\\\\"],[1789093770,\\\\"0\\\\"],[1789093780,\\\\"0\\\\"],[1789093790,\\\\"0\\\\"],[1789093800,\\\\"0\\\\"],[1789093810,\\\\"0\\\\"],[1789093820,\\\\"0\\\\"],[1789093830,\\\\"0\\\\"],[1789093840,\\\\"0\\\\"],[1789093850,\\\\"0\\\\"],[1789093860,\\\\"0\\\\"],[1789093870,\\\\"0\\\\"],[1789093880,\\\\"0\\\\"],[1789093890,\\\\"0\\\\"],[1789093900,\\\\"0\\\\"],[1789093910,\\\\"0\\\\"],[1789093920,\\\\"0\\\\"],[1789093930,\\\\"0\\\\"],[1789093940,\\\\"0\\\\"],[1789093950,\\\\"0\\\\"],[1789093960,\\\\"0\\\\"],[1789093970,\\\\"0\\\\"],[1789093980,\\\\"0\\\\"],[1789093990,\\\\"0\\\\"],[1789094000,\\\\"0\\\\"],[1789094010,\\\\"0\\\\"],[1789094020,\\\\"0\\\\"],[1789094030,\\\\"0\\\\"],[1789094040,\\\\"0\\\\"],[1789094050,\\\\"0\\\\"],[1789094060,\\\\"0\\\\"],[1789094070,\\\\"0\\\\"],[1789094080,\\\\"0\\\\"],[1789094090,\\\\"0\\\\"],[1789094100,\\\\"0\\\\"],[1789094110,\\\\"0\\\\"],[1789094120,\\\\"0\\\\"],[1789094130,\\\\"0\\\\"],[1789094140,\\\\"0\\\\"],[1789094150,\\\\"0\\\\"],[1789094160,\\\\"0\\\\"],[1789094170,\\\\"0\\\\"],[1789094180,\\\\"0\\\\"],[1789094190,\\\\"0\\\\"],[1789094200,\\\\"0\\\\"],[1789094210,\\\\"0\\\\"],[1789094220,\\\\"0\\\\"],[1789094230,\\\\"0\\\\"],[1789094240,\\\\"0\\\\"],[1789094250,\\\\"0\\\\"],[1789094260,\\\\"0\\\\"],[1789094270,\\\\"0\\\\"],[1789094280,\\\\"0\\\\"],[1789094290,\\\\"0\\\\"],[1789094300,\\\\"0\\\\"],[1789094310,\\\\"0\\\\"],[1789094320,\\\\"0\\\\"],[1789094330,\\\\"0\\\\"],[1789094340,\\\\"0\\\\"],[1789094350,\\\\"0\\\\"],[1789094360,\\\\"0\\\\"],[1789094370,\\\\"0\\\\"],[1789094380,\\\\"0\\\\"],[1789094390,\\\\"0\\\\"],[1789094400,\\\\"0\\\\"],[1789094410,\\\\"0\\\\"],[1789094420,\\\\"0\\\\"],[1789094430,\\\\"0\\\\"],[1789094440,\\\\"0\\\\"],[1789094450,\\\\"0\\\\"],[1789094460,\\\\"0\\\\"],[1789094470,\\\\"0\\\\"],[1789094480,\\\\"0\\\\"],[1789094490,\\\\"0\\\\"],[1789094500,\\\\"0\\\\"],[1789094510,\\\\"0\\\\"],[1789094520,\\\\"0\\\\"],[1789094530,\\\\"0\\\\"],[1789094540,\\\\"0\\\\"],[1789094550,\\\\"0\\\\"],[1789094560,\\\\"0\\\\"],[1789094570,\\\\"0\\\\"],[1789094580,\\\\"0\\\\"],[1789094590,\\\\"0\\\\"],[1789094600,\\\\"0\\\\"],[1789094610,\\\\"0\\\\"],[1789094620,\\\\"0\\\\"],[1789094630,\\\\"0\\\\"],[1789094640,\\\\"0\\\\"],[1789094650,\\\\"0\\\\"],[1789094660,\\\\"0\\\\"],[1789094670,\\\\"0\\\\"],[1789094680,\\\\"0\\\\"],[1789094690,\\\\"0\\\\"],[1789094700,\\\\"0\\\\"],[1789094710,\\\\"0\\\\"],[1789094720,\\\\"0\\\\"],[1789094730,\\\\"0\\\\"],[1789094740,\\\\"0\\\\"],[1789094750,\\\\"0\\\\"],[1789094760,\\\\"0\\\\"],[1789094770,\\\\"0\\\\"],[1789094780,\\\\"0\\\\"],[1789094790,\\\\"0\\\\"],[1789094800,\\\\"0\\\\"],[1789094810,\\\\"0\\\\"],[1789094820,\\\\"0\\\\"],[1789094830,\\\\"0\\\\"],[1789094840,\\\\"0\\\\"],[1789094850,\\\\"0\\\\"],[1789094860,\\\\"0\\\\"],[1789094870,\\\\"0\\\\"],[1789094880,\\\\"0\\\\"],[1789094890,\\\\"0\\\\"],[1789094900,\\\\"0\\\\"],[1789094910,\\\\"0\\\\"],[1789094920,\\\\"0\\\\"],[1789094930,\\\\"0\\\\"],[1789094940,\\\\"0\\\\"],[1789094950,\\\\"0\\\\"],[1789094960,\\\\"0\\\\"],[1789094970,\\\\"0\\\\"],[1789094980,\\\\"0\\\\"],[1789094990,\\\\"0\\\\"],[1789095000,\\\\"0\\\\"],[1789095010,\\\\"0\\\\"],[1789095020,\\\\"0\\\\"],[1789095030,\\\\"0\\\\"],[1789095040,\\\\"0\\\\"],[1789095050,\\\\"0\\\\"],[1789095060,\\\\"0\\\\"],[1789095070,\\\\"0\\\\"],[1789095080,\\\\"0\\\\"],[1789095090,\\\\"0\\\\"],[1789095100,\\\\"0\\\\"],[1789095110,\\\\"0\\\\"],[1789095120,\\\\"0\\\\"],[1789095130,\\\\"0\\\\"],[1789095140,\\\\"0\\\\"],[1789095150,\\\\"0\\\\"],[1789095160,\\\\"0\\\\"],[1789095170,\\\\"0\\\\"],[1789095180,\\\\"0\\\\"],[1789095190,\\\\"0\\\\"],[1789095200,\\\\"0\\\\"],[1789095210,\\\\"0\\\\"],[1789095220,\\\\"0\\\\"],[1789095230,\\\\"0\\\\"],[1789095240,\\\\"0\\\\"],[1789095250,\\\\"0\\\\"],[1789095260,\\\\"0\\\\"],[1789095270,\\\\"0\\\\"],[1789095280,\\\\"0\\\\"],[1789095290,\\\\"0\\\\"],[1789095300,\\\\"0\\\\"],[1789095310,\\\\"0\\\\"],[1789095320,\\\\"0\\\\"],[1789095330,\\\\"0\\\\"],[1789095340,\\\\"0\\\\"],[1789095350,\\\\"0\\\\"],[1789095360,\\\\"0\\\\"],[1789095370,\\\\"0\\\\"],[1789095380,\\\\"0\\\\"],[1789095390,\\\\"0\\\\"],[1789095400,\\\\"0\\\\"],[1789095410,\\\\"0\\\\"],[1789095420,\\\\"0\\\\"],[1789095430,\\\\"0\\\\"],[1789095440,\\\\"0\\\\"],[1789095450,\\\\"0\\\\"],[1789095460,\\\\"0\\\\"],[1789095470,\\\\"0\\\\"],[1789095480,\\\\"0\\\\"],[1789095490,\\\\"0\\\\"],[1789095500,\\\\"0\\\\"],[1789095510,\\\\"0\\\\"],[1789095520,\\\\"0\\\\"],[1789095530,\\\\"0\\\\"],[1789095540,\\\\"0\\\\"],[1789095550,\\\\"0\\\\"],[1789095560,\\\\"0\\\\"],[1789095570,\\\\"0\\\\"],[1789095580,\\\\"0\\\\"],[1789095590,\\\\"0\\\\"],[1789095600,\\\\"0\\\\"],[1789095610,\\\\"0\\\\"],[1789095620,\\\\"0\\\\"],[1789095630,\\\\"0\\\\"],[1789095640,\\\\"0\\\\"],[1789095650,\\\\"0\\\\"],[1789095660,\\\\"0\\\\"],[1789095670,\\\\"0\\\\"],[1789095680,\\\\"0\\\\"],[1789095690,\\\\"0\\\\"],[1789095700,\\\\"0\\\\"],[1789095710,\\\\"0\\\\"],[1789095720,\\\\"0\\\\"],[1789095730,\\\\"0\\\\"],[1789095740,\\\\"0\\\\"],[1789095750,\\\\"0\\\\"],[1789095760,\\\\"0\\\\"],[1789095770,\\\\"0\\\\"],[1789095780,\\\\"0\\\\"],[1789095790,\\\\"0\\\\"],[1789095800,\\\\"0\\\\"],[1789095810,\\\\"0\\\\"],[1789095820,\\\\"0\\\\"],[1789095830,\\\\"0\\\\"],[1789095840,\\\\"0\\\\"],[1789095850,\\\\"0\\\\"],[1789095860,\\\\"0\\\\"],[1789095870,\\\\"0\\\\"],[1789095880,\\\\"0\\\\"],[1789095890,\\\\"0\\\\"],[1789095900,\\\\"0\\\\"],[1789095910,\\\\"0\\\\"],[1789095920,\\\\"0\\\\"],[1789095930,\\\\"0\\\\"],[1789095940,\\\\"0\\\\"],[1789095950,\\\\"0\\\\"],[1789095960,\\\\"0\\\\"],[1789095970,\\\\"0\\\\"],[1789095980,\\\\"0\\\\"],[1789095990,\\\\"0\\\\"],[1789096000,\\\\"0\\\\"],[1789096010,\\\\"0\\\\"],[1789096020,\\\\"0\\\\"],[1789096030,\\\\"0\\\\"],[1789096040,\\\\"0\\\\"],[1789096050,\\\\"0\\\\"],[1789096060,\\\\"0\\\\"],[1789096070,\\\\"0\\\\"],[1789096080,\\\\"0\\\\"],[1789096090,\\\\"0\\\\"],[1789096100,\\\\"0\\\\"],[1789096110,\\\\"0\\\\"],[1789096120,\\\\"0\\\\"],[1789096130,\\\\"0\\\\"],[1789096140,\\\\"0\\\\"],[1789096150,\\\\"0\\\\"],[1789096160,\\\\"0\\\\"],[1789096170,\\\\"0\\\\"],[1789096180,\\\\"0\\\\"],[1789096190,\\\\"0\\\\"],[1789096200,\\\\"0\\\\"],[1789096210,\\\\"0\\\\"],[1789096220,\\\\"0\\\\"],[1789096230,\\\\"0\\\\"],[1789096240,\\\\"0\\\\"],[1789096250,\\\\"0\\\\"],[1789096260,\\\\"0\\\\"],[1789096270,\\\\"0\\\\"],[1789096280,\\\\"0\\\\"],[1789096290,\\\\"0\\\\"],[1789096300,\\\\"0\\\\"],[1789096310,\\\\"0\\\\"],[1789096320,\\\\"0\\\\"],[1789096330,\\\\"0\\\\"],[1789096340,\\\\"0\\\\"],[1789096350,\\\\"0\\\\"],[1789096360,\\\\"0\\\\"],[1789096370,\\\\"0\\\\"],[1789096380,\\\\"0\\\\"],[1789096390,\\\\"0\\\\"],[1789096400,\\\\"0\\\\"],[1789096410,\\\\"0\\\\"],[1789096420,\\\\"0\\\\"],[1789096430,\\\\"0\\\\"],[1789096440,\\\\"0\\\\"],[1789096450,\\\\"0\\\\"],[1789096460,\\\\"0\\\\"],[1789096470,\\\\"0\\\\"],[1789096480,\\\\"0\\\\"],[1789096490,\\\\"0\\\\"],[1789096500,\\\\"0\\\\"],[1789096510,\\\\"0\\\\"],[1789096520,\\\\"0\\\\"],[1789096530,\\\\"0\\\\"],[1789096540,\\\\"0\\\\"],[1789096550,\\\\"0\\\\"],[1789096560,\\\\"0\\\\"],[1789096570,\\\\"0\\\\"],[1789096580,\\\\"0\\\\"],[1789096590,\\\\"0\\\\"],[1789096600,\\\\"0\\\\"],[1789096610,\\\\"0\\\\"],[1789096620,\\\\"0\\\\"],[1789096630,\\\\"0\\\\"],[1789096640,\\\\"0\\\\"],[1789096650,\\\\"0\\\\"],[1789096660,\\\\"0\\\\"],[1789096670,\\\\"0\\\\"],[1789096680,\\\\"0\\\\"],[1789096690,\\\\"0\\\\"],[1789096700,\\\\"0\\\\"],[1789096710,\\\\"0\\\\"],[1789096720,\\\\"0\\\\"],[1789096730,\\\\"0\\\\"],[1789096740,\\\\"0\\\\"],[1789096750,\\\\"0\\\\"],[1789096760,\\\\"0\\\\"],[1789096770,\\\\"0\\\\"],[1789096780,\\\\"0\\\\"],[1789096790,\\\\"0\\\\"],[1789096800,\\\\"0\\\\"],[1789096810,\\\\"0\\\\"],[1789096820,\\\\"0\\\\"],[1789096830,\\\\"0\\\\"],[1789096840,\\\\"0\\\\"],[1789096850,\\\\"0\\\\"],[1789096860,\\\\"0\\\\"],[1789096870,\\\\"0\\\\"],[1789096880,\\\\"0\\\\"],[1789096890,\\\\"0\\\\"],[1789096900,\\\\"0\\\\"],[1789096910,\\\\"0\\\\"],[1789096920,\\\\"0\\\\"],[1789096930,\\\\"0\\\\"],[1789096940,\\\\"0\\\\"],[1789096950,\\\\"0\\\\"],[1789096960,\\\\"0\\\\"],[1789096970,\\\\"0\\\\"],[1789096980,\\\\"0\\\\"],[1789096990,\\\\"0\\\\"],[1789097000,\\\\"0\\\\"],[1789097010,\\\\"0\\\\"],[1789097020,\\\\"0\\\\"],[1789097030,\\\\"0\\\\"],[1789097040,\\\\"0\\\\"],[1789097050,\\\\"0\\\\"],[1789097060,\\\\"0\\\\"],[1789097070,\\\\"0\\\\"],[1789097080,\\\\"0\\\\"],[1789097090,\\\\"0\\\\"],[1789097100,\\\\"0\\\\"],[1789097110,\\\\"0\\\\"],[1789097120,\\\\"0\\\\"],[1789097130,\\\\"0\\\\"],[1789097140,\\\\"0\\\\"],[1789097150,\\\\"0\\\\"],[1789097160,\\\\"0\\\\"],[1789097170,\\\\"0\\\\"],[1789097180,\\\\"0\\\\"],[1789097190,\\\\"0\\\\"],[1789097200,\\\\"0\\\\"],[1789097210,\\\\"0\\\\"],[1789097220,\\\\"0\\\\"],[1789097230,\\\\"0\\\\"]]}]}}'),
+    data?: string(name='data', description='The returned data.', example='{\\"status\\":\\"success\\",\\"data\\":{\\"resultType\\":\\"matrix\\",\\"result\\":[{\\"metric\\":{\\"fenix_job_runId\\":\\"jr-xxxxx\\"},\\"values\\":[[1789093630,\\"0\\"],[1789093640,\\"0\\"],[1789093650,\\"0\\"],[1789093660,\\"0\\"],[1789093670,\\"0\\"],[1789093680,\\"0\\"],[1789093690,\\"0\\"],[1789093700,\\"0\\"],[1789093710,\\"0\\"],[1789093720,\\"0\\"],[1789093730,\\"0\\"],[1789093740,\\"0\\"],[1789093750,\\"0\\"],[1789093760,\\"0\\"],[1789093770,\\"0\\"],[1789093780,\\"0\\"],[1789093790,\\"0\\"],[1789093800,\\"0\\"],[1789093810,\\"0\\"],[1789093820,\\"0\\"],[1789093830,\\"0\\"],[1789093840,\\"0\\"],[1789093850,\\"0\\"],[1789093860,\\"0\\"],[1789093870,\\"0\\"],[1789093880,\\"0\\"],[1789093890,\\"0\\"],[1789093900,\\"0\\"],[1789093910,\\"0\\"],[1789093920,\\"0\\"],[1789093930,\\"0\\"],[1789093940,\\"0\\"],[1789093950,\\"0\\"],[1789093960,\\"0\\"],[1789093970,\\"0\\"],[1789093980,\\"0\\"],[1789093990,\\"0\\"],[1789094000,\\"0\\"],[1789094010,\\"0\\"],[1789094020,\\"0\\"],[1789094030,\\"0\\"],[1789094040,\\"0\\"],[1789094050,\\"0\\"],[1789094060,\\"0\\"],[1789094070,\\"0\\"],[1789094080,\\"0\\"],[1789094090,\\"0\\"],[1789094100,\\"0\\"],[1789094110,\\"0\\"],[1789094120,\\"0\\"],[1789094130,\\"0\\"],[1789094140,\\"0\\"],[1789094150,\\"0\\"],[1789094160,\\"0\\"],[1789094170,\\"0\\"],[1789094180,\\"0\\"],[1789094190,\\"0\\"],[1789094200,\\"0\\"],[1789094210,\\"0\\"],[1789094220,\\"0\\"],[1789094230,\\"0\\"],[1789094240,\\"0\\"],[1789094250,\\"0\\"],[1789094260,\\"0\\"],[1789094270,\\"0\\"],[1789094280,\\"0\\"],[1789094290,\\"0\\"],[1789094300,\\"0\\"],[1789094310,\\"0\\"],[1789094320,\\"0\\"],[1789094330,\\"0\\"],[1789094340,\\"0\\"],[1789094350,\\"0\\"],[1789094360,\\"0\\"],[1789094370,\\"0\\"],[1789094380,\\"0\\"],[1789094390,\\"0\\"],[1789094400,\\"0\\"],[1789094410,\\"0\\"],[1789094420,\\"0\\"],[1789094430,\\"0\\"],[1789094440,\\"0\\"],[1789094450,\\"0\\"],[1789094460,\\"0\\"],[1789094470,\\"0\\"],[1789094480,\\"0\\"],[1789094490,\\"0\\"],[1789094500,\\"0\\"],[1789094510,\\"0\\"],[1789094520,\\"0\\"],[1789094530,\\"0\\"],[1789094540,\\"0\\"],[1789094550,\\"0\\"],[1789094560,\\"0\\"],[1789094570,\\"0\\"],[1789094580,\\"0\\"],[1789094590,\\"0\\"],[1789094600,\\"0\\"],[1789094610,\\"0\\"],[1789094620,\\"0\\"],[1789094630,\\"0\\"],[1789094640,\\"0\\"],[1789094650,\\"0\\"],[1789094660,\\"0\\"],[1789094670,\\"0\\"],[1789094680,\\"0\\"],[1789094690,\\"0\\"],[1789094700,\\"0\\"],[1789094710,\\"0\\"],[1789094720,\\"0\\"],[1789094730,\\"0\\"],[1789094740,\\"0\\"],[1789094750,\\"0\\"],[1789094760,\\"0\\"],[1789094770,\\"0\\"],[1789094780,\\"0\\"],[1789094790,\\"0\\"],[1789094800,\\"0\\"],[1789094810,\\"0\\"],[1789094820,\\"0\\"],[1789094830,\\"0\\"],[1789094840,\\"0\\"],[1789094850,\\"0\\"],[1789094860,\\"0\\"],[1789094870,\\"0\\"],[1789094880,\\"0\\"],[1789094890,\\"0\\"],[1789094900,\\"0\\"],[1789094910,\\"0\\"],[1789094920,\\"0\\"],[1789094930,\\"0\\"],[1789094940,\\"0\\"],[1789094950,\\"0\\"],[1789094960,\\"0\\"],[1789094970,\\"0\\"],[1789094980,\\"0\\"],[1789094990,\\"0\\"],[1789095000,\\"0\\"],[1789095010,\\"0\\"],[1789095020,\\"0\\"],[1789095030,\\"0\\"],[1789095040,\\"0\\"],[1789095050,\\"0\\"],[1789095060,\\"0\\"],[1789095070,\\"0\\"],[1789095080,\\"0\\"],[1789095090,\\"0\\"],[1789095100,\\"0\\"],[1789095110,\\"0\\"],[1789095120,\\"0\\"],[1789095130,\\"0\\"],[1789095140,\\"0\\"],[1789095150,\\"0\\"],[1789095160,\\"0\\"],[1789095170,\\"0\\"],[1789095180,\\"0\\"],[1789095190,\\"0\\"],[1789095200,\\"0\\"],[1789095210,\\"0\\"],[1789095220,\\"0\\"],[1789095230,\\"0\\"],[1789095240,\\"0\\"],[1789095250,\\"0\\"],[1789095260,\\"0\\"],[1789095270,\\"0\\"],[1789095280,\\"0\\"],[1789095290,\\"0\\"],[1789095300,\\"0\\"],[1789095310,\\"0\\"],[1789095320,\\"0\\"],[1789095330,\\"0\\"],[1789095340,\\"0\\"],[1789095350,\\"0\\"],[1789095360,\\"0\\"],[1789095370,\\"0\\"],[1789095380,\\"0\\"],[1789095390,\\"0\\"],[1789095400,\\"0\\"],[1789095410,\\"0\\"],[1789095420,\\"0\\"],[1789095430,\\"0\\"],[1789095440,\\"0\\"],[1789095450,\\"0\\"],[1789095460,\\"0\\"],[1789095470,\\"0\\"],[1789095480,\\"0\\"],[1789095490,\\"0\\"],[1789095500,\\"0\\"],[1789095510,\\"0\\"],[1789095520,\\"0\\"],[1789095530,\\"0\\"],[1789095540,\\"0\\"],[1789095550,\\"0\\"],[1789095560,\\"0\\"],[1789095570,\\"0\\"],[1789095580,\\"0\\"],[1789095590,\\"0\\"],[1789095600,\\"0\\"],[1789095610,\\"0\\"],[1789095620,\\"0\\"],[1789095630,\\"0\\"],[1789095640,\\"0\\"],[1789095650,\\"0\\"],[1789095660,\\"0\\"],[1789095670,\\"0\\"],[1789095680,\\"0\\"],[1789095690,\\"0\\"],[1789095700,\\"0\\"],[1789095710,\\"0\\"],[1789095720,\\"0\\"],[1789095730,\\"0\\"],[1789095740,\\"0\\"],[1789095750,\\"0\\"],[1789095760,\\"0\\"],[1789095770,\\"0\\"],[1789095780,\\"0\\"],[1789095790,\\"0\\"],[1789095800,\\"0\\"],[1789095810,\\"0\\"],[1789095820,\\"0\\"],[1789095830,\\"0\\"],[1789095840,\\"0\\"],[1789095850,\\"0\\"],[1789095860,\\"0\\"],[1789095870,\\"0\\"],[1789095880,\\"0\\"],[1789095890,\\"0\\"],[1789095900,\\"0\\"],[1789095910,\\"0\\"],[1789095920,\\"0\\"],[1789095930,\\"0\\"],[1789095940,\\"0\\"],[1789095950,\\"0\\"],[1789095960,\\"0\\"],[1789095970,\\"0\\"],[1789095980,\\"0\\"],[1789095990,\\"0\\"],[1789096000,\\"0\\"],[1789096010,\\"0\\"],[1789096020,\\"0\\"],[1789096030,\\"0\\"],[1789096040,\\"0\\"],[1789096050,\\"0\\"],[1789096060,\\"0\\"],[1789096070,\\"0\\"],[1789096080,\\"0\\"],[1789096090,\\"0\\"],[1789096100,\\"0\\"],[1789096110,\\"0\\"],[1789096120,\\"0\\"],[1789096130,\\"0\\"],[1789096140,\\"0\\"],[1789096150,\\"0\\"],[1789096160,\\"0\\"],[1789096170,\\"0\\"],[1789096180,\\"0\\"],[1789096190,\\"0\\"],[1789096200,\\"0\\"],[1789096210,\\"0\\"],[1789096220,\\"0\\"],[1789096230,\\"0\\"],[1789096240,\\"0\\"],[1789096250,\\"0\\"],[1789096260,\\"0\\"],[1789096270,\\"0\\"],[1789096280,\\"0\\"],[1789096290,\\"0\\"],[1789096300,\\"0\\"],[1789096310,\\"0\\"],[1789096320,\\"0\\"],[1789096330,\\"0\\"],[1789096340,\\"0\\"],[1789096350,\\"0\\"],[1789096360,\\"0\\"],[1789096370,\\"0\\"],[1789096380,\\"0\\"],[1789096390,\\"0\\"],[1789096400,\\"0\\"],[1789096410,\\"0\\"],[1789096420,\\"0\\"],[1789096430,\\"0\\"],[1789096440,\\"0\\"],[1789096450,\\"0\\"],[1789096460,\\"0\\"],[1789096470,\\"0\\"],[1789096480,\\"0\\"],[1789096490,\\"0\\"],[1789096500,\\"0\\"],[1789096510,\\"0\\"],[1789096520,\\"0\\"],[1789096530,\\"0\\"],[1789096540,\\"0\\"],[1789096550,\\"0\\"],[1789096560,\\"0\\"],[1789096570,\\"0\\"],[1789096580,\\"0\\"],[1789096590,\\"0\\"],[1789096600,\\"0\\"],[1789096610,\\"0\\"],[1789096620,\\"0\\"],[1789096630,\\"0\\"],[1789096640,\\"0\\"],[1789096650,\\"0\\"],[1789096660,\\"0\\"],[1789096670,\\"0\\"],[1789096680,\\"0\\"],[1789096690,\\"0\\"],[1789096700,\\"0\\"],[1789096710,\\"0\\"],[1789096720,\\"0\\"],[1789096730,\\"0\\"],[1789096740,\\"0\\"],[1789096750,\\"0\\"],[1789096760,\\"0\\"],[1789096770,\\"0\\"],[1789096780,\\"0\\"],[1789096790,\\"0\\"],[1789096800,\\"0\\"],[1789096810,\\"0\\"],[1789096820,\\"0\\"],[1789096830,\\"0\\"],[1789096840,\\"0\\"],[1789096850,\\"0\\"],[1789096860,\\"0\\"],[1789096870,\\"0\\"],[1789096880,\\"0\\"],[1789096890,\\"0\\"],[1789096900,\\"0\\"],[1789096910,\\"0\\"],[1789096920,\\"0\\"],[1789096930,\\"0\\"],[1789096940,\\"0\\"],[1789096950,\\"0\\"],[1789096960,\\"0\\"],[1789096970,\\"0\\"],[1789096980,\\"0\\"],[1789096990,\\"0\\"],[1789097000,\\"0\\"],[1789097010,\\"0\\"],[1789097020,\\"0\\"],[1789097030,\\"0\\"],[1789097040,\\"0\\"],[1789097050,\\"0\\"],[1789097060,\\"0\\"],[1789097070,\\"0\\"],[1789097080,\\"0\\"],[1789097090,\\"0\\"],[1789097100,\\"0\\"],[1789097110,\\"0\\"],[1789097120,\\"0\\"],[1789097130,\\"0\\"],[1789097140,\\"0\\"],[1789097150,\\"0\\"],[1789097160,\\"0\\"],[1789097170,\\"0\\"],[1789097180,\\"0\\"],[1789097190,\\"0\\"],[1789097200,\\"0\\"],[1789097210,\\"0\\"],[1789097220,\\"0\\"],[1789097230,\\"0\\"]]}]}}'),
   }(name='data', description='The response data.'),
 }
 
@@ -7066,6 +7253,143 @@ async function refreshLivyComputeToken(workspaceBizId: string, livyComputeId: st
   var runtime = new $RuntimeOptions{};
   var headers : map[string]string = {};
   return refreshLivyComputeTokenWithOptions(workspaceBizId, livyComputeId, tokenId, request, headers, runtime);
+}
+
+model RemoveMemberRequest {
+  memberArn?: string(name='memberArn', description='The user ARN.
+
+This parameter is required.', example='acs:emr::w-7e0fdfd197728bfe:member/300890999414063773'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model RemoveMemberResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='01A21B37-A236-1DD4-A131-B194***F77BB'),
+}
+
+model RemoveMemberResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RemoveMemberResponseBody(name='body'),
+}
+
+/**
+ * @summary Deletes a user.
+ *
+ * @param request RemoveMemberRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RemoveMemberResponse
+ */
+@context("removeMemberWithContext")
+async function removeMemberWithOptions(request: RemoveMemberRequest, headers: map[string]string, runtime: $RuntimeOptions): RemoveMemberResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.memberArn)) {
+    query['memberArn'] = request.memberArn;
+  }
+  if (!$isNull(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RemoveMember',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/auth/member`,
+    method = 'DELETE',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Deletes a user.
+ *
+ * @param request RemoveMemberRequest
+ * @return RemoveMemberResponse
+ */
+async function removeMember(request: RemoveMemberRequest): RemoveMemberResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return removeMemberWithOptions(request, headers, runtime);
+}
+
+model RevokeRoleFromUsersRequest {
+  roleArn?: string(name='roleArn', description='The ARN of the role.', example='acs:emr::w-7e0fdfd197728bfe:role/Owner'),
+  userArns?: [ string ](name='userArns', description='The list of user ARNs.', example='["acs:emr::w-7e0fdfd197728bfe:member/300890999414063773","acs:emr::w-7e0fdfd197728bfe:member/200447151544399331"]'),
+  regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
+}
+
+model RevokeRoleFromUsersResponseBody = {
+  requestId?: string(name='requestId', description='The request ID.', example='01A21B33-6F92-11E7-BFAF-CB64****AC9C'),
+}
+
+model RevokeRoleFromUsersResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: RevokeRoleFromUsersResponseBody(name='body'),
+}
+
+/**
+ * @summary Removes a list of roles from a user.
+ *
+ * @param request RevokeRoleFromUsersRequest
+ * @param headers map
+ * @param runtime runtime options for this request RuntimeOptions
+ * @return RevokeRoleFromUsersResponse
+ */
+@context("revokeRoleFromUsersWithContext")
+async function revokeRoleFromUsersWithOptions(request: RevokeRoleFromUsersRequest, headers: map[string]string, runtime: $RuntimeOptions): RevokeRoleFromUsersResponse {
+  request.validate();
+  var query : map[string]any = {};
+  if (!$isNull(request.regionId)) {
+    query['regionId'] = request.regionId;
+  }
+
+  var body : map[string]any = {};
+  if (!$isNull(request.roleArn)) {
+    body['roleArn'] = request.roleArn;
+  }
+  if (!$isNull(request.userArns)) {
+    body['userArns'] = request.userArns;
+  }
+
+  var req = new OpenApiUtil.OpenApiRequest{ 
+    headers = headers,
+    query = OpenApiUtil.query(query),
+    body = OpenApiUtil.parseToMap(body),
+  };
+  var params = new OpenApiUtil.Params{
+    action = 'RevokeRoleFromUsers',
+    version = '2023-08-08',
+    protocol = 'HTTPS',
+    pathname = `/api/v1/auth/roles/revoke`,
+    method = 'POST',
+    authType = 'AK',
+    style = 'ROA',
+    reqBodyType = 'json',
+    bodyType = 'json',
+  };
+  return callApi(params, req, runtime);
+}
+
+/**
+ * @summary Removes a list of roles from a user.
+ *
+ * @param request RevokeRoleFromUsersRequest
+ * @return RevokeRoleFromUsersResponse
+ */
+async function revokeRoleFromUsers(request: RevokeRoleFromUsersRequest): RevokeRoleFromUsersResponse {
+  var runtime = new $RuntimeOptions{};
+  var headers : map[string]string = {};
+  return revokeRoleFromUsersWithOptions(request, headers, runtime);
 }
 
 model StartCacheClusterRequest {
@@ -7919,21 +8243,21 @@ async function stopSessionCluster(workspaceId: string, request: StopSessionClust
 }
 
 model SubmitRayJobRequest {
-  activeDeadlineSeconds?: int32(name='activeDeadlineSeconds', description='The job timeout period, which includes the cluster creation and job execution time. The job is canceled if it exceeds this period.', example='3600'),
-  clusterId?: string(name='clusterId', description='The ID of the existing Ray cluster.', example='ray-xxxxxxxxx'),
-  displayReleaseVersion?: string(name='displayReleaseVersion', description='The Ray DPI engine database engine version number.', example='err-1.2.0 (Ray 2.55.1, Python 3.12)'),
-  entrypoint?: string(name='entrypoint', description='The entrypoint command.', example='python -c "print(\\\\"hello ray job\\\\")"'),
+  activeDeadlineSeconds?: int32(name='activeDeadlineSeconds', description='The job timeout period, which includes the cluster creation time and job execution time. If this period is exceeded, the job is canceled.', example='3600'),
+  clusterId?: string(name='clusterId', description='The ID of the existing Ray cluster to submit to. This parameter is not fully supported. Do not use it.', example='ray-xxxxxxxxx'),
+  displayReleaseVersion?: string(name='displayReleaseVersion', description='The Ray DPI engine version number.', example='err-1.2.0 (Ray 2.55.1, Python 3.12)'),
+  entrypoint?: string(name='entrypoint', description='The entrypoint command.', example='python -c "print(\\"hello ray job\\")"'),
   entrypointMemory?: string(name='entrypointMemory', description='The memory size requested by the entrypoint job.', example='4Gi'),
   entrypointNumCpus?: string(name='entrypointNumCpus', description='The number of CPUs requested by the entrypoint job.', example='1'),
   entrypointNumGpus?: string(name='entrypointNumGpus', description='The number of GPUs requested by the entrypoint job.', example='0'),
   entrypointResources?: string(name='entrypointResources', description='The custom resource request JSON string for the entrypoint job.', example='{"fpu": 1}'),
-  extraParam?: string(name='extraParam', description='The JSON string for additional parameters.', example='{"userDefinedFiles": "oss://mybucket/artifact/config.json,oss://mybucket/artifact/config2.json", "userRequirementsFile": "oss://mybucket/requirements.txt"}'),
+  extraParam?: string(name='extraParam', description='The JSON string for extra parameters.', example='{"userDefinedFiles": "oss://mybucket/artifact/config.json,oss://mybucket/artifact/config2.json", "userRequirementsFile": "oss://mybucket/requirements.txt"}'),
   headSpec?: {
     cpu?: string(name='cpu', description='The number of CPU cores.', example='2'),
-    displayReleaseVersion?: string(name='displayReleaseVersion', description='The Ray DPI engine database engine version.', example='err-1.3.0 (Ray 2.55.1, Python 3.12)'),
-    enableAutoScaling?: boolean(name='enableAutoScaling', description='Specifies whether to enable auto-scaling for worker nodes.', example='true'),
+    displayReleaseVersion?: string(name='displayReleaseVersion', description='The Ray DPI engine version.', example='err-1.3.0 (Ray 2.55.1, Python 3.12)'),
+    enableAutoScaling?: boolean(name='enableAutoScaling', description='Specifies whether to enable auto scaling for workers.', example='true'),
     gpuSpec?: string(name='gpuSpec', description='The GPU instance type.', example='ecs.gn6i-c4g1.xlarge'),
-    idleTimeoutSeconds?: int32(name='idleTimeoutSeconds', description='The idle time for worker nodes after auto-scaling is enabled.', example='60'),
+    idleTimeoutSeconds?: int32(name='idleTimeoutSeconds', description='The worker idle time after auto scaling is enabled.', example='60'),
     memory?: string(name='memory', description='The memory size, in Gi.', example='8Gi'),
     queueName?: string(name='queueName', description='The queue name.', example='root_queue'),
   }(name='headSpec', description='The parameters of the Ray cluster head node.'),
@@ -7957,9 +8281,9 @@ model SubmitRayJobRequest {
       displayReleaseVersion?: string(name='displayReleaseVersion', description='The DPI engine version.', example='ray-1.2.0 (Ray 2.55.1, Python 3.12)'),
       gpuSpec?: string(name='gpuSpec', description='The GPU instance type.', example='ecs.gn6i-c4g1.xlarge'),
       groupName?: string(name='groupName', description='The worker group name.', example='WorkerGroup1'),
-      maxReplica?: int32(name='maxReplica', description='The maximum number of workers when automatic scaling is enabled.', example='10'),
+      maxReplica?: int32(name='maxReplica', description='The maximum number of workers after auto-scaling is enabled.', example='10'),
       memory?: string(name='memory', description='The memory size, in Gi.', example='16Gi'),
-      minReplica?: int32(name='minReplica', description='The minimum number of workers when automatic scaling is enabled.', example='1'),
+      minReplica?: int32(name='minReplica', description='The minimum number of workers after auto-scaling is enabled.', example='1'),
       queueName?: string(name='queueName', description='The queue name.', example='root_queue'),
       replica?: int32(name='replica', description='The number of workers.', example='2'),
       workerType?: string(name='workerType', description='The worker type.', example='CPU'),
@@ -8343,50 +8667,50 @@ async function updateKyuubiToken(workspaceId: string, kyuubiServiceId: string, t
 model UpdateLivyComputeRequest {
   authType?: string(name='authType', description='The authentication method.', example='Token'),
   autoStartConfiguration?: {
-    enable?: boolean(name='enable', description='Specifies whether to automatically start the gateway after creation.
+    enable?: boolean(name='enable', description='Specifies whether to automatically start the gateway after creation. Valid values:
 - true: Yes.
 - false: No.', example='false'),
   }(name='autoStartConfiguration', description='The auto-start configuration.'),
   autoStopConfiguration?: {
-    enable?: boolean(name='enable', description='Specifies whether to allow automatic stopping.
+    enable?: boolean(name='enable', description='Specifies whether to allow automatic stopping. Valid values:
 - true: Yes.
 - false: No.', example='false'),
     idleTimeoutMinutes?: long(name='idleTimeoutMinutes', description='The number of idle minutes after which the Livy gateway is automatically stopped.', example='300'),
   }(name='autoStopConfiguration', description='The auto-stop configuration.'),
-  cpuLimit?: string(name='cpuLimit', description='The number of CPU cores for the Livy server.
+  cpuLimit?: string(name='cpuLimit', description='The number of CPU cores for the Livy server. Valid values:
 - 1
 - 2
 - 4', example='1'),
-  displayReleaseVersion?: string(name='displayReleaseVersion', description='The Spark DPI engine database engine version number.', example='esr-4.3.0 (Spark 3.5.2, Scala 2.12)'),
+  displayReleaseVersion?: string(name='displayReleaseVersion', description='The Spark DPI engine version number.', example='esr-4.3.0 (Spark 3.5.2, Scala 2.12)'),
   enablePublic?: boolean(name='enablePublic', description='The status of the public endpoint switch.'),
   environmentId?: string(name='environmentId', description='The runtime environment ID.', example='ev-cq146allhtgkulp5smk0'),
   fusion?: boolean(name='fusion', description='Specifies whether to enable Fusion engine acceleration.', example='false'),
-  livyReleaseVersion?: string(name='livyReleaseVersion', example='0.9.0'),
+  livyReleaseVersion?: string(name='livyReleaseVersion', description='The Livy DPI engine version. This is a new parameter used to replace livyVersion.', example='0.9.0'),
   livyServerConf?: string(name='livyServerConf', description='The Livy gateway configuration in JSON format. The following files are supported:
 
 - sparkDefaultsConf
 - sparkBlackListConf
 - livyConf
 - livyClientConf', example='{
-  "sparkDefaultsConf": "spark.driver.cores     1\\\\nspark.driver.memory    4g\\\\nspark.executor.cores   1\\\\nspark.executor.memory  4g\\\\n",
-  "sparkBlackListConf": "spark.driver.cores\\\\nspark.driver.memory",
-  "livyConf": "livy.server.session.timeout  1h\\\\n",
-  "livyClientConf": "livy.rsc.sql.num-rows  1000\\\\n"
+  "sparkDefaultsConf": "spark.driver.cores     1\\nspark.driver.memory    4g\\nspark.executor.cores   1\\nspark.executor.memory  4g\\n",
+  "sparkBlackListConf": "spark.driver.cores\\nspark.driver.memory",
+  "livyConf": "livy.server.session.timeout  1h\\n",
+  "livyClientConf": "livy.rsc.sql.num-rows  1000\\n"
 }'),
   livyVersion?: string(name='livyVersion', description='The Livy version.', example='0.8.0'),
-  memoryLimit?: string(name='memoryLimit', description='The memory size of the Livy server.
+  memoryLimit?: string(name='memoryLimit', description='The memory size of the Livy server. Valid values:
 - 4Gi
 - 8Gi
 - 16Gi', example='4Gi'),
   name?: string(name='name', description='The name.', example='test'),
-  networkName?: string(name='networkName', description='The network connectivity name.', example='test'),
+  networkName?: string(name='networkName', description='The network connection name.', example='test'),
   queueName?: string(name='queueName', description='The queue name.', example='root_queue'),
-  releaseVersion?: string(name='releaseVersion', description='**[Deprecated]** The Spark DPI engine database engine version number. Use displayReleaseVersion instead.', example='esr-4.3.0 (Spark 3.5.2, Scala 2.12, Java Runtime)'),
+  releaseVersion?: string(name='releaseVersion', description='**[Deprecated]** The Spark DPI engine version number. Use displayReleaseVersion instead.', example='esr-4.3.0 (Spark 3.5.2, Scala 2.12, Java Runtime)'),
   regionId?: string(name='regionId', description='The region ID.', example='cn-hangzhou'),
 }
 
 model UpdateLivyComputeResponseBody = {
-  code?: string(name='code', description='The response code. A value of 1000000 indicates that the request is successful. Other values indicate that the request failed. For details about the error, see the message.', example='1000000'),
+  code?: string(name='code', description='The response code. A value of 1000000 indicates that the request is successful. Any other value indicates that the request failed. For more information about the cause of the failure, see the message parameter.', example='1000000'),
   message?: string(name='message', description='The error message.', example='ok'),
   requestId?: string(name='requestId', description='The request ID.', example='DD6B1B2A-5837-5237-ABE4-FF0C8944****'),
 }
@@ -8795,49 +9119,49 @@ async function updateProcessDefinitionWithSchedule(bizId: string, code: string, 
 
 model UpdateRayClusterRequest {
   description?: string(name='description', description='The description.', example='Ray Cluster for dev.'),
-  displayReleaseVersion?: string(name='displayReleaseVersion', description='The Ray DPI engine version.', example='ray-1.0.0 (Ray 2.47.1, Python 3.12)'),
-  enableMetricsUpload?: boolean(name='enableMetricsUpload'),
+  displayReleaseVersion?: string(name='displayReleaseVersion', description='The database engine version of the Ray DPI engine.', example='ray-1.0.0 (Ray 2.47.1, Python 3.12)'),
+  enableMetricsUpload?: boolean(name='enableMetricsUpload', description='Specifies whether to upload metrics.'),
   extraParam?: string(name='extraParam', description='The extra parameters. The value must be in JSON format.', example='{}'),
   headSpec?: {
     cpu?: string(name='cpu', description='The number of CPU cores.', example='2'),
-    displayReleaseVersion?: string(name='displayReleaseVersion', description='The Ray DPI engine version.', example='ray-1.2.0 (Ray 2.55.1, Python 3.12)'),
+    displayReleaseVersion?: string(name='displayReleaseVersion', description='The database engine version of the Ray DPI engine.', example='ray-1.2.0 (Ray 2.55.1, Python 3.12)'),
     enableAutoScaling?: boolean(name='enableAutoScaling', description='Specifies whether to enable auto scaling.', example='false'),
     env?: string(name='env', description='The environment variables.', example='MY_ENV=123456'),
     gftConfig?: {
       redisPassword?: string(name='redisPassword', description='The Redis password.', example='123456'),
-      redisUrl?: string(name='redisUrl', description='The Redis address.', example='10.4.5.6:6379'),
+      redisUrl?: string(name='redisUrl', description='The Redis endpoint.', example='10.4.5.6:6379'),
       redisUsername?: string(name='redisUsername', description='The Redis username.', example='default'),
     }(name='gftConfig', description='The GCS fault tolerance configuration.'),
     gftEnabled?: boolean(name='gftEnabled', description='Specifies whether to enable GCS fault tolerance.', nullable=true),
-    gpuDriverVersion?: string(name='gpuDriverVersion', example='550'),
+    gpuDriverVersion?: string(name='gpuDriverVersion', description='The GPU driver version.', example='550'),
     gpuSpec?: string(name='gpuSpec', description='The GPU instance type.', example='ecs.gn6i-c4g1.xlarge'),
     idleTimeoutSeconds?: int32(name='idleTimeoutSeconds', description='The idle timeout period for workers after auto scaling is enabled.', example='60'),
-    memory?: string(name='memory', description='The memory size. Unit: GiB.', example='8Gi'),
-    queueName?: string(name='queueName', description='The queue name.', example='root_queue'),
+    memory?: string(name='memory', description='The memory size. Unit: Gi.', example='8Gi'),
+    queueName?: string(name='queueName', description='The name of the queue.', example='root_queue'),
     rayStartParams?: string(name='rayStartParams', description='The Ray startup parameters.', example='--num-cpus=0'),
-  }(name='headSpec', description='The head node information for the Ray cluster.'),
+  }(name='headSpec', description='The head node information of the Ray cluster.'),
   name?: string(name='name', description='The name of the Ray cluster. The name must be 1 to 64 characters in length.', example='myRayCluster'),
-  networkServiceName?: string(name='networkServiceName', description='The network connection name.', example='vpc'),
-  slsLogStore?: string(name='slsLogStore', example='myLogStore'),
-  slsProject?: string(name='slsProject', example='myproject'),
-  volumeIds?: [ string ](name='volumeIds', description='The list of managed directory IDs to mount.'),
+  networkServiceName?: string(name='networkServiceName', description='The name of the network connectivity.', example='vpc'),
+  slsLogStore?: string(name='slsLogStore', description='The SLS Logstore used to upload metrics.', example='myLogStore'),
+  slsProject?: string(name='slsProject', description='The Simple Log Service (SLS) project used to upload metrics.', example='myproject'),
+  volumeIds?: [ string ](name='volumeIds', description='The IDs of the managed directories to mount.'),
   workerSpec?: [ 
     {
       cpu?: string(name='cpu', description='The number of CPU cores.', example='2'),
-      displayReleaseVersion?: string(name='displayReleaseVersion', description='The DPI engine version.', example='ray-1.2.0 (Ray 2.55.1, Python 3.12)'),
+      displayReleaseVersion?: string(name='displayReleaseVersion', description='The database engine version of the DPI engine.', example='ray-1.2.0 (Ray 2.55.1, Python 3.12)'),
       env?: string(name='env', description='The Ray environment variables.', example='MY_ENV=123456'),
-      gpuDriverVersion?: string(name='gpuDriverVersion', example='550'),
+      gpuDriverVersion?: string(name='gpuDriverVersion', description='The GPU driver version.', example='550'),
       gpuSpec?: string(name='gpuSpec', description='The GPU instance type.', example='ecs.gn6i-c4g1.xlarge'),
-      groupName?: string(name='groupName', description='The worker group name.', example='WorkerGroup1'),
+      groupName?: string(name='groupName', description='The name of the worker group.', example='WorkerGroup1'),
       maxReplica?: int32(name='maxReplica', description='The maximum number of workers. Minimum value: 1.', example='10'),
-      memory?: string(name='memory', description='The memory size. Unit: GiB.', example='8Gi'),
+      memory?: string(name='memory', description='The memory size. Unit: Gi.', example='8Gi'),
       minReplica?: int32(name='minReplica', description='The minimum number of workers. Minimum value: 1. The value must be less than or equal to the value of maxReplica.', example='1'),
-      queueName?: string(name='queueName', description='The queue name.', example='root_queue'),
+      queueName?: string(name='queueName', description='The name of the queue.', example='root_queue'),
       rayStartParams?: string(name='rayStartParams', description='The Ray startup parameters.', example='--num-cpus=0'),
       replica?: int32(name='replica', description='The number of workers. Minimum value: 1.', example='2'),
       workerType?: string(name='workerType', description='The worker type.', example='CPU'),
     }
-  ](name='workerSpec', description='The worker node information for the Ray cluster. A maximum of 50 worker groups are supported.'),
+  ](name='workerSpec', description='The worker node information of the Ray cluster. A maximum of 50 worker groups are supported.'),
 }
 
 model UpdateRayClusterResponseBody = {
