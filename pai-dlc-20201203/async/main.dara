@@ -2461,39 +2461,39 @@ async function getPodLogs(request: GetPodLogsRequest): GetPodLogsResponse {
 }
 
 model GetRLFlowAnalysisRequest {
-  jobId: string(name='JobId', description='作业 ID
+  jobId: string(name='JobId', description='The job ID.
 
 This parameter is required.', example='dlc5yfk7eyg95lac', position='Path'),
-  endTime?: string(name='EndTime', description='查询窗口截止时间，采用 RFC3339 格式。未提供时使用服务端当前 UTC 时间，并向下对齐到 30 秒边界。为容纳日志采集延迟，实际读取的采集时间上界在该值基础上延后 5 分钟，并非严格按事件发生时间过滤。', example='2026-08-07T00:00:00Z', position='Query'),
-  startTime?: string(name='StartTime', description='查询窗口起始时间，采用 RFC3339 格式。未提供时默认为 EndTime 前 7 天；必须早于 EndTime，时间跨度不得超过 30 天。', example='2026-08-04T00:00:00Z', position='Query'),
+  endTime?: string(name='EndTime', description='The end time of the query window in UTC RFC3339 format. Default value: now.', example='2026-08-07T00:00:00Z', position='Query'),
+  startTime?: string(name='StartTime', description='The start time of the query window in UTC RFC3339 format. Default value: EndTime-7d.', example='2026-08-04T00:00:00Z', position='Query'),
 }
 
 model GetRLFlowAnalysisResponseBody = {
-  found?: boolean(name='Found', description='窗口内是否有轨迹数据', example='true'),
+  found?: boolean(name='Found', description='Indicates whether trajectory data exists within the query window.', example='true'),
   funnel?: [
     RLFlowFunnelStage
-  ](name='Funnel', description='轨迹流转漏斗，按 traj → dispatch → run → rollout → reward → sampled → trained 的七级顺序返回。各级按已观测到的事件独立计数，不保证逐级递减。'),
+  ](name='Funnel', description='The 6-level funnel: traj → dispatch → run → push → selected → trained.'),
   inflightByMilestone?: [
     RLFlowMilestoneCount
-  ](name='InflightByMilestone', description='在途轨迹按环节计数（按 Count 降序）'),
-  jobId?: string(name='JobId', description='作业 ID', example='dlc-20210126170216-xxxxxxx'),
-  megaStepOffset?: long(name='MegaStepOffset', description='megatron 侧 step 编号相对 global_step 的偏移，取值为 0 或 1；缺少可用对齐信息时返回 0。', example='0'),
-  nowMs?: long(name='NowMs', description='服务端观察时刻（毫秒，= min(EndTime, now)），在途 idle 计算基准', example='1787475397000'),
-  requestId?: string(name='RequestId', description='请求 ID', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  sankey?: RLFlowSankey(name='Sankey', description='桑基图'),
-  stepSource?: string(name='StepSource', description='Steps 的时刻来源：progress 表示取自任务日志的 Step 标记，trace 表示按 trace 里的 global_step 归步，空表示无 step 数据', example='progress'),
+  ](name='InflightByMilestone', description='The count of in-flight trajectories by milestone, sorted in descending order of Count.'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-xxxxxxx'),
+  megaStepOffset?: long(name='MegaStepOffset', description='The offset of the Megatron global_step relative to the FORM_BATCH batch_id. Valid values: 0 or 1.', example='0'),
+  nowMs?: long(name='NowMs', description='The server observation time in milliseconds, calculated as min(EndTime, now). This value serves as the baseline for calculating in-flight idle time.', example='1787475397000'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  sankey?: RLFlowSankey(name='Sankey', description='The Sankey diagram.'),
+  stepSource?: string(name='StepSource', description='The time source for steps. A value of progress indicates that the time is extracted from the step markers in the task logs. A value of trace indicates that the time is grouped by global_step in the trace. An empty value indicates that no step data is available.', example='progress'),
   steps?: [
     RLFlowStep
-  ](name='Steps', description='step 生产-消费视图'),
+  ](name='Steps', description='The step production-consumption view.'),
   stuck?: [
     RLFlowStuckItem
-  ](name='Stuck', description='在途卡点 Top100（按 IdleSec 降序）'),
-  totals?: RLFlowTotals(name='Totals', description='总量统计', example='{\\"Sampled\\": 0, \\"Uids\\": 0, \\"Inflight\\": 0, \\"Trained\\": 0, \\"Trajs\\": 0, \\"Rewarded\\": 0}'),
+  ](name='Stuck', description='The top 100 in-flight stuck points, sorted in descending order of IdleSec.'),
+  totals?: RLFlowTotals(name='Totals', description='The total statistics.', example='{\\"Sampled\\": 0, \\"Uids\\": 0, \\"Inflight\\": 0, \\"Trained\\": 0, \\"Trajs\\": 0, \\"Rewarded\\": 0}'),
   transitions?: [
     RLFlowTransition
-  ](name='Transitions', description='12 个阶段的耗时分位统计，耗时单位为秒。'),
-  turns?: RLFlowTurns(name='Turns', description='生成轮数分布', example='{\\"Count\\": 0, \\"Max\\": None, \\"Avg\\": None, \\"P50\\": None, \\"P90\\": None}'),
-  waste?: RLFlowWaste(name='Waste', description='有效算力统计。UsefulSec 为已完成训练轨迹的累计执行耗时，单位为整数秒；可包含重叠时段，不等同于作业运行时长或训练更新耗时。', example='{\\"UsefulSec\\": 0}'),
+  ](name='Transitions', description='The percentile statistics for the duration in seconds of 8 stages.'),
+  turns?: RLFlowTurns(name='Turns', description='The distribution of generation turns.', example='{\\"Count\\": 0, \\"Max\\": None, \\"Avg\\": None, \\"P50\\": None, \\"P90\\": None}'),
+  waste?: RLFlowWaste(name='Waste', description='The oversampling waste.', example='{\\"UsefulSec\\": 0}'),
 }
 
 model GetRLFlowAnalysisResponse = {
@@ -2503,7 +2503,7 @@ model GetRLFlowAnalysisResponse = {
 }
 
 /**
-  * @description 获取DLC作业RL轨迹流转分析
+  * @description Retrieves the RL trajectory flow analysis of a DLC job.
   * @param request  the request parameters of GetRLFlowAnalysis  GetRLFlowAnalysisRequest
   * @return GetRLFlowAnalysisResponse
  */
@@ -2513,25 +2513,25 @@ async function getRLFlowAnalysis(request: GetRLFlowAnalysisRequest): GetRLFlowAn
 }
 
 model GetRLLogContextRequest {
-  jobId: string(name='JobId', description='作业 ID
+  jobId: string(name='JobId', description='The job ID.
 
 This parameter is required.', example='dlc5yfk7eyg95lac', position='Path'),
-  anchorMessage?: string(name='AnchorMessage', description='用于辅助定位的锚点日志消息，可取自 GetRLTrainingProgress 返回的 Fatal[].RawMessage。', example='[rank0]: torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 GiB', position='Query'),
-  anchorTime: string(name='AnchorTime', description='锚点日志行的时间，采用 RFC3339 格式。
+  anchorMessage?: string(name='AnchorMessage', description='The text of the anchor log. The fallback path locates the log by prefix matching. This value is derived from Fatal[].RawMessage.', example='[rank0]: torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 2.00 GiB', position='Query'),
+  anchorTime: string(name='AnchorTime', description='The timestamp of the anchor log line in UTC RFC 3339 format with second precision.
 
 This parameter is required.', example='2026-08-05T16:36:55Z', position='Query'),
-  collectTime?: string(name='CollectTime', description='锚点日志采集时间，采用纯数字的纳秒时间戳字符串，可取自 GetRLTrainingProgress 返回的 Fatal[].CollectNs，用于辅助定位上下文。实际定位方式由 Mode 返回，结果不保证包含原始锚点日志。', example='1785947815190122847', position='Query'),
+  collectTime?: string(name='CollectTime', description='The agent_collect_time of the anchor line as a nanosecond string. This value is derived from Fatal[].CollectNs. If provided, the exact path is used.', example='1785947815190122847', position='Query'),
 }
 
 model GetRLLogContextResponseBody = {
-  anchorIndex?: int32(name='AnchorIndex', description='Lines 数组中用于定位的参考行下标，从 0 开始；可能对应锚点或其邻近日志，不保证与原始锚点消息精确匹配。未提供时表示本次未返回可用的参考下标。', example='100'),
-  jobId?: string(name='JobId', description='作业 ID', example='dlc-20210126170216-xxxxxxxx'),
+  anchorIndex?: int32(name='AnchorIndex', description='The index of the anchor line in Lines. This value is empty if the fallback path does not match the anchor. In this case, Lines contains all lines in the window.', example='100'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210126170216-xxxxxxxx'),
   lines?: [
     RLLogContextLine
-  ](name='Lines', description='按定位时间升序排列的上下文日志。采集时间定位最多返回 201 行；日志时间定位返回锚点前后 5 秒范围内的日志，并可能缩小返回范围。结果不保证包含原始锚点日志。'),
-  mode?: string(name='Mode', description='日志定位方式。agent_collect_time 表示按采集时间定位，raw_time_cluster 表示按日志时间定位；定位方式本身不保证精确命中锚点。', example='agent_collect_time'),
-  requestId?: string(name='RequestId', description='请求 ID', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  truncated?: boolean(name='Truncated', description='日志时间定位是否触及 5000 条的数量限制，为 true 时上下文可能不完整；采集时间定位时为 false，不能据此判断全部日志是否已完整返回。', example='False'),
+  ](name='Lines', description='The context log lines in ascending order of time.'),
+  mode?: string(name='Mode', description='The log locating mode. Valid values: agent_collect_time for the exact path, and raw_time_cluster for the fallback path.', example='agent_collect_time'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  truncated?: boolean(name='Truncated', description='Indicates whether the number of raw lines in the fallback path reaches the upper limit of 5,000.', example='False'),
 }
 
 model GetRLLogContextResponse = {
@@ -2541,7 +2541,7 @@ model GetRLLogContextResponse = {
 }
 
 /**
-  * @description 获取DLC作业某条异常日志的上下文
+  * @description Retrieves the context of a specific exception log for a DLC job.
   * @param request  the request parameters of GetRLLogContext  GetRLLogContextRequest
   * @return GetRLLogContextResponse
  */
@@ -2637,6 +2637,45 @@ model GetRLTrainingProgressResponse = {
 async function getRLTrainingProgress(request: GetRLTrainingProgressRequest): GetRLTrainingProgressResponse {
   @handler.validateRequestModel(request);
   return @handler.do('RESTFUL', 'GetRLTrainingProgress', 'GET', '/api/v1/jobs/{JobId}/rltrace/progress', 'json', false, 'json', request);
+}
+
+model GetRLTrajectoryRequest {
+  jobId: string(name='JobId', description='The job ID.
+
+This parameter is required.', example='dlc5yfk7eyg95lac', position='Path'),
+  endTime?: string(name='EndTime', description='The end time of the query window in UTC RFC3339 format. Default value: now.', example='2026-08-07T00:00:00Z', position='Query'),
+  promptUid: string(name='PromptUid', description='The sample UID.
+
+This parameter is required.', example='3afcfbdf-3956-4ab2-b9cb-f9c204b8fc9c', position='Query'),
+  sampleIndex: string(name='SampleIndex', description='The trajectory index.
+
+This parameter is required.', example='14', position='Query'),
+  startTime?: string(name='StartTime', description='The start time of the query window in UTC RFC3339 format. Default value: EndTime-7d.', example='2026-08-04T00:00:00Z', position='Query'),
+}
+
+model GetRLTrajectoryResponseBody = {
+  jobId?: string(name='JobId', description='The job ID.', example='dlc-20210114104214-vf9lowjt3pso'),
+  promptUid?: string(name='PromptUid', description='The sample UID.', example='3afcfbdf-3956-4ab2-b9cb-f9c204b8fc9c'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  sampleIndex?: string(name='SampleIndex', description='The trajectory index.', example='14'),
+  totalCount?: int32(name='TotalCount', description='The number of turn rows. The maximum number of turns per trajectory is 100.', example='1'),
+  turns?: [  map[string]any ](name='Turns', description='The raw rows of sgl-metric for each turn. The schema is dynamic and retains the Logstore column names. JSON strings are parsed back into objects, and system fields with the __ prefix are excluded.'),
+}
+
+model GetRLTrajectoryResponse = {
+  headers?: map[string]string(name='headers'),
+  statusCode?: int32(name='statusCode'),
+  body?: GetRLTrajectoryResponseBody(name='body'),
+}
+
+/**
+  * @description Retrieves the multi-turn generation details of a single RL trajectory for a DLC job.
+  * @param request  the request parameters of GetRLTrajectory  GetRLTrajectoryRequest
+  * @return GetRLTrajectoryResponse
+ */
+async function getRLTrajectory(request: GetRLTrajectoryRequest): GetRLTrajectoryResponse {
+  @handler.validateRequestModel(request);
+  return @handler.do('RESTFUL', 'GetRLTrajectory', 'GET', '/api/v1/jobs/{JobId}/rltrace/trajectory', 'json', false, 'json', request);
 }
 
 model GetRayDashboardRequest {
@@ -3132,24 +3171,24 @@ async function listJobs(request: ListJobsRequest): ListJobsResponse {
 }
 
 model ListRLSamplesRequest {
-  jobId: string(name='JobId', description='作业 ID
+  jobId: string(name='JobId', description='The job ID.
 
 This parameter is required.', example='dlc5yfk7eyg95lac', position='Path'),
-  endTime?: string(name='EndTime', description='查询窗口截止时间，采用 RFC3339 格式。未提供时使用服务端当前 UTC 时间，并向下对齐到 30 秒边界。为容纳日志采集延迟，实际读取的采集时间上界在该值基础上延后 5 分钟，并非严格按事件发生时间过滤。', example='2026-08-07T00:00:00Z', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='页码（从 1 开始，最大 1000000）；与 PageSize 必须同时提供，均不传则按默认分页 PageNumber=1、PageSize=10 返回', example='1', minimum=1, maximum=1000000, position='Query'),
-  pageSize?: int32(name='PageSize', description='每页条数（最大 1000）；与 PageNumber 必须同时提供，均不传则默认 10', example='50', minimum=1, maximum=1000, position='Query'),
-  startTime?: string(name='StartTime', description='查询窗口起始时间，采用 RFC3339 格式。未提供时默认为 EndTime 前 7 天；必须早于 EndTime，时间跨度不得超过 30 天。', example='2026-08-04T00:00:00Z', position='Query'),
+  endTime?: string(name='EndTime', description='The end time of the query window in UTC RFC 3339 format. Default value: now.', example='2026-08-07T00:00:00Z', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number, starting from 1. This parameter must be specified together with PageSize. If neither parameter is specified, the default values PageNumber=1 and PageSize=10 are used.', example='1', minimum=1, maximum=1000000, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 1000. This parameter must be specified together with PageNumber. If neither parameter is specified, the default value 10 is used.', example='50', minimum=1, maximum=1000, position='Query'),
+  startTime?: string(name='StartTime', description='The start time of the query window in UTC RFC 3339 format. Default value: EndTime-7d.', example='2026-08-04T00:00:00Z', position='Query'),
 }
 
 model ListRLSamplesResponseBody = {
-  jobId?: string(name='JobId', description='作业 ID', example='dlc5yfk7eyg95lac'),
-  pageNumber?: int32(name='PageNumber', description='生效的页码；未传分页参数时为默认值 1', example='1'),
-  pageSize?: int32(name='PageSize', description='生效的每页条数；未传分页参数时为默认值 10', example='50'),
-  requestId?: string(name='RequestId', description='请求 ID', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc5yfk7eyg95lac'),
+  pageNumber?: int32(name='PageNumber', description='The effective page number. If pagination parameters are not specified, the default value 1 is used.', example='1'),
+  pageSize?: int32(name='PageSize', description='The effective number of entries per page. If pagination parameters are not specified, the default value 10 is used.', example='50'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
   samples?: [
     RLSample
-  ](name='Samples', description='当前页的样本轨迹概览，按 PromptUid 字典序、SampleIndex 数值升序排列。'),
-  totalCount?: int32(name='TotalCount', description='分页前的匹配轨迹总数，不是当前页条数。查询规模受限时可能仅为下界，不保证是精确总数。', example='21596'),
+  ](name='Samples', description='The list of trajectories on the current page.'),
+  totalCount?: int32(name='TotalCount', description='The total number of trajectories within the window before pagination. If Truncated is set to true, this value represents a lower bound rather than the exact total count.', example='21596'),
 }
 
 model ListRLSamplesResponse = {
@@ -3159,7 +3198,7 @@ model ListRLSamplesResponse = {
 }
 
 /**
-  * @description 分页获取DLC作业的RL轨迹样本列表
+  * @description Retrieves a paginated list of RL trajectory samples for a DLC job.
   * @param request  the request parameters of ListRLSamples  ListRLSamplesRequest
   * @return ListRLSamplesResponse
  */
@@ -3169,28 +3208,28 @@ async function listRLSamples(request: ListRLSamplesRequest): ListRLSamplesRespon
 }
 
 model ListRLTrajectoriesRequest {
-  jobId: string(name='JobId', description='作业 ID
+  jobId: string(name='JobId', description='The job ID.
 
 This parameter is required.', example='dlc5yfk7eyg95lac', position='Path'),
-  endTime?: string(name='EndTime', description='查询窗口截止时间，采用 RFC3339 格式。未提供时使用服务端当前 UTC 时间，并向下对齐到 30 秒边界。为容纳日志采集延迟，实际读取的采集时间上界在该值基础上延后 5 分钟，并非严格按事件发生时间过滤。', example='2026-08-07T00:00:00Z', position='Query'),
-  pageNumber?: int32(name='PageNumber', description='页码（从 1 开始，最大 1000000）；与 PageSize 必须同时提供，均不传则按默认分页 PageNumber=1、PageSize=10 返回', example='1', minimum=1, maximum=1000000, position='Query'),
-  pageSize?: int32(name='PageSize', description='每页条数（最大 1000）；与 PageNumber 必须同时提供，均不传则默认 10', example='10', minimum=1, maximum=1000, position='Query'),
-  promptUid: string(name='PromptUid', description='样本 uid
+  endTime?: string(name='EndTime', description='The end time of the query window in UTC RFC3339 format. Default value: now.', example='2026-08-07T00:00:00Z', position='Query'),
+  pageNumber?: int32(name='PageNumber', description='The page number, starting from 1. This parameter must be provided together with PageSize. If neither is provided, the default values PageNumber=1 and PageSize=10 are used.', example='1', minimum=1, maximum=1000000, position='Query'),
+  pageSize?: int32(name='PageSize', description='The number of entries per page. Maximum value: 1000. This parameter must be provided together with PageNumber. If neither is provided, the default value 10 is used.', example='10', minimum=1, maximum=1000, position='Query'),
+  promptUid: string(name='PromptUid', description='The sample UID.
 
 This parameter is required.', example='3afcfbdf-3956-4ab2-b9cb-f9c204b8fc9c', position='Query'),
-  startTime?: string(name='StartTime', description='查询窗口起始时间，采用 RFC3339 格式。未提供时默认为 EndTime 前 7 天；必须早于 EndTime，时间跨度不得超过 30 天。', example='2026-08-04T00:00:00Z', position='Query'),
+  startTime?: string(name='StartTime', description='The start time of the query window in UTC RFC3339 format. Default value: EndTime-7d.', example='2026-08-04T00:00:00Z', position='Query'),
 }
 
 model ListRLTrajectoriesResponseBody = {
-  jobId?: string(name='JobId', description='作业 ID', example='dlc********'),
-  pageNumber?: int32(name='PageNumber', description='生效的页码；未传分页参数时为默认值 1', example='1'),
-  pageSize?: int32(name='PageSize', description='生效的每页条数；未传分页参数时为默认值 10', example='10'),
-  promptUid?: string(name='PromptUid', description='样本 uid', example='3afcfbdf-3956-4ab2-b9cb-f9c204b8fc9c'),
-  requestId?: string(name='RequestId', description='请求 ID', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
-  totalCount?: int32(name='TotalCount', description='指定 PromptUid 下分页前的轨迹总数，不是当前页条数。查询规模受限时可能仅为下界，不保证是精确总数。', example='16'),
+  jobId?: string(name='JobId', description='The job ID.', example='dlc********'),
+  pageNumber?: int32(name='PageNumber', description='The effective page number. If pagination parameters are not provided, the default value 1 is used.', example='1'),
+  pageSize?: int32(name='PageSize', description='The effective number of entries per page. If pagination parameters are not provided, the default value 10 is used.', example='10'),
+  promptUid?: string(name='PromptUid', description='The sample UID.', example='3afcfbdf-3956-4ab2-b9cb-f9c204b8fc9c'),
+  requestId?: string(name='RequestId', description='The request ID.', example='473469C7-AA6F-4DC5-B3DB-A3DC0DE3C83E'),
+  totalCount?: int32(name='TotalCount', description='The total number of trajectories under this UID before pagination. This is an exact value, and represents a lower bound only when Truncated is true.', example='16'),
   trajectories?: [
     RLTrajectory
-  ](name='Trajectories', description='轨迹列表（当前页，按 SampleIndex 数值升序）'),
+  ](name='Trajectories', description='The list of trajectories on the current page, sorted in ascending order by SampleIndex.'),
 }
 
 model ListRLTrajectoriesResponse = {
@@ -3200,7 +3239,7 @@ model ListRLTrajectoriesResponse = {
 }
 
 /**
-  * @description 分页获取DLC作业某个uid下的RL轨迹列表
+  * @description Retrieves a paginated list of RL trajectories for a specific UID in a DLC job.
   * @param request  the request parameters of ListRLTrajectories  ListRLTrajectoriesRequest
   * @return ListRLTrajectoriesResponse
  */
